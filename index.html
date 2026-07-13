@@ -1068,16 +1068,23 @@ function openPDFExport(){
   const priceRowsHTML=selItems.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF"><span style="color:#5F6A64">${s.name}</span><span style="font-weight:600">+$${s.price.toLocaleString()}</span></div>`).join('');
   document.getElementById('pdf-body').innerHTML=`
   <div style="font-family:Arial,sans-serif;color:#121815;line-height:1.4">
-    <img src="${IMGS.hero}" alt="Geo Dome" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:8px 8px 0 0">
-    <div style="background:#1E5138;color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px">
-      <div>
-        <div style="font-size:20px;font-weight:700;letter-spacing:-.02em">Evergreen Cabin — Geo Dome</div>
-        <div style="font-size:11px;opacity:.7;margin-top:3px;text-transform:uppercase;letter-spacing:.09em">Factory specification &amp; pricing quote</div>
+    <div style="display:flex;border-radius:8px 8px 0 0;overflow:hidden;min-height:170px">
+      <img src="${IMGS.hero}" alt="Geo Dome" style="width:210px;flex-shrink:0;object-fit:cover;display:block">
+      <div style="background:#1E5138;color:#fff;padding:20px 22px;flex:1;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Evergreen Cabin</div>
+          <div style="font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.2">Geodesic Dome</div>
+          <div style="font-size:13px;opacity:.75;margin-top:5px">Factory specification &amp; pricing quote</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <span style="background:rgba(255,255,255,.18);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700">${sd.label}</span>
+          <span style="background:rgba(255,255,255,.1);padding:5px 13px;border-radius:20px;font-size:12px">${sd.diam} diameter</span>
+          <span style="background:rgba(255,255,255,.1);padding:5px 13px;border-radius:20px;font-size:12px">${sd.sqft} ft²</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
+          ${[['Peak height',sd.height],['Floor area',sd.sqm+' m²'],['Rate','$'+ratePerSqft+'/ft²']].map(([l,v])=>`<div style="background:rgba(0,0,0,.2);border-radius:6px;padding:8px 10px"><div style="font-size:14px;font-weight:700">${v}</div><div style="font-size:10px;opacity:.65;margin-top:2px;text-transform:uppercase;letter-spacing:.06em">${l}</div></div>`).join('')}
+        </div>
       </div>
-      <div style="background:rgba(255,255,255,.18);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap">${sd.label}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid #DFE5E1;border-left:1px solid #DFE5E1">
-      ${[['Diameter',sd.diam],['Peak height',sd.height],['Floor area',sd.sqft+' ft²'],['Rate','$'+ratePerSqft+' /ft²']].map(([l,v])=>`<div style="padding:13px 14px;border-right:1px solid #DFE5E1;text-align:center"><div style="font-size:19px;font-weight:700;color:#1E5138">${v}</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5F6A64;margin-top:3px">${l}</div></div>`).join('')}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #DFE5E1">
       <div style="padding:16px 20px;border-right:1px solid #DFE5E1">
