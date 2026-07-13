@@ -1060,44 +1060,64 @@ function openPDFExport(){
   ADDON_DEFS.forEach(a=>{if(selectedAddons.has(a.id)&&sd.addons[a.id]!=null){addonsTotal+=sd.addons[a.id];selItems.push({name:a.name,price:sd.addons[a.id]});}});
   if(selectedAddons.has('frameup')){addonsTotal+=sd.frameUpPrice;selItems.push({name:sd.frameUpLabel,price:sd.frameUpPrice});}
   const total=sd.shell+addonsTotal;
-  const now=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+  const now=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const ratePerSqft=(total/sd.sqft).toFixed(2);
+  const featHTML=selItems.length
+    ? selItems.map(s=>`<div style="padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF;display:flex;align-items:center;gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:#1E5138;display:inline-block;flex-shrink:0"></span>${s.name}</div>`).join('')
+    : '<div style="font-size:13px;color:#5F6A64;font-style:italic;padding:6px 0">Shell only — no add-ons selected</div>';
+  const priceRowsHTML=selItems.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF"><span style="color:#5F6A64">${s.name}</span><span style="font-weight:600">+$${s.price.toLocaleString()}</span></div>`).join('');
   document.getElementById('pdf-body').innerHTML=`
-  <style>
-    .pdf-hero{width:100%;border-radius:10px;margin-bottom:20px;object-fit:cover;max-height:260px}
-    .pdf-table{width:100%;border-collapse:collapse;font-size:13.5px}
-    .pdf-table thead th{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5F6A64;padding:8px 10px;border-bottom:2px solid #DFE5E1;text-align:left}
-    .pdf-table thead th:last-child{text-align:right}
-    .pdf-table tbody tr{border-bottom:1px dashed #EEF3EF}
-    .pdf-table tbody td{padding:8px 10px;vertical-align:middle}
-    .pdf-table tbody td.check{width:28px;text-align:center;font-size:15px;color:#1E5138}
-    .pdf-table tbody td.label{color:#5F6A64}
-    .pdf-table tbody td.val{font-weight:600;font-family:'Archivo',sans-serif;text-align:right}
-    .pdf-table tfoot td{padding:12px 10px;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;border-top:2px solid #121815}
-    .pdf-table tfoot td.total-val{text-align:right;font-size:22px;color:#1E5138}
-    .pdf-sep td{background:#F5F8F6;color:#5F6A64;font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-bottom:1px solid #DFE5E1}
-  </style>
-  <img class="pdf-hero" src="${IMGS.hero}" alt="Geo Dome">
-  <table class="pdf-table">
-    <thead><tr><th></th><th>Item</th><th>Detail / Price</th></tr></thead>
-    <tbody>
-      <tr class="pdf-sep"><td colspan="3">Configuration</td></tr>
-      <tr><td class="check">☑</td><td class="label">Structure</td><td class="val">Geo Dome — ${sd.label}</td></tr>
-      <tr><td class="check">☑</td><td class="label">Diameter</td><td class="val">${sd.diam}</td></tr>
-      <tr><td class="check">☑</td><td class="label">Peak height</td><td class="val">${sd.height}</td></tr>
-      <tr><td class="check">☑</td><td class="label">Interior area</td><td class="val">${sd.sqft} sq ft / ${sd.sqm} m²</td></tr>
-      <tr><td class="check">☑</td><td class="label">Frame</td><td class="val">${sd.frameStd}</td></tr>
-      <tr class="pdf-sep"><td colspan="3">Pricing</td></tr>
-      <tr><td class="check">☑</td><td class="label">Shell price (${sd.label})</td><td class="val">$${sd.shell.toLocaleString()}.00</td></tr>
-      ${selItems.length?selItems.map(s=>`<tr><td class="check">☑</td><td class="label">${s.name}</td><td class="val">+$${s.price.toLocaleString()}.00</td></tr>`).join(''):'<tr><td class="check">—</td><td class="label" colspan="2" style="color:#5F6A64;font-style:italic">No add-ons selected</td></tr>'}
-    </tbody>
-    <tfoot><tr><td></td><td>Total (FOB Guangzhou)</td><td class="total-val">$${total.toLocaleString()}</td></tr></tfoot>
-  </table>
-  <div style="display:flex;gap:12px;margin-top:24px">
-    <button onclick="window.print()" style="flex:1;padding:14px;background:#1E5138;color:#fff;border:none;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Print / Save as PDF</button>
-    <button onclick="closePDFExport()" style="padding:14px 20px;background:transparent;border:1.5px solid #DFE5E1;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#5F6A64">Close</button>
+  <div style="font-family:Arial,sans-serif;color:#121815;line-height:1.4">
+    <img src="${IMGS.hero}" alt="Geo Dome" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:8px 8px 0 0">
+    <div style="background:#1E5138;color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px">
+      <div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-.02em">Evergreen Cabin — Geo Dome</div>
+        <div style="font-size:11px;opacity:.7;margin-top:3px;text-transform:uppercase;letter-spacing:.09em">Factory specification &amp; pricing quote</div>
+      </div>
+      <div style="background:rgba(255,255,255,.18);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap">${sd.label}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid #DFE5E1;border-left:1px solid #DFE5E1">
+      ${[['Diameter',sd.diam],['Peak height',sd.height],['Floor area',sd.sqft+' ft²'],['Rate','$'+ratePerSqft+' /ft²']].map(([l,v])=>`<div style="padding:13px 14px;border-right:1px solid #DFE5E1;text-align:center"><div style="font-size:19px;font-weight:700;color:#1E5138">${v}</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5F6A64;margin-top:3px">${l}</div></div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #DFE5E1">
+      <div style="padding:16px 20px;border-right:1px solid #DFE5E1">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #DFE5E1">Specifications</div>
+        ${[['Type','3/8 Geodesic dome'],['Frame',sd.frameStd],['Floor area',sd.sqm+' m² / '+sd.sqft+' ft²'],['Origin','Guangzhou, China'],['Incoterm','FOB']].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF;gap:12px"><span style="color:#5F6A64;flex-shrink:0">${k}</span><span style="font-weight:600;text-align:right">${v}</span></div>`).join('')}
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #DFE5E1">Selected features</div>
+        ${featHTML}
+      </div>
+    </div>
+    <div style="padding:16px 20px;border-bottom:2px solid #DFE5E1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px">Pricing</div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF"><span style="color:#5F6A64">Shell — ${sd.label}</span><span style="font-weight:600">$${sd.shell.toLocaleString()}</span></div>
+      ${priceRowsHTML}
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:12px 0 4px;border-top:2px solid #121815;margin-top:6px">
+        <div><div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Total</div><div style="font-size:11px;color:#5F6A64;margin-top:3px">FOB Guangzhou · USD · excl. shipping &amp; import duties</div></div>
+        <div style="font-size:26px;font-weight:700;color:#1E5138">$${total.toLocaleString()}</div>
+      </div>
+    </div>
+    <div style="background:#F5F8F6;padding:11px 20px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#5F6A64;border-radius:0 0 8px 8px">
+      <span style="font-weight:700;color:#1E5138;font-size:12px">Evergreen Cabin</span>
+      <span>Prices valid for factory order · subject to change</span>
+      <span>${now}</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:18px">
+    <button onclick="printListingPDF()" style="flex:1;padding:13px;background:#1E5138;color:#fff;border:none;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Print / Save as PDF</button>
+    <button onclick="closePDFExport()" style="padding:13px 20px;background:transparent;border:1.5px solid #DFE5E1;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#5F6A64">Close</button>
   </div>`;
   document.getElementById('pdf-overlay').classList.add('show');
   document.body.style.overflow='hidden';
+}
+function printListingPDF(){
+  const body=document.getElementById('pdf-body').firstElementChild.outerHTML;
+  const w=window.open('','_blank','width=820,height=960');
+  w.document.write(`<!doctype html><html><head><title>Geo Dome Quote</title><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#fff;padding:24px;font-family:Arial,sans-serif}@media print{body{padding:0}button{display:none!important}}</style></head><body>${body}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>w.print(),400);
 }
 function closePDFExport(){document.getElementById('pdf-overlay').classList.remove('show');document.body.style.overflow='';}
 
