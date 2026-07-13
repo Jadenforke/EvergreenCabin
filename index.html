@@ -1034,84 +1034,39 @@ function openPDFExport(){
   const now=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pdf-body').innerHTML=`
   <style>
-    .pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid #DFE5E1}
-    .pdf-title-block .brand{font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;letter-spacing:.05em;color:#5F6A64}
-    .pdf-title-block h2{font-family:'Archivo',sans-serif;font-size:22px;font-weight:800;margin:4px 0 0}
-    .pdf-meta{font-size:12px;color:#5F6A64;text-align:right;line-height:1.8}
-    .pdf-hero{width:100%;border-radius:10px;margin-bottom:20px;object-fit:cover;max-height:220px}
-    .pdf-section{margin-bottom:24px}
-    .pdf-section h3{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #DFE5E1}
-    .pdf-row{display:flex;justify-content:space-between;font-size:13.5px;padding:7px 0;border-bottom:1px dashed #EEF3EF}
-    .pdf-row:last-child{border-bottom:none}.pdf-row .k{color:#5F6A64}.pdf-row .v{font-weight:600;font-family:'Archivo',sans-serif}
-    .pdf-total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid #121815;padding-top:14px;margin-top:8px}
-    .pdf-total .k{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px}.pdf-total .v{font-family:'Archivo',sans-serif;font-size:28px;font-weight:800;color:#1E5138}
-    .pdf-rate{font-size:12px;color:#5F6A64;text-align:right;margin-top:4px}
-    .pdf-warn{background:#FAEEE8;border:1px solid #EAC9B8;border-radius:6px;padding:12px 14px;font-size:13px;margin-top:12px}
-    .pdf-ok{background:#EBF5EF;border:1px solid #B4D9C4;border-radius:6px;padding:12px 14px;font-size:13px;margin-top:8px}
-    .pdf-spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
-    .pdf-spec{padding:5px 0;border-bottom:1px dashed #EEF3EF;font-size:12.5px}
-    .pdf-spec .k{color:#5F6A64;font-size:11px;margin-bottom:1px}.pdf-spec .v{font-weight:600}
-    .pdf-no-sel{font-size:13.5px;color:#5F6A64;font-style:italic;padding:8px 0}
+    .pdf-hero{width:100%;border-radius:10px;margin-bottom:20px;object-fit:cover;max-height:260px}
+    .pdf-table{width:100%;border-collapse:collapse;font-size:13.5px}
+    .pdf-table thead th{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5F6A64;padding:8px 10px;border-bottom:2px solid #DFE5E1;text-align:left}
+    .pdf-table thead th:last-child{text-align:right}
+    .pdf-table tbody tr{border-bottom:1px dashed #EEF3EF}
+    .pdf-table tbody td{padding:8px 10px;vertical-align:middle}
+    .pdf-table tbody td.check{width:28px;text-align:center;font-size:15px;color:#1E5138}
+    .pdf-table tbody td.label{color:#5F6A64}
+    .pdf-table tbody td.val{font-weight:600;font-family:'Archivo',sans-serif;text-align:right}
+    .pdf-table tfoot td{padding:12px 10px;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;border-top:2px solid #121815}
+    .pdf-table tfoot td.total-val{text-align:right;font-size:22px;color:#1E5138}
+    .pdf-sep td{background:#F5F8F6;color:#5F6A64;font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-bottom:1px solid #DFE5E1}
   </style>
-  <div class="pdf-header">
-    <div class="pdf-title-block">
-      <div class="brand">CABINS FOR EVERGREEN</div>
-      <h2>Geo Domes — Configuration Summary</h2>
-    </div>
-    <div class="pdf-meta">
-      <div>Generated: ${now}</div>
-      <div>Source: Shelter Architecture Technology, Jul 6, 2026</div>
-      <div>Quote valid 7 days · FOB Guangzhou</div>
-    </div>
-  </div>
   <img class="pdf-hero" src="${IMGS.hero}" alt="Geo Dome">
-  <div class="pdf-section">
-    <h3>Selected configuration</h3>
-    <div class="pdf-row"><span class="k">Structure</span><span class="v">Geo Dome — ${sd.label}</span></div>
-    <div class="pdf-row"><span class="k">Diameter</span><span class="v">${sd.diam}</span></div>
-    <div class="pdf-row"><span class="k">Peak height</span><span class="v">${sd.height}</span></div>
-    <div class="pdf-row"><span class="k">Interior area</span><span class="v">${sd.sqft} sq ft / ${sd.sqm} m²</span></div>
-    <div class="pdf-row"><span class="k">Frame (standard)</span><span class="v">${sd.frameStd}</span></div>
-    <div class="pdf-row"><span class="k">Manufacturer</span><span class="v">Shelter Architecture Technology (Guangdong) Co., Ltd</span></div>
-  </div>
-  <div class="pdf-section">
-    <h3>Key purchase specs</h3>
-    <div class="pdf-spec-grid">
-      <div class="pdf-spec"><div class="k">Wind load</div><div class="v">120 km/h</div></div>
-      <div class="pdf-spec"><div class="k">Snow load</div><div class="v" style="color:#A34327">51 kg/m² ⚠</div></div>
-      <div class="pdf-spec"><div class="k">Fire cert (cover)</div><div class="v">CAN/ULC-S109-14</div></div>
-      <div class="pdf-spec"><div class="k">Also certified</div><div class="v">NFPA701 / DIN4102 B1</div></div>
-      <div class="pdf-spec"><div class="k">CSA structure</div><div class="v" style="color:#B9861F">TBD</div></div>
-      <div class="pdf-spec"><div class="k">Delivery</div><div class="v">~30 days FOB Guangzhou</div></div>
-    </div>
-  </div>
-  <div class="pdf-section">
-    <h3>Pricing breakdown</h3>
-    <div class="pdf-row"><span class="k">Shell price (${sd.label})</span><span class="v">$${sd.shell.toLocaleString()}.00</span></div>
-    ${selItems.length?selItems.map(s=>`<div class="pdf-row"><span class="k">${s.name}</span><span class="v">+$${s.price.toLocaleString()}.00</span></div>`).join(''):'<div class="pdf-no-sel">No add-ons selected — shell price only</div>'}
-    <div class="pdf-total"><span class="k">Total (FOB Guangzhou)</span><span class="v">$${total.toLocaleString()}</span></div>
-    <div class="pdf-rate">$${(total/sd.sqft).toFixed(2)} per sq ft &nbsp;·&nbsp; $${(total/sd.sqm).toFixed(2)} per m² &nbsp;·&nbsp; Shipping to Canada: TBD &nbsp;·&nbsp; Landed total: TBD</div>
-  </div>
-  <div class="pdf-section">
-    <h3>Compliance flags</h3>
-    <div class="pdf-ok">✓ <strong>Cover fire cert confirmed:</strong> CAN/ULC-S109-14 · NFPA701 · DIN4102 B1 · BS7837 · M1 — included in base price.</div>
-    <div class="pdf-warn">⚠ <strong>Snow load review required:</strong> Rated 51 kg/m² (0.5 kN/m²) — below typical Northern Ontario ground snow loads. Frame upgrades are priced but do not automatically increase the rated snow load. A stamped engineering calculation is required.</div>
-    <div class="pdf-row" style="margin-top:12px"><span class="k">CSA structural cert</span><span class="v">TBD — confirm with building department</span></div>
-    <div class="pdf-row"><span class="k">Plumbing &amp; electrical</span><span class="v">Not included — licensed trades required for site hookup</span></div>
-  </div>
-  <div class="pdf-section">
-    <h3>Next steps</h3>
-    <div class="pdf-row"><span class="k">Confirm</span><span class="v">Snow load mitigation strategy or engineering review</span></div>
-    <div class="pdf-row"><span class="k">Request</span><span class="v">Shipping quote — Guangzhou to Manitoulin Island</span></div>
-    <div class="pdf-row"><span class="k">Request</span><span class="v">CSA structural review or local engineer sign-off</span></div>
-    <div class="pdf-row"><span class="k">Confirm</span><span class="v">Building permit classification with municipality</span></div>
-    <div class="pdf-row"><span class="k">Reference</span><span class="v">Maynooth Station Lodge — maynoothstationlodge.ca</span></div>
-  </div>
+  <table class="pdf-table">
+    <thead><tr><th></th><th>Item</th><th>Detail / Price</th></tr></thead>
+    <tbody>
+      <tr class="pdf-sep"><td colspan="3">Configuration</td></tr>
+      <tr><td class="check">☑</td><td class="label">Structure</td><td class="val">Geo Dome — ${sd.label}</td></tr>
+      <tr><td class="check">☑</td><td class="label">Diameter</td><td class="val">${sd.diam}</td></tr>
+      <tr><td class="check">☑</td><td class="label">Peak height</td><td class="val">${sd.height}</td></tr>
+      <tr><td class="check">☑</td><td class="label">Interior area</td><td class="val">${sd.sqft} sq ft / ${sd.sqm} m²</td></tr>
+      <tr><td class="check">☑</td><td class="label">Frame</td><td class="val">${sd.frameStd}</td></tr>
+      <tr class="pdf-sep"><td colspan="3">Pricing</td></tr>
+      <tr><td class="check">☑</td><td class="label">Shell price (${sd.label})</td><td class="val">$${sd.shell.toLocaleString()}.00</td></tr>
+      ${selItems.length?selItems.map(s=>`<tr><td class="check">☑</td><td class="label">${s.name}</td><td class="val">+$${s.price.toLocaleString()}.00</td></tr>`).join(''):'<tr><td class="check">—</td><td class="label" colspan="2" style="color:#5F6A64;font-style:italic">No add-ons selected</td></tr>'}
+    </tbody>
+    <tfoot><tr><td></td><td>Total (FOB Guangzhou)</td><td class="total-val">$${total.toLocaleString()}</td></tr></tfoot>
+  </table>
   <div style="display:flex;gap:12px;margin-top:24px">
     <button onclick="window.print()" style="flex:1;padding:14px;background:#1E5138;color:#fff;border:none;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Print / Save as PDF</button>
     <button onclick="closePDFExport()" style="padding:14px 20px;background:transparent;border:1.5px solid #DFE5E1;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#5F6A64">Close</button>
-  </div>
-  <p style="font-size:11px;color:#9DA8A2;margin-top:12px;text-align:center">Cabins for Evergreen · Sourcing catalog · Forke Studio · Prices USD FOB Guangzhou unless noted</p>`;
+  </div>`;
   document.getElementById('pdf-overlay').classList.add('show');
   document.body.style.overflow='hidden';
 }
