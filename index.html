@@ -268,6 +268,90 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 .ini-item{font-size:13.5px;display:flex;align-items:center;gap:6px}
 .ini-x{color:var(--danger);font-weight:700;font-size:14px}
 
+/* ─── mobile sticky price bar ─────────────────────────── */
+#mobile-price-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--pine);color:#fff;z-index:200;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 24px rgba(0,0,0,.18);padding:14px 20px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+#mobile-price-bar.visible{transform:translateY(0)}
+.mpb-inner{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.mpb-left{flex:1;min-width:0}
+.mpb-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin-bottom:2px}
+.mpb-total{font-family:'Archivo',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.mpb-sub{font-size:11px;opacity:.65;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpb-actions{display:flex;gap:8px;flex:none}
+.mpb-btn{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;padding:10px 14px;font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.mpb-btn:hover{background:rgba(255,255,255,.28)}
+.mpb-btn.primary{background:#fff;color:var(--pine);border-color:#fff}
+.mpb-btn.primary:hover{background:#E8F2EC}
+
+/* ─── mobile overrides ─────────────────────────────────── */
+@media(max-width:768px){
+  #mobile-price-bar{display:block}
+  .price-panel{display:none}
+  #sub-pricing{padding-bottom:90px!important}
+
+  /* layout */
+  .wrap{padding:0 16px}
+  .subsec{padding:36px 0}
+  section{padding:44px 0}
+
+  /* hero */
+  .hero{min-height:420px}
+  .hero h1{font-size:clamp(28px,8vw,44px)}
+  .hero p{font-size:15px}
+  .btnrow{gap:10px}
+  .btn{padding:11px 18px;font-size:13px}
+
+  /* nav */
+  .nav{height:56px}
+  .logo{font-size:15px}
+
+  /* product hero */
+  .pd-hero-panel{position:relative!important;top:auto!important}
+  .gal-thumbs{grid-template-columns:repeat(4,1fr)}
+  .php-spec-grid{grid-template-columns:1fr}
+  .php-price-big,.php-price-total{font-size:20px}
+
+  /* tabs */
+  .pd-tabs{-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .pd-tabs::-webkit-scrollbar{display:none}
+  .pd-tabs a{font-size:13px;padding:13px 13px}
+
+  /* configurator */
+  .size-opt{padding:11px 8px}
+  .size-opt .sz{font-size:16px}
+  .size-opt .sp{font-size:12px}
+  .addon{padding:12px 13px;gap:10px}
+  .addon .info .name{font-size:13px}
+  .addon .info .spec{font-size:11.5px}
+  .addon .price{font-size:13px}
+
+  /* tables */
+  table{font-size:13px}
+  td{padding:10px 12px}
+  th{padding:9px 12px;font-size:10px}
+  td.k{width:130px}
+
+  /* section headings */
+  .subsec h2{font-size:20px}
+  .sec-head h2{font-size:clamp(22px,6vw,34px)}
+
+  /* compliance */
+  .comp-grid{grid-template-columns:1fr}
+
+  /* incl rows */
+  .incl-row{padding:14px 0}
+
+  /* callout */
+  .callout{padding:13px 15px;font-size:13px}
+
+  /* cards */
+  .cards{grid-template-columns:1fr}
+
+  /* footer */
+  .fine{font-size:11px}
+
+  /* scope dropdown inner */
+  details .incl-rows{gap:0}
+}
 </style>
 </head>
 <body>
@@ -922,6 +1006,7 @@ function updatePricePanel(){
   const slEl=document.getElementById('selected-list'), siEl=document.getElementById('selected-items');
   if(selItems.length){slEl.style.display='block'; siEl.innerHTML=selItems.map(s=>`<div class="sel-item"><span class="k">${s.name}</span><span class="v">+$${s.price.toLocaleString()}</span></div>`).join('');
   } else { slEl.style.display='none'; }
+  updateMobilePriceBar(total, sd.label);
 }
 function syncHeroPanel(total,sd,addonsTotal){
   const sq=document.getElementById('php-shell-price'),sr=document.getElementById('php-shell-rate');
@@ -1072,6 +1157,37 @@ function route(){
 buildFilters(); renderCards();
 window.addEventListener('hashchange',route);
 route();
+
+// ─── MOBILE PRICE BAR ────────────────────────────────────────────────────────
+function updateMobilePriceBar(total, sizeLabel){
+  const el=document.getElementById('mpb-total');
+  const sub=document.getElementById('mpb-sub');
+  if(el) el.textContent='$'+total.toLocaleString();
+  if(sub) sub.textContent=sizeLabel+' Dome · USD FOB';
+}
+function initMobilePriceBar(){
+  const bar=document.getElementById('mobile-price-bar');
+  const target=document.getElementById('sub-pricing');
+  if(!bar||!target) return;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>bar.classList.toggle('visible',e.isIntersecting));
+  },{threshold:0.05});
+  obs.observe(target);
+}
+window.addEventListener('hashchange',()=>{ setTimeout(initMobilePriceBar,120); });
+setTimeout(initMobilePriceBar,300);
 </script>
+<div id="mobile-price-bar">
+  <div class="mpb-inner">
+    <div class="mpb-left">
+      <div class="mpb-eyebrow">Total (FOB Guangzhou)</div>
+      <div class="mpb-total" id="mpb-total">$1,734</div>
+      <div class="mpb-sub" id="mpb-sub">6m Dome · USD FOB</div>
+    </div>
+    <div class="mpb-actions">
+      <button class="mpb-btn primary" onclick="openPDFExport()">Export PDF</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
