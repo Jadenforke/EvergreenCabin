@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forke Studio — Animated Email Signature</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',-apple-system,sans-serif;background:#F2F4F3;color:#121815;padding:48px 20px;line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:28px;margin-bottom:6px}
+  .sub{color:#5F6A64;font-size:15px;margin-bottom:32px}
+  .card{background:#fff;border:1px solid #DFE5E1;border-radius:12px;padding:36px;margin-bottom:24px;overflow-x:auto}
+  .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px}
+  button{font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;padding:12px 22px;border-radius:8px;border:none;cursor:pointer;background:#1E5138;color:#fff}
+  button:hover{background:#123626}
+  button.ghost{background:#fff;color:#1E5138;border:1.5px solid #1E5138}
+  #status{font-size:13.5px;color:#1E5138;font-weight:600}
+  .note{background:#FBF3E4;border:1px solid #E8D9B4;border-radius:8px;padding:16px 18px;font-size:14px;margin-bottom:24px}
+  .steps{background:#fff;border:1px solid #DFE5E1;border-radius:12px;padding:28px 36px;font-size:14.5px}
+  .steps h2{font-family:'Archivo',sans-serif;font-size:17px;margin:18px 0 8px}
+  .steps h2:first-child{margin-top:0}
+  .steps ol{padding-left:20px}.steps li{margin-bottom:5px}
+  .steps code{background:#EEF3EF;padding:1px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Animated Email Signature</h1>
+  <p class="sub">Hyperlinked, animated (GIF-based, so it plays in Gmail, Apple Mail and Outlook web). Logo swipes in left&nbsp;to&nbsp;right, the photo assembles from diagonal slices, and the icons pop in one by one.</p>
+
+  <div class="toolbar">
+    <button id="copyBtn">Copy signature</button>
+    <button id="htmlBtn" class="ghost">Copy raw HTML</button>
+    <span id="status"></span>
+  </div>
+
+  <div class="note" id="hostNote" hidden>
+    ⚠️ You're previewing from a local file — the copied signature references images by absolute URL, so deploy this folder first (it's part of the site: <code>npx wrangler deploy</code>), then copy from the deployed page so the GIF URLs resolve for your recipients.
+  </div>
+
+  <div class="card">
+    <!-- ══════════════ SIGNATURE START (email-safe: tables + inline styles only) ══════════════ -->
+    <table id="signature" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;font-family:Arial,Helvetica,sans-serif;background:#ffffff;border:1px solid #E3E6E4;border-radius:14px;">
+      <tr>
+        <!-- icon rail -->
+        <td style="padding:18px 10px 18px 18px;vertical-align:middle;">
+          <table cellpadding="0" cellspacing="0" border="0" style="border:1px solid #DDE2DF;border-radius:10px;">
+            <tr><td style="padding:12px 9px 4px 9px;"><a href="https://forkestudio.com" target="_blank"><img src="assets/icon-web.gif" width="24" height="24" alt="Website" style="display:block;border:0;"></a></td></tr>
+            <tr><td style="padding:8px 9px 4px 9px;"><a href="https://instagram.com/forkestudio" target="_blank"><img src="assets/icon-ig.gif" width="24" height="24" alt="Instagram" style="display:block;border:0;"></a></td></tr>
+            <tr><td style="padding:8px 9px 4px 9px;"><a href="https://linkedin.com/company/forkestudio" target="_blank"><img src="assets/icon-in.gif" width="24" height="24" alt="LinkedIn" style="display:block;border:0;"></a></td></tr>
+            <tr><td style="padding:8px 9px 12px 9px;"><a href="https://maps.google.com/?q=Forke+Studio" target="_blank"><img src="assets/icon-g.gif" width="24" height="24" alt="Google" style="display:block;border:0;"></a></td></tr>
+          </table>
+        </td>
+        <!-- identity block -->
+        <td style="padding:22px 18px 22px 16px;vertical-align:middle;">
+          <a href="https://forkestudio.com" target="_blank" style="text-decoration:none;">
+            <img src="assets/logo.gif" width="195" height="32" alt="FORKE STUDIO" style="display:block;border:0;margin:0 0 10px -4px;">
+          </a>
+          <div style="font-size:20px;font-weight:bold;color:#15201A;letter-spacing:.01em;">
+            Jaden Forke&nbsp;<img src="assets/badge.gif" width="15" height="15" alt="✔" style="border:0;vertical-align:-2px;">
+          </div>
+          <div style="font-size:14px;color:#6B756F;margin:1px 0 12px 0;">Founder &amp; CEO</div>
+          <div style="font-size:13px;font-weight:bold;color:#15201A;margin-bottom:3px;">FORKE&nbsp;STUDIO&trade;</div>
+          <div style="font-size:13px;margin-bottom:2px;"><a href="mailto:admin@forkestudio.com" style="color:#3A443E;text-decoration:none;">admin@forkestudio.com</a></div>
+          <div style="font-size:13px;"><a href="https://forkestudio.com" target="_blank" style="color:#3A443E;text-decoration:none;">forkestudio.com</a></div>
+        </td>
+        <!-- animated photo -->
+        <td style="padding:10px 14px 10px 6px;vertical-align:middle;">
+          <a href="https://forkestudio.com" target="_blank">
+            <img src="assets/photo.gif" width="163" height="180" alt="Forke Studio" style="display:block;border:0;">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <!-- ══════════════ SIGNATURE END ══════════════ -->
+  </div>
+
+  <div class="steps">
+    <h2>Install in Gmail</h2>
+    <ol>
+      <li>Click <strong>Copy signature</strong> above.</li>
+      <li>Gmail → ⚙️ → <em>See all settings</em> → <em>General</em> → <em>Signature</em> → <em>Create new</em>.</li>
+      <li>Paste (Ctrl/Cmd+V) into the signature box and save. The GIFs animate automatically.</li>
+    </ol>
+    <h2>Install in Apple Mail</h2>
+    <ol>
+      <li>Copy the signature, then Mail → <em>Settings</em> → <em>Signatures</em> → <em>+</em> and paste.</li>
+      <li>Untick “Always match my default message font”.</li>
+    </ol>
+    <h2>Install in Outlook (web / new Outlook)</h2>
+    <ol>
+      <li>Settings → <em>Account</em> → <em>Signatures</em> → paste. <em>Note:</em> classic desktop Outlook (Word engine) shows only the first GIF frame — the layout and links still work, it just displays the finished, fully-revealed frame.</li>
+    </ol>
+    <h2>Customize</h2>
+    <ol>
+      <li>Name, title, links: edit the table in <code>signature/index.html</code>.</li>
+      <li>Photo, logo text, icons, animation timing: edit <code>signature/generator/render.html</code>, then run <code>node signature/generator/build.mjs</code> to regenerate the GIFs (to use your own portrait, point the <code>.ph</code> background-image at your photo).</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+  // The copied HTML must reference the GIFs by absolute URL so recipients can load them.
+  const sig = document.getElementById('signature');
+  sig.querySelectorAll('img').forEach(img => { img.src = new URL(img.getAttribute('src'), location.href).href; });
+  document.getElementById('hostNote').hidden = location.protocol.startsWith('http');
+
+  const status = (m) => { const s = document.getElementById('status'); s.textContent = m; setTimeout(() => s.textContent = '', 4000); };
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const html = sig.outerHTML;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob(['Jaden Forke — Founder & CEO, FORKE STUDIO — admin@forkestudio.com — forkestudio.com'], { type: 'text/plain' }),
+      })]);
+      status('✓ Copied — paste into your email client’s signature editor');
+    } catch (e) {
+      const r = document.createRange(); r.selectNode(sig);
+      getSelection().removeAllRanges(); getSelection().addRange(r);
+      document.execCommand('copy'); getSelection().removeAllRanges();
+      status('✓ Copied (fallback)');
+    }
+  });
+
+  document.getElementById('htmlBtn').addEventListener('click', async () => {
+    await navigator.clipboard.writeText(sig.outerHTML);
+    status('✓ Raw HTML copied');
+  });
+</script>
+</body>
+</html>

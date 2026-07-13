@@ -1,0 +1,12 @@
+{
+  "name": "signature-generator",
+  "version": "1.0.0",
+  "description": "Renders the animated email-signature GIFs from render.html",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.56.1"
+  },
+  "private": true
+}

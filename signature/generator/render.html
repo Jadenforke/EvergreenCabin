@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signature asset renderer</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,300..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#fff;font-family:'Inter',sans-serif}
+  .stage{display:inline-block;background:#fff}
+  /* every animation is paused; the capture script seeks with document.getAnimations() */
+  .anim, .anim *{animation-play-state:paused !important}
+
+  /* ─── LOGO: swipe reveal left → right, then a shine sweep ─── */
+  #logo{width:340px;height:56px;position:relative;display:flex;align-items:center;gap:12px;padding:4px 6px;overflow:hidden}
+  #logo .mark{flex:none;display:flex;gap:5px;height:30px}
+  #logo .mark i{display:block;width:9px;height:100%;background:#15201A;transform:skewX(-18deg)}
+  #logo .mark i:nth-child(2){width:5px;background:#1E5138}
+  #logo .word{font-family:'Archivo',sans-serif;font-weight:800;font-stretch:115%;font-size:30px;letter-spacing:.32em;color:#15201A;line-height:1}
+  #logo .word small{font-weight:400;font-size:13px;letter-spacing:.28em;color:#5F6A64;vertical-align:6px;margin-left:2px}
+  #logo .reveal{position:absolute;inset:0;display:flex;align-items:center;gap:12px;padding:4px 6px;
+    clip-path:inset(0 100% 0 0);
+    animation:swipe 1.25s cubic-bezier(.65,0,.2,1) .1s both}
+  @keyframes swipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+  #logo .shine{position:absolute;top:0;bottom:0;width:70px;left:-90px;
+    background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 100%);
+    animation:shine .8s ease-in-out 1.55s both}
+  @keyframes shine{from{transform:translateX(0)}to{transform:translateX(520px)}}
+
+  /* ─── PHOTO: diagonal slice collage reveal ─── */
+  #photo{width:190px;height:210px;position:relative;overflow:hidden}
+  #photo .slice{position:absolute;top:14px;bottom:14px;overflow:hidden;transform:skewX(-16deg)}
+  #photo .slice .ph{position:absolute;top:0;bottom:0;transform:skewX(16deg);
+    background-image:url("../../img/hero.webp");background-size:cover;background-position:center 30%;
+    filter:grayscale(.25) contrast(1.05)}
+  #photo .gray{position:absolute;background:#D9DDDA;transform:skewX(-16deg)}
+  #photo .g1{top:0;bottom:60px;left:18px;width:30px;animation:driftUp .9s cubic-bezier(.2,.9,.3,1) .05s both}
+  #photo .g2{top:70px;bottom:0;left:150px;width:26px;animation:driftDn .9s cubic-bezier(.2,.9,.3,1) .25s both}
+  /* four photo bands */
+  #photo .s1{left:34px;width:30px}  #photo .s1 .ph{left:-14px;width:190px}
+  #photo .s2{left:70px;width:30px}  #photo .s2 .ph{left:-50px;width:190px}
+  #photo .s3{left:106px;width:30px} #photo .s3 .ph{left:-86px;width:190px}
+  #photo .s4{left:142px;width:30px} #photo .s4 .ph{left:-122px;width:190px}
+  #photo .s1{animation:inUp .8s cubic-bezier(.2,.9,.3,1) .15s both}
+  #photo .s2{animation:inDn .8s cubic-bezier(.2,.9,.3,1) .32s both;top:22px;bottom:6px}
+  #photo .s3{animation:inUp .8s cubic-bezier(.2,.9,.3,1) .49s both}
+  #photo .s4{animation:inDn .8s cubic-bezier(.2,.9,.3,1) .66s both;top:22px;bottom:6px}
+  @keyframes inUp{from{opacity:0;transform:skewX(-16deg) translateY(70px)}to{opacity:1;transform:skewX(-16deg) translateY(0)}}
+  @keyframes inDn{from{opacity:0;transform:skewX(-16deg) translateY(-70px)}to{opacity:1;transform:skewX(-16deg) translateY(0)}}
+  @keyframes driftUp{from{opacity:0;transform:skewX(-16deg) translateY(50px)}to{opacity:.8;transform:skewX(-16deg) translateY(0)}}
+  @keyframes driftDn{from{opacity:0;transform:skewX(-16deg) translateY(-50px)}to{opacity:.8;transform:skewX(-16deg) translateY(0)}}
+
+  /* ─── ICONS: pop in with overshoot (stagger baked per asset) ─── */
+  .iconbox{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+  .iconbox svg{display:block;animation:pop .55s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+  #icon-web  svg{animation-delay:.15s}
+  #icon-ig   svg{animation-delay:.35s}
+  #icon-in   svg{animation-delay:.55s}
+  #icon-g    svg{animation-delay:.75s}
+
+  /* ─── BADGE: verified check, subtle pop (static frame also used) ─── */
+  #badge{width:22px;height:22px}
+  #badge svg{display:block;animation:pop .5s cubic-bezier(.34,1.56,.64,1) .9s both}
+</style>
+</head>
+<body>
+
+<div class="stage anim" id="logo">
+  <!-- static ghost keeps layout; reveal layer animates over it -->
+  <div style="opacity:0" class="ghost">
+    <span class="word">FORKE</span>
+  </div>
+  <div class="reveal">
+    <span class="mark"><i></i><i></i></span>
+    <span class="word">FORKE<small>STUDIO</small></span>
+  </div>
+  <div class="shine"></div>
+</div>
+
+<div class="stage anim" id="photo">
+  <div class="gray g1"></div>
+  <div class="gray g2"></div>
+  <div class="slice s1"><div class="ph"></div></div>
+  <div class="slice s2"><div class="ph"></div></div>
+  <div class="slice s3"><div class="ph"></div></div>
+  <div class="slice s4"><div class="ph"></div></div>
+</div>
+
+<div class="stage anim iconbox" id="icon-web">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A332E" stroke-width="1.7">
+    <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 2.6 4 5.6 4 9s-1.2 6.4-4 9c-2.8-2.6-4-5.6-4-9s1.2-6.4 4-9z"/>
+  </svg>
+</div>
+
+<div class="stage anim iconbox" id="icon-ig">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A332E" stroke-width="1.7">
+    <rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="#2A332E" stroke="none"/>
+  </svg>
+</div>
+
+<div class="stage anim iconbox" id="icon-in">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="#2A332E">
+    <path d="M4.98 3.5C4.98 4.6 4.1 5.5 3 5.5S1 4.6 1 3.5 1.9 1.5 3 1.5s1.98.9 1.98 2zM1.2 8.4h3.6V22H1.2V8.4zm6.6 0h3.45v1.86h.05c.48-.9 1.65-1.86 3.4-1.86 3.64 0 4.3 2.4 4.3 5.5V22h-3.6v-6.8c0-1.62-.03-3.7-2.25-3.7-2.26 0-2.6 1.76-2.6 3.58V22H7.8V8.4z"/>
+  </svg>
+</div>
+
+<div class="stage anim iconbox" id="icon-g">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <text x="12" y="17.5" text-anchor="middle" font-family="Archivo, Arial" font-weight="600" font-size="19" fill="#2A332E">G</text>
+  </svg>
+</div>
+
+<div class="stage anim" id="badge">
+  <svg width="22" height="22" viewBox="0 0 24 24">
+    <path fill="#1D9BF0" d="M12 1.5l2.3 2 3-.5 1.1 2.85L21.5 7l-.6 3L23 12l-2.1 2 .6 3-3.1 1.15L17.3 21l-3-.5-2.3 2-2.3-2-3 .5-1.1-2.85L2.5 17l.6-3L1 12l2.1-2-.6-3 3.1-1.15L6.7 3l3 .5 2.3-2z"/>
+    <path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8 12.4l2.7 2.7 5.3-5.6"/>
+  </svg>
+</div>
+
+<script>
+  // Capture hook: seek every animation on the page to time t (seconds).
+  window.seek = function (t) {
+    document.getAnimations().forEach(a => { a.currentTime = t * 1000; });
+  };
+  window.assetsReady = Promise.all([
+    document.fonts.ready,
+    new Promise(res => { const im = new Image(); im.onload = res; im.onerror = res; im.src = "../../img/hero.webp"; })
+  ]);
+</script>
+</body>
+</html>
