@@ -187,9 +187,9 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 
 /* ─── floor plan ──────────────────────────────────────── */
 .planbox{display:grid;grid-template-columns:0.8fr 1.2fr;gap:36px;align-items:start}
-@media(max-width:860px){.planbox{grid-template-columns:1fr}.planbox .img.plan-sticky{position:static}}
 .planbox .img{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .planbox .img.plan-sticky{position:sticky;top:120px;align-self:start}
+@media(max-width:860px){.planbox{grid-template-columns:1fr}.planbox .img.plan-sticky{position:static;top:auto}}
 @media(max-width:720px){.glass-vid-grid{grid-template-columns:1fr!important}}
 .dimstats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .dimstat{border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--card)}
@@ -216,6 +216,14 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 .comp{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:20px}
 .comp.ok{border-left-color:var(--pine)}.comp.warn{border-left-color:var(--danger)}.comp.tbdc{border-left-color:var(--amber)}
 .comp h4{font-size:15px;font-weight:700;margin:8px 0 6px}.comp p{font-size:13.5px;color:var(--steel)}
+@media(max-width:720px){
+  .comp{cursor:pointer;position:relative;padding-right:42px}
+  .comp h4{margin-bottom:0}
+  .comp > p{display:none;margin-top:10px}
+  .comp.open > p{display:block}
+  .comp::after{content:'';position:absolute;top:24px;right:18px;width:8px;height:8px;border-right:2px solid var(--steel);border-bottom:2px solid var(--steel);transform:rotate(45deg);transition:transform .2s}
+  .comp.open::after{transform:rotate(-135deg)}
+}
 
 /* ─── threecol ────────────────────────────────────────── */
 .threecol{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
@@ -1587,6 +1595,15 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape') closeLightbox();
   if(e.key==='ArrowLeft') lbNav(-1);
   if(e.key==='ArrowRight') lbNav(1);
+});
+
+// ─── COMPLIANCE CARDS AS MOBILE DROPDOWNS ─────────────────────────────────────
+// On mobile the description is collapsed (CSS); tapping a card toggles it open.
+// Harmless on desktop, where CSS keeps the description always visible.
+document.addEventListener('click',function(e){
+  if(e.target.closest('a')) return;              // let links work without toggling
+  const c=e.target.closest('.comp');
+  if(c) c.classList.toggle('open');
 });
 
 // ─── CATALOG ─────────────────────────────────────────────────────────────────
