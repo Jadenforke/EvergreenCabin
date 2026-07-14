@@ -182,9 +182,10 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 .sel-item .k{color:var(--ink)}.sel-item .v{font-weight:600;color:var(--pine);white-space:nowrap}
 
 /* ─── floor plan ──────────────────────────────────────── */
-.planbox{display:grid;grid-template-columns:1.2fr .8fr;gap:36px;align-items:center}
-@media(max-width:860px){.planbox{grid-template-columns:1fr}}
+.planbox{display:grid;grid-template-columns:0.8fr 1.2fr;gap:36px;align-items:start}
+@media(max-width:860px){.planbox{grid-template-columns:1fr}.planbox .img.plan-sticky{position:static}}
 .planbox .img{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.planbox .img.plan-sticky{position:sticky;top:120px;align-self:start}
 .dimstats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .dimstat{border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--card)}
 .dimstat .v{font-family:'Archivo',sans-serif;font-size:22px;font-weight:800}
@@ -541,8 +542,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <h2>Interior layout reference &amp; what the shell price includes</h2>
     <p class="intro">Manufacturer reference layout for the 8m dome. Interior configuration varies by size and add-ons selected.</p>
     <div class="planbox">
-      <div class="img"><img src="/img/plan.webp" alt="Floor plan" onclick="openLightbox([this.src],0)"></div>
-      <div>
+      <div class="img plan-sticky"><img src="/img/plan.webp" alt="Floor plan" onclick="openLightbox([this.src],0)"></div>
+      <div class="plan-info">
         <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">8m key dimensions</span><span class="rail"></span><span class="tick"></span></div>
         <div class="dimstats">
           <div class="dimstat"><div class="v">8.0 m</div><div class="k">Diameter (26.2 ft)</div></div>
@@ -550,12 +551,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <div class="dimstat"><div class="v">50.2 m&sup2;</div><div class="k">Interior area (540 sq ft)</div></div>
           <div class="dimstat"><div class="v">0.9&times;2.1 m</div><div class="k">Entrance opening</div></div>
         </div>
-      </div>
-    </div>
 
-    <div style="margin-top:48px">
-    <details class="addon-details">
-    <summary class="addon-summary">Scope — What the shell price includes</summary>
+        <div style="margin-top:28px">
+        <details class="addon-details">
+        <summary class="addon-summary">Scope — What the shell price includes</summary>
     <div style="padding:24px 28px">
     <p class="intro" style="margin-bottom:20px">The shell price covers the structure, cover, and hardware to assemble on-site. No interior, no insulation, no door. Here is exactly what you get:</p>
 
@@ -631,8 +630,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       </div>
       <p style="font-size:13px;color:var(--steel);margin-top:12px">All of the above are available as priced add-ons &mdash; <a href="#/product/dome/pricing" style="color:var(--pine);font-weight:600">Pricing &amp; configure &rarr;</a></p>
     </div>
-    </div></div>
-    </details>
+        </div>
+        </details>
+        </div>
+      </div>
     </div>
   </div></div>
   <!-- PRICING / CONFIGURATOR -->
