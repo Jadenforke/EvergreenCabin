@@ -812,10 +812,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <div class="plan-info">
         <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">6m key dimensions</span><span class="rail"></span><span class="tick"></span></div>
         <div class="dimstats">
-          <div class="dimstat"><div class="v">6.0 m</div><div class="k">Diameter</div></div>
-          <div class="dimstat"><div class="v">65 m&sup2;</div><div class="k">Insulated glazing</div></div>
-          <div class="dimstat"><div class="v">43 m&sup2;</div><div class="k">Insulated interior</div></div>
-          <div class="dimstat"><div class="v">1.1&times;1.9 m</div><div class="k">Bathroom pod</div></div>
+          <div class="dimstat"><div class="v">6.0 m</div><div class="k">Diameter (19.7 ft)</div></div>
+          <div class="dimstat"><div class="v">65 m&sup2;</div><div class="k">Insulated glazing (700 sq ft)</div></div>
+          <div class="dimstat"><div class="v">43 m&sup2;</div><div class="k">Insulated interior (463 sq ft)</div></div>
+          <div class="dimstat"><div class="v">1.1&times;1.9 m</div><div class="k">Bathroom pod (3.6 &times; 6.2 ft)</div></div>
         </div>
 
         <div style="margin-top:28px">
@@ -1009,10 +1009,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <div class="plan-info">
         <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">Key dimensions</span><span class="rail"></span><span class="tick"></span></div>
         <div class="dimstats">
-          <div class="dimstat"><div class="v">108.72 m&sup2;</div><div class="k">Total area</div></div>
-          <div class="dimstat"><div class="v">58.03 m&sup2;</div><div class="k">1st floor</div></div>
-          <div class="dimstat"><div class="v">16.32 m&sup2;</div><div class="k">2nd floor</div></div>
-          <div class="dimstat"><div class="v">34.37 m&sup2;</div><div class="k">Sunroom</div></div>
+          <div class="dimstat"><div class="v">108.72 m&sup2;</div><div class="k">Total area (1,170 sq ft)</div></div>
+          <div class="dimstat"><div class="v">58.03 m&sup2;</div><div class="k">1st floor (625 sq ft)</div></div>
+          <div class="dimstat"><div class="v">16.32 m&sup2;</div><div class="k">2nd floor (176 sq ft)</div></div>
+          <div class="dimstat"><div class="v">34.37 m&sup2;</div><div class="k">Sunroom (370 sq ft)</div></div>
         </div>
 
         <div style="margin-top:28px">
@@ -1606,11 +1606,34 @@ function cardHTML(p){
 function renderCards(){
   const filtered=PRODUCTS.filter(p=>(activeMfr==='all'||p.mfr===activeMfr)&&(activeType==='all'||p.type===activeType));
   const html=filtered.length?filtered.map(cardHTML).join(''):'<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
-  const el=document.getElementById('catalog-cards'); if(el) el.innerHTML=html;
-  const hel=document.getElementById('home-cards'); if(hel) hel.innerHTML=PRODUCTS.map(cardHTML).join('');
+  const el=document.getElementById('catalog-cards'); if(el){ el.innerHTML=html; autoImperial(el); }
+  const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.map(cardHTML).join(''); autoImperial(hel); }
 }
 
 // ─── ROUTER ───────────────────────────────────────────────────────────────────
+// ─── AUTO IMPERIAL CONVERSION ─────────────────────────────────────────────────
+// Appends North-American (imperial) equivalents after metric measurements.
+// Runs on every product/catalog render, so new cabins get sq ft / ft automatically.
+// Compact value boxes (.v / .php-spec-v / price values) are skipped — put the
+// imperial equivalent in their label instead (see the dimstat labels for the pattern).
+function autoImperial(root){
+  if(!root) return;
+  const M2FT=3.28084, M22SQFT=10.7639, KMH2MPH=0.621371;
+  const w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const nodes=[]; let nd; while(nd=w.nextNode()) nodes.push(nd);
+  nodes.forEach(node=>{
+    const orig=node.nodeValue;
+    if(!orig || !/\d/.test(orig) || /sq ft|\bft\b|mph/.test(orig)) return;
+    if(node.parentElement && node.parentElement.closest('.v,.php-spec-v,.php-price-big,.php-price-total,.php-price-sub,.php-price-rate,.php-price-sub-line,.sz,.sl,.sp')) return;
+    let t=orig;
+    t=t.replace(/(\d[\d,]*\.?\d*)\s*m²/g,(m,num)=>`${num} m² (${Math.round(parseFloat(num.replace(/,/g,''))*M22SQFT).toLocaleString()} sq ft)`);
+    t=t.replace(/(\d+\.?\d*(?:\s*[×x]\s*\d+\.?\d*)+)\s*m(?![²\w])/g,(m,chain)=>`${chain} m (${chain.split(/\s*[×x]\s*/).map(p=>(parseFloat(p)*M2FT).toFixed(1)).join(' × ')} ft)`);
+    t=t.replace(/(\d+\.?\d*)\s*m(?![²\w×x])(?!\s*\([^)]*ft)/g,(m,num)=>`${num} m (${(parseFloat(num)*M2FT).toFixed(1)} ft)`);
+    t=t.replace(/(\d+\.?\d*)\s*km\/h/g,(m,num)=>`${num} km/h (${Math.round(parseFloat(num)*KMH2MPH)} mph)`);
+    if(t!==orig) node.nodeValue=t;
+  });
+}
+
 function route(){
   const h=location.hash||'#/';
   let page='home', sub=null;
@@ -1635,6 +1658,7 @@ function route(){
     if(sub){const el=document.getElementById('sub-c-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
+  autoImperial(document.getElementById('page-'+page));
 }
 buildFilters(); renderCards();
 window.addEventListener('hashchange',route);
