@@ -93,6 +93,10 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .gal-thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:10px}
 .gal-thumbs .t{aspect-ratio:1;border-radius:6px;background-size:cover;background-position:center;cursor:pointer;border:2px solid transparent;opacity:.8;transition:.15s}
 .gal-thumbs .t:hover{opacity:1}.gal-thumbs .t.on{border-color:var(--pine);opacity:1}
+.gal-thumbs .t.vid{position:relative}
+.gal-thumbs .t.vid .playi{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;background:rgba(0,0,0,.3);border-radius:4px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+#g-gal-main.is-video{overflow:hidden;cursor:default;padding:0}
+#g-gal-main.is-video video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
 
 /* ─── hero panel ─────────────────────────────────────── */
 .pd-hero-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:sticky;top:72px}
@@ -743,13 +747,13 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-spec-title">Key details</div>
         <div class="php-spec-grid">
           <div class="php-spec"><div class="php-spec-k">Diameter</div><div class="php-spec-v">6.0 m</div></div>
-          <div class="php-spec"><div class="php-spec-k">Frame</div><div class="php-spec-v">Aluminium alloy</div></div>
+          <div class="php-spec"><div class="php-spec-k">Frame</div><div class="php-spec-v">Al-alloy &middot; 2 mm</div></div>
           <div class="php-spec"><div class="php-spec-k">Glazing</div><div class="php-spec-v">Insulated 5+9+5 mm</div></div>
           <div class="php-spec"><div class="php-spec-k">Glazed area</div><div class="php-spec-v">65 m&sup2;</div></div>
           <div class="php-spec"><div class="php-spec-k">Bathroom</div><div class="php-spec-v ok-text">Included</div></div>
           <div class="php-spec"><div class="php-spec-k">Kitchen</div><div class="php-spec-v ok-text">Included</div></div>
           <div class="php-spec"><div class="php-spec-k">Loft + stairs</div><div class="php-spec-v ok-text">Included</div></div>
-          <div class="php-spec"><div class="php-spec-k">Water heater</div><div class="php-spec-v tbd-text">Not included</div></div>
+          <div class="php-spec"><div class="php-spec-k">Water tank/heater</div><div class="php-spec-v tbd-text">Not supplied</div></div>
           <div class="php-spec"><div class="php-spec-k">Lead time</div><div class="php-spec-v">25&ndash;35 days</div></div>
         </div>
       </div>
@@ -760,7 +764,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <nav class="pd-tabs wrap" id="g-pd-tabs">
     <a href="#/product/glassdome/specs" data-sub="g-specs">Specs &amp; details</a>
     <a href="#/product/glassdome/floorplan" data-sub="g-floorplan">Floor plan &amp; scope</a>
-    <a href="#/product/glassdome/video" data-sub="g-video">Video walkthrough</a>
     <a href="#/product/glassdome/compliance" data-sub="g-compliance">Compliance</a>
   </nav>
 
@@ -779,12 +782,13 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">6 m aluminium-alloy geodesic glass dome, elevated on legs. Single turnkey configuration &mdash; all figures transcribed from the Meihua quotation dated Jul 10, 2026.</p>
     <div class="tablewrap"><table>
       <tr><td class="k">Structure type</td><td>Aluminium-alloy geodesic glass ball (elevated on legs)</td></tr>
+      <tr><td class="k">Frame</td><td>Aluminium alloy &mdash; 2 mm wall thickness</td></tr>
       <tr><td class="k">Diameter</td><td>6.0 m</td></tr>
       <tr><td class="k">Glazing</td><td>Insulated glass 5+9+5 mm &mdash; 65 m&sup2;</td></tr>
       <tr><td class="k">Interior insulation</td><td>30 mm XPS board + 8 mm carbon-crystal board (~2/3 coverage, 43 m&sup2;)</td></tr>
       <tr><td class="k">Support</td><td>3 &times; legs (3 m) + steel-frame staircase (3 m)</td></tr>
       <tr><td class="k">Loft / floor</td><td>Steel-frame mezzanine + plastic-wood + SPC stone-plastic floor</td></tr>
-      <tr><td class="k">Bathroom</td><td>Integrated pod 1.1 &times; 1.9 &times; 2.2 m (excl. water heater)</td></tr>
+      <tr><td class="k">Bathroom</td><td>Integrated pod 1.1 &times; 1.9 &times; 2.2 m (excl. water heater &amp; water tank)</td></tr>
       <tr><td class="k">Kitchen</td><td>Hand basin + stove</td></tr>
       <tr><td class="k">Electrical / plumbing</td><td>Junlang sockets, cable trays, wiring, PVC water pipes</td></tr>
       <tr><td class="k">Manufacturer</td><td>Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd</td></tr>
@@ -820,7 +824,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="incl-rows">
           <div class="incl-row"><div class="incl-body">
             <div class="incl-title">Aluminium-alloy glass frame</div>
-            <ul class="incl-bullets"><li>Hexagonal geodesic glass-ball frame, 6.0 m diameter</li><li>Aluminium alloy structure &mdash; 1 complete set</li><li>Elevated "standing" form on support legs</li></ul>
+            <ul class="incl-bullets"><li>Hexagonal geodesic glass-ball frame, 6.0 m diameter</li><li>Aluminium alloy, 2 mm wall thickness &mdash; 1 complete set</li><li>Elevated "standing" form on support legs</li></ul>
           </div></div>
           <div class="incl-row"><div class="incl-body">
             <div class="incl-title">Insulated glazing</div>
@@ -846,7 +850,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <div class="incl-row"><div class="incl-body">
             <div class="incl-title">Integrated bathroom pod</div>
             <ul class="incl-bullets"><li>1.1 &times; 1.9 &times; 2.2 m all-in-one unit</li><li>Showerhead, washbasin, toilet, exhaust fan, lighting</li></ul>
-            <div class="incl-note">Water heater is <strong>not</strong> included.</div>
+            <div class="incl-note">Water heater and water tank are <strong>not</strong> supplied.</div>
           </div></div>
           <div class="incl-row"><div class="incl-body">
             <div class="incl-title">Kitchen</div>
@@ -866,6 +870,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <div class="ini-title">Not included</div>
           <div class="ini-grid">
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Water heater</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Water tank</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Tax</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Shipping to Canada</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Installation labour</div>
@@ -882,18 +887,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   </div></div>
 
   <!-- VIDEO -->
-  <div class="subsec" id="sub-g-video"><div class="wrap">
-    <div class="eyebrow">Walkthrough</div>
-    <h2>Video demos</h2>
-    <p class="intro">Manufacturer walkthrough of the standing glass dome.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start" class="glass-vid-grid">
-      <video controls preload="metadata" poster="/img/glass/ext2.webp" style="width:100%;border-radius:var(--r);border:1px solid var(--line);background:#000;display:block">
-        <source src="/video/glass-dome-demo.mp4" type="video/mp4">
-        Your browser does not support embedded video.
-      </video>
-    </div>
-  </div></div>
-
   <!-- COMPLIANCE -->
   <div class="subsec" id="sub-g-compliance"><div class="wrap">
     <div class="eyebrow">Compliance</div>
@@ -905,7 +898,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <div class="comp warn"><span class="badge warn">Confirm with manufacturer</span><h4>Wind load &mdash; not stated on quote</h4><p>No wind rating is stated on the quote. Confirm the rated wind resistance with Meihua, and ensure the elevated leg-mounted structure is anchored to an engineered foundation per OBC Division B, Part 4. The raised profile makes anchoring detail especially important.</p></div>
       <div class="comp ok"><span class="badge ok">Favourable</span><h4>Fire &mdash; non-combustible shell</h4><p>The aluminium-alloy frame and insulated glass are non-combustible, which is favourable under OBC. However, the interior insulation (30 mm XPS + carbon-crystal board) is combustible and must meet flame-spread / smoke-developed limits (OBC 3.1.5 / 9.10.17). Ontario Fire Code 2.9.3.3 still requires a site-wide fire alarm system <em>or</em> fire watch for commercial sleeping accommodation. Request fire-rating documentation from Meihua.</p></div>
       <div class="comp warn"><span class="badge warn">Permit required</span><h4>Building permit &mdash; Group C Tourist Accommodation, OBC Part 9</h4><p>A building permit is mandatory in Gore Bay. Used as fixed sleeping accommodation, the dome will likely be classified as <strong>Group C (Tourist Accommodation)</strong> under OBC Part 9. Jurisdiction: <strong>Town of Gore Bay</strong>. CBO: Chris Meloche &mdash; <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--pine)">CBOwestmanitoulin@outlook.com</a> &middot; 705-956-0472. A pre-application meeting is strongly recommended before ordering.</p></div>
-      <div class="comp tbdc"><span class="badge tbdb">Site work required</span><h4>Plumbing &amp; electrical &mdash; included, hookup by licensed trades</h4><p>The unit ships with an integrated bathroom, kitchen, and internal wiring/plumbing (Junlang sockets, PVC pipes). Site hookup, electrical panel, and plumbing rough-in must be completed by licensed Ontario trades to OBC/ESA standards; each electrical connection requires an ESA inspection. Water heater is not included.</p></div>
+      <div class="comp tbdc"><span class="badge tbdb">Site work required</span><h4>Plumbing &amp; electrical &mdash; included, hookup by licensed trades</h4><p>The unit ships with an integrated bathroom, kitchen, and internal wiring/plumbing (Junlang sockets, PVC pipes). Site hookup, electrical panel, and plumbing rough-in must be completed by licensed Ontario trades to OBC/ESA standards; each electrical connection requires an ESA inspection. Water heater and water tank are not supplied.</p></div>
     </div>
     <div class="callout green" style="margin-top:24px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M8 12.5 11 15.5 16.5 9.5" stroke="#1E5138" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -957,6 +950,8 @@ const IMGS = {
 const GALLERY = [IMGS.hero, IMGS.interior, IMGS.snow, IMGS.sizes, IMGS.int2, IMGS.bath2, IMGS.bath1, IMGS.bath3, IMGS.plan];
 const GLASS_HERO = '/img/glass/hero.webp';
 const GLASS_GALLERY = ['/img/glass/hero.webp','/img/glass/int1.webp','/img/glass/int2.webp','/img/glass/int3.webp','/img/glass/ext2.webp','/img/glass/bath.webp','/img/glass/struct.webp','/img/glass/plan.webp'];
+const GLASS_VIDEOS = [{src:'/video/glass-dome-demo.mp4', poster:'/img/glass/ext2.webp'}];
+const GLASS_MEDIA = [...GLASS_GALLERY.map(src=>({type:'img',src})), ...GLASS_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 
 // ─── SIZE DATA (from Shelter Architecture PDF) ───────────────────────────────
 const SIZE_DATA = {
@@ -1163,22 +1158,32 @@ function buildGallery(){
 function buildGlassGallery(){
   const main=document.getElementById('g-gal-main'); const thumbs=document.getElementById('g-gal-thumbs');
   if(!main||!thumbs) return;
-  const valid=GLASS_GALLERY.filter(Boolean);
-  let curIdx=0;
-  main.style.backgroundImage=`url(${valid[0]})`;
-  main.onclick=()=>openLightbox(valid,curIdx);
+  const media=GLASS_MEDIA;
+  const imgs=media.filter(m=>m.type==='img').map(m=>m.src);
+  function show(i){
+    const m=media[i];
+    thumbs.querySelectorAll('.t').forEach((x,xi)=>x.classList.toggle('on',xi===i));
+    if(m.type==='img'){
+      main.innerHTML='';
+      main.style.backgroundImage=`url(${m.src})`;
+      main.classList.remove('is-video');
+      main.onclick=()=>openLightbox(imgs, imgs.indexOf(m.src));
+    } else {
+      main.onclick=null;
+      main.style.backgroundImage='none';
+      main.classList.add('is-video');
+      main.innerHTML=`<video controls playsinline poster="${m.poster}"><source src="${m.src}" type="video/mp4">Your browser does not support embedded video.</video>`;
+    }
+  }
   thumbs.innerHTML='';
-  valid.forEach((src,i)=>{
-    const t=document.createElement('div'); t.className='t'+(i===0?' on':'');
-    t.style.backgroundImage=`url(${src})`;
-    t.onclick=()=>{
-      curIdx=i;
-      main.style.backgroundImage=`url(${src})`;
-      thumbs.querySelectorAll('.t').forEach(x=>x.classList.remove('on'));
-      t.classList.add('on');
-    };
+  media.forEach((m,i)=>{
+    const t=document.createElement('div'); t.className='t'+(i===0?' on':'')+(m.type==='video'?' vid':'');
+    t.style.backgroundImage=`url(${m.type==='img'?m.src:m.poster})`;
+    if(m.type==='video') t.innerHTML='<span class="playi">&#9654;</span>';
+    t.onclick=()=>show(i);
     thumbs.appendChild(t);
   });
+  show(0);
 }
 
 // ─── SIZE SELECTOR ────────────────────────────────────────────────────────────
