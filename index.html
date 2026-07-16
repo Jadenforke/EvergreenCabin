@@ -1390,21 +1390,22 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-badges">
           <span class="badge ok">Quoted &middot; Jul 2026</span>
           <span class="badge ok">Space capsule</span>
-          <span class="badge tbdb">Price on request</span>
+          <span class="badge ok">$34,000 FOB</span>
         </div>
         <div class="php-mfr">Zhongjun Teng (Jiujiang) International Trade Co., Ltd.</div>
         <h1 class="php-title">Steele Capsule (T5)</h1>
       </div>
       <div class="php-price-block">
-        <div class="php-price-label">Price</div>
+        <div class="php-price-label">Unit price (28 m&sup2; two-person capsule)</div>
         <div class="php-price-row">
-          <span class="php-price-big" style="font-size:26px">Request quote</span>
+          <span class="php-price-big">$34,000</span>
+          <span class="php-price-sub">USD &middot; FOB</span>
         </div>
-        <div class="php-price-rate">28 m&sup2; two-person space capsule &mdash; turnkey, delivered assembled</div>
+        <div class="php-price-rate">$1,214.29 / m&sup2; &middot; $112.81 / sq ft</div>
         <div class="php-price-divider"></div>
         <div class="php-price-label">Terms</div>
-        <div class="php-price-sub-line">Freight by dimension &amp; incoterm (to-door or to-port) &middot; transit ~7&ndash;9 weeks</div>
-        <div class="php-price-shipping">FOB price, shipping &amp; duties to Canada: <span class="tbd">Contact manufacturer</span></div>
+        <div class="php-price-sub-line">Turnkey, delivered assembled &middot; freight by dimension &amp; incoterm &middot; transit ~7&ndash;9 weeks</div>
+        <div class="php-price-shipping">FOB price, shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -1436,7 +1437,13 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 
   <!-- SPECS -->
   <div class="subsec" id="sub-cap-specs"><div class="wrap">
-    <div class="eyebrow">Specifications</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:8px">
+      <div class="eyebrow">Specifications</div>
+      <a href="Steele_Capsule_T5_spec_sheet.pdf" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;font-family:'Archivo',sans-serif;font-size:12.5px;font-weight:700;color:var(--pine);border:1.5px solid var(--pine);padding:7px 14px;border-radius:7px;text-decoration:none;background:transparent;transition:.15s" onmouseover="this.style.background='var(--pine-light)'" onmouseout="this.style.background='transparent'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        View original spec sheet
+      </a>
+    </div>
     <h2>Full specification</h2>
     <p class="intro">A turnkey two-person space capsule &mdash; galvanized-steel frame, aluminium shell, Low-E glass curtain wall, rooftop panoramic balcony, and a fully fitted smart interior. Delivered assembled in one piece.</p>
     <div class="tablewrap"><table>
@@ -1461,7 +1468,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr><td class="k">Bathroom</td><td>Smart toilet, washstand / basin / mirror / cabinet, rain shower, lighting &amp; ventilation</td></tr>
       <tr><td class="k">HVAC &amp; water</td><td>2P + 1.5P air conditioners (Haier / Midea), 80 L water heater</td></tr>
       <tr><td class="k">Smart system</td><td>Whole-house smart (Tuya Smart)</td></tr>
-      <tr class="total-row"><td class="k">Price</td><td>On request &mdash; contact manufacturer for FOB quote</td></tr>
+      <tr class="total-row"><td class="k">Price</td><td>$34,000 USD &mdash; FOB ($1,214.29 / m&sup2; &middot; $112.81 / sq ft)</td></tr>
     </table></div>
   </div></div>
 
@@ -1860,7 +1867,7 @@ const PRODUCTS = [
     img: CAPSULE_HERO,
     name:'Steele Capsule (T5)', mfrName:'Zhongjun Teng (Jiujiang) International Trade Co., Ltd.',
     desc:'Futuristic 28 m² two-person space capsule — galvanized-steel frame, aluminium shell, Low-E glass curtain wall, rooftop panoramic balcony, and a fully fitted smart interior. Delivered assembled.',
-    price:'Request quote', unit:'28 m² · 2 persons · turnkey · delivered assembled',
+    price:'$34,000', unit:'USD / FOB · 28 m² · 2 persons · turnkey',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:null, live:false, type:'aframe', mfr:'shandong', img:null,
     name:'Prefab A-Frame Cabin', mfrName:'Shandong Mars Cabin / YDX Steel',
