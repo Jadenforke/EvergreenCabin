@@ -2055,7 +2055,8 @@ const CAPSULE_VIDEOS = [{src:'/video/steele-capsule-demo.webm', poster:'/img/cap
 const CAPSULE_MEDIA = [...CAPSULE_GALLERY.map(src=>({type:'img',src})), ...CAPSULE_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 const ONE_HERO = '/img/one/hero.webp';
 const ONE_GALLERY = ['/img/one/hero.webp','/img/one/plan.webp'];
-const ONE_MEDIA = ONE_GALLERY.map(src=>({type:'img',src}));
+const ONE_VIDEOS = [{src:'/video/one-living-capsule-demo.webm', poster:'/img/one/hero.webp'}];
+const ONE_MEDIA = [...ONE_GALLERY.map(src=>({type:'img',src})), ...ONE_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 
 // ─── SIZE DATA (from Shelter Architecture PDF) ───────────────────────────────
 const SIZE_DATA = {
