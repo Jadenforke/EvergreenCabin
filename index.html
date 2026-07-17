@@ -115,6 +115,14 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .php-price-rate{font-size:12px;color:var(--steel);margin-bottom:4px}
 .php-price-divider{height:1px;background:var(--line);margin:10px 0 8px}
 .php-price-shipping{font-size:12px;color:var(--steel);margin-top:4px}
+.php-incl-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin:14px 0 7px}
+.php-incl{display:flex;flex-wrap:wrap;gap:6px}
+.php-incl .pill{display:inline-flex;align-items:center;gap:5px;font-family:'Archivo',sans-serif;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:20px;border:1.5px solid var(--line)}
+.php-incl .pill .mk{font-size:12px;line-height:1}
+.php-incl .yes{color:var(--pine);border-color:var(--pine);background:var(--pine-light)}
+.php-incl .no{color:var(--steel);opacity:.75}
+.php-incl .no .lbl{text-decoration:line-through}
+.php-incl .maybe{color:#7A5A12;border-color:#E3D3AC;background:#F6EFDD}
 .php-specs{padding:14px 20px 8px}
 .php-spec-title{font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:8px}
 .php-spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
@@ -1547,7 +1555,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">Based on OBC 2024 (O.Reg. 163/24), Ontario Fire Code, and Town of Gore Bay requirements. Manufacturer answers, July 2026.</p>
     <div class="comp-grid">
       <div class="comp warn"><span class="badge warn">Not yet certified</span><h4>CSA A277 factory certification</h4><p>The manufacturer does <strong>not currently hold CAN/CSA-A277</strong> certification but says it is planning to apply as Canadian demand grows (it asked for target quantity to assess feasibility). Until then, expect an Ontario P.Eng review of structure, foundation, and anchoring for the permit. Confirm the path with the Gore Bay CBO before ordering.</p></div>
-      <div class="comp warn"><span class="badge warn">Review vs. local loads</span><h4>Snow load &mdash; rated 0.5 kPa</h4><p>Manufacturer-stated snow load is <strong>0.5 kPa (0.5 kN/m&sup2;)</strong>. Gore Bay ground snow load (Ss) is estimated at <strong>2.0&ndash;2.5 kN/m&sup2;</strong> per OBC SB-1 &mdash; well above the rating. A P.Eng-stamped structural upgrade/mitigation is required before winter occupancy. Test reports are being prepared by the manufacturer.</p></div>
+      <div class="comp ok"><span class="badge ok">Upgrade available</span><h4>Snow load &mdash; 0.5 kPa standard, 2.0&ndash;2.5 kPa on request</h4><p>Standard snow load is <strong>0.5 kPa</strong>, but the manufacturer can build to <strong>2.0&ndash;2.5 kPa</strong> &mdash; enough to meet Gore Bay&rsquo;s estimated <strong>2.0&ndash;2.5 kN/m&sup2;</strong> ground load (Ss). Specify the reinforced rating when ordering and the engineers add reinforcing ribs to the top aluminium panel. Still obtain the stamped structural calculation and an Ontario P.Eng review for the permit.</p></div>
       <div class="comp ok"><span class="badge ok">Rated by manufacturer</span><h4>Wind &amp; seismic</h4><p>Wind resistance rated at <strong>level 13</strong> (typhoon-force, roughly &ge;134 km/h) and earthquake resistance at <strong>intensity level 7</strong>. Obtain the supporting test reports (being prepared) for the permit file and have them reviewed by an Ontario engineer.</p></div>
       <div class="comp ok"><span class="badge ok">On file</span><h4>Material &amp; system certifications</h4><p>Manufacturer holds <strong>3C certification, ISO 9001,</strong> and a <strong>CNAS test report</strong>. These support quality but are not a substitute for Canadian structural certification &mdash; request copies for the permit submission.</p></div>
       <div class="comp warn"><span class="badge warn">Adjustment needed</span><h4>ESA &amp; OBC plumbing</h4><p>The manufacturer notes that <strong>some adjustment is needed</strong> to comply with Ontario ESA and OBC plumbing requirements &mdash; it is not compliant out of the box. Scope this with a licensed Ontario electrician and plumber before ordering; the site electrical connection also requires an ESA inspection.</p></div>
@@ -1555,7 +1563,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="callout red" style="margin-top:24px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 2.5 20h19L12 3Z" stroke="#A34327" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17v.5" stroke="#A34327" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Sourcing manager&rsquo;s flag:</strong> Two items need resolving before this suits a Gore Bay winter: (1) the 0.5 kPa snow rating is far below the local 2.0&ndash;2.5 kN/m&sup2; ground load &mdash; a P.Eng-stamped upgrade is required; (2) no CSA A277 yet, so plan for individual P.Eng review. Get the wind/seismic test reports in writing, and confirm the ESA/OBC plumbing adjustments. Start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
+      <div><strong>Sourcing manager&rsquo;s flag:</strong> The snow question is now largely answered &mdash; the manufacturer can build to <strong>2.0&ndash;2.5 kPa</strong> (reinforcing ribs on the top panel) if specified at order, which meets Gore Bay&rsquo;s ground load, so lock that into the PO and get the stamped calculation. Still open: no CSA A277 yet, so plan for individual P.Eng review, and confirm the ESA/OBC plumbing adjustments. AC/heating and the water tank are included; ask for any extra furniture or appliances at order. Start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
     </div>
   </div></div>
 
@@ -2654,7 +2662,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">Based on OBC 2024 (O.Reg. 163/24), Ontario Fire Code, and Town of Gore Bay requirements. Manufacturer answers, July 2026.</p>
     <div class="comp-grid">
       <div class="comp warn"><span class="badge warn">Not yet certified</span><h4>CSA A277 factory certification</h4><p>The manufacturer does <strong>not currently hold CAN/CSA-A277</strong> certification but says it is planning to apply as Canadian demand grows (it asked for target quantity to assess feasibility). Until then, expect an Ontario P.Eng review of structure, foundation, and anchoring for the permit. Confirm the path with the Gore Bay CBO before ordering.</p></div>
-      <div class="comp warn"><span class="badge warn">Review vs. local loads</span><h4>Snow load &mdash; rated 0.5 kPa</h4><p>Manufacturer-stated snow load is <strong>0.5 kPa (0.5 kN/m&sup2;)</strong>. Gore Bay ground snow load (Ss) is estimated at <strong>2.0&ndash;2.5 kN/m&sup2;</strong> per OBC SB-1 &mdash; well above the rating. A P.Eng-stamped structural upgrade/mitigation is required before winter occupancy. Test reports are being prepared by the manufacturer.</p></div>
+      <div class="comp ok"><span class="badge ok">Upgrade available</span><h4>Snow load &mdash; 0.5 kPa standard, 2.0&ndash;2.5 kPa on request</h4><p>Standard snow load is <strong>0.5 kPa</strong>, but the manufacturer can build to <strong>2.0&ndash;2.5 kPa</strong> &mdash; enough to meet Gore Bay&rsquo;s estimated <strong>2.0&ndash;2.5 kN/m&sup2;</strong> ground load (Ss). Specify the reinforced rating when ordering and the engineers add reinforcing ribs to the top aluminium panel. Still obtain the stamped structural calculation and an Ontario P.Eng review for the permit.</p></div>
       <div class="comp ok"><span class="badge ok">Rated by manufacturer</span><h4>Wind &amp; seismic</h4><p>Wind resistance rated at <strong>level 13</strong> (typhoon-force, roughly &ge;134 km/h) and earthquake resistance at <strong>intensity level 7</strong>. Obtain the supporting test reports (being prepared) for the permit file and have them reviewed by an Ontario engineer.</p></div>
       <div class="comp ok"><span class="badge ok">On file</span><h4>Material &amp; system certifications</h4><p>Manufacturer holds <strong>3C certification, ISO 9001,</strong> and a <strong>CNAS test report</strong>. These support quality but are not a substitute for Canadian structural certification &mdash; request copies for the permit submission.</p></div>
       <div class="comp warn"><span class="badge warn">Adjustment needed</span><h4>ESA &amp; OBC plumbing</h4><p>The manufacturer notes that <strong>some adjustment is needed</strong> to comply with Ontario ESA and OBC plumbing requirements &mdash; it is not compliant out of the box. Scope this with a licensed Ontario electrician and plumber before ordering; the site electrical connection also requires an ESA inspection.</p></div>
@@ -2662,7 +2670,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="callout red" style="margin-top:24px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 2.5 20h19L12 3Z" stroke="#A34327" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17v.5" stroke="#A34327" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Sourcing manager&rsquo;s flag:</strong> Same platform as the T5, so the same two items apply: (1) the 0.5 kPa snow rating is far below Gore Bay&rsquo;s 2.0&ndash;2.5 kN/m&sup2; ground load &mdash; a P.Eng-stamped upgrade is required; (2) no CSA A277 yet, so plan for individual P.Eng review. Get the wind/seismic test reports in writing, and confirm the ESA/OBC plumbing adjustments. Start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
+      <div><strong>Sourcing manager&rsquo;s flag:</strong> Same platform as the T5, so the same story: the manufacturer can build to <strong>2.0&ndash;2.5 kPa</strong> (reinforcing ribs on the top panel) if specified at order &mdash; enough for Gore Bay &mdash; so lock that into the PO and get the stamped calculation. Still open: no CSA A277 yet, so plan for individual P.Eng review, and confirm the ESA/OBC plumbing adjustments. AC/heating and the water tank are included; ask for any extra furniture or appliances at order. Start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
     </div>
   </div></div>
 
@@ -2804,6 +2812,196 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 </div>
 
 
+<!-- A-FRAME CABIN PRODUCT -->
+<div class="page" id="page-aframe">
+  <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <a href="#/catalog">Catalog</a> &nbsp;/&nbsp; <strong>A-Frame Cabin</strong></div>
+
+  <div class="wrap pd-hero-grid">
+    <div>
+      <div class="gal-main" id="af-gal-main"></div>
+      <div class="gal-thumbs" id="af-gal-thumbs"></div>
+    </div>
+    <div class="pd-hero-panel">
+      <div class="php-header">
+        <div class="php-badges">
+          <span class="badge ok">Quoted &middot; Jul 2026</span>
+          <span class="badge ok">IBC / ASCE 7-22</span>
+          <span class="badge ok">Snow 4.97 kPa</span>
+        </div>
+        <div class="php-mfr">Qingdao Yidongxiang Steel Structure Co., Ltd.</div>
+        <h1 class="php-title">A-Frame Cabin</h1>
+      </div>
+      <div class="php-price-block">
+        <div class="php-price-label">Unit price (90 m&sup2; &middot; 2-bedroom)</div>
+        <div class="php-price-row">
+          <span class="php-price-big">$31,500</span>
+          <span class="php-price-sub">USD &middot; approx.</span>
+        </div>
+        <div class="php-price-rate">~$350 / m&sup2; &middot; ~$32.52 / sq ft</div>
+        <div class="php-price-divider"></div>
+        <div class="php-price-label">Basis</div>
+        <div class="php-price-sub-line">Indicative at ~$350/m&sup2; for the 90 m&sup2; glulam A-frame &mdash; confirm final quote</div>
+        <div class="php-price-shipping">Shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+      </div>
+      <div class="php-specs">
+        <div class="php-spec-title">Key details</div>
+        <div class="php-spec-grid">
+          <div class="php-spec"><div class="php-spec-k">Floor area</div><div class="php-spec-v">969 sq ft (90 m&sup2;)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Layout</div><div class="php-spec-v">2 bed &middot; 1 bath</div></div>
+          <div class="php-spec"><div class="php-spec-k">Frame</div><div class="php-spec-v">Glulam + SIPs</div></div>
+          <div class="php-spec"><div class="php-spec-k">Attic</div><div class="php-spec-v">Timber-joist loft</div></div>
+          <div class="php-spec"><div class="php-spec-k">Snow load</div><div class="php-spec-v ok-text">4.97 kPa</div></div>
+          <div class="php-spec"><div class="php-spec-k">Wind load</div><div class="php-spec-v">1.62 kPa</div></div>
+          <div class="php-spec"><div class="php-spec-k">Design code</div><div class="php-spec-v ok-text">IBC / ASCE 7-22</div></div>
+          <div class="php-spec"><div class="php-spec-k">Risk cat.</div><div class="php-spec-v">II (rental)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Finish</div><div class="php-spec-v">Turnkey interior</div></div>
+        </div>
+      </div>
+      <a href="#/product/aframe/floorplan" class="php-cta-btn">See floor plan &amp; scope &rarr;</a>
+    </div>
+  </div>
+
+  <nav class="pd-tabs wrap" id="af-pd-tabs">
+    <a href="#/product/aframe/specs" data-sub="af-specs">Specs &amp; details</a>
+    <a href="#/product/aframe/floorplan" data-sub="af-floorplan">Floor plan &amp; scope</a>
+    <a href="#/product/aframe/compliance" data-sub="af-compliance">Compliance</a>
+    <a href="#/product/aframe/delivery" data-sub="af-delivery">Delivery &amp; site</a>
+  </nav>
+
+  <!-- SPECS -->
+  <div class="subsec" id="sub-af-specs"><div class="wrap">
+    <div class="eyebrow">Specifications</div>
+    <h2>Full specification</h2>
+    <p class="intro">A glue-laminated timber (glulam) A-frame cabin with structural insulated panel (SIPs) sheathing, engineered to IBC / ASCE 7-22. Two bedrooms, one bathroom, and an open kitchen / living / dining, with an attic loft over a timber-joist sub-floor. Same manufacturer as the Branson Project. An identical unit is built and standing (see gallery).</p>
+    <div class="tablewrap"><table>
+      <tr><td class="k">Model</td><td>A-Frame Cabin &mdash; glulam / SIPs</td></tr>
+      <tr><td class="k">Manufacturer</td><td>Qingdao Yidongxiang Steel Structure Co., Ltd.</td></tr>
+      <tr><td class="k">Floor area</td><td>90 m&sup2; (968.75 sq ft) &mdash; ground floor + attic loft</td></tr>
+      <tr><td class="k">Layout</td><td>2 bedrooms &middot; 1 living room &middot; 1 bathroom &middot; kitchen / dining</td></tr>
+      <tr class="pdf-sep-row"><td class="k" colspan="2" style="font-weight:700;background:var(--tint)">Structure &amp; design standards</td></tr>
+      <tr><td class="k">Primary frame</td><td>Glue-laminated timber (glulam) A-frame</td></tr>
+      <tr><td class="k">Sheathing</td><td>SIPs (structural insulated panels)</td></tr>
+      <tr><td class="k">Interior walls</td><td>Stick-frame</td></tr>
+      <tr><td class="k">Attic sub-floor</td><td>Timber joist</td></tr>
+      <tr><td class="k">Structural accessories</td><td>Included</td></tr>
+      <tr><td class="k">Design standards</td><td>IBC / ASCE 7-22 &mdash; short-term rental falls under Risk Category II (conventional building)</td></tr>
+      <tr><td class="k">Wind load</td><td>1.62 kPa</td></tr>
+      <tr><td class="k">Snow load</td><td>4.97 kPa</td></tr>
+      <tr class="pdf-sep-row"><td class="k" colspan="2" style="font-weight:700;background:var(--tint)">Envelope &amp; finish</td></tr>
+      <tr><td class="k">External shell</td><td>Waterproofed</td></tr>
+      <tr><td class="k">External cladding</td><td>Standing-seam metal roof with timber gable cladding</td></tr>
+      <tr><td class="k">Windows</td><td>Included (large glazed gable + roof skylights)</td></tr>
+      <tr><td class="k">Interior doors</td><td>Included</td></tr>
+      <tr><td class="k">Flooring</td><td>Engineered flooring</td></tr>
+      <tr class="total-row"><td class="k">Unit price</td><td>~$31,500 USD &mdash; indicative at ~$350 / m&sup2; ($32.52 / sq ft), 90 m&sup2;</td></tr>
+    </table></div>
+  </div></div>
+
+  <!-- FLOOR PLAN & SCOPE -->
+  <div class="subsec" id="sub-af-floorplan"><div class="wrap">
+    <div class="eyebrow">Floor plan &amp; scope</div>
+    <h2>Layout &amp; what's included</h2>
+    <p class="intro">A 90 m&sup2; A-frame over two levels &mdash; ground-floor bedroom, bathroom, kitchen, and open living / dining, with a spiral stair to an attic loft (second bedroom). The plan and elevations are in the gallery slideshow above.</p>
+    <div class="planbox">
+      <div class="img plan-sticky"><img src="/img/aframe/plan.webp" alt="A-Frame Cabin floor plan &amp; elevations" onclick="openLightbox([this.src],0)"></div>
+      <div class="plan-info">
+        <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">Key dimensions</span><span class="rail"></span><span class="tick"></span></div>
+        <div class="dimstats">
+          <div class="dimstat"><div class="v">969 sq ft</div><div class="k">Floor area (90 m&sup2;)</div></div>
+          <div class="dimstat"><div class="v">2</div><div class="k">Bedrooms</div></div>
+          <div class="dimstat"><div class="v">1</div><div class="k">Bathroom</div></div>
+          <div class="dimstat"><div class="v">2</div><div class="k">Levels (+ attic loft)</div></div>
+        </div>
+        <div style="margin-top:28px">
+        <details class="addon-details">
+        <summary class="addon-summary">Scope &mdash; Main contents</summary>
+        <div style="padding:24px 28px">
+        <p class="intro" style="margin-bottom:20px">Supplied per the manufacturer&rsquo;s main-contents list:</p>
+        <div class="incl-rows">
+          <div class="incl-row"><div class="incl-body">
+            <div class="incl-title">Structure</div>
+            <ul class="incl-bullets"><li>Glulam A-frame + SIPs sheathing</li><li>Stick-frame interior walls</li><li>Timber-joist attic sub-floor + structural accessories</li></ul>
+          </div></div>
+          <div class="incl-row"><div class="incl-body">
+            <div class="incl-title">Envelope</div>
+            <ul class="incl-bullets"><li>Waterproofed external shell</li><li>External cladding (metal roof + timber gable)</li><li>Windows &amp; glazed gable</li></ul>
+          </div></div>
+          <div class="incl-row"><div class="incl-body">
+            <div class="incl-title">Interior finish</div>
+            <ul class="incl-bullets"><li>Interior doors</li><li>Engineered flooring</li><li>Kitchen, living / dining, 2 bedrooms, 1 bathroom</li></ul>
+          </div></div>
+        </div>
+        <div class="incl-not-included">
+          <div class="ini-title">Not included / by buyer</div>
+          <div class="ini-grid">
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Foundation &amp; site prep</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Crane / assembly labour</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Utility hookups (ESA / OBC)</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Shipping &amp; duties</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Permit &amp; P.Eng review</div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Appliances (confirm scope)</div>
+          </div>
+          <p style="font-size:13px;color:var(--steel);margin-top:12px">Price is indicative at ~$350/m&sup2; &mdash; confirm the final quote, the exact appliance / MEP scope, and shipping to Manitoulin.</p>
+        </div>
+        </div>
+        </details>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- COMPLIANCE -->
+  <div class="subsec" id="sub-af-compliance"><div class="wrap">
+    <div class="eyebrow">Compliance</div>
+    <h2>Canadian compliance status &mdash; Gore Bay, Ontario</h2>
+    <p class="intro">Based on OBC 2024 (O.Reg. 163/24), Ontario Fire Code, and Town of Gore Bay requirements. Manufacturer data, July 2026.</p>
+    <div class="comp-grid">
+      <div class="comp ok"><span class="badge ok">Exceeds local load</span><h4>Snow load &mdash; 4.97 kPa</h4><p>Rated snow load is <strong>4.97 kPa (~104 psf)</strong> &mdash; roughly <strong>double</strong> Gore Bay&rsquo;s estimated 2.0&ndash;2.5 kN/m&sup2; (~42&ndash;52 psf) ground load (Ss) per OBC SB-1. The strongest snow rating in the catalog; well suited to a Manitoulin winter. Get the stamped calculation for the permit file.</p></div>
+      <div class="comp ok"><span class="badge ok">Favourable</span><h4>Designed to IBC / ASCE 7-22</h4><p>Engineered to the <strong>IBC and ASCE 7-22</strong> load standards, with short-term rental use classified as <strong>Risk Category II</strong> (conventional building) &mdash; the North American basis Ontario&rsquo;s OBC is harmonized with. A strong starting point for permitting, subject to Ontario review.</p></div>
+      <div class="comp ok"><span class="badge ok">Rated</span><h4>Wind load &mdash; 1.62 kPa</h4><p>Design wind load is <strong>1.62 kPa (~34 psf)</strong>. Confirm this meets or exceeds the Gore Bay design wind pressure with an Ontario engineer; the glazed gable and roof glazing details should be reviewed for the local exposure.</p></div>
+      <div class="comp warn"><span class="badge warn">Confirm certification</span><h4>CSA A277 factory certification</h4><p>No CAN/CSA-A277 factory certification is stated. With the IBC / ASCE 7-22 design basis, an Ontario P.Eng review of structure, foundation, and anchoring is the likely path. Confirm with the Gore Bay CBO before ordering.</p></div>
+      <div class="comp warn"><span class="badge warn">Confirm</span><h4>Fire &amp; MEP for rental use</h4><p>As timber construction used for sleeping accommodation, confirm flame-spread / fire-separation details (OBC 3.1.5 / 9.10) and that the electrical and plumbing are adapted to <strong>Ontario ESA / OBC</strong> (voltage, connections). Ontario Fire Code may require an alarm or fire watch for commercial rental.</p></div>
+      <div class="comp warn"><span class="badge warn">Permit required</span><h4>Building permit &mdash; Group C, OBC Part 9</h4><p>A building permit is mandatory in Gore Bay. Used as fixed sleeping accommodation, the cabin will likely be <strong>Group C (Tourist Accommodation)</strong> under OBC Part 9. CBO: Chris Meloche &mdash; <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--pine)">CBOwestmanitoulin@outlook.com</a> &middot; 705-956-0472. A pre-application meeting is strongly recommended.</p></div>
+    </div>
+    <div class="callout green" style="margin-top:24px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M8 12.5 11 15.5 16.5 9.5" stroke="#1E5138" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><strong>Sourcing manager&rsquo;s note:</strong> On structural load this is the best-suited unit for Gore Bay &mdash; a 4.97 kPa snow rating (double the local ground load) and an IBC / ASCE 7-22 design basis. The open items are the usual imports checklist: no CSA A277 yet (plan for P.Eng review), fire / MEP adaptation to Ontario, and a confirmed final price and appliance scope. Start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
+    </div>
+  </div></div>
+
+  <!-- DELIVERY & SITE -->
+  <div class="subsec" id="sub-af-delivery" style="border-bottom:none"><div class="wrap">
+    <div class="eyebrow">Delivery &amp; site</div>
+    <h2>Delivery, assembly &amp; site</h2>
+    <p class="intro">Supplied by the same manufacturer as the Branson Project. Foundation and site works are by the buyer; a landed shipping quote should be requested for Manitoulin.</p>
+    <div class="incl-rows">
+      <div class="incl-row"><div class="incl-body">
+        <div class="incl-title">Assembly</div>
+        <ul class="incl-bullets">
+          <li>Panelised glulam / SIPs system &mdash; assembled on the prepared foundation</li>
+          <li>Manufacturer engineering support; structural accessories supplied</li>
+        </ul>
+      </div></div>
+      <div class="incl-row"><div class="incl-body">
+        <div class="incl-title">Buyer provides</div>
+        <ul class="incl-bullets">
+          <li>Foundation to the manufacturer&rsquo;s drawings</li>
+          <li>Crane / lifting and assembly labour, site access</li>
+          <li>Utility hookups to Ontario ESA / OBC</li>
+        </ul>
+      </div></div>
+      <div class="incl-row"><div class="incl-body">
+        <div class="incl-title">Shipping &amp; price</div>
+        <ul class="incl-bullets">
+          <li>Price indicative at <strong>~$350/m&sup2;</strong> &mdash; confirm the final quote</li>
+          <li>Shipping &amp; duties to Canada: <strong>TBD</strong> &mdash; request a landed quote</li>
+        </ul>
+      </div></div>
+    </div>
+  </div></div>
+</div>
+
+
 <!-- LIGHTBOX -->
 <div id="lightbox" onclick="if(event.target===this)closeLightbox()">
   <button id="lb-close" onclick="closeLightbox()">&#x2715;</button>
@@ -2854,7 +3052,7 @@ const CHUNSHU_GALLERY = ['/img/chunshu/hero.webp','/img/chunshu/int1.webp','/img
 const CHUNSHU_VIDEOS = [{src:'/video/chunshu-demo.webm', poster:'/img/chunshu/int1.webp'}];
 const CHUNSHU_MEDIA = [...CHUNSHU_GALLERY.map(src=>({type:'img',src})), ...CHUNSHU_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 const STEEL_HERO = '/img/steel/hero.webp';
-const STEEL_GALLERY = ['/img/steel/hero.webp','/img/steel/living.webp','/img/steel/kitchen.webp','/img/steel/ext2.webp','/img/steel/frame1.webp','/img/steel/frame2.webp','/img/steel/plan.webp','/img/steel/wall.webp'];
+const STEEL_GALLERY = ['/img/steel/hero.webp','/img/steel/living.webp','/img/steel/kitchen.webp','/img/steel/kitchen2.webp','/img/steel/bath2.webp','/img/steel/ext2.webp','/img/steel/frame1.webp','/img/steel/frame2.webp','/img/steel/plan.webp','/img/steel/wall.webp'];
 const STEEL_MEDIA = STEEL_GALLERY.map(src=>({type:'img',src}));
 const CAPSULE_HERO = '/img/capsule/hero.webp';
 const CAPSULE_GALLERY = ['/img/capsule/hero.webp','/img/capsule/ext2.webp','/img/capsule/living.webp','/img/capsule/bath.webp','/img/capsule/shower.webp','/img/capsule/plan.webp'];
@@ -2874,6 +3072,9 @@ const T9_HERO = '/img/t9/hero.webp';
 const T9_GALLERY = ['/img/t9/hero.webp','/img/t9/bed.webp','/img/t9/int.webp','/img/t9/bath.webp','/img/t9/plan.webp'];
 const T9_VIDEOS = [{src:'/video/steele-capsule-t9-demo.webm', poster:'/img/t9/hero.webp'}];
 const T9_MEDIA = [...T9_GALLERY.map(src=>({type:'img',src})), ...T9_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
+const AF_HERO = '/img/aframe/hero.webp';
+const AF_GALLERY = ['/img/aframe/hero.webp','/img/aframe/living.webp','/img/aframe/kitchen.webp','/img/aframe/plan.webp'];
+const AF_MEDIA = AF_GALLERY.map(src=>({type:'img',src}));
 
 // ─── SIZE DATA (from Shelter Architecture PDF) ───────────────────────────────
 const SIZE_DATA = {
@@ -3018,10 +3219,12 @@ const PRODUCTS = [
     desc:'Futuristic two-storey capsule (Space Capsule SA3) — 45 m² over two floors: ground-floor kitchen/living/bath and an upper bedroom capsule, galvanized-steel frame, thermal-break glazing, turnkey fit-out with a 20-year warranty.',
     price:'$31,579', unit:'USD package · 45 m² · 2 floors · turnkey',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:null, live:false, type:'aframe', mfr:'shandong', img:null,
-    name:'Prefab A-Frame Cabin', mfrName:'Shandong Mars Cabin / YDX Steel',
-    desc:'Steel-frame A-frame units under evaluation. Quotes in comparison; catalog page pending.',
-    price:'TBD', unit:'pending quote confirmation', tag:'<span class="badge tbdb">Sourcing</span>' }
+  { id:'aframe', live:true, type:'aframe', mfr:'yidongxiang',
+    img: AF_HERO,
+    name:'A-Frame Cabin', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
+    desc:'90 m² glulam A-frame cabin with SIPs sheathing — 2 bedrooms, 1 bathroom, open kitchen/living, and an attic loft. Engineered to IBC / ASCE 7-22 with a 4.97 kPa snow rating — the strongest in the catalog.',
+    price:'~$31,500', unit:'USD · 90 m² · 2-bed · ~$350/m²',
+    tag:'<span class="badge ok">Quoted Jul 2026</span>' }
 ];
 
 const MANUFACTURERS = ['all','shelter','meihua','meishu','platinum','zhongjun','one','yidongxiang','pawa','shandong','other'];
@@ -3147,6 +3350,7 @@ function buildOneGallery(){ buildMediaGallery(document.getElementById('one-gal-m
 function buildBransonGallery(){ buildMediaGallery(document.getElementById('branson-gal-main'), document.getElementById('branson-gal-thumbs'), BRANSON_MEDIA); }
 function buildTfGallery(){ buildMediaGallery(document.getElementById('tf-gal-main'), document.getElementById('tf-gal-thumbs'), TF_MEDIA); }
 function buildT9Gallery(){ buildMediaGallery(document.getElementById('t9-gal-main'), document.getElementById('t9-gal-thumbs'), T9_MEDIA); }
+function buildAfGallery(){ buildMediaGallery(document.getElementById('af-gal-main'), document.getElementById('af-gal-thumbs'), AF_MEDIA); }
 function buildCapsuleGallery(){ buildMediaGallery(document.getElementById('cap-gal-main'), document.getElementById('cap-gal-thumbs'), CAPSULE_MEDIA); }
 
 // ─── SIZE SELECTOR ────────────────────────────────────────────────────────────
@@ -3422,11 +3626,37 @@ function autoImperial(root){
   });
 }
 
+// ─── "INCLUDED IN PRICE" INDICATOR ────────────────────────────────────────────
+// 1 = included, 0 = not included, -1 = confirm with manufacturer.
+const INCL = {
+  product:  {bath:0, kitchen:0, ac:0, tank:0},   // Geo Dome — shell only, all add-ons
+  glass:    {bath:1, kitchen:1, ac:-1, tank:-1}, // Standing Glass Dome — turnkey
+  chunshu:  {bath:1, kitchen:1, ac:-1, tank:-1}, // Chun Shu villa
+  steel:    {bath:1, kitchen:1, ac:-1, tank:0},  // Steel Modular — water heater not incl.
+  capsule:  {bath:1, kitchen:-1, ac:1, tank:1},  // Steele T5
+  t9:       {bath:1, kitchen:1, ac:1, tank:1},   // Steele T9
+  one:      {bath:1, kitchen:-1, ac:1, tank:1},  // ONE Living Capsule
+  branson:  {bath:1, kitchen:1, ac:-1, tank:-1}, // Branson Project
+  twofloor: {bath:1, kitchen:1, ac:1, tank:1},   // Two Floor Capsule
+  aframe:   {bath:1, kitchen:1, ac:-1, tank:-1}  // A-Frame Cabin
+};
+function renderIncl(page){
+  const map=INCL[page]; if(!map) return;
+  const block=document.querySelector('#page-'+page+' .php-price-block');
+  if(!block || block.querySelector('.php-incl')) return;
+  const labels={bath:'Bathroom', kitchen:'Kitchen', ac:'AC / heating', tank:'Water tank'};
+  const cls={'1':'yes','0':'no','-1':'maybe'}, mk={'1':'&#10003;','0':'&#10007;','-1':'?'};
+  let html='<div class="php-incl-label">Included in price</div><div class="php-incl">';
+  ['bath','kitchen','ac','tank'].forEach(k=>{const v=String(map[k]);html+=`<span class="pill ${cls[v]}"><span class="mk">${mk[v]}</span><span class="lbl">${labels[k]}</span></span>`;});
+  html+='</div>';
+  block.insertAdjacentHTML('beforeend', html);
+}
+
 function route(){
   const h=location.hash||'#/';
   let page='home', sub=null;
   if(h.startsWith('#/catalog')) page='catalog';
-  else if(h.startsWith('#/product/')){ const p=h.split('/'); const pid=p[2]||'dome'; sub=(p.length>3 && p[3])?p[3]:null; page=(pid==='glassdome')?'glass':(pid==='chunshu')?'chunshu':(pid==='steel')?'steel':(pid==='capsule')?'capsule':(pid==='one')?'one':(pid==='branson')?'branson':(pid==='twofloor')?'twofloor':(pid==='t9')?'t9':'product'; }
+  else if(h.startsWith('#/product/')){ const p=h.split('/'); const pid=p[2]||'dome'; sub=(p.length>3 && p[3])?p[3]:null; page=(pid==='glassdome')?'glass':(pid==='chunshu')?'chunshu':(pid==='steel')?'steel':(pid==='capsule')?'capsule':(pid==='one')?'one':(pid==='branson')?'branson':(pid==='twofloor')?'twofloor':(pid==='t9')?'t9':(pid==='aframe')?'aframe':'product'; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
   document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===page));
@@ -3475,7 +3705,13 @@ function route(){
     buildT9Gallery();
     if(sub){const el=document.getElementById('sub-t9-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
+  } else if(page==='aframe'){
+    document.querySelectorAll('#af-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('af-'+sub)));
+    buildAfGallery();
+    if(sub){const el=document.getElementById('sub-af-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
+    else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
+  renderIncl(page);
   autoImperial(document.getElementById('page-'+page));
 }
 buildFilters(); renderCards();
