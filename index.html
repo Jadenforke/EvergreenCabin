@@ -391,9 +391,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <nav class="navlinks">
       <a href="#/" data-nav="home">Home</a>
       <a href="#/catalog" data-nav="catalog">Catalog</a>
-      <a href="#/product/dome" data-nav="product">Geo Domes</a>
     </nav>
-    <a class="nav-cta" href="#/product/dome/pricing">Configure</a>
   </div>
 </header>
 
@@ -423,9 +421,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <section style="padding-top:56px"><div class="wrap">
     <div class="sec-head"><div class="eyebrow">Catalog</div><h2>Structures &amp; manufacturers</h2><p>Filter by manufacturer or structure type.</p></div>
     <div class="filter-bar">
-      <span class="label">Manufacturer:</span><div class="filter-group" id="mfr-filters"></div>
-      <div class="divider"></div>
       <span class="label">Type:</span><div class="filter-group" id="type-filters"></div>
+      <div class="divider"></div>
+      <span class="label">Manufacturer:</span><div class="filter-group" id="mfr-filters"></div>
     </div>
     <div class="cards" id="catalog-cards"></div>
   </div></section>
@@ -2196,11 +2194,7 @@ const PRODUCTS = [
   { id:null, live:false, type:'aframe', mfr:'shandong', img:null,
     name:'Prefab A-Frame Cabin', mfrName:'Shandong Mars Cabin / YDX Steel',
     desc:'Steel-frame A-frame units under evaluation. Quotes in comparison; catalog page pending.',
-    price:'TBD', unit:'pending quote confirmation', tag:'<span class="badge tbdb">Sourcing</span>' },
-  { id:null, live:false, type:'custom', mfr:'other', img:null,
-    name:'Custom Cabin', mfrName:'Manufacturer TBD',
-    desc:'Custom-specification cabin. Architecture brief and supplier shortlist in progress.',
-    price:'TBD', unit:'pending scope', tag:'<span class="badge tbdb">Pipeline</span>' }
+    price:'TBD', unit:'pending quote confirmation', tag:'<span class="badge tbdb">Sourcing</span>' }
 ];
 
 const MANUFACTURERS = ['all','shelter','meihua','meishu','platinum','zhongjun','one','shandong','other'];
@@ -2552,8 +2546,9 @@ document.addEventListener('click',function(e){
 function buildFilters(){
   const mf=document.getElementById('mfr-filters'); const tf=document.getElementById('type-filters');
   if(!mf||!tf) return;
-  MANUFACTURERS.forEach(m=>{const b=document.createElement('button');b.className='filt'+(m==='all'?' on':'');b.textContent=MFR_LABELS[m];b.dataset.mfr=m;b.onclick=()=>{activeMfr=m;mf.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderCards();};mf.appendChild(b);});
-  TYPES.forEach(t=>{const b=document.createElement('button');b.className='filt'+(t==='all'?' on':'');b.textContent=TYPE_LABELS[t];b.dataset.type=t;b.onclick=()=>{activeType=t;tf.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderCards();};tf.appendChild(b);});
+  const usedMfr=new Set(PRODUCTS.map(p=>p.mfr)), usedType=new Set(PRODUCTS.map(p=>p.type));
+  TYPES.filter(t=>(t==='all'||usedType.has(t))&&TYPE_LABELS[t]).forEach(t=>{const b=document.createElement('button');b.className='filt'+(t==='all'?' on':'');b.textContent=TYPE_LABELS[t];b.dataset.type=t;b.onclick=()=>{activeType=t;tf.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderCards();};tf.appendChild(b);});
+  MANUFACTURERS.filter(m=>(m==='all'||usedMfr.has(m))&&MFR_LABELS[m]).forEach(m=>{const b=document.createElement('button');b.className='filt'+(m==='all'?' on':'');b.textContent=MFR_LABELS[m];b.dataset.mfr=m;b.onclick=()=>{activeMfr=m;mf.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderCards();};mf.appendChild(b);});
 }
 function cardHTML(p){
   const phStyle=p.img?`background-image:url(${p.img})`:'';
