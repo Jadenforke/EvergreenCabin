@@ -48,7 +48,7 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .hero-feature .arr{transition:transform .2s}.hero-feature:hover .arr{transform:translateX(3px)}
 @keyframes heropulse{0%{box-shadow:0 0 0 0 rgba(123,224,166,.6)}70%{box-shadow:0 0 0 7px rgba(123,224,166,0)}100%{box-shadow:0 0 0 0 rgba(123,224,166,0)}}
 .hero .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,8,.65) 0%,rgba(5,10,8,.52) 40%,rgba(4,9,6,.90) 100%)}
-.hero-inner{position:relative;width:100%;padding:80px 0 0}
+.hero-inner{position:relative;width:100%;padding:80px 0 40px}
 .hero h1{font-size:clamp(34px,5.6vw,64px);font-weight:800;font-stretch:112%;line-height:1.03;letter-spacing:-.02em;max-width:760px;margin:16px 0 18px}
 .hero p{max-width:540px;font-size:16.5px;color:rgba(255,255,255,.85);margin-bottom:30px}
 .hero .eyebrow{color:#B8D8C4}.hero .eyebrow::before{background:#B8D8C4}
@@ -84,6 +84,8 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .card h3{font-size:19px;font-weight:750;font-stretch:105%;letter-spacing:-.01em;margin:8px 0 6px}
 .card .mfr{font-size:12.5px;color:var(--steel)}
 .card .desc{font-size:14px;color:var(--steel);margin:10px 0 18px;flex:1}
+.card .cmeta{font-size:13.5px;font-weight:600;color:var(--ink);margin:7px 0 16px;flex:1;line-height:1.45}
+.card .cmeta .sep{color:var(--line);margin:0 6px;font-weight:400}
 .card .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;border-top:1px solid var(--line);padding-top:16px}
 .card .price{min-width:0}
 .card .price .n{font-family:'Archivo',sans-serif;font-size:20px;font-weight:800}
@@ -335,8 +337,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   section{padding:44px 0}
 
   /* hero */
-  .hero{min-height:420px}
-  .hero h1{font-size:clamp(28px,8vw,44px)}
+  .hero{min-height:auto}
+  .hero-inner{padding:38px 0 34px}
+  .hero h1{font-size:clamp(28px,8vw,44px);margin:14px 0 16px}
+  .hero .btnrow{margin-bottom:22px}
   .hero p{font-size:15px}
   .btnrow{gap:10px}
   .btn{padding:11px 18px;font-size:13px}
@@ -3202,61 +3206,61 @@ const PRODUCTS = [
     img: IMGS.hero,
     name:'Geo Domes', mfrName:'Shelter Architecture Technology — Guangdong, China',
     desc:'Available in 5m / 6m / 7m / 8m. Four-season geodesic dome, Q235 steel frame, CAN/ULC-S109-14 certified cover. Fully quoted with turnkey add-ons including bathroom pod, kitchen, and WPC platform.',
-    price:'From $1,347', unit:'USD / shell FOB Guangzhou · All 4 sizes quoted',
+    price:'From $1,347', unit:'USD · shell · FOB', meta:'4 sizes · shell only · turnkey add-ons',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'glassdome', live:true, type:'dome', mfr:'meihua',
     img: GLASS_HERO,
     name:'Standing Glass Dome', mfrName:'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd',
     desc:'6m aluminium-alloy geodesic glass dome elevated on legs. Turnkey unit — insulated glazing, interior insulation, integrated bathroom, kitchen, loft, and staircase all included in one price.',
-    price:'$16,800', unit:'USD / turnkey EXW Guangzhou · +$3,000 one-time CSA',
+    price:'$16,800', unit:'USD · turnkey · EXW', meta:'6 m dome · loft · 1 bath · kitchen',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'chunshu', live:true, type:'villa', mfr:'meishu',
     img: CHUNSHU_HERO,
     name:'Chun Shu', mfrName:'Beautiful Villa — Foshan Meishu Tourism Development Co., Ltd',
     desc:'108.72 m² two-storey steel villa with a glass sunroom. Fully finished turnkey unit — 1 bedroom, 1 living room, 1 bathroom, and an attic, with complete interior, glazing, and services.',
-    price:'$50,655', unit:'USD / turnkey · 108.72 m² · 2 storeys + sunroom',
+    price:'$50,655', unit:'USD · turnkey', meta:'1 bed · 1 bath · 108.72 m² · 2 storey + sunroom',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'steel', live:true, type:'container', mfr:'platinum',
     img: STEEL_HERO,
     name:'Steel Frame Modular Container', mfrName:'Platinum Building Technology Development Inc.',
     desc:'75 m² one-bedroom steel-frame modular home — living room, bedroom, bathroom, and terrace. Fully finished interior, engineered insulated wall build-up (Rockwool + PU foam, U-value 0.57), wood-clad exterior.',
-    price:'$32,000', unit:'USD / FOB · 75 m² · 1 bedroom',
+    price:'$32,000', unit:'USD · FOB', meta:'1 bed · 1 bath · 75 m²',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'capsule', live:true, type:'capsule', mfr:'zhongjun',
     img: CAPSULE_HERO,
     name:'Steele Capsule (T5)', mfrName:'Zhongjun Teng (Jiujiang) International Trade Co., Ltd.',
     desc:'Futuristic 28 m² two-person space capsule — galvanized-steel frame, aluminium shell, Low-E glass curtain wall, rooftop panoramic balcony, and a fully fitted smart interior. Delivered assembled.',
-    price:'$34,000', unit:'USD / FOB · 28 m² · 2 persons · turnkey',
+    price:'$34,000', unit:'USD · FOB · turnkey', meta:'2 person · 1 bath · 28 m²',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'t9', live:true, type:'capsule', mfr:'zhongjun',
     img: T9_HERO,
     name:'Steele Capsule (T9)', mfrName:'Zhongjun Teng (Jiujiang) International Trade Co., Ltd.',
     desc:'The larger 38 m² space capsule for 2–4 people — 11.5 m galvanized-steel frame, aluminium shell, Low-E glass curtain wall, panoramic balcony, and a fully fitted smart interior. Delivered assembled.',
-    price:'$28,551', unit:'USD ex-factory · 38 m² · 2–4 persons · +$6k solar',
+    price:'$28,551', unit:'USD ex-factory · +$6k solar', meta:'2–4 person · 1 bath · 38 m²',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'one', live:true, type:'capsule', mfr:'one',
     img: ONE_HERO,
     name:'ONE Living Capsule', mfrName:'Hebei Qianyan Metal Products Co., Ltd. — ONE Living Capsules brand',
     desc:'Matte-black glass-walled living capsule — 60 m² one-bedroom with double-layer galvanized-steel frame, EPS + rock-wool walls, full-height Low-E glass, integrated bathroom, and a fully fitted smart interior with 2000W floor heating.',
-    price:'$35,463', unit:'USD / FOB · 60 m² · 1 bedroom · turnkey',
+    price:'$35,463', unit:'USD · FOB · turnkey', meta:'1 bed · 1 bath · 60 m²',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'branson', live:true, type:'container', mfr:'yidongxiang',
     img: BRANSON_HERO,
     name:'Branson Project', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
     desc:'72 m² light-steel modular home — 2 bedrooms, 2 bathrooms, open kitchen/living, and a rooftop terrace. Engineered to 2018 IBC / IRC and AISI S100 / S214; an identical unit is already installed in Indian Point, Missouri.',
-    price:'$25,200', unit:'USD · 72 m² · 2-bed · $350/m² (+~$19k landed)',
+    price:'$25,200', unit:'USD · $350/m² · +~$19k landed', meta:'2 bed · 2 bath · 72 m² · roof deck',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'twofloor', live:true, type:'capsule', mfr:'pawa',
     img: TF_HERO,
     name:'Two Floor Capsule', mfrName:'Hunan Pawa Technology Co., Ltd. (iParwa)',
     desc:'Futuristic two-storey capsule (Space Capsule SA3) — 45 m² over two floors: ground-floor kitchen/living/bath and an upper bedroom capsule, galvanized-steel frame, thermal-break glazing, turnkey fit-out with a 20-year warranty.',
-    price:'$31,579', unit:'USD package · 45 m² · 2 floors · turnkey',
+    price:'$31,579', unit:'USD package · turnkey', meta:'1 bed · 2 bath · 45 m² · 2 floors',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'aframe', live:true, type:'aframe', mfr:'yidongxiang',
     img: AF_HERO,
     name:'A-Frame Cabin', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
     desc:'90 m² glulam A-frame cabin with SIPs sheathing — 2 bedrooms, 1 bathroom, open kitchen/living, and an attic loft. Engineered to IBC / ASCE 7-22 with a 4.97 kPa snow rating — the strongest in the catalog.',
-    price:'~$31,500', unit:'USD · 90 m² · 2-bed · ~$350/m²',
+    price:'~$31,500', unit:'USD · ~$350/m²', meta:'2 bed · 1 bath · 90 m²',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' }
 ];
 
@@ -3620,7 +3624,7 @@ function buildFilters(){
 function cardHTML(p){
   const phStyle=p.img?`background-image:url(${p.img})`:'';
   const phInner=p.img?`<span class="tag">${p.tag}</span><span class="type-tag">${TYPE_LABELS[p.type]}</span>`:`<span>${TYPE_LABELS[p.type].toUpperCase()} · COMING SOON</span>`;
-  const body=`<div class="body"><div style="font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)">${p.mfrName.split('—')[0].trim()}</div><h3>${p.name}</h3><div class="desc">${p.desc}</div><div class="foot"><div class="price"><div class="n">${p.price}</div><div class="u">${p.unit}</div></div>${p.live?'<div class="go">Open catalog →</div>':'<div class="go" style="color:var(--steel)">Coming soon</div>'}</div></div>`;
+  const body=`<div class="body"><div style="font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)">${p.mfrName.split('—')[0].trim()}</div><h3>${p.name}</h3><div class="cmeta">${p.meta||p.desc}</div><div class="foot"><div class="price"><div class="n">${p.price}</div><div class="u">${p.unit}</div></div>${p.live?'<div class="go">Open catalog →</div>':'<div class="go" style="color:var(--steel)">Coming soon</div>'}</div></div>`;
   if(p.live) return `<a class="card" href="#/product/${p.id}"><div class="ph${p.img?'':' soon'}" style="${phStyle}">${phInner}</div>${body}</a>`;
   return `<div class="card${p.img?'':' soon'}"><div class="ph${p.img?'':' soon'}" style="${phStyle}">${phInner}</div>${body}</div>`;
 }
