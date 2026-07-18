@@ -3465,7 +3465,8 @@ const SOL_GALLERY = ['/img/solar/quote.webp'];
 const SOL_MEDIA = SOL_GALLERY.map(src=>({type:'img',src}));
 const IG_HERO = '/img/igloo/hero.webp';
 const IG_GALLERY = ['/img/igloo/hero.webp','/img/igloo/kitchen.webp','/img/igloo/bath.webp','/img/igloo/plan.webp'];
-const IG_MEDIA = IG_GALLERY.map(src=>({type:'img',src}));
+const IG_VIDEOS = [{src:'/img/igloo/walkthrough.webm',poster:'/img/igloo/hero.webp'}];
+const IG_MEDIA = [...IG_GALLERY.map(src=>({type:'img',src})), ...IG_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 
 // ─── SIZE DATA (from Shelter Architecture PDF) ───────────────────────────────
 const SIZE_DATA = {
