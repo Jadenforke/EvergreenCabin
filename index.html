@@ -132,6 +132,22 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .php-incl .no{color:var(--steel);opacity:.75}
 .php-incl .no .lbl{text-decoration:line-through}
 .php-incl .maybe{color:#7A5A12;border-color:#E3D3AC;background:#F6EFDD}
+.php-incl .addon{color:var(--pine);border-color:var(--pine);border-style:dashed;background:transparent}
+.addon-config{margin-top:26px;border:1.5px solid var(--pine);border-radius:12px;overflow:hidden}
+.addon-config .ac-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:13px 18px;background:var(--pine);color:#fff;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px}
+.addon-config .ac-note{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.addon-config .ac-body{padding:4px 18px 16px;background:var(--card)}
+.addon-config .ac-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.addon-config label.ac-line{cursor:pointer}
+.addon-config .ac-base>span:first-child,.addon-config .ac-tlabel{color:var(--steel);font-size:13.5px}
+.addon-config .ac-base b{font-family:'Archivo',sans-serif;color:var(--ink);font-size:15px}
+.addon-config .ac-check{display:flex;align-items:center;gap:12px}
+.addon-config .ac-check input{width:19px;height:19px;accent-color:var(--pine);cursor:pointer;flex-shrink:0}
+.addon-config .ac-name{font-size:14px;font-weight:600;color:var(--ink)}
+.addon-config .ac-add{font-family:'Archivo',sans-serif;font-weight:700;color:var(--pine);font-size:14px;white-space:nowrap}
+.addon-config .ac-total{border-bottom:none;padding-top:15px}
+.addon-config .ac-total .ac-tlabel{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--ink)}
+.addon-config .ac-total .ac-tval{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--pine)}
 .php-specs{padding:14px 20px 8px}
 .php-spec-title{font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:8px}
 .php-spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
@@ -1500,8 +1516,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr><td class="k">Bathroom</td><td>Smart toilet, washstand / basin / mirror / cabinet, rain shower, lighting &amp; ventilation</td></tr>
       <tr><td class="k">HVAC &amp; water</td><td>2P + 1.5P air conditioners (Haier / Midea), 80 L water heater</td></tr>
       <tr><td class="k">Smart system</td><td>Whole-house smart (Tuya Smart)</td></tr>
-      <tr class="total-row"><td class="k">Price</td><td>$34,000 USD &mdash; FOB ($1,214.29 / m&sup2; &middot; $112.81 / sq ft) &middot; kitchen +$1,200 &middot; solar 15 kWh +$6,000</td></tr>
+      <tr class="total-row"><td class="k">Base price</td><td>$34,000 USD &mdash; FOB ($1,214.29 / m&sup2; &middot; $112.81 / sq ft) &mdash; add-ons below are not included</td></tr>
     </table></div>
+    <div class="addon-config" id="capsule-addon-config"></div>
   </div></div>
 
   <!-- FLOOR PLAN & SCOPE -->
@@ -2617,8 +2634,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr><td class="k">Bathroom</td><td>Smart toilet, washstand / basin / mirror / cabinet, rain shower, lighting &amp; ventilation</td></tr>
       <tr><td class="k">HVAC &amp; water</td><td>2P + 1.5P air conditioners (Haier), 80 L water heater (Midea)</td></tr>
       <tr><td class="k">Smart system</td><td>Whole-house smart (Tuya Smart)</td></tr>
-      <tr class="total-row"><td class="k">Price</td><td>$28,551 USD ex-factory ($751.34 / m&sup2; &middot; $69.81 / sq ft) &middot; kitchen +$1,200 &middot; solar 15 kWh +$6,000 &rarr; $34,551</td></tr>
+      <tr class="total-row"><td class="k">Base price</td><td>$28,551 USD ex-factory ($751.34 / m&sup2; &middot; $69.81 / sq ft) &mdash; add-ons below are not included</td></tr>
     </table></div>
+    <div class="addon-config" id="t9-addon-config"></div>
   </div></div>
 
   <!-- FLOOR PLAN & SCOPE -->
@@ -3677,8 +3695,8 @@ const INCL = {
   glass:    {bath:1, kitchen:1, ac:-1, tank:0},  // Standing Glass Dome — bathroom pod excl. water heater/tank
   chunshu:  {bath:1, kitchen:1, ac:-1, tank:-1}, // Chun Shu villa
   steel:    {bath:1, kitchen:1, ac:-1, tank:0},  // Steel Modular — water heater not incl.
-  capsule:  {bath:1, kitchen:1, ac:1, tank:1},   // Steele T5
-  t9:       {bath:1, kitchen:1, ac:1, tank:1},   // Steele T9
+  capsule:  {bath:1, kitchen:2, ac:1, tank:1},   // Steele T5 — kitchen is a paid add-on
+  t9:       {bath:1, kitchen:2, ac:1, tank:1},   // Steele T9 — kitchen is a paid add-on
   one:      {bath:1, kitchen:-1, ac:1, tank:1},  // ONE Living Capsule
   branson:  {bath:1, kitchen:1, ac:0, tank:0},   // Branson — appliances sourced locally (warranty)
   twofloor: {bath:1, kitchen:1, ac:1, tank:1},   // Two Floor Capsule
@@ -3689,11 +3707,47 @@ function renderIncl(page){
   const block=document.querySelector('#page-'+page+' .php-price-block');
   if(!block || block.querySelector('.php-incl')) return;
   const labels={bath:'Bathroom', kitchen:'Kitchen', ac:'AC / heating', tank:'Water tank'};
-  const cls={'1':'yes','0':'no','-1':'maybe'}, mk={'1':'&#10003;','0':'&#10007;','-1':'?'};
+  const cls={'1':'yes','0':'no','-1':'maybe','2':'addon'}, mk={'1':'&#10003;','0':'&#10007;','-1':'?','2':'+'};
   let html='<div class="php-incl-label">Included in price</div><div class="php-incl">';
-  ['bath','kitchen','ac','tank'].forEach(k=>{const v=String(map[k]);html+=`<span class="pill ${cls[v]}"><span class="mk">${mk[v]}</span><span class="lbl">${labels[k]}</span></span>`;});
+  ['bath','kitchen','ac','tank'].forEach(k=>{const v=String(map[k]);const lbl=labels[k]+(v==='2'?' (add-on)':'');html+=`<span class="pill ${cls[v]}"><span class="mk">${mk[v]}</span><span class="lbl">${lbl}</span></span>`;});
   html+='</div>';
   block.insertAdjacentHTML('beforeend', html);
+}
+
+// ─── ADD-ON PRICE CONFIGURATOR (Full specification) ───────────────────────────
+const ADDON_CONFIG = {
+  capsule: { base:34000, cur:'USD', addons:[
+    {k:'kitchen', name:'Kitchen cabinet + range hood', price:1200},
+    {k:'solar',   name:'Solar — 15 kWh (battery + panels + inverter)', price:6000}
+  ]},
+  t9: { base:28551, cur:'USD', addons:[
+    {k:'kitchen', name:'Kitchen cabinet + range hood', price:1200},
+    {k:'solar',   name:'Solar — 15 kWh (battery + panels + inverter)', price:6000}
+  ]}
+};
+const addonState = {};
+function fmtUSD(n){ return '$'+n.toLocaleString('en-US'); }
+function updateAddonTotal(page){
+  const cfg=ADDON_CONFIG[page]; if(!cfg) return;
+  let total=cfg.base;
+  cfg.addons.forEach(a=>{ if(addonState[page] && addonState[page].has(a.k)) total+=a.price; });
+  const t=document.getElementById(page+'-addon-total'); if(t) t.textContent=fmtUSD(total);
+}
+function buildAddonConfig(page){
+  const cfg=ADDON_CONFIG[page]; if(!cfg) return;
+  const el=document.getElementById(page+'-addon-config'); if(!el) return;
+  if(!addonState[page]) addonState[page]=new Set();
+  let rows=`<div class="ac-line ac-base"><span>Base unit price</span><b>${fmtUSD(cfg.base)}</b></div>`;
+  cfg.addons.forEach(a=>{
+    rows+=`<label class="ac-line"><span class="ac-check"><input type="checkbox" data-k="${a.k}"><span class="ac-name">${a.name}</span></span><span class="ac-add">+${fmtUSD(a.price)}</span></label>`;
+  });
+  rows+=`<div class="ac-line ac-total"><span class="ac-tlabel">Your configured total</span><span class="ac-tval" id="${page}-addon-total">${fmtUSD(cfg.base)}</span></div>`;
+  el.innerHTML=`<div class="ac-head">Configure your price <span class="ac-note">Add-ons are not in the base price</span></div><div class="ac-body">${rows}</div>`;
+  el.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.checked=addonState[page].has(cb.dataset.k);
+    cb.onchange=()=>{ if(cb.checked) addonState[page].add(cb.dataset.k); else addonState[page].delete(cb.dataset.k); updateAddonTotal(page); };
+  });
+  updateAddonTotal(page);
 }
 
 function route(){
@@ -3756,6 +3810,7 @@ function route(){
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   renderIncl(page);
+  buildAddonConfig(page);
   autoImperial(document.getElementById('page-'+page));
 }
 // ─── ROTATING HOME HERO (showcases 7 units) ──────────────────────────────────
