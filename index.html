@@ -4058,7 +4058,8 @@ const INCL = {
   one:      {bath:1, kitchen:-1, ac:1, tank:1},  // ONE Living Capsule
   branson:  {bath:1, kitchen:1, ac:0, tank:0},   // Branson — appliances sourced locally (warranty)
   twofloor: {bath:1, kitchen:1, ac:1, tank:1},   // Two Floor Capsule
-  aframe:   {bath:1, kitchen:1, ac:0, tank:0}    // A-Frame — appliances sourced locally (warranty)
+  aframe:   {bath:1, kitchen:1, ac:0, tank:0},   // A-Frame — appliances sourced locally (warranty)
+  igloo:    {bath:0, kitchen:0, ac:0, tank:0}    // Glamping Dome — base set only; bath/kitchen are add-ons
 };
 function renderIncl(page){
   const map=INCL[page]; if(!map) return;
