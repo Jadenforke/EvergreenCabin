@@ -443,6 +443,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <nav class="navlinks">
       <a href="#/" data-nav="home">Home</a>
       <a href="#/catalog" data-nav="catalog">Catalog</a>
+      <a href="#/shipping" data-nav="shipping">Shipping</a>
     </nav>
   </div>
 </header>
@@ -481,6 +482,291 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="cards" id="catalog-cards"></div>
   </div></section>
+</div>
+
+<!-- SHIPPING & IMPORT REQUIREMENTS -->
+<div class="page" id="page-shipping">
+  <style>
+    #page-shipping .ship-head{padding:8px 0 4px}
+    #page-shipping .ship-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    #page-shipping .ship-tag{font-size:12.5px;font-weight:600;color:var(--steel);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px}
+    #page-shipping .ship-tag b{color:var(--ink)}
+    #page-shipping .ship-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+    #page-shipping .ship-legend .li{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--steel)}
+    #page-shipping .badge.sep{background:var(--tint);color:var(--steel)}
+    #page-shipping .comp h4{margin:0 0 8px;font-family:'Archivo',sans-serif;font-size:15.5px;font-weight:800;letter-spacing:-.01em}
+    #page-shipping .comp .agency{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--pine);margin:0 0 8px}
+    #page-shipping .comp p{margin:0;font-size:13.5px;color:var(--steel);line-height:1.55}
+    #page-shipping .comp p b{color:var(--ink)}
+    #page-shipping .comp .applies{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--steel)}
+    #page-shipping .comp .applies b{color:var(--ink)}
+    #page-shipping .comp ul{margin:10px 0 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+    #page-shipping .comp li{position:relative;padding-left:16px;font-size:13.5px;color:var(--steel);line-height:1.45}
+    #page-shipping .comp li b{color:var(--ink)}
+    #page-shipping .comp li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--pine)}
+    #page-shipping .mtx td{text-align:center;vertical-align:middle;white-space:nowrap}
+    #page-shipping .mtx td.name{text-align:left;white-space:normal;width:auto;font-weight:400}
+    #page-shipping .mtx td.name .nm{font-weight:700;color:var(--ink);font-size:13.5px}
+    #page-shipping .mtx td.name .mf{display:block;font-size:11.5px;color:var(--steel);margin-top:2px}
+    #page-shipping .mtx th{text-align:center}
+    #page-shipping .mtx th.name{text-align:left}
+    #page-shipping .mtx tr.grp td{background:var(--pine-light);color:var(--pine);font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-align:left}
+    #page-shipping .trk{font-size:10.5px;font-weight:700;color:var(--steel);border:1px solid var(--line);border-radius:5px;padding:2px 7px}
+    #page-shipping .mk{font-weight:800;font-size:15px;line-height:1}
+    #page-shipping .mk.req{color:var(--pine)}
+    #page-shipping .mk.cond{color:var(--amber)}
+    #page-shipping .mk.watch{color:var(--danger)}
+    #page-shipping .mk.no{color:var(--line)}
+    #page-shipping .mcap{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;font-size:12.5px;color:var(--steel)}
+    #page-shipping .mcap span{display:inline-flex;align-items:center;gap:7px}
+    #page-shipping .checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    #page-shipping .checkcard{border:1px solid var(--line);border-radius:8px;padding:22px;background:var(--card)}
+    #page-shipping .checkcard h4{margin:0 0 4px;font-family:'Archivo',sans-serif;font-size:15px;font-weight:800}
+    #page-shipping .checkcard .n{font-size:12.5px;color:var(--steel);margin:0 0 14px}
+    #page-shipping .checkcard ol,#page-shipping .checkcard ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px}
+    #page-shipping .checkcard li{display:flex;gap:11px;font-size:13.5px;color:var(--steel);line-height:1.45}
+    #page-shipping .checkcard li b{color:var(--ink)}
+    #page-shipping .num{flex:none;width:21px;height:21px;border-radius:6px;background:var(--pine);color:#fff;font-family:'Archivo',sans-serif;font-size:11.5px;font-weight:800;display:grid;place-items:center;margin-top:1px}
+    #page-shipping .cbox{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--steel);margin-top:2px}
+    @media (max-width:720px){#page-shipping .checkgrid{grid-template-columns:1fr}}
+  </style>
+
+  <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Shipping &amp; import requirements</strong></div>
+
+  <div class="wrap ship-head">
+    <div class="sec-head">
+      <div class="eyebrow">Sourcing compliance &middot; verified July 2026</div>
+      <h2>Shipping &amp; import requirements: China&nbsp;&rarr;&nbsp;Ontario</h2>
+      <p style="max-width:70ch">What the law requires to bring Evergreen&rsquo;s China-sourced cabins and off-grid power kits into Ontario &mdash; landed at Gore Bay / Manitoulin Island. Organized by the two things you actually import: <strong style="color:var(--ink)">prefab structures</strong> and <strong style="color:var(--ink)">off-grid electrical equipment</strong>.</p>
+    </div>
+    <div class="ship-tags">
+      <span class="ship-tag"><b>17</b> listings covered</span>
+      <span class="ship-tag"><b>11</b> structures &middot; <b>6</b> power kits</span>
+      <span class="ship-tag">Origin <b>China</b> &middot; dest. <b>Ontario (HST)</b></span>
+      <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
+    </div>
+    <div class="ship-legend">
+      <span class="li"><span class="badge ok">Required</span> legally mandatory</span>
+      <span class="li"><span class="badge tbdb">Conditional</span> depends on classification / contents</span>
+      <span class="li"><span class="badge sep">Separate</span> not customs &mdash; gates use on-site</span>
+      <span class="li"><span class="badge warn">Watch</span> recently changed &mdash; verify before ordering</span>
+    </div>
+  </div>
+
+  <nav class="pd-tabs wrap" id="ship-pd-tabs">
+    <a href="#/shipping/overview" data-sub="ship-overview">Overview</a>
+    <a href="#/shipping/baseline" data-sub="ship-baseline">Customs baseline</a>
+    <a href="#/shipping/structures" data-sub="ship-structures">Structures</a>
+    <a href="#/shipping/kits" data-sub="ship-kits">Off-grid kits</a>
+    <a href="#/shipping/matrix" data-sub="ship-matrix">Per-listing matrix</a>
+    <a href="#/shipping/checklist" data-sub="ship-checklist">Before you buy</a>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <div class="subsec" id="sub-ship-overview"><div class="wrap">
+    <div class="eyebrow">Start here</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">Two import tracks, two sets of gates</h2>
+    <p class="intro" style="max-width:66ch">Every shipment shares the customs baseline. Beyond that, the make-or-break requirements differ by what&rsquo;s in the crate &mdash; a steel/aluminium/glass building, or lithium batteries and uncertified electronics.</p>
+    <div class="comp-grid" style="margin-top:22px">
+      <div class="comp ok">
+        <div class="agency">Track A</div>
+        <h4>Prefab structures &mdash; 11 listings</h4>
+        <p style="margin-bottom:6px">Geo Domes, Standing Glass Dome, Chun Shu, Steel Modular, Steele T5/T9, ONE Capsule, Branson, Two Floor, A-Frame, Glass Igloo.</p>
+        <ul>
+          <li><b>25% surtax risk</b> on Chinese steel &amp; aluminium &mdash; hinges on how the kit is classified (whole building vs. structural parts)</li>
+          <li><b>ESA electrical approval</b> for any turnkey unit shipped with fitted wiring, lighting or smart systems</li>
+          <li><b>Wood packaging &amp; timber</b> (ISPM 15 heat-treatment) &mdash; especially the glulam A-Frame</li>
+        </ul>
+        <div class="applies">Building permit &amp; Ontario Building Code review are a <b>separate</b> municipal process &mdash; importing &ne; permission to build.</div>
+      </div>
+      <div class="comp tbdc">
+        <div class="agency">Track B</div>
+        <h4>Off-grid electrical kits &mdash; 6 listings</h4>
+        <p style="margin-bottom:6px">Solar Power System, Bluesun, Full Solar + Wind Kit, G-Series, Archimedes, HuiJue.</p>
+        <ul>
+          <li><b>ESA approval or SPE-1000 field evaluation</b> &mdash; uncertified Chinese inverters/batteries/turbines can&rsquo;t be legally connected until approved</li>
+          <li><b>Lithium-battery dangerous goods</b> rules (UN 3480/3481) for kits carrying LiFePO4 &mdash; ocean and Canadian road leg</li>
+          <li><b>Solar/battery surtax watch</b> &mdash; not imposed today, but under active consideration by Finance Canada</li>
+        </ul>
+        <div class="applies">The electrical approval gate applies <b>whether or not</b> you ever grid-connect &mdash; off-grid still needs ESA.</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- BASELINE -->
+  <div class="subsec" id="sub-ship-baseline"><div class="wrap">
+    <div class="eyebrow">Baseline &middot; applies to all 17 shipments</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The customs foundation</h2>
+    <p class="intro" style="max-width:66ch">Required for any commercial import from China, structure or kit alike. Set these up once, before the first purchase order.</p>
+    <div class="comp-grid" style="margin-top:22px">
+      <div class="comp ok">
+        <div class="agency">CRA &middot; CBSA (CARM)</div>
+        <h4>Importer registration &amp; CARM</h4>
+        <p>Hold a CRA <b>Business Number with an import&ndash;export (RM) account</b>, and register in the <b>CARM Client Portal</b> &mdash; the official system of record since Oct 21, 2024. To get goods released before paying (Release Prior to Payment), you must now post <b>your own financial security</b> (bond or cash) &mdash; you can no longer ride on a broker&rsquo;s bond.</p>
+        <div class="applies"><b>Applies to:</b> every listing &middot; <span style="color:var(--danger)">new 2024&ndash;25 obligation</span></div>
+      </div>
+      <div class="comp ok">
+        <div class="agency">CBSA &middot; Dept. of Finance</div>
+        <h4>GST, duty &amp; HS classification</h4>
+        <p><b>5% GST</b> is collected at the border on the value for duty (Ontario&rsquo;s 8% isn&rsquo;t collected at import &mdash; you self-account and usually recover it as an input tax credit). Every item gets a <b>10-digit HS classification</b> that sets its duty rate; China gets <b>MFN</b> treatment (many of these goods are MFN-free). Value for duty is the <b>transaction value</b>.</p>
+        <div class="applies"><b>Applies to:</b> every listing &middot; classification drives the surtax exposure below</div>
+      </div>
+      <div class="comp ok">
+        <div class="agency">CFIA</div>
+        <h4>Wood packaging &mdash; ISPM 15</h4>
+        <p>All wood crates, pallets, dunnage and bracing from China must be <b>heat-treated and stamped</b> with the IPPC mark. Non-compliant wood is a leading cause of held containers &mdash; CFIA can order the shipment <b>treated, re-exported or destroyed</b> at your expense. The glulam <b>A-Frame</b> and any wood components need a plant-health check of their own.</p>
+        <div class="applies"><b>Applies to:</b> every crated shipment</div>
+      </div>
+      <div class="comp ok">
+        <div class="agency">CBSA</div>
+        <h4>Origin marking &amp; documents</h4>
+        <p>Goods must be marked <b>&ldquo;Made in China&rdquo;</b> &mdash; legible and permanent &mdash; to reach the ultimate purchaser. Every shipment needs a <b>commercial invoice, packing list</b> and <b>bill of lading</b>. Unmarked goods can be held and draw monetary (AMPS) penalties. A licensed <b>customs broker</b> is optional but standard for first-time importers.</p>
+        <div class="applies"><b>Applies to:</b> every listing</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- STRUCTURES -->
+  <div class="subsec" id="sub-ship-structures"><div class="wrap">
+    <div class="eyebrow">Track A &middot; prefab structures</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 11 buildings add</h2>
+    <p class="intro" style="max-width:66ch">These are steel, aluminium and glass &mdash; the exact materials Canada now surtaxes from China. The tariff classification of your kit is a five-figure decision.</p>
+    <div class="comp-grid" style="margin-top:22px">
+      <div class="comp tbdc">
+        <div class="agency">Dept. of Finance &middot; CBSA</div>
+        <h4>25% surtax on Chinese steel &amp; aluminium</h4>
+        <p>Since <b>Oct 22, 2024</b>, listed steel (Ch. 72&ndash;73) and aluminium (Ch. 76) goods from China carry a <b>25% surtax</b>. The hinge: a <b>complete prefab building</b> classifies under heading <b>9406</b> (outside the list), but bare <b>steel/aluminium structural parts</b> fall under <b>7308</b>/<b>7610</b> (on it). Same crate, very different landed cost. Confirm the exact tariff item with a broker (Customs Notice CN24-36).</p>
+        <div class="applies"><b>Applies to:</b> all-steel &amp; aluminium units &mdash; Chun Shu, Steel Modular, capsules, Branson, glass/aluminium domes</div>
+      </div>
+      <div class="comp warn">
+        <div class="agency">Electrical Safety Authority (ON)</div>
+        <h4>Fitted electrical &rarr; ESA approval</h4>
+        <p>Turnkey capsules and villas ship with wiring, lighting, heating and &ldquo;smart&rdquo; systems. Under the Ontario Electrical Safety Code, that equipment can&rsquo;t be <b>connected</b> until it&rsquo;s <b>approved</b> &mdash; a recognized mark (cULus/CSA) or an <b>SPE-1000 field evaluation</b>. Chinese-standard voltage (e.g. 220 V) also needs conversion to 120/240 V.</p>
+        <div class="applies"><b>Applies to:</b> Standing Glass Dome, Chun Shu, Steel Modular, Steele T5/T9, ONE, Two Floor + optional bath/kitchen modules</div>
+      </div>
+      <div class="comp tbdc">
+        <div class="agency">ISED Canada</div>
+        <h4>Wireless &ldquo;smart&rdquo; modules &rarr; ISED</h4>
+        <p>The smart-capsule listings advertise WiFi/app-controlled systems. Any <b>RF/wireless device</b> must be <b>ISED-certified</b> (e.g. RSS-247) and labelled with its certification number, and the importer is responsible for ensuring it. RSS-247 <b>Issue 4</b> took effect July 24, 2025 &mdash; use current supplier test reports.</p>
+        <div class="applies"><b>Applies to:</b> Steele T5/T9, ONE, Two Floor and any smart-controlled unit</div>
+      </div>
+      <div class="comp tbdc">
+        <div class="agency">Natural Resources Canada</div>
+        <h4>Packaged appliances &rarr; NRCan</h4>
+        <p>The core building isn&rsquo;t energy-regulated, but a <b>fridge, AC, water heater or dryer</b> shipped inside a turnkey capsule is a regulated product &mdash; the importer must meet the efficiency standard and file energy-efficiency data. (Standalone solar inverters, batteries and turbines are <b>not</b> on NRCan&rsquo;s list.)</p>
+        <div class="applies"><b>Applies to:</b> turnkey units with built-in appliances (Steele T9, ONE, etc.)</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- OFF-GRID KITS -->
+  <div class="subsec" id="sub-ship-kits"><div class="wrap">
+    <div class="eyebrow">Track B &middot; off-grid electrical</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 6 power kits add</h2>
+    <p class="intro" style="max-width:66ch">Two hard gates dominate: getting uncertified gear legally approved for connection, and shipping lithium batteries as dangerous goods.</p>
+    <div class="comp-grid" style="margin-top:22px">
+      <div class="comp danger">
+        <div class="agency">Electrical Safety Authority (ON)</div>
+        <h4>Electrical approval or SPE-1000 field evaluation</h4>
+        <p>The single biggest gate. No electrical equipment may be <b>sold or connected</b> in Ontario unless <b>approved</b>: either it carries a <b>Canada-recognized mark</b> (cULus / CSA &mdash; a Chinese-only or bare-US &ldquo;UL&rdquo; mark isn&rsquo;t enough), or it passes a <b>CSA SPE-1000 field evaluation</b> per unit/model. Budget cost and lead time for field evaluation on any uncertified inverter, battery or turbine.</p>
+        <div class="applies"><b>Applies to:</b> all 6 kits &mdash; inverters, controllers, batteries, panels &amp; turbines</div>
+      </div>
+      <div class="comp warn">
+        <div class="agency">IMDG (sea) &middot; Transport Canada TDG (road)</div>
+        <h4>Lithium batteries as dangerous goods</h4>
+        <p>LiFePO4 packs are <b>Class 9 dangerous goods</b> &mdash; <b>UN 3480</b> alone, <b>UN 3481</b> with equipment. Sea freight must meet the <b>IMDG Code</b> (packing, labels, signed DG declaration); the port-to-Manitoulin truck leg falls under Canada&rsquo;s <b>TDG</b> regs. Every model needs a <b>UN 38.3 test summary</b> + SDS. The Chinese <b>shipper/consignor</b> carries primary legal responsibility &mdash; require compliant documentation.</p>
+        <div class="applies"><b>Applies to:</b> battery kits &mdash; Solar Power System, Full Solar + Wind Kit, HuiJue</div>
+      </div>
+      <div class="comp tbdc">
+        <div class="agency">Dept. of Finance Canada</div>
+        <h4>Solar &amp; battery surtax &mdash; on the watchlist</h4>
+        <p>As of mid-2025, Chinese <b>solar products and batteries are not surtaxed</b> &mdash; but Finance Canada ran a consultation on exactly these categories (solar, batteries, critical minerals). A future order would hit your Track B goods directly. <b>Re-verify the current status before placing any solar or battery order.</b></p>
+        <div class="applies"><b>Applies to:</b> all solar &amp; battery kits</div>
+      </div>
+      <div class="comp tbdc">
+        <div class="agency">ISED Canada</div>
+        <h4>Wireless monitors &rarr; ISED</h4>
+        <p>WiFi/Bluetooth inverter and battery monitors are <b>RF devices</b> and must be <b>ISED-certified</b> and labelled. Cabling, panels and passive BOS aren&rsquo;t, but the &ldquo;smart&rdquo; monitoring most of these kits include is. The importer/distributor is on the hook for compliance.</p>
+        <div class="applies"><b>Applies to:</b> kits with app/WiFi monitoring</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- MATRIX -->
+  <div class="subsec" id="sub-ship-matrix"><div class="wrap">
+    <div class="eyebrow">Reference</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">Per-listing applicability matrix</h2>
+    <p class="intro" style="max-width:70ch">Which make-or-break requirements each of the 17 listings triggers. The customs baseline (CARM, GST, ISPM 15, origin marking) applies to every row and isn&rsquo;t repeated here.</p>
+    <div class="tablewrap mtx" style="margin-top:20px">
+      <table style="min-width:720px">
+        <tr>
+          <th class="name">Listing</th><th>Track</th><th>Steel/Al<br>25% surtax</th><th>Lithium<br>battery DG</th><th>ESA<br>approval</th><th>Wireless<br>ISED</th>
+        </tr>
+        <tr class="grp"><td colspan="6">Track A &mdash; Prefab structures</td></tr>
+        <tr><td class="name"><span class="nm">Geo Domes</span><span class="mf">Shelter Architecture &middot; steel + fabric</span></td><td><span class="trk">A</span></td><td><span class="mk cond" title="Depends on classification">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk cond" title="Only if electrical added">&#9680;</span></td><td><span class="mk no">&ndash;</span></td></tr>
+        <tr><td class="name"><span class="nm">Standing Glass Dome</span><span class="mf">Meihua &middot; aluminium + glass, turnkey</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Chun Shu</span><span class="mf">Beautiful Villa &middot; steel villa, turnkey</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Steel Frame Modular</span><span class="mf">Platinum &middot; light-gauge steel + glass</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Steele Capsule (T5)</span><span class="mf">Zhongjun &middot; steel capsule, smart</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td></tr>
+        <tr><td class="name"><span class="nm">Steele Capsule (T9)</span><span class="mf">Zhongjun &middot; steel capsule, smart + appliances</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td></tr>
+        <tr><td class="name"><span class="nm">ONE Living Capsule</span><span class="mf">Hebei Qianyan &middot; steel, smart, floor heat</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td></tr>
+        <tr><td class="name"><span class="nm">Branson Project</span><span class="mf">Qingdao Yidongxiang &middot; light-steel modular</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Two Floor Capsule</span><span class="mf">Hunan Pawa &middot; steel capsule, smart</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td></tr>
+        <tr><td class="name"><span class="nm">A-Frame Cabin</span><span class="mf">Qingdao Yidongxiang &middot; glulam + SIPs (wood)</span></td><td><span class="trk">A</span></td><td><span class="mk no" title="Timber, minimal steel/Al">&ndash;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Glass Igloo Dome</span><span class="mf">Guangzhou Yuntu &middot; aluminium + glass</span></td><td><span class="trk">A</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk cond" title="Optional bath/kitchen modules">&#9680;</span></td><td><span class="mk no">&ndash;</span></td></tr>
+        <tr class="grp"><td colspan="6">Track B &mdash; Off-grid electrical</td></tr>
+        <tr><td class="name"><span class="nm">Solar Power System</span><span class="mf">Yidongxiang &middot; 5.5 kW + 16 kWh LiFePO4</span></td><td><span class="trk">B</span></td><td><span class="mk watch" title="Not today &mdash; on watchlist">&#9671;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">Bluesun Solar</span><span class="mf">Bluesun &middot; panels only</span></td><td><span class="trk">B</span></td><td><span class="mk watch">&#9671;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
+        <tr><td class="name"><span class="nm">Full Solar + Wind Kit</span><span class="mf">4 kW solar + 3 kW wind + 9.6 kWh LiFePO4</span></td><td><span class="trk">B</span></td><td><span class="mk watch">&#9671;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">G-Series Wind Turbine</span><span class="mf">Horizontal-axis &middot; 1/3/5 kW</span></td><td><span class="trk">B</span></td><td><span class="mk cond" title="Steel tower may be exposed">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
+        <tr><td class="name"><span class="nm">Archimedes Wind Turbine</span><span class="mf">Wenzhou DGIT &middot; 300 W&ndash;3 kW</span></td><td><span class="trk">B</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
+        <tr><td class="name"><span class="nm">HuiJue Off-Grid Kit</span><span class="mf">HuiJue &middot; 6.6 kW + 10 kWh LiFePO4</span></td><td><span class="trk">B</span></td><td><span class="mk watch">&#9671;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+      </table>
+    </div>
+    <div class="mcap">
+      <span><span class="mk req">&#9679;</span> Required / applies</span>
+      <span><span class="mk cond">&#9680;</span> Conditional &mdash; classification or contents</span>
+      <span><span class="mk watch">&#9671;</span> Not today &mdash; on the surtax watchlist</span>
+      <span><span class="mk no">&ndash;</span> Not applicable</span>
+    </div>
+  </div></div>
+
+  <!-- BEFORE YOU BUY -->
+  <div class="subsec" id="sub-ship-checklist" style="border-bottom:none"><div class="wrap">
+    <div class="eyebrow">Before you buy</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">Two decisions to nail, one document set to demand</h2>
+    <p class="intro" style="max-width:66ch">Almost every money-critical surprise on this list traces back to two unknowns and a stack of supplier paperwork.</p>
+    <div class="checkgrid" style="margin-top:22px">
+      <div class="checkcard">
+        <h4>The two decisions that move money</h4>
+        <p class="n">Settle both before signing a purchase order.</p>
+        <ol>
+          <li><span class="num">1</span><span><b>Exact HS classification of each kit.</b> Whole building (9406, likely surtax-free) vs. steel/aluminium parts (7308/7610, +25%). Get a licensed broker&rsquo;s written classification &mdash; it&rsquo;s a five-figure swing per unit.</span></li>
+          <li><span class="num">2</span><span><b>Certification status of every electrical device.</b> A Canada-recognized mark (cULus/CSA) clears ESA instantly; anything uncertified needs an SPE-1000 field evaluation &mdash; price the cost and lead time per model before you commit.</span></li>
+        </ol>
+      </div>
+      <div class="checkcard">
+        <h4>Documents to require from the supplier</h4>
+        <p class="n">Written into the purchase contract, not chased after loading.</p>
+        <ul>
+          <li><span class="cbox"></span><span>Commercial invoice, packing list &amp; bill of lading</span></li>
+          <li><span class="cbox"></span><span><b>ISPM 15</b> heat-treatment certificate for all wood packaging</span></li>
+          <li><span class="cbox"></span><span><b>UN 38.3 test summary + SDS</b> and a signed DG declaration for every battery model</span></li>
+          <li><span class="cbox"></span><span>Certification marks / test reports for inverters, batteries, turbines (or agreement to field-evaluate)</span></li>
+          <li><span class="cbox"></span><span><b>ISED</b> certification numbers for any wireless modules</span></li>
+          <li><span class="cbox"></span><span>&ldquo;Made in China&rdquo; origin marking on goods &amp; cartons</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout red">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 2.5 20h19L12 3Z" stroke="#A34327" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17v.5" stroke="#A34327" stroke-width="2" stroke-linecap="round"/></svg>
+      <div><strong>Recently changed &mdash; re-verify at order time:</strong> <b>CARM financial security</b> (importers must now post their own bond/deposit for Release Prior to Payment) &middot; <b>China steel &amp; aluminium 25% surtax</b> (live since Oct 22, 2024; exposure turns on the 9406-vs-7308/7610 classification &mdash; confirm against Customs Notice CN24-36) &middot; <b>Solar &amp; battery surtax</b> (consulted on but not imposed as of mid-2025; the most likely near-term change to hit Track B) &middot; <b>ISED RSS-247 Issue 4</b> (July 24, 2025) and <b>NRCan Amendment 19</b> (2025&ndash;27) &mdash; use current supplier test reports.</div>
+    </div>
+    <div class="callout" style="margin-top:16px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7A5A12" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#7A5A12" stroke-width="2" stroke-linecap="round"/></svg>
+      <div><strong>This is sourcing guidance, not legal or customs advice.</strong> Requirements and surtax scope change &mdash; confirm the specifics with a <b>licensed Canadian customs broker</b>, the <b>Electrical Safety Authority</b>, and the <b>Town of Gore Bay / Manitoulin</b> building department before committing to any purchase. Building-permit and Ontario Building Code review are separate from import clearance and are covered on each listing&rsquo;s own Compliance tab. Key references verified July 2026: CBSA/CARM, Dept. of Finance (China Surtax Order &amp; CN24-36), CFIA (ISPM 15), ESA (approval &amp; field evaluation), Transport Canada (TDG), ISED.</div>
+    </div>
+  </div></div>
 </div>
 
 <!-- PRODUCT -->
@@ -5031,6 +5317,7 @@ function route(){
   const h=location.hash||'#/';
   let page='home', sub=null;
   if(h.startsWith('#/catalog')) page='catalog';
+  else if(h.startsWith('#/shipping')){ const p=h.split('/'); sub=(p.length>2 && p[2])?p[2]:null; page='shipping'; }
   else if(h.startsWith('#/product/')){ const p=h.split('/'); const pid=p[2]||'dome'; sub=(p.length>3 && p[3])?p[3]:null; page=(pid==='glassdome')?'glass':(pid==='chunshu')?'chunshu':(pid==='steel')?'steel':(pid==='capsule')?'capsule':(pid==='one')?'one':(pid==='branson')?'branson':(pid==='twofloor')?'twofloor':(pid==='t9')?'t9':(pid==='aframe')?'aframe':(pid==='solar')?'solar':(pid==='igloo')?'igloo':(pid==='bluesun')?'bluesun':(pid==='windkit')?'windkit':(pid==='gwind')?'gwind':(pid==='archwind')?'archwind':(pid==='huijue')?'huijue':'product'; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
@@ -5119,6 +5406,10 @@ function route(){
     document.querySelectorAll('#hj-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('hj-'+sub)));
     buildHjGallery();
     if(sub){const el=document.getElementById('sub-hj-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
+    else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
+  } else if(page==='shipping'){
+    document.querySelectorAll('#ship-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('ship-'+sub)));
+    if(sub){const el=document.getElementById('sub-ship-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   renderIncl(page);
