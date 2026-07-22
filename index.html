@@ -559,6 +559,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 
   <nav class="pd-tabs wrap" id="ship-pd-tabs">
     <a href="#/shipping/overview" data-sub="ship-overview">Overview</a>
+    <a href="#/shipping/costs" data-sub="ship-costs">Cost &amp; terms</a>
     <a href="#/shipping/baseline" data-sub="ship-baseline">Customs baseline</a>
     <a href="#/shipping/structures" data-sub="ship-structures">Structures</a>
     <a href="#/shipping/kits" data-sub="ship-kits">Off-grid kits</a>
@@ -595,6 +596,15 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="applies">The electrical approval gate applies <b>whether or not</b> you ever grid-connect &mdash; off-grid still needs ESA.</div>
       </div>
     </div>
+  </div></div>
+
+  <!-- COST & TERMS -->
+  <div class="subsec" id="sub-ship-costs"><div class="wrap">
+    <div class="eyebrow">Cost &amp; terms &middot; every listing</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">Shipping cost &amp; incoterm by listing</h2>
+    <p class="intro" style="max-width:70ch">Freight to Gore Bay by listing &mdash; quoted where a firm figure exists, otherwise <span class="tbd">TBD</span> pending a freight quote. This table and the shipping callout on each listing are generated from a <strong>single source</strong>, so they always match.</p>
+    <div id="ship-cost-table"></div>
+    <p style="font-size:12.5px;color:var(--steel);margin:14px 0 0">Incoterm sets where the price stops: <strong>EXW</strong> is ex-works (you arrange all freight from the factory door); <strong>FOB</strong> covers loading at the origin port. On EXW/FOB terms, add ocean freight, customs, GST and any duty/surtax to reach the landed cost &mdash; see the requirement sections in this page.</p>
   </div></div>
 
   <!-- BASELINE -->
@@ -804,7 +814,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-row"><span class="php-price-total" id="php-total-price">$1,734</span></div>
         <div class="php-price-sub-line" id="php-total-sub">no add-ons selected</div>
         <div class="php-price-rate" id="php-total-rate">$5.70 / sq ft &nbsp;&middot;&nbsp; $61.49 / m&sup2;</div>
-        <div class="php-price-shipping">Shipping to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key purchase considerations</div>
@@ -1196,7 +1206,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-label">One-time CSA approval</div>
         <div class="php-price-row"><span class="php-price-total">+$3,000</span></div>
         <div class="php-price-sub-line">One-time per product type &mdash; reusable for all identical units</div>
-        <div class="php-price-shipping">Shipping &amp; duties to Canada: <span class="tbd">TBD</span> &middot; price excludes tax</div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -1394,7 +1404,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Layout</div>
         <div class="php-price-sub-line">1 Bedroom &middot; 1 Living Room &middot; 1 Bathroom &middot; Attic</div>
-        <div class="php-price-shipping">Shipping, duties &amp; incoterm to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -1571,7 +1581,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Note on price</div>
         <div class="php-price-sub-line">Up from the earlier ~$32,000 estimate &mdash; this formal quote is all-in (foundation base + deck/patio included; both removable to reduce cost)</div>
-        <div class="php-price-shipping">FOB Shanghai &mdash; shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -1737,7 +1747,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Terms</div>
         <div class="php-price-sub-line">Turnkey, delivered assembled &middot; freight by dimension &amp; incoterm &middot; transit ~7&ndash;9 weeks</div>
-        <div class="php-price-shipping">FOB price, shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -2057,7 +2067,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Terms</div>
         <div class="php-price-sub-line">Turnkey standard configuration &middot; production ~30&ndash;45 days &middot; freight by dimension &amp; incoterm</div>
-        <div class="php-price-shipping">FOB price, shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -2367,7 +2377,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Delivered to site</div>
         <div class="php-price-sub-line">+ ~$19,000 shipping, customs duties &amp; delivery to your site</div>
-        <div class="php-price-shipping">Estimated landed total: <span class="tbd">~$44,200</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -2613,7 +2623,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Breakdown</div>
         <div class="php-price-sub-line">Base house $29,400 + internal facilities $2,179 &middot; excludes tax &amp; shipping</div>
-        <div class="php-price-shipping">Shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -2854,7 +2864,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Options</div>
         <div class="php-price-sub-line">Solar &mdash; 15 kWh (battery + panels + inverter): <strong>+$6,000</strong> &rarr; $35,751 with solar</div>
-        <div class="php-price-shipping">Freight by dimension &amp; incoterm &middot; transit ~7&ndash;9 weeks &middot; shipping to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -3184,7 +3194,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Basis</div>
         <div class="php-price-sub-line">Indicative at ~$350/m&sup2; for the 90 m&sup2; glulam A-frame &mdash; confirm final quote</div>
-        <div class="php-price-shipping">Shipping &amp; duties to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -3386,7 +3396,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Basis</div>
         <div class="php-price-sub-line">Off-grid kit &mdash; battery, inverter, 10 panels, mounting, cabling &amp; protection</div>
-        <div class="php-price-shipping">Excludes tax &amp; shipping &middot; installed on-site by a licensed team</div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -3525,7 +3535,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Three sizes</div>
         <div class="php-price-sub-line">6 m $5,847 &middot; 7 m $8,000 &middot; 8 m $11,231 &mdash; pick a size &amp; add options below</div>
-        <div class="php-price-shipping">EXW &mdash; + ~<strong>$9,015</strong> shipping to Canada &middot; ~30 days transit (duties extra)</div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -3722,7 +3732,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Battery + inverter + BOS</div>
         <div class="php-price-sub-line"><strong>Not in this quote &mdash; ~$8k est., not yet quoted.</strong> Battery, inverter, mounting &amp; BOS are most of the system cost; see &ldquo;What&rsquo;s missing&rdquo;</div>
-        <div class="php-price-shipping">EXW Hefei &mdash; freight, duty &amp; delivery to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -3921,7 +3931,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Read before buying</div>
         <div class="php-price-sub-line"><strong>Battery (9.6 kWh) is still below your 40&ndash;60 kWh target and the 220 V output isn&rsquo;t North-American split-phase</strong> &mdash; see &ldquo;What it delivers&rdquo; &amp; &ldquo;Scaling up&rdquo;</div>
-        <div class="php-price-shipping">EXW &mdash; freight, duty &amp; delivery to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -4075,7 +4085,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Pricing</div>
         <div class="php-price-sub-line"><strong>Price on request</strong> &mdash; 1 kW / 3 kW / 5 kW models <span class="noimp">&middot; tower 9 / 12 / 18 m</span></div>
-        <div class="php-price-shipping">EXW &mdash; freight &amp; duty to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -4241,7 +4251,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Stand-out</div>
         <div class="php-price-sub-line">Whisper-quiet <strong>38 dB @ 8 m/s</strong> &middot; omni-directional &middot; cut-in from &lt;1.3 m/s</div>
-        <div class="php-price-shipping">EXW &mdash; freight &amp; duty to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -4419,7 +4429,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="php-price-divider"></div>
         <div class="php-price-label">Toward a 20&ndash;25 kWh/day cabin</div>
         <div class="php-price-sub-line"><strong>Now UL-certified name-brand gear</strong> &mdash; Jinko panels + Megarevo inverter; solar right-sized (~6.25 kW) and a bigger 15 kWh battery (upsize toward 40&ndash;60 kWh)</div>
-        <div class="php-price-shipping">EXW &mdash; freight &amp; duty to Canada: <span class="tbd">TBD</span></div>
+        <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
@@ -5412,6 +5422,7 @@ function route(){
     if(sub){const el=document.getElementById('sub-hj-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else if(page==='shipping'){
+    renderShippingTable();
     document.querySelectorAll('#ship-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('ship-'+sub)));
     if(sub){const el=document.getElementById('sub-ship-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
@@ -5421,17 +5432,73 @@ function route(){
   enhanceShipping(page);
   autoImperial(document.getElementById('page-'+page));
 }
-// ─── SHIPPING VISIBILITY ──────────────────────────────────────────────────────
-// Turns each listing's hero shipping line into a labelled callout + a link to the
-// Shipping & import requirements page. Runs once per element (idempotent).
+// ─── SHIPPING — SINGLE SOURCE OF TRUTH ────────────────────────────────────────
+// Edit a listing's shipping cost / incoterm / transit / note HERE, in ONE place.
+// This map drives BOTH the hero shipping callout on every listing AND the
+// "Cost & terms" table on the #/shipping page, so they can never drift apart.
+//   status: 'quoted'    -> cost is a firm shipping figure
+//           'estimated' -> landed is an all-in landed estimate
+//           'note'      -> show the note only (no incoterm/TBD)
+//           'tbd'       -> awaiting a freight quote
+const SHIPPING = {
+  product:  {name:'Geo Domes',                incoterm:'FOB Guangzhou', status:'tbd', note:'sea freight to Canada'},
+  glass:    {name:'Standing Glass Dome',      incoterm:'EXW',           status:'tbd', note:'price excludes tax'},
+  chunshu:  {name:'Chun Shu',                 incoterm:null,            status:'tbd', note:'incoterm to confirm'},
+  steel:    {name:'Steel Frame Modular',      incoterm:'FOB Shanghai',  status:'tbd'},
+  capsule:  {name:'Steele Capsule (T5)',      incoterm:'FOB',           status:'tbd'},
+  one:      {name:'ONE Living Capsule',       incoterm:'FOB',           status:'tbd'},
+  branson:  {name:'Branson Project',          incoterm:'FOB',           status:'estimated', landed:'~$44,200'},
+  twofloor: {name:'Two Floor Capsule',        incoterm:null,            status:'tbd'},
+  t9:       {name:'Steele Capsule (T9)',      incoterm:null,            status:'tbd', transit:'~7–9 weeks', note:'priced by dimension &amp; incoterm'},
+  aframe:   {name:'A-Frame Cabin',            incoterm:null,            status:'tbd'},
+  solar:    {name:'Solar Power System',       incoterm:'EXW',           status:'note', note:'excludes tax &amp; shipping &middot; installed on-site by a licensed team'},
+  igloo:    {name:'Glass Igloo Dome',         incoterm:'EXW',           status:'quoted', cost:'~$9,015', transit:'~30 days', note:'duties extra'},
+  bluesun:  {name:'Off-Grid Solar (Bluesun)', incoterm:'EXW Hefei',     status:'tbd'},
+  windkit:  {name:'Full Solar + Wind Kit',    incoterm:'EXW',           status:'tbd'},
+  gwind:    {name:'G-Series Wind Turbine',    incoterm:'EXW',           status:'tbd'},
+  archwind: {name:'Archimedes Wind Turbine',  incoterm:'EXW',           status:'tbd'},
+  huijue:   {name:'HuiJue Off-Grid Kit',      incoterm:'EXW',           status:'tbd'}
+};
+const SHIP_ORDER=['product','glass','chunshu','steel','capsule','t9','one','branson','twofloor','aframe','igloo','solar','bluesun','windkit','gwind','archwind','huijue'];
 const SHIP_SVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M2 6.5h11v8.5H2zM13 9.5h4l3 3v2.5h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/><circle cx="16.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/></svg>';
+function formatShipping(s){
+  if(!s) return 'Freight &amp; duty to Canada: <span class="tbd">TBD</span>';
+  const ic = s.incoterm ? `<strong>${s.incoterm}</strong> &mdash; ` : '';
+  if(s.status==='quoted'){
+    const parts=[];
+    if(s.cost) parts.push(`shipping <strong>${s.cost}</strong> to Canada`);
+    if(s.transit) parts.push(`${s.transit} transit`);
+    if(s.note) parts.push(s.note);
+    return ic+parts.join(' &middot; ');
+  }
+  if(s.status==='estimated') return ic+`estimated landed total <strong>${s.landed}</strong>`;
+  if(s.status==='note') return s.note;
+  const bits=[`freight &amp; duty to Canada: <span class="tbd">TBD</span>`];
+  if(s.transit) bits.push(`${s.transit} transit`);
+  if(s.note) bits.push(s.note);
+  return ic+bits.join(' &middot; ');
+}
+// Render the hero shipping callout for a listing from the SHIPPING map.
 function enhanceShipping(page){
   const pg=document.getElementById('page-'+page); if(!pg) return;
+  const s=SHIPPING[page]; if(!s) return;
+  const body=formatShipping(s);
   pg.querySelectorAll('.php-price-shipping').forEach(el=>{
-    if(el.dataset.enh) return; el.dataset.enh='1';
-    const inner=el.innerHTML;
-    el.innerHTML=`<span class="ship-ico" aria-hidden="true">${SHIP_SVG}</span><span class="ship-txt"><span class="ship-lbl">Shipping &amp; import</span>${inner} &middot; <a class="ship-req-link" href="#/shipping">See requirements &rarr;</a></span>`;
+    el.innerHTML=`<span class="ship-ico" aria-hidden="true">${SHIP_SVG}</span><span class="ship-txt"><span class="ship-lbl">Shipping &amp; import</span>${body} &middot; <a class="ship-req-link" href="#/shipping/costs">See requirements &rarr;</a></span>`;
   });
+}
+// Render the Cost & terms table on the #/shipping page from the same map.
+function renderShippingTable(){
+  const el=document.getElementById('ship-cost-table'); if(!el) return;
+  const cell=s=>{
+    if(s.status==='quoted') return `<strong style="color:var(--pine)">${s.cost}</strong>`;
+    if(s.status==='estimated') return `<strong style="color:var(--pine)">${s.landed}</strong> <span style="color:var(--steel);font-size:12px">landed</span>`;
+    if(s.status==='note') return '<span style="color:var(--steel)">&mdash;</span>';
+    return '<span class="tbd">TBD</span>';
+  };
+  const rows=SHIP_ORDER.map(id=>{const s=SHIPPING[id]; if(!s) return '';
+    return `<tr><td class="name"><span class="nm">${s.name}</span></td><td>${s.incoterm||'<span style="color:var(--steel)">&mdash;</span>'}</td><td>${cell(s)}</td><td>${s.transit||'<span style="color:var(--steel)">&mdash;</span>'}</td><td style="font-size:12.5px;color:var(--steel);white-space:normal">${s.note||''}</td></tr>`;}).join('');
+  el.innerHTML=`<div class="tablewrap mtx" style="margin-top:20px"><table style="min-width:700px"><tr><th class="name">Listing</th><th>Incoterm</th><th>Shipping cost</th><th>Transit</th><th>Notes</th></tr>${rows}</table></div>`;
 }
 // ─── ROTATING HOME HERO (showcases 7 units) ──────────────────────────────────
 const HERO_SHOWCASE = [
