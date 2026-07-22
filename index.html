@@ -146,6 +146,10 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .addon-config .ac-check input{width:19px;height:19px;accent-color:var(--pine);cursor:pointer;flex-shrink:0}
 .addon-config .ac-name{font-size:14px;font-weight:600;color:var(--ink)}
 .addon-config .ac-add{font-family:'Archivo',sans-serif;font-weight:700;color:var(--pine);font-size:14px;white-space:nowrap}
+.addon-config label.ac-line.ac-disabled{cursor:not-allowed;opacity:.5}
+.addon-config .ac-disabled .ac-check input{cursor:not-allowed}
+.addon-config .ac-disabled .ac-add{color:var(--steel);text-decoration:line-through}
+.addon-config .ac-unavail{font-weight:600;color:var(--steel);font-size:12px}
 .addon-config .ac-total{border-bottom:none;padding-top:15px}
 .addon-config .ac-total .ac-tlabel{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--ink)}
 .addon-config .ac-total .ac-tval{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--pine)}
@@ -3277,7 +3281,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr><td class="k">7 m</td><td>Ø 23 ft (7 m)</td><td>13.1 ft (4 m)</td><td>414 sq ft (38.46 m&sup2;)</td><td>6</td><td><strong>$8,000</strong></td></tr>
       <tr><td class="k">8 m</td><td>Ø 26 ft (8 m)</td><td>13.8 ft (4.2 m)</td><td>541 sq ft (50.24 m&sup2;)</td><td>6</td><td><strong>$11,231</strong></td></tr>
     </table></div>
-    <p style="font-size:13px;color:var(--steel);margin:8px 0 22px">Example fully-optioned turnkey: <strong>6 m $7,015.50</strong> (dome + door + windows + curtain + fan) &middot; <strong>7 m $9,276.50</strong> &middot; <strong>8 m $15,557.50</strong> (adds bathroom + kitchen). Build any combination in the configurator.</p>
+    <p style="font-size:13px;color:var(--steel);margin:8px 0 22px">Example fully-optioned turnkey: <strong>6 m $7,015.50</strong> (dome + door + windows + curtain + fan) &middot; <strong>7 m $9,276.50</strong> &middot; <strong>8 m $14,041.50</strong> (adds bathroom; kitchen unit is currently unavailable). Build any combination in the configurator.</p>
     <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:0 0 10px">Structure &amp; envelope</h3>
     <div class="tablewrap"><table>
       <tr><td class="k">Frame</td><td>6063-T5 aluminium-alloy, powder-coated white / grey / black, with screws &amp; accessories</td></tr>
@@ -4962,7 +4966,7 @@ const ADDON_CONFIG = {
       {k:'gcurtain', name:'Bay-window curtain + rails', price:339},
       {k:'gfan',     name:'Solar exhaust fan (18W)', price:250},
       {k:'bathroom', name:'Bathroom module (toilet, basin, shower)', price:1288},
-      {k:'kitchen',  name:'Kitchen unit (worktable, sink, storage)', price:1516}
+      {k:'kitchen',  name:'Kitchen unit (worktable, sink, storage)', price:1516, disabled:true}
     ]}
 };
 const addonState = {};
@@ -4977,7 +4981,7 @@ function updateAddonTotal(page){
   const s=activeScope(page); if(!s) return;
   const base=addonBase(page);
   let total=base;
-  (s.addons||[]).forEach(a=>{ if(addonState[page] && addonState[page].has(a.k)) total+=addonPrice(page,a); });
+  (s.addons||[]).forEach(a=>{ if(a.disabled) return; if(addonState[page] && addonState[page].has(a.k)) total+=addonPrice(page,a); });
   const t=document.getElementById(page+'-addon-total'); if(t) t.textContent=fmtUSD(total);
   const b=document.getElementById(page+'-addon-base'); if(b) b.textContent=fmtUSD(base);
 }
@@ -5001,7 +5005,11 @@ function buildAddonConfig(page){
   const baseLabel = s.sizes ? `Base set price <span class="ac-basenote">(selected)</span>` : 'Base unit price';
   let rows=`<div class="ac-line ac-base"><span>${baseLabel}</span><b id="${page}-addon-base">${fmtUSD(addonBase(page))}</b></div>`;
   (s.addons||[]).forEach(a=>{
-    rows+=`<label class="ac-line"><span class="ac-check"><input type="checkbox" data-k="${a.k}"><span class="ac-name">${a.name}</span></span><span class="ac-add">+${fmtUSD(addonPrice(page,a))}</span></label>`;
+    if(a.disabled){
+      rows+=`<label class="ac-line ac-disabled" title="Not currently available"><span class="ac-check"><input type="checkbox" data-k="${a.k}" disabled><span class="ac-name">${a.name} <span class="ac-unavail">&mdash; unavailable</span></span></span><span class="ac-add">+${fmtUSD(addonPrice(page,a))}</span></label>`;
+    } else {
+      rows+=`<label class="ac-line"><span class="ac-check"><input type="checkbox" data-k="${a.k}"><span class="ac-name">${a.name}</span></span><span class="ac-add">+${fmtUSD(addonPrice(page,a))}</span></label>`;
+    }
   });
   rows+=`<div class="ac-line ac-total"><span class="ac-tlabel">Your configured total</span><span class="ac-tval" id="${page}-addon-total">${fmtUSD(addonBase(page))}</span></div>`;
   el.innerHTML=`<div class="ac-head">Configure your price <span class="ac-note">${s.sizes?'Pick a size — add-ons are extra':'Add-ons are not in the base price'}</span></div>${variantBlock}${sizeBlock}<div class="ac-body">${rows}</div>`;
