@@ -543,6 +543,13 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .sum-math .bk-op{display:inline-block;width:12px;color:var(--steel);font-weight:800}
     #page-shipping .sum-math .bk-eq{margin-top:3px;padding-top:5px;border-top:1px solid var(--line)}
     #page-shipping .sum-math .bk-eq b{color:var(--pine)}
+    #page-shipping .sum-tbl .ot-list{display:flex;flex-direction:column;gap:2px;min-width:190px}
+    #page-shipping .ot-line{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;color:var(--steel);line-height:1.35}
+    #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
+    #page-shipping .ot-line.ot-tot{margin-top:3px;padding-top:4px;border-top:1px solid var(--line)}
+    #page-shipping .ot-line.ot-tot .ot-lbl{color:var(--ink);font-family:'Archivo',sans-serif;font-weight:800}
+    #page-shipping .ot-line.ot-tot .ot-val{color:var(--pine);font-weight:800}
+    #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
     #page-shipping .sum-tbl tr.sum-foot td{background:var(--pine-light);border-top:2px solid var(--pine);font-family:'Archivo',sans-serif;font-weight:800;color:var(--pine);vertical-align:middle}
     #page-shipping .sum-tbl tr.sum-foot .tot{color:var(--ink);font-size:15px}
@@ -604,7 +611,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="callout" style="margin-top:16px;background:var(--tint);border-color:var(--pine)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#1E5138" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>How to read it:</strong> the <strong>Cabin subtotal</strong> is the unit alone (before shipping &amp; other costs). The <strong>&ldquo;Est. all-in each&rdquo;</strong> column adds that subtotal + the 25% surtax (assuming it&rsquo;s classed as parts, worst case) + a freight estimate + a one-time compliance allowance (P.Eng, permit, any field evaluation) &mdash; <strong>tap any all-in figure to expand the full math</strong>. The footer row totals each column and averages the all-in. Every figure is a <strong>planning estimate, not a quote</strong>: the surtax only lands if a broker classifies the unit as parts, and freight/compliance vary by unit. Confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
+      <div><strong>How to read it:</strong> the <strong>Cabin subtotal</strong> is the unit alone (before shipping &amp; other costs). <strong>&ldquo;Other one-time costs&rdquo;</strong> is the compliance &amp; permitting work each unit needs once &mdash; itemized in the column: a <strong>P.Eng structural review/seal</strong>, the <strong>building permit</strong> (Group C, OBC Part 9), any <strong>ESA field evaluation</strong> for uncertified electrical plus the ESA inspection, and unit-specific items (CSA approval, insulation upgrade, ISED for wireless, NRCan for appliances). One P.Eng review or field evaluation can cover several identical units, so the per-unit figure drops with fleet size; concrete/foundation and on-site MEP are by your local trades, on top. The <strong>&ldquo;Est. all-in each&rdquo;</strong> column adds subtotal + surtax (worst case, if classed as parts) + freight + those one-time costs &mdash; <strong>tap any all-in figure to expand the full math</strong>. The footer totals each column and averages the all-in. Every figure is a <strong>planning estimate, not a quote</strong> &mdash; confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
     </div>
   </div></div>
 
@@ -4363,48 +4370,34 @@ function renderShippingTable(){
 const SUMMARY = {
   // ── Cabins & structures ──
   glass:    {slug:'glassdome', bd:'Loft · 1 ba', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
-    certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}],
-    extra:'$3,000 CSA approval · P.Eng · insulation upgrade · permit'},
+    certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}]},
   chunshu:  {slug:'chunshu', bd:'1 bd · 1 ba',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
-    certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}],
-    extra:'P.Eng · ESA field eval · permit'},
+    certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}]},
   steel:    {slug:'steel', bd:'1 bd · 1 ba',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
-    certs:[{t:'Structural calcs provided',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical',s:'need'}],
-    extra:'Local P.Eng seal (~$2–6k) · ESA · permit'},
+    certs:[{t:'Structural calcs provided',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical',s:'need'}]},
   capsule:  {slug:'capsule', bd:'Studio · 1 ba',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
-    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'gap'}],
-    extra:'ESA + ISED · winter insulation · P.Eng · permit'},
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'gap'}]},
   one:      {slug:'one', bd:'1 bd · 1 ba',       name:'ONE Living Capsule',   mfr:'Hebei Qianyan · steel, smart', area:'646 ft²', psf:'$54.91', price:'$35,463',
-    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
-    extra:'ESA + ISED · P.Eng · permit'},
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}]},
   branson:  {slug:'branson', bd:'2 bd · 2 ba',   name:'Branson Project',      mfr:'Qingdao Yidongxiang · light-steel', area:'775 ft²', psf:'$32.52', price:'$25,200',
-    certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire wall test (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical (local)',s:'need'}],
-    extra:'Local P.Eng seal · local MEP/ESA · slab foundation · permit'},
+    certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire wall test (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical (local)',s:'need'}]},
   twofloor: {slug:'twofloor', bd:'1 bd · 2 ba',  name:'Two Floor Capsule',    mfr:'Hunan Pawa · steel, smart', area:'484 ft²', psf:'$65.20', price:'$31,579',
-    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
-    extra:'ESA + ISED · P.Eng · permit'},
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}]},
   t9:       {slug:'t9', bd:'1 bd · 1 ba',        name:'Steele Capsule (T9)',  mfr:'Zhongjun · steel + appliances', area:'409 ft²', psf:'$72.74', price:'$29,751',
-    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'NRCan appliances',s:'need'},{t:'Insulation R',s:'need'}],
-    extra:'ESA + ISED + NRCan · P.Eng · permit'},
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'NRCan appliances',s:'need'},{t:'Insulation R',s:'need'}]},
   aframe:   {slug:'aframe', bd:'2 bd · 1 ba',    name:'A-Frame Cabin',        mfr:'Qingdao Yidongxiang · glulam + SIPs', area:'969 ft²', psf:'~$32.52', price:'~$31,500',
-    certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire test on file (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ISPM 15 wood',s:'need'}],
-    extra:'Local P.Eng seal · ISPM 15 · slab foundation · permit'},
+    certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire test on file (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ISPM 15 wood',s:'need'}]},
   igloo:    {slug:'igloo', bd:'Studio · opt. ba',     name:'Glass Igloo Dome',     mfr:'Guangzhou Yuntu · aluminium + glass', area:'304–541 ft²', psf:'$19–21', price:'from $5,847',
-    certs:[{t:'Structural calc report',s:'has'},{t:'Bath/kitchen (used in Canada)',s:'has'},{t:'ESA (if wired)',s:'need'}],
-    extra:'ESA (if wired) · permit'},
+    certs:[{t:'Structural calc report',s:'has'},{t:'Bath/kitchen (used in Canada)',s:'has'},{t:'ESA (if wired)',s:'need'}]},
   // ── Renewable energy ──
   solar:    {slug:'solar',     name:'Solar Power System',   mfr:'Yidongxiang', output:'5.5 kW + 16 kWh LiFePO4',
-    certs:[{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3 DG',s:'need'}],
-    extra:'SPE-1000 field eval · freight quote · ESA'},
+    certs:[{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3 DG',s:'need'}]},
   windkit:  {slug:'windkit',   name:'Full Solar + Wind Kit', mfr:'Zhangjiagang Ry', output:'4 kW solar + 3 kW wind + 10.24 kWh',
-    certs:[{t:'CE',s:'has'},{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3',s:'has'}],
-    extra:'SPE-1000 field eval · battery upsize'},
+    certs:[{t:'CE',s:'has'},{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3',s:'has'}]},
   huijue:   {slug:'huijue',    name:'HuiJue Off-Grid Kit',  mfr:'HuiJue · Jinko + Megarevo', output:'6.25 kW + 15 kWh LiFePO4',
-    certs:[{t:'Jinko UL 61730 panels',s:'has'},{t:'Megarevo CSA C22.2 inverter',s:'has'},{t:'Battery UL 1973/9540A/UN 38.3',s:'has'},{t:'ISPM 15',s:'has'},{t:'ESA field acceptance',s:'need'}],
-    extra:'Confirm SCC/ESA mark acceptance · $80/kWh battery add'},
+    certs:[{t:'Jinko UL 61730 panels',s:'has'},{t:'Megarevo CSA C22.2 inverter',s:'has'},{t:'Battery UL 1973/9540A/UN 38.3',s:'has'},{t:'ISPM 15',s:'has'},{t:'ESA field acceptance',s:'need'}]},
   allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
-    certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA',s:'gap'}],
-    extra:'SPE-1000 field eval (no UL) · DDP quote · +$2,400/battery module'}
+    certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA',s:'gap'}]}
 };
 const SUM_CABINS=['glass','chunshu','steel','capsule','one','branson','twofloor','t9','aframe','igloo'];
 const SUM_ENERGY=['solar','windkit','huijue','allrun'];
@@ -4413,24 +4406,40 @@ const SUM_ENERGY=['solar','windkit','huijue','allrun'];
 // fob IF classed as steel/aluminium parts (0 = none/timber/DDP-covered);
 // shipEst & compEst are rough planning estimates for freight and one-time
 // compliance (P.Eng, permit, field evaluation). allIn = fob+surtax+ship+comp.
+// "Other one-time costs" (comp) = the one-time compliance & permitting work each
+// listing needs, separate from the unit price and shipping. Itemized so it can be
+// read line-by-line; amounts are midpoint planning estimates (see the "Cost &
+// terms" tab). One P.Eng review / field evaluation can cover multiple identical
+// units, so per-unit cost drops with fleet size.
 const SUM_COST = {
-  glass:    {fob:16800, surtaxAmt:4200,  surtaxNote:'if aluminium parts', shipEst:2500,  compEst:11000},
-  chunshu:  {fob:50655, surtaxAmt:12700, surtaxNote:'if steel parts',     shipEst:6000,  compEst:8000},
-  steel:    {fob:45292, surtaxAmt:11300, surtaxNote:'if steel parts',     shipEst:5000,  compEst:6000},
-  capsule:  {fob:34000, surtaxAmt:8500,  surtaxNote:'if steel parts',     shipEst:4500,  compEst:8000},
-  one:      {fob:35463, surtaxAmt:8900,  surtaxNote:'if steel parts',     shipEst:5000,  compEst:7000},
-  branson:  {fob:25200, surtaxAmt:6300,  surtaxNote:'if steel parts',     shipEst:19000, compEst:6000},
-  twofloor: {fob:31579, surtaxAmt:7900,  surtaxNote:'if steel parts',     shipEst:4500,  compEst:7000},
-  t9:       {fob:29751, surtaxAmt:7400,  surtaxNote:'if steel parts',     shipEst:4500,  compEst:7500},
-  aframe:   {fob:31500, surtaxAmt:0,     surtaxNote:'None — timber',      shipEst:19000, compEst:6000},
-  igloo:    {fob:5847,  surtaxAmt:0,     surtaxNote:'Covered — DDP incl. duty', shipEst:15969, compEst:3000},
-  solar:    {fob:3696,  surtaxAmt:0, shipEst:1500, compEst:1500, watts:5500},
-  windkit:  {fob:2509,  surtaxAmt:0, shipEst:1900, compEst:1500, watts:7000},
-  huijue:   {fob:5310,  surtaxAmt:0, shipEst:2300, compEst:1500, watts:6250},
-  allrun:   {fob:3995,  surtaxAmt:0, shipEst:2000, compEst:1500, watts:10400}
+  glass:    {fob:16800, surtaxAmt:4200,  surtaxNote:'if aluminium parts', shipEst:2500,
+    comp:[{t:'CSA approval (quoted)',v:3000},{t:'P.Eng structural review',v:3000},{t:'Insulation upgrade',v:3000},{t:'Building permit',v:2000}]},
+  chunshu:  {fob:50655, surtaxAmt:12700, surtaxNote:'if steel parts',     shipEst:6000,
+    comp:[{t:'P.Eng review (2-storey)',v:4000},{t:'Building permit',v:2500},{t:'ESA field evaluation',v:1500}]},
+  steel:    {fob:45292, surtaxAmt:11300, surtaxNote:'if steel parts',     shipEst:5000,
+    comp:[{t:'Local P.Eng seal',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1000}]},
+  capsule:  {fob:34000, surtaxAmt:8500,  surtaxNote:'if steel parts',     shipEst:4500,
+    comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'Winter insulation',v:1000},{t:'ISED (wireless)',v:500}]},
+  one:      {fob:35463, surtaxAmt:8900,  surtaxNote:'if steel parts',     shipEst:5000,
+    comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'ISED (wireless)',v:500}]},
+  branson:  {fob:25200, surtaxAmt:6300,  surtaxNote:'if steel parts',     shipEst:19000, compNote:'slab foundation &amp; MEP by local trades',
+    comp:[{t:'Local P.Eng seal',v:3000},{t:'Building permit',v:2000},{t:'ESA (local MEP)',v:1000}]},
+  twofloor: {fob:31579, surtaxAmt:7900,  surtaxNote:'if steel parts',     shipEst:4500,
+    comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'ISED (wireless)',v:500}]},
+  t9:       {fob:29751, surtaxAmt:7400,  surtaxNote:'if steel parts',     shipEst:4500,
+    comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'ISED (wireless)',v:500},{t:'NRCan (appliances)',v:500}]},
+  aframe:   {fob:31500, surtaxAmt:0,     surtaxNote:'None — timber',      shipEst:19000, compNote:'slab foundation &amp; MEP by local trades',
+    comp:[{t:'Local P.Eng seal',v:3000},{t:'Building permit',v:2000},{t:'ESA (local MEP)',v:1000}]},
+  igloo:    {fob:5847,  surtaxAmt:0,     surtaxNote:'Covered — DDP incl. duty', shipEst:15969,
+    comp:[{t:'Building permit',v:2000},{t:'ESA (if wired)',v:1000}]},
+  solar:    {fob:3696,  surtaxAmt:0, shipEst:1500, watts:5500,  comp:[{t:'SPE-1000 field evaluation',v:1200},{t:'ESA notification + inspection',v:300}]},
+  windkit:  {fob:2509,  surtaxAmt:0, shipEst:1900, watts:7000,  comp:[{t:'SPE-1000 field evaluation',v:1200},{t:'ESA notification + inspection',v:300}]},
+  huijue:   {fob:5310,  surtaxAmt:0, shipEst:2300, watts:6250,  comp:[{t:'ESA acceptance / field eval',v:1200},{t:'ESA notification + inspection',v:300}]},
+  allrun:   {fob:3995,  surtaxAmt:0, shipEst:2000, watts:10400, comp:[{t:'SPE-1000 field evaluation',v:1200},{t:'ESA notification + inspection',v:300}]}
 };
 const sumMoney=n=>'$'+n.toLocaleString('en-US');
-const sumAllIn=id=>{const k=SUM_COST[id]||{}; return (k.fob||0)+(k.surtaxAmt||0)+(k.shipEst||0)+(k.compEst||0);};
+const compTotal=id=>((SUM_COST[id]||{}).comp||[]).reduce((a,x)=>a+(x.v||0),0);
+const sumAllIn=id=>{const k=SUM_COST[id]||{}; return (k.fob||0)+(k.surtaxAmt||0)+(k.shipEst||0)+compTotal(id);};
 function sumPills(arr){ return arr.map(c=>{
   const cls=c.s==='has'?'sp-has':c.s==='gap'?'sp-gap':'sp-need';
   const ico=c.s==='has'?'&#10003;':c.s==='gap'?'&#10007;':'&#9675;';
@@ -4451,6 +4460,13 @@ function sumSubtotalCell(id, label){
   const k=SUM_COST[id]; if(!k) return '<span class="sum-note">&mdash;</span>';
   return `<span class="sum-allin">${sumMoney(k.fob)}</span><span class="sum-note">${label}</span>`;
 }
+// Itemized "Other one-time costs" — one line per compliance/permit item + a total.
+function sumCompCell(id){
+  const k=SUM_COST[id]; if(!k||!k.comp) return '<span class="sum-note">&mdash;</span>';
+  const items=k.comp.map(x=>`<div class="ot-line"><span class="ot-lbl">${x.t}</span><span class="ot-val">${sumMoney(x.v)}</span></div>`).join('');
+  const note=k.compNote?`<div class="ot-note">+ ${k.compNote} (by buyer)</div>`:'';
+  return `<div class="ot-list">${items}<div class="ot-line ot-tot"><span class="ot-lbl">One-time total</span><span class="ot-val">${sumMoney(compTotal(id))}</span></div></div>${note}`;
+}
 // Tappable est. all-in: the amount on top; expands to the math — each addend
 // as "$amount (what it is)".
 function sumAllInCell(id){
@@ -4458,7 +4474,7 @@ function sumAllInCell(id){
   const parts=[['Cabin / kit price', k.fob||0]];
   if(k.surtaxAmt>0) parts.push(['25% surtax', k.surtaxAmt]);
   if(k.shipEst>0)   parts.push(['Shipping', k.shipEst]);
-  if(k.compEst>0)   parts.push(['Other one-time', k.compEst]);
+  if(compTotal(id)>0) parts.push(['Other one-time', compTotal(id)]);
   const math=parts.map((p,i)=>`<div class="bk-line">${i?'<span class="bk-op">+</span>':''}<b>${sumMoney(p[1])}</b> <span class="bk-lbl">(${p[0]})</span></div>`).join('')
     +`<div class="bk-line bk-eq"><span class="bk-op">=</span><b>${sumMoney(sumAllIn(id))}</b> <span class="bk-lbl">(all-in)</span></div>`;
   return `<details class="sum-exp"><summary><span class="sum-allin">${sumMoney(sumAllIn(id))}</span><span class="sum-note">est. all-in &#9662; tap</span></summary><div class="sum-math">${math}</div></details>`;
@@ -4479,9 +4495,9 @@ function renderSummaryTables(){
         `<td>${sumSubtotalCell(id,'cabin only')}</td>`+
         `<td>${sumSurtaxCell(id)}</td>`+
         `<td>${sumShipCell(id)}</td>`+
-        `<td style="color:var(--steel)">${c.extra}</td>`+
+        `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const totFob=sumSumOf(SUM_CABINS,'fob'), totSur=sumSumOf(SUM_CABINS,'surtaxAmt'), totShip=sumSumOf(SUM_CABINS,'shipEst'), totComp=sumSumOf(SUM_CABINS,'compEst');
+    const totFob=sumSumOf(SUM_CABINS,'fob'), totSur=sumSumOf(SUM_CABINS,'surtaxAmt'), totShip=sumSumOf(SUM_CABINS,'shipEst'), totComp=SUM_CABINS.reduce((a,id)=>a+compTotal(id),0);
     const tot=totFob+totSur+totShip+totComp, avg=Math.round(tot/SUM_CABINS.length);
     const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_CABINS.length} cabins &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
       `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
@@ -4500,9 +4516,9 @@ function renderSummaryTables(){
         `<td>${sumPills(c.certs)}</td>`+
         `<td>${sumSubtotalCell(id,'kit only')}</td>`+
         `<td>${sumShipCell(id)}</td>`+
-        `<td style="color:var(--steel)">${c.extra}</td>`+
+        `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const totFob=sumSumOf(SUM_ENERGY,'fob'), totShip=sumSumOf(SUM_ENERGY,'shipEst'), totComp=sumSumOf(SUM_ENERGY,'compEst');
+    const totFob=sumSumOf(SUM_ENERGY,'fob'), totShip=sumSumOf(SUM_ENERGY,'shipEst'), totComp=SUM_ENERGY.reduce((a,id)=>a+compTotal(id),0);
     const tot=totFob+totShip+totComp, avg=Math.round(tot/SUM_ENERGY.length);
     const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_ENERGY.length} kits &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
       `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
