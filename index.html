@@ -548,9 +548,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
     #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
-    #page-shipping .sum-tbl tr.sum-foot td{background:var(--pine-light);border-top:2px solid var(--pine);font-family:'Archivo',sans-serif;font-weight:800;color:var(--pine);vertical-align:middle}
-    #page-shipping .sum-tbl tr.sum-foot .tot{color:var(--ink);font-size:15px}
-    #page-shipping .sum-tbl tr.sum-foot .sum-note{color:var(--pine)}
   </style>
 
   <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Decision summary</strong></div>
@@ -608,7 +605,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="callout" style="margin-top:16px;background:var(--tint);border-color:var(--pine)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#1E5138" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>How to read it:</strong> the <strong>Cabin subtotal</strong> is the unit alone (before shipping &amp; other costs). <strong>&ldquo;Other one-time costs&rdquo;</strong> is the compliance &amp; permitting work each unit needs once &mdash; itemized in the column: a <strong>P.Eng structural review/seal</strong>, the <strong>building permit</strong> (Group C, OBC Part 9), any <strong>ESA field evaluation</strong> for uncertified electrical plus the ESA inspection, and unit-specific items (CSA approval, insulation upgrade, ISED for wireless, NRCan for appliances). One P.Eng review or field evaluation can cover several identical units, so the per-unit figure drops with fleet size; concrete/foundation and on-site MEP are by your local trades, on top. The <strong>&ldquo;Est. all-in each&rdquo;</strong> column adds subtotal + surtax (worst case, if classed as parts) + freight + those one-time costs &mdash; <strong>tap any all-in figure to expand the full math</strong>. The footer totals each column and averages the all-in. Every figure is a <strong>planning estimate, not a quote</strong> &mdash; confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
+      <div><strong>How to read it:</strong> the <strong>Cabin subtotal</strong> is the unit alone (before shipping &amp; other costs). <strong>&ldquo;Other one-time costs&rdquo;</strong> is the compliance &amp; permitting work each unit needs once &mdash; itemized in the column: a <strong>P.Eng structural review/seal</strong>, the <strong>building permit</strong> (Group C, OBC Part 9), any <strong>ESA field evaluation</strong> for uncertified electrical plus the ESA inspection, and unit-specific items (CSA approval, insulation upgrade, ISED for wireless, NRCan for appliances). One P.Eng review or field evaluation can cover several identical units, so the per-unit figure drops with fleet size; concrete/foundation and on-site MEP are by your local trades, on top. The <strong>&ldquo;Est. all-in each&rdquo;</strong> column adds subtotal + surtax (worst case, if classed as parts) + freight + those one-time costs &mdash; <strong>tap any all-in figure (or the one-time total) to expand the full math</strong>. Every figure is a <strong>planning estimate, not a quote</strong> &mdash; confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
     </div>
   </div></div>
 
@@ -4510,7 +4507,6 @@ function sumPerWattCell(id){
   const k=SUM_COST[id]; if(!k||!k.watts) return '<span class="sum-note">&mdash;</span>';
   return `<span class="sum-allin">$${(k.fob/k.watts).toFixed(2)}</span><span class="sum-note">/ W · ${(k.watts/1000).toFixed(2).replace(/\.?0+$/,'')} kW</span>`;
 }
-const sumSumOf=(ids,key)=>ids.reduce((a,id)=>a+((SUM_COST[id]||{})[key]||0),0);
 function renderSummaryTables(){
   const cb=document.getElementById('summary-cabins-table');
   if(cb){
@@ -4523,15 +4519,7 @@ function renderSummaryTables(){
         `<td>${sumShipCell(id)}</td>`+
         `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const totFob=sumSumOf(SUM_CABINS,'fob'), totSur=sumSumOf(SUM_CABINS,'surtaxAmt'), totShip=sumSumOf(SUM_CABINS,'shipEst'), totComp=SUM_CABINS.reduce((a,id)=>a+compTotal(id),0);
-    const tot=totFob+totSur+totShip+totComp, avg=Math.round(tot/SUM_CABINS.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="3">Totals &middot; ${SUM_CABINS.length} cabins &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totSur)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totShip)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totComp)}</span></td>`+
-      `<td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">all-in</span></td></tr>`;
-    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1160px"><tr><th class="name">Cabin</th><th>$ / ft² &middot; beds/baths</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1160px"><tr><th class="name">Cabin</th><th>$ / ft² &middot; beds/baths</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}</table></div>`;
   }
   const en=document.getElementById('summary-energy-table');
   if(en){
@@ -4544,14 +4532,7 @@ function renderSummaryTables(){
         `<td>${sumShipCell(id)}</td>`+
         `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const totFob=sumSumOf(SUM_ENERGY,'fob'), totShip=sumSumOf(SUM_ENERGY,'shipEst'), totComp=SUM_ENERGY.reduce((a,id)=>a+compTotal(id),0);
-    const tot=totFob+totShip+totComp, avg=Math.round(tot/SUM_ENERGY.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_ENERGY.length} kits &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totShip)}</span></td>`+
-      `<td><span class="tot">${sumMoney(totComp)}</span></td>`+
-      `<td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">all-in</span></td></tr>`;
-    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1060px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Kit price</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1060px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Kit price</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}</table></div>`;
   }
 }
 // ─── INSULATION & R-VALUE CONCERN ─────────────────────────────────────────────
