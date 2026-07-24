@@ -468,7 +468,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <nav class="navlinks" id="navlinks">
       <a href="#/" data-nav="home">Home</a>
       <a href="#/catalog" data-nav="catalog">Catalog</a>
-      <a href="#/shipping" data-nav="shipping">Shipping</a>
+      <a href="#/shipping" data-nav="shipping">Summary</a>
     </nav>
     <button class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navlinks" onclick="toggleNav()">
       <svg class="ic-open" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -558,15 +558,33 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .num{flex:none;width:21px;height:21px;border-radius:6px;background:var(--pine);color:#fff;font-family:'Archivo',sans-serif;font-size:11.5px;font-weight:800;display:grid;place-items:center;margin-top:1px}
     #page-shipping .cbox{flex:none;width:16px;height:16px;border-radius:4px;border:2px solid var(--steel);margin-top:2px}
     @media (max-width:720px){#page-shipping .checkgrid{grid-template-columns:1fr}}
+    #page-shipping .sum-h{font-family:'Archivo',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.01em;margin:34px 0 4px;display:flex;align-items:center;gap:9px}
+    #page-shipping .sum-h .cnt{font-size:12px;font-weight:700;color:var(--steel);background:var(--tint);border-radius:999px;padding:2px 10px}
+    #page-shipping .sum-sub{font-size:13px;color:var(--steel);margin:0 0 14px}
+    #page-shipping .sum-tbl td{vertical-align:top;font-size:12.5px;white-space:normal}
+    #page-shipping .sum-tbl td.name{text-align:left}
+    #page-shipping .sum-tbl .nm a{color:var(--pine);font-weight:700;text-decoration:none;font-size:13.5px}
+    #page-shipping .sum-tbl .nm a:hover{text-decoration:underline}
+    #page-shipping .sum-tbl .mf{display:block;font-size:11px;color:var(--steel);margin-top:2px}
+    #page-shipping .sum-note{color:var(--steel);font-size:11px;display:block;margin-top:3px}
+    #page-shipping .sum-psf{font-weight:800;color:var(--ink)}
+    #page-shipping .sum-surtax{color:var(--danger);font-weight:700;font-size:12px}
+    #page-shipping .sum-surtax.none{color:var(--pine)}
+    #page-shipping .sp{display:inline-flex;align-items:center;gap:4px;font-size:10.8px;font-weight:700;border-radius:5px;padding:2px 7px;margin:0 3px 4px 0;line-height:1.35;white-space:normal}
+    #page-shipping .sp-has{background:#e6f2ea;color:#1E5138}
+    #page-shipping .sp-need{background:#fbf1de;color:#8a5a12}
+    #page-shipping .sp-gap{background:#fbe7e3;color:#A34327}
+    #page-shipping .sum-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font-size:12.5px;color:var(--steel);align-items:center}
+    #page-shipping .sum-legend .sp{margin:0}
   </style>
 
-  <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Shipping &amp; import requirements</strong></div>
+  <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Decision summary</strong></div>
 
   <div class="wrap ship-head">
     <div class="sec-head">
-      <div class="eyebrow">Sourcing compliance &middot; verified July 2026</div>
-      <h2>Shipping &amp; import requirements: China&nbsp;&rarr;&nbsp;Ontario</h2>
-      <p style="max-width:70ch">What the law requires to bring Evergreen&rsquo;s China-sourced cabins and off-grid power kits into Ontario &mdash; landed at Gore Bay / Manitoulin Island. Organized by the two things you actually import: <strong style="color:var(--ink)">prefab structures</strong> and <strong style="color:var(--ink)">off-grid electrical equipment</strong>.</p>
+      <div class="eyebrow">Sourcing decision summary &middot; verified July 2026</div>
+      <h2>Decision summary: the whole catalog, side by side</h2>
+      <p style="max-width:70ch">Everything you need to make the final call in one place &mdash; cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
       <span class="ship-tag"><b>17</b> listings covered</span>
@@ -583,6 +601,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   </div>
 
   <nav class="pd-tabs wrap" id="ship-pd-tabs">
+    <a href="#/shipping/summary" data-sub="ship-summary">Summary</a>
     <a href="#/shipping/matrix" data-sub="ship-matrix">What we need to know</a>
     <a href="#/shipping/overview" data-sub="ship-overview">Overview</a>
     <a href="#/shipping/costs" data-sub="ship-costs">Cost &amp; terms</a>
@@ -591,6 +610,32 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <a href="#/shipping/kits" data-sub="ship-kits">Off-grid kits</a>
     <a href="#/shipping/checklist" data-sub="ship-checklist">Before you buy</a>
   </nav>
+
+  <!-- SUMMARY (decision tables) -->
+  <div class="subsec" id="sub-ship-summary"><div class="wrap">
+    <div class="eyebrow">Decision summary</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
+    <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing.</strong> Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
+
+    <h3 class="sum-h">Cabins &amp; structures <span class="cnt">11 listings</span></h3>
+    <p class="sum-sub">Cost per square foot, plus the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406).</p>
+    <div id="summary-cabins-table"></div>
+
+    <h3 class="sum-h">Renewable energy systems <span class="cnt">6 listings</span></h3>
+    <p class="sum-sub">Solar, wind and battery kits. The decisive gate is electrical certification for ESA; the surtax doesn&rsquo;t apply to these today (on the watchlist).</p>
+    <div id="summary-energy-table"></div>
+
+    <div class="sum-legend">
+      <span>Certificates:</span>
+      <span class="sp sp-has">&#10003; Has it</span>
+      <span class="sp sp-need">&#9675; Needed &mdash; get it</span>
+      <span class="sp sp-gap">&#10007; Needed &mdash; not yet held</span>
+    </div>
+    <div class="callout" style="margin-top:16px;background:var(--tint);border-color:var(--pine)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#1E5138" stroke-width="2" stroke-linecap="round"/></svg>
+      <div><strong>How to read it:</strong> the surtax and &ldquo;other costs&rdquo; are <strong>planning estimates, not quotes</strong> &mdash; the surtax dollar figure is 25% of the FOB unit price and only lands if a broker classifies the kit as parts. Confirm every figure with a licensed customs broker, the ESA and the Town of Gore Bay. The detailed reasoning behind each column is in the tabs below.</div>
+    </div>
+  </div></div>
 
   <!-- MATRIX -->
   <div class="subsec" id="sub-ship-matrix"><div class="wrap">
@@ -628,6 +673,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <tr><td class="name"><span class="nm">G-Series Wind Turbine</span><span class="mf">Horizontal-axis &middot; 1/3/5 kW</span></td><td><span class="trk">B</span></td><td><span class="mk cond" title="Steel tower may be exposed">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
         <tr><td class="name"><span class="nm">Archimedes Wind Turbine</span><span class="mf">Wenzhou DGIT &middot; 300 W&ndash;3 kW</span></td><td><span class="trk">B</span></td><td><span class="mk cond">&#9680;</span></td><td><span class="mk no">&ndash;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
         <tr><td class="name"><span class="nm">HuiJue Off-Grid Kit</span><span class="mf">HuiJue &middot; 6.25 kW + 15 kWh LiFePO4 (UL)</span></td><td><span class="trk">B</span></td><td><span class="mk watch">&#9671;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk cond">&#9680;</span></td></tr>
+        <tr><td class="name"><span class="nm">ARXT10KW Off-Grid Solar</span><span class="mf">Qingdao Allrun &middot; 10.4 kW + 20.48 kWh LiFePO4</span></td><td><span class="trk">B</span></td><td><span class="mk watch">&#9671;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk req">&#9679;</span></td><td><span class="mk no">&ndash;</span></td></tr>
       </table>
     </div>
     <div class="mcap">
@@ -4405,24 +4451,24 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <span class="php-price-big">$3,995</span>
           <span class="php-price-sub">USD / set &middot; FOB</span>
         </div>
-        <div class="php-price-rate">10.56 kW solar + 10 kW inverter + lithium battery + mounting</div>
+        <div class="php-price-rate">10.4 kW solar + 10 kW Deye inverter + 20.48 kWh LiFePO4 + mounting</div>
         <div class="php-price-divider"></div>
-        <div class="php-price-label">Best value on paper</div>
-        <div class="php-price-sub-line"><strong>A complete, ready-to-install off-grid unit at the lowest $/W in the catalog</strong> &mdash; confirm the battery capacity (kWh) and the certifications before ordering</div>
+        <div class="php-price-label">Best value in the catalog</div>
+        <div class="php-price-sub-line"><strong>The most kit for the money</strong> &mdash; 10.4 kW solar + the <strong>largest included battery (20.48 kWh)</strong> + a 10 kW Deye inverter, complete, for $3,995 (list $4,950). Confirm certifications &amp; split-phase for Ontario</div>
         <div class="php-price-shipping"></div>
       </div>
       <div class="php-specs">
         <div class="php-spec-title">Key details</div>
         <div class="php-spec-grid">
-          <div class="php-spec"><div class="php-spec-k">Solar</div><div class="php-spec-v">10.56 kW array</div></div>
-          <div class="php-spec"><div class="php-spec-k">Inverter</div><div class="php-spec-v">10 kW + controller</div></div>
-          <div class="php-spec"><div class="php-spec-k">Battery</div><div class="php-spec-v warn">Lithium (kWh TBD)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Solar</div><div class="php-spec-v">10.4 kW (16&times;650 W)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Inverter</div><div class="php-spec-v">10 kW Deye + MPPT</div></div>
+          <div class="php-spec"><div class="php-spec-k">Battery</div><div class="php-spec-v ok-text">20.48 kWh LiFePO4</div></div>
           <div class="php-spec"><div class="php-spec-k">Mounting</div><div class="php-spec-v ok-text">Roof or ground incl.</div></div>
-          <div class="php-spec"><div class="php-spec-k">BOS</div><div class="php-spec-v ok-text">Cable + connectors</div></div>
+          <div class="php-spec"><div class="php-spec-k">Output</div><div class="php-spec-v">120 V or 240 V &mdash; confirm split-phase</div></div>
           <div class="php-spec"><div class="php-spec-k">Certification</div><div class="php-spec-v warn">Not stated</div></div>
-          <div class="php-spec"><div class="php-spec-k">Output</div><div class="php-spec-v warn">Confirm 120/240 V</div></div>
+          <div class="php-spec"><div class="php-spec-k">Panel warranty</div><div class="php-spec-v ok-text">30 years</div></div>
           <div class="php-spec"><div class="php-spec-k">Solar / day</div><div class="php-spec-v">~28&ndash;40 kWh</div></div>
-          <div class="php-spec"><div class="php-spec-k">Basis</div><div class="php-spec-v">FOB Qingdao/Shanghai</div></div>
+          <div class="php-spec"><div class="php-spec-k">Basis</div><div class="php-spec-v">FOB Qingdao</div></div>
         </div>
       </div>
       <a href="#/product/allrun/delivers" class="php-cta-btn">See what it delivers &rarr;</a>
@@ -4439,32 +4485,33 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <div class="subsec" id="sub-ar-contents"><div class="wrap">
     <div class="eyebrow">Kit contents</div>
     <h2>What&rsquo;s in the ARXT10KW set</h2>
-    <p class="intro">Qingdao Allrun quotes the ARXT10KW as a <strong>complete, ready-to-install off-grid unit</strong> at a discount <strong>$3,995 / set, FOB Qingdao / Shanghai</strong> &mdash; the lowest headline $/W in the catalog for a 10 kW-class system. It can be <strong>roof- or ground-mounted</strong> and gives a stand-alone, independent power supply for a home, cabin, workshop or small station.</p>
+    <p class="intro">Qingdao Allrun quotes the ARXT10KW as a <strong>complete, ready-to-install off-grid unit</strong> at a discount <strong>$3,995 / set, FOB Qingdao / Shanghai</strong> (list $4,950) &mdash; the lowest headline $/W in the catalog for a 10 kW-class system. The spec sheet now gives the full bill of materials: <strong>10.4 kW of panels, 20.48 kWh of LiFePO4 storage and a 10 kW inverter</strong>. It can be <strong>roof- or ground-mounted</strong> and gives a stand-alone, independent power supply for a home, cabin, workshop or small station.</p>
     <div class="tablewrap"><table>
-      <tr><th class="k">Item</th><th>What&rsquo;s included</th></tr>
-      <tr><td class="k">Solar panels</td><td><strong>10.56 kW</strong> array</td></tr>
-      <tr><td class="k">Inverter &amp; controller</td><td><strong>10 kW</strong> off-grid inverter + charge controller</td></tr>
-      <tr><td class="k">Battery</td><td>Free-maintenance <strong>lithium</strong>, wall- or ground-mounted <span style="color:var(--danger)">(capacity kWh to confirm)</span></td></tr>
-      <tr><td class="k">Mounting</td><td>Brackets for roof or ground mount</td></tr>
-      <tr><td class="k">Balance of system</td><td>Cable, connectors and accessories</td></tr>
-      <tr><td class="k">Assembly</td><td>Ready to install (roof, ground, etc.)</td></tr>
-      <tr class="total-row"><td class="k">Price</td><td><strong>$3,995 USD / set</strong> &mdash; FOB Qingdao / Shanghai (discount)</td></tr>
+      <tr><th class="k">Item</th><th>Model &amp; spec</th><th>Qty</th></tr>
+      <tr><td class="k">Solar panels</td><td><strong>AR650M-24</strong> &mdash; 650 W mono, <strong>10.4 kW</strong> total · 30-year power warranty</td><td>16</td></tr>
+      <tr><td class="k">Battery</td><td><strong>AR51.2-10.24</strong> &mdash; 51.2 V 10.24 kWh LiFePO4 (56 kg, 8-yr design life, 5-yr warranty) · <strong>20.48 kWh</strong> total</td><td>2</td></tr>
+      <tr><td class="k">Inverter / controller</td><td><strong>ARSCP-10KW</strong> &mdash; 10 kW off-grid inverter, built-in MPPT charge controller (Deye-built)</td><td>1</td></tr>
+      <tr><td class="k">Mounting</td><td><strong>ARMT-10KW</strong> &mdash; Al 6005-T5 brackets, roof or ground</td><td>1 set</td></tr>
+      <tr><td class="k">PV combiner</td><td>PV array box (string combiner)</td><td>1</td></tr>
+      <tr><td class="k">Cable</td><td>4 mm&sup2; PV cable, 20 m</td><td>1</td></tr>
+      <tr><td class="k">Connectors</td><td>MC4 connectors</td><td>set</td></tr>
+      <tr class="total-row"><td class="k">Price</td><td><strong>$3,995 USD / set</strong> &mdash; FOB Qingdao / Shanghai (list $4,950) · T/T 50% deposit · ~10-day production</td><td></td></tr>
     </table></div>
-    <p style="font-size:13px;color:var(--steel);margin:12px 0 0"><strong style="color:var(--danger)">Two things to nail down before ordering:</strong> the <strong>battery capacity (kWh)</strong> &mdash; the &ldquo;10 kW&rdquo; is the inverter / system power, not storage &mdash; and whether the inverter outputs <strong>120/240 V split-phase</strong> with a <strong>Canada-recognized (cULus / CSA)</strong> mark. At $3,995 for a full 10 kW kit, get the exact battery spec in writing.</p>
+    <p style="font-size:13px;color:var(--steel);margin:12px 0 0"><strong style="color:var(--pine)">The spec sheet closes the two old unknowns:</strong> the battery is now confirmed at <strong>20.48 kWh LiFePO4</strong> (the largest included bank of any kit here), and the inverter output is <strong>100/115/125 V or 220/230/240 V pure-sine</strong>. What&rsquo;s still open is a <strong>Canada-recognized mark (cULus / CSA)</strong> on the inverter, battery and panels, and confirmation the output can be wired <strong>120/240 V split-phase</strong> for North-American service. <a href="/Allrun_ARXT10KW_spec.pdf" target="_blank" rel="noopener" style="color:var(--pine);font-weight:700">Download the spec sheet (PDF) &rarr;</a></p>
   </div></div>
 
   <!-- WHAT IT DELIVERS -->
   <div class="subsec" id="sub-ar-delivers"><div class="wrap">
     <div class="eyebrow">What it delivers</div>
     <h2>The kit vs. a 20&ndash;25 kWh/day cabin</h2>
-    <p class="intro">On generation this kit is the strongest in the catalog &mdash; 10.56 kW of solar comfortably covers a 20&ndash;25 kWh/day cabin. The open question is storage: the battery capacity isn&rsquo;t stated, and at this price it may be modest.</p>
+    <p class="intro">With the spec sheet in hand this is the strongest kit in the catalog &mdash; 10.4 kW of solar and <strong>20.48 kWh of storage</strong> comfortably carry a 20&ndash;25 kWh/day cabin. Storage is no longer the open question; certification is.</p>
     <div class="comp-grid">
-      <div class="comp ok"><span class="badge ok">Generous</span><h4>Solar &mdash; ~28&ndash;40 kWh/day</h4><p>10.56 kW of panels makes roughly <strong>28&ndash;40 kWh/day</strong> on a Gore Bay annual-average basis (10.56 kW &times; ~4 sun-hrs &times; ~0.8), well above the 20&ndash;25 kWh/day target &mdash; more in summer, ~10 in deep winter.</p></div>
-      <div class="comp ok"><span class="badge ok">Ample</span><h4>Inverter &mdash; 10 kW</h4><p>A 10 kW inverter is plenty for a cabin&rsquo;s loads with headroom for pumps and other surge loads. Confirm it&rsquo;s a <strong>120/240 V split-phase</strong> unit for North America.</p></div>
-      <div class="comp warn"><span class="badge warn">Unknown</span><h4>Battery &mdash; capacity not stated</h4><p>The kit includes a lithium battery, but <strong>no kWh is given</strong>. For a full-time cabin you want <strong>40&ndash;60 kWh</strong>; at $3,995 for a complete 10 kW kit the included battery is likely well under that. <strong>Get the kWh in writing</strong> and price add-on modules.</p></div>
-      <div class="comp ok"><span class="badge ok">Value</span><h4>Cheapest $/W in the catalog</h4><p>At $3,995 for a complete 10.56 kW kit that&rsquo;s roughly <strong>$0.38/W all-in</strong> &mdash; far below the other kits. Strong value <em>if</em> the battery and certification check out; treat the price as a reason to verify the battery, not a red flag on its own.</p></div>
-      <div class="comp warn"><span class="badge warn">Certification</span><h4>cUL / CSA not stated</h4><p>As with the other Chinese kits, the inverter, battery and panels need a <strong>Canada-recognized mark (cULus / CSA)</strong> or an <strong>SPE-1000 field evaluation</strong> before ESA will sign off &mdash; see Compliance.</p></div>
-      <div class="comp ok"><span class="badge ok">Flexible</span><h4>Roof or ground mount, turnkey</h4><p>Ships ready to install with mounting brackets for either <strong>roof or ground</strong>, cabling and connectors &mdash; a genuinely complete, stand-alone package.</p></div>
+      <div class="comp ok"><span class="badge ok">Generous</span><h4>Solar &mdash; ~28&ndash;40 kWh/day</h4><p>16&times; 650 W panels (<strong>10.4 kW</strong>) make roughly <strong>28&ndash;40 kWh/day</strong> on a Gore Bay annual-average basis (10.4 kW &times; ~4 sun-hrs &times; ~0.8), well above the 20&ndash;25 kWh/day target &mdash; more in summer, ~10 in deep winter.</p></div>
+      <div class="comp ok"><span class="badge ok">Ample</span><h4>Inverter &mdash; 10 kW</h4><p>The ARSCP-10KW is plenty for a cabin&rsquo;s loads with headroom for pumps and surge. Output is <strong>100/115/125 V or 220/230/240 V pure-sine</strong> &mdash; confirm it can be wired <strong>120/240 V split-phase</strong> for North-American service.</p></div>
+      <div class="comp ok"><span class="badge ok">Largest bank</span><h4>Battery &mdash; 20.48 kWh LiFePO4</h4><p>Two 51.2 V 10.24 kWh modules give <strong>20.48 kWh</strong> &mdash; the <strong>largest included battery of any kit here</strong>. Drawn to ~80&ndash;90% that&rsquo;s ~16&ndash;18 kWh usable: a comfortable overnight buffer, and short of a 40&ndash;60 kWh &ldquo;ride-through-a-cloudy-week&rdquo; bank only if you want deep autonomy &mdash; add a third module to close that.</p></div>
+      <div class="comp ok"><span class="badge ok">Value</span><h4>Cheapest $/W in the catalog</h4><p>At $3,995 for a complete 10.4 kW + 20.48 kWh kit that&rsquo;s roughly <strong>$0.38/W</strong> on the panels alone, with the biggest battery thrown in &mdash; far below the other kits. Strong value <em>if</em> the certification checks out.</p></div>
+      <div class="comp warn"><span class="badge warn">Certification</span><h4>cUL / CSA not stated</h4><p>As with the other Chinese kits, the inverter, battery and panels need a <strong>Canada-recognized mark (cULus / CSA)</strong> or an <strong>SPE-1000 field evaluation</strong> before ESA will sign off &mdash; see Compliance. This is now the main open item.</p></div>
+      <div class="comp ok"><span class="badge ok">Flexible</span><h4>Roof or ground mount, turnkey</h4><p>Ships ready to install with Al 6005-T5 brackets for either <strong>roof or ground</strong>, a PV combiner, 20 m of 4 mm&sup2; cable and MC4 connectors &mdash; a genuinely complete, stand-alone package.</p></div>
     </div>
   </div></div>
 
@@ -4475,15 +4522,15 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">Off-grid still needs code compliance. The headline items are equipment certification and the battery details &mdash; confirm each with the supplier, the AHJ and a licensed contractor.</p>
     <div class="comp-grid">
       <div class="comp danger"><span class="badge" style="background:var(--danger);color:#fff">Biggest flag</span><h4>Equipment certification &mdash; cUL / CSA</h4><p>No certification is stated. The inverter, battery and panels must be <strong>cULus / CSA approved</strong> or pass an <strong>SPE-1000 field evaluation</strong> before ESA will accept them. Ask Allrun which marks each component holds.</p></div>
-      <div class="comp danger"><span class="badge" style="background:var(--danger);color:#fff">Confirm</span><h4>Battery capacity &amp; DG docs</h4><p>The battery kWh isn&rsquo;t stated. Get the <strong>capacity, chemistry (LiFePO4?) and a UN 38.3 test summary + SDS</strong> for shipping, plus <strong>UL 1973 / 9540</strong> listing if you scale the storage.</p></div>
-      <div class="comp warn"><span class="badge warn">Output</span><h4>120 / 240 V split-phase</h4><p>Confirm the 10 kW inverter is <strong>120/240 V split-phase</strong> (North-American standard), not 220/230 V single-phase, so standard outlets and appliances work.</p></div>
+      <div class="comp warn"><span class="badge warn">Confirm</span><h4>Battery DG docs</h4><p>Capacity is now known &mdash; <strong>20.48 kWh LiFePO4</strong> (2&times; 51.2 V 10.24 kWh). Still get the <strong>UN 38.3 test summary + SDS</strong> for shipping, plus a <strong>UL 1973 / 9540</strong> listing if you scale the storage.</p></div>
+      <div class="comp warn"><span class="badge warn">Output</span><h4>120 / 240 V split-phase</h4><p>The spec sheet lists output as <strong>100/115/125 V or 220/230/240 V pure-sine</strong>. Confirm it can be wired <strong>120/240 V split-phase</strong> (North-American standard), so standard outlets and appliances work.</p></div>
       <div class="comp warn"><span class="badge warn">Permit + inspection</span><h4>ESA / Ontario Electrical Safety Code</h4><p>Even fully off-grid, the work must be done by a <strong>Licensed Electrical Contractor</strong> under an <strong>ESA notification / permit with inspection</strong>.</p></div>
       <div class="comp warn"><span class="badge warn">Structural</span><h4>Roof / ground mount &amp; snow</h4><p>A roof mount needs a <strong>structural review</strong> against Gore Bay snow (2.0&ndash;2.5 kN/m&sup2;); a ground array needs an <strong>engineered foundation</strong> and wind-uplift detailing.</p></div>
       <div class="comp warn"><span class="badge warn">Import</span><h4>Freight &amp; duty</h4><p>FOB Qingdao / Shanghai &mdash; add <strong>ocean freight, customs and any CBSA duty</strong> to reach the landed cost, plus delivery to Gore Bay. Request a DDP door-to-door quote.</p></div>
     </div>
     <div class="callout red" style="margin-top:24px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 2.5 20h19L12 3Z" stroke="#A34327" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17v.5" stroke="#A34327" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Sourcing manager&rsquo;s flag:</strong> on paper the strongest-value kit here &mdash; a complete 10.56 kW solar + 10 kW inverter + battery package, ready to install, at <strong>$3,995/set</strong> (~$0.38/W). Two verifications decide whether it&rsquo;s real: the <strong>battery capacity (kWh)</strong> and the <strong>certifications + split-phase output</strong>. If the battery is small (likely at this price), budget added modules toward 40&ndash;60 kWh; and plan a <strong>cULus/CSA field evaluation</strong> for ESA. Start with a CBO pre-application meeting: Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
+      <div><strong>Sourcing manager&rsquo;s flag:</strong> the strongest-value kit here &mdash; a complete <strong>10.4 kW solar + 20.48 kWh LiFePO4 + 10 kW inverter</strong> package, ready to install, at <strong>$3,995/set</strong> (list $4,950). The spec sheet has answered the old battery question &mdash; it&rsquo;s the largest included bank of any kit. The one verification that decides everything now is <strong>certification + split-phase output</strong>: get the cULus/CSA status of the inverter, battery and panels, and if none holds a Canada mark, plan a <strong>cULus/CSA (SPE-1000) field evaluation</strong> for ESA. Start with a CBO pre-application meeting: Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
     </div>
   </div></div>
 </div>
@@ -4510,8 +4557,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <div class="wrap">
     <div class="grid">
       <div><h5>Cabins for Evergreen</h5><p style="max-width:360px">A single-project sourcing catalog of vetted prefab cabins and off-grid power systems for Evergreen Resort, Manitoulin Island. Every listing is built from a real manufacturer quotation and reviewed for specification, price, and Canadian compliance.</p></div>
-      <div><h5>Browse</h5><a href="#/">Home</a><a href="#/catalog">All listings</a><a href="#/shipping">Shipping &amp; import</a></div>
-      <div><h5>Good to know</h5><a href="#/shipping/costs">Shipping cost &amp; terms</a><a href="#/shipping/checklist">Before you buy</a><a href="#/shipping/matrix">Per-listing requirements</a></div>
+      <div><h5>Browse</h5><a href="#/">Home</a><a href="#/catalog">All listings</a><a href="#/shipping">Decision summary</a></div>
+      <div><h5>Good to know</h5><a href="#/shipping/summary">Summary tables</a><a href="#/shipping/costs">Shipping cost &amp; terms</a><a href="#/shipping/checklist">Before you buy</a></div>
     </div>
     <div class="fine">Prepared by Forke Studio sourcing for Evergreen Resort, Manitoulin Island &middot; Every listing is built from a manufacturer quotation and reviewed for spec, price and compliance &middot; Prices in USD; incoterm &amp; shipping per listing &middot; All figures pending written confirmation.</div>
   </div>
@@ -4773,8 +4820,8 @@ const PRODUCTS = [
   { id:'allrun', live:true, type:'solar', mfr:'other',
     img: AR_HERO,
     name:'ARXT10KW Off-Grid Solar System', mfrName:'Qingdao Allrun New Energy Co., Ltd.',
-    desc:'Complete, ready-to-install off-grid unit — 10.56 kW solar, a 10 kW inverter & controller, a lithium battery, mounting (roof or ground), cabling & connectors for $3,995/set FOB. The lowest $/W in the catalog — confirm the battery capacity (kWh), certifications & split-phase output.',
-    price:'$3,995', unit:'set · 10.56 kW + 10 kW inv · FOB', meta:'10.56 kW · 10 kW inverter · battery TBD',
+    desc:'Complete, ready-to-install off-grid unit — 10.4 kW solar (16×650 W), 20.48 kWh LiFePO4, a 10 kW inverter & controller, mounting (roof or ground), cabling & connectors for $3,995/set FOB (list $4,950). The lowest $/W in the catalog with the largest included battery — the one open item is cULus/CSA certification & split-phase output.',
+    price:'$3,995', unit:'set · 10.4 kW + 20.48 kWh · FOB', meta:'10.4 kW · 20.48 kWh · 10 kW inverter',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' }
 ];
 
@@ -5398,6 +5445,7 @@ function route(){
     if(sub){const el=document.getElementById('sub-ar-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else if(page==='shipping'){
+    renderSummaryTables();
     renderShippingTable();
     document.querySelectorAll('#ship-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('ship-'+sub)));
     if(sub){const el=document.getElementById('sub-ship-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
@@ -5477,6 +5525,104 @@ function renderShippingTable(){
   const rows=SHIP_ORDER.map(id=>{const s=SHIPPING[id]; if(!s) return '';
     return `<tr><td class="name"><span class="nm">${s.name}</span></td><td>${s.incoterm||'<span style="color:var(--steel)">&mdash;</span>'}</td><td>${cell(s)}</td><td>${s.transit||'<span style="color:var(--steel)">&mdash;</span>'}</td><td style="font-size:12.5px;color:var(--steel);white-space:normal">${s.note||''}</td></tr>`;}).join('');
   el.innerHTML=`<div class="tablewrap mtx" style="margin-top:20px"><table style="min-width:700px"><tr><th class="name">Listing</th><th>Incoterm</th><th>Shipping cost</th><th>Transit</th><th>Notes</th></tr>${rows}</table></div>`;
+}
+// ─── DECISION SUMMARY TABLES ──────────────────────────────────────────────────
+// One place to author the decision-relevant facts per listing. Shipping is NOT
+// duplicated here — it is pulled live from the SHIPPING map above, so the two
+// summary tables and the "Cost & terms" tab can never drift apart.
+//   cert status: 'has'  -> documented / certificate provided
+//                'need' -> required, obtain from supplier or AHJ (open)
+//                'gap'  -> required and confirmed not yet held (budget for it)
+const SUMMARY = {
+  // ── Cabins & structures ──
+  product:  {slug:'dome',      name:'Geo Domes',            mfr:'Shelter Architecture', area:'304–541 ft²', psf:'$5.70', price:'from $1,347 · shell',
+    certs:[{t:'Structural P.Eng',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA (if wired)',s:'need'}],
+    surtax:'~+25% on the steel frame if classed as parts', extra:'Insulation + HVAC add-on · P.Eng · OBC permit'},
+  glass:    {slug:'glassdome', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
+    certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}],
+    surtax:'~+25% (~$4,200) if aluminium parts', extra:'$3,000 CSA approval · P.Eng · insulation upgrade · permit'},
+  chunshu:  {slug:'chunshu',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
+    certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}],
+    surtax:'~+25% (~$12,700) if steel parts', extra:'P.Eng · ESA field eval · permit'},
+  steel:    {slug:'steel',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
+    certs:[{t:'Structural 2.5 kN/m²',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'ESA electrical',s:'need'}],
+    surtax:'~+25% (~$11,300) if steel parts', extra:'ESA field eval · P.Eng sign-off · permit'},
+  capsule:  {slug:'capsule',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'gap'}],
+    surtax:'~+25% (~$8,500) if steel parts', extra:'ESA + ISED · winter insulation · P.Eng · permit'},
+  one:      {slug:'one',       name:'ONE Living Capsule',   mfr:'Hebei Qianyan · steel, smart', area:'646 ft²', psf:'$54.91', price:'$35,463',
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
+    surtax:'~+25% (~$8,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
+  branson:  {slug:'branson',   name:'Branson Project',      mfr:'Qingdao Yidongxiang · light-steel', area:'775 ft²', psf:'$32.52', price:'$25,200',
+    certs:[{t:'Structural',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}],
+    surtax:'~+25% (~$6,300) if steel parts', extra:'P.Eng · ESA · permit'},
+  twofloor: {slug:'twofloor',  name:'Two Floor Capsule',    mfr:'Hunan Pawa · steel, smart', area:'484 ft²', psf:'$65.20', price:'$31,579',
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
+    surtax:'~+25% (~$7,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
+  t9:       {slug:'t9',        name:'Steele Capsule (T9)',  mfr:'Zhongjun · steel + appliances', area:'409 ft²', psf:'$72.74', price:'$29,751',
+    certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'NRCan appliances',s:'need'},{t:'Insulation R',s:'need'}],
+    surtax:'~+25% (~$7,400) if steel parts', extra:'ESA + ISED + NRCan · P.Eng · permit'},
+  aframe:   {slug:'aframe',    name:'A-Frame Cabin',        mfr:'Qingdao Yidongxiang · glulam + SIPs', area:'969 ft²', psf:'~$32.52', price:'~$31,500',
+    certs:[{t:'ISPM 15 wood',s:'need'},{t:'Timber plant-health',s:'need'},{t:'Insulation R',s:'need'}],
+    surtax:'None — timber (minimal steel/Al)', surtaxNone:true, extra:'P.Eng · ISPM 15 · permit'},
+  igloo:    {slug:'igloo',     name:'Glass Igloo Dome',     mfr:'Guangzhou Yuntu · aluminium + glass', area:'304–541 ft²', psf:'$19–21', price:'from $5,847',
+    certs:[{t:'Structural calc report',s:'has'},{t:'Bath/kitchen (used in Canada)',s:'has'},{t:'ESA (if wired)',s:'need'}],
+    surtax:'Covered — DDP incl. customs &amp; duty', surtaxNone:true, extra:'ESA (if wired) · permit'},
+  // ── Renewable energy ──
+  solar:    {slug:'solar',     name:'Solar Power System',   mfr:'Yidongxiang', output:'5.5 kW + 16 kWh LiFePO4',
+    certs:[{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3 DG',s:'need'}],
+    extra:'SPE-1000 field eval · freight quote · ESA'},
+  windkit:  {slug:'windkit',   name:'Full Solar + Wind Kit', mfr:'Zhangjiagang Ry', output:'4 kW solar + 3 kW wind + 10.24 kWh',
+    certs:[{t:'CE',s:'has'},{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3',s:'has'}],
+    extra:'SPE-1000 field eval · battery upsize'},
+  gwind:    {slug:'gwind',     name:'G-Series Wind Turbine', mfr:'Jiangsu DHC', output:'1 / 3 / 5 kW turbine',
+    certs:[{t:'cULus / CSA',s:'gap'}],
+    extra:'SPE-1000 · tower structural · freight quote'},
+  archwind: {slug:'archwind',  name:'Archimedes Wind Turbine', mfr:'Wenzhou DGIT', output:'300 W – 3 kW turbine',
+    certs:[{t:'cULus / CSA',s:'gap'}],
+    extra:'SPE-1000 · structural · freight quote'},
+  huijue:   {slug:'huijue',    name:'HuiJue Off-Grid Kit',  mfr:'HuiJue · UL panels + inverter', output:'6.25 kW + 15 kWh LiFePO4',
+    certs:[{t:'UL panels + inverter',s:'has'},{t:'cULus / CSA confirm',s:'need'},{t:'Battery UN 38.3',s:'need'}],
+    extra:'Confirm cULus/CSA acceptance · freight quote'},
+  allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
+    certs:[{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3',s:'need'}],
+    extra:'SPE-1000 field eval · DDP quote'}
+};
+const SUM_CABINS=['product','glass','chunshu','steel','capsule','one','branson','twofloor','t9','aframe','igloo'];
+const SUM_ENERGY=['solar','windkit','gwind','archwind','huijue','allrun'];
+function sumPills(arr){ return arr.map(c=>{
+  const cls=c.s==='has'?'sp-has':c.s==='gap'?'sp-gap':'sp-need';
+  const ico=c.s==='has'?'&#10003;':c.s==='gap'?'&#10007;':'&#9675;';
+  return `<span class="sp ${cls}">${ico} ${c.t}</span>`;}).join(''); }
+function sumShipCell(id){
+  const s=SHIPPING[id]; if(!s) return '<span class="tbd">TBD</span>';
+  if(s.status==='quoted') return `<strong style="color:var(--pine)">${s.cost}</strong>${s.incoterm?`<span class="sum-note">${s.incoterm}</span>`:''}`;
+  if(s.status==='estimated') return `<strong style="color:var(--pine)">${s.landed}</strong><span class="sum-note">landed est.</span>`;
+  if(s.status==='note') return `<span style="color:var(--steel)">excl. shipping</span>`;
+  return `<span class="tbd">TBD</span>${s.incoterm?`<span class="sum-note">${s.incoterm}</span>`:''}`;
+}
+function renderSummaryTables(){
+  const cb=document.getElementById('summary-cabins-table');
+  if(cb){
+    const rows=SUM_CABINS.map(id=>{const c=SUMMARY[id]; if(!c) return '';
+      return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
+        `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area} · ${c.price}</span></td>`+
+        `<td>${sumPills(c.certs)}</td>`+
+        `<td><span class="sum-surtax${c.surtaxNone?' none':''}">${c.surtax}</span></td>`+
+        `<td>${sumShipCell(id)}</td>`+
+        `<td style="color:var(--steel)">${c.extra}</td></tr>`;}).join('');
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:920px"><tr><th class="name">Cabin</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th></tr>${rows}</table></div>`;
+  }
+  const en=document.getElementById('summary-energy-table');
+  if(en){
+    const rows=SUM_ENERGY.map(id=>{const c=SUMMARY[id]; if(!c) return '';
+      return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
+        `<td>${c.output}</td>`+
+        `<td>${sumPills(c.certs)}</td>`+
+        `<td>${sumShipCell(id)}</td>`+
+        `<td style="color:var(--steel)">${c.extra}</td></tr>`;}).join('');
+    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:820px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>Certificates — has / needs</th><th>Shipping</th><th>Other costs</th></tr>${rows}</table></div>`;
+  }
 }
 // ─── INSULATION & R-VALUE CONCERN ─────────────────────────────────────────────
 // Single source of truth for each cabin's envelope / R-value status. Injects a
@@ -5613,10 +5759,10 @@ const MFR_QUESTIONS = {
     'What <strong>snow load</strong> is the tile-roof mounting rated to?',
     'Any <strong>Canadian import duty or surtax</strong> on the panels/battery? ISPM 15 packaging cert?']},
   allrun:{mfr:'Qingdao Allrun New Energy Co., Ltd.', note:MFRQ_KIT, q:[
-    'What is the <strong>battery capacity (kWh), chemistry and model</strong>? The spec only says &ldquo;lithium&rdquo; — the &ldquo;10 kW&rdquo; is inverter power, not storage.',
-    'Is the 10 kW inverter <strong>120/240 V split-phase</strong> for North America, and does it carry a <strong>cULus / CSA</strong> mark (or CE only)?',
-    'Are the <strong>panels, inverter and battery cULus / CSA certified</strong>? Please send the marks/certificates per component.',
-    'For the battery: <strong>UN 38.3 test summary + SDS</strong>, and <strong>UL 1973 / 9540</strong> listing if we scale storage.',
+    'Are the <strong>panels (AR650M-24), inverter (ARSCP-10KW) and battery (AR51.2-10.24) cULus / CSA certified</strong>? Please send the marks/certificates per component &mdash; this is the one open item.',
+    'The spec lists output as 100/115/125 V or 220/230/240 V. Can the ARSCP-10KW inverter be wired <strong>120/240 V split-phase</strong> for North-American service?',
+    'For the 20.48 kWh battery bank: please send the <strong>UN 38.3 test summary + SDS</strong> for shipping, and a <strong>UL 1973 / 9540</strong> listing if we scale storage.',
+    'Can we add a <strong>third AR51.2-10.24 module</strong> (to ~30.7 kWh) later, and what is the per-module price?',
     'Please quote <strong>DDP door-to-door to Gore Bay</strong> and confirm <strong>ISPM 15</strong> packaging.']}
 };
 const MFRQ_SVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.3" stroke="currentColor" stroke-width="1.6"/><path d="M9.4 9.2a2.7 2.7 0 1 1 3.6 2.5c-.7.3-1 .9-1 1.6M12 16.5v.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
