@@ -576,6 +576,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .sp-gap{background:#fbe7e3;color:#A34327}
     #page-shipping .sum-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font-size:12.5px;color:var(--steel);align-items:center}
     #page-shipping .sum-legend .sp{margin:0}
+    #page-shipping .sum-tbl .sum-bd{font-weight:700;color:var(--ink);font-size:12.5px;white-space:nowrap}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
     #page-shipping .sum-tbl tr.sum-foot td{background:var(--pine-light);border-top:2px solid var(--pine);font-family:'Archivo',sans-serif;font-weight:800;color:var(--pine);vertical-align:middle}
     #page-shipping .sum-tbl tr.sum-foot .tot{color:var(--ink);font-size:15px}
@@ -4797,34 +4798,34 @@ function renderShippingTable(){
 //                'gap'  -> required and confirmed not yet held (budget for it)
 const SUMMARY = {
   // ── Cabins & structures ──
-  glass:    {slug:'glassdome', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
+  glass:    {slug:'glassdome', bd:'Loft · 1 ba', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
     certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}],
     surtax:'~+25% (~$4,200) if aluminium parts', extra:'$3,000 CSA approval · P.Eng · insulation upgrade · permit'},
-  chunshu:  {slug:'chunshu',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
+  chunshu:  {slug:'chunshu', bd:'1 bd · 1 ba',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
     certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}],
     surtax:'~+25% (~$12,700) if steel parts', extra:'P.Eng · ESA field eval · permit'},
-  steel:    {slug:'steel',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
+  steel:    {slug:'steel', bd:'1 bd · 1 ba',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
     certs:[{t:'Structural calcs provided',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical',s:'need'}],
     surtax:'~+25% (~$11,300) if steel parts', extra:'Local P.Eng seal (~$2–6k) · ESA · permit'},
-  capsule:  {slug:'capsule',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
+  capsule:  {slug:'capsule', bd:'Studio · 1 ba',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'gap'}],
     surtax:'~+25% (~$8,500) if steel parts', extra:'ESA + ISED · winter insulation · P.Eng · permit'},
-  one:      {slug:'one',       name:'ONE Living Capsule',   mfr:'Hebei Qianyan · steel, smart', area:'646 ft²', psf:'$54.91', price:'$35,463',
+  one:      {slug:'one', bd:'1 bd · 1 ba',       name:'ONE Living Capsule',   mfr:'Hebei Qianyan · steel, smart', area:'646 ft²', psf:'$54.91', price:'$35,463',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
     surtax:'~+25% (~$8,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
-  branson:  {slug:'branson',   name:'Branson Project',      mfr:'Qingdao Yidongxiang · light-steel', area:'775 ft²', psf:'$32.52', price:'$25,200',
+  branson:  {slug:'branson', bd:'2 bd · 2 ba',   name:'Branson Project',      mfr:'Qingdao Yidongxiang · light-steel', area:'775 ft²', psf:'$32.52', price:'$25,200',
     certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire wall test (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical (local)',s:'need'}],
     surtax:'~+25% (~$6,300) if steel parts', extra:'Local P.Eng seal · local MEP/ESA · slab foundation · permit'},
-  twofloor: {slug:'twofloor',  name:'Two Floor Capsule',    mfr:'Hunan Pawa · steel, smart', area:'484 ft²', psf:'$65.20', price:'$31,579',
+  twofloor: {slug:'twofloor', bd:'1 bd · 2 ba',  name:'Two Floor Capsule',    mfr:'Hunan Pawa · steel, smart', area:'484 ft²', psf:'$65.20', price:'$31,579',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
     surtax:'~+25% (~$7,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
-  t9:       {slug:'t9',        name:'Steele Capsule (T9)',  mfr:'Zhongjun · steel + appliances', area:'409 ft²', psf:'$72.74', price:'$29,751',
+  t9:       {slug:'t9', bd:'1 bd · 1 ba',        name:'Steele Capsule (T9)',  mfr:'Zhongjun · steel + appliances', area:'409 ft²', psf:'$72.74', price:'$29,751',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'NRCan appliances',s:'need'},{t:'Insulation R',s:'need'}],
     surtax:'~+25% (~$7,400) if steel parts', extra:'ESA + ISED + NRCan · P.Eng · permit'},
-  aframe:   {slug:'aframe',    name:'A-Frame Cabin',        mfr:'Qingdao Yidongxiang · glulam + SIPs', area:'969 ft²', psf:'~$32.52', price:'~$31,500',
+  aframe:   {slug:'aframe', bd:'2 bd · 1 ba',    name:'A-Frame Cabin',        mfr:'Qingdao Yidongxiang · glulam + SIPs', area:'969 ft²', psf:'~$32.52', price:'~$31,500',
     certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire test on file (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ISPM 15 wood',s:'need'}],
     surtax:'None — timber (minimal steel/Al)', surtaxNone:true, extra:'Local P.Eng seal · ISPM 15 · slab foundation · permit'},
-  igloo:    {slug:'igloo',     name:'Glass Igloo Dome',     mfr:'Guangzhou Yuntu · aluminium + glass', area:'304–541 ft²', psf:'$19–21', price:'from $5,847',
+  igloo:    {slug:'igloo', bd:'Studio · opt. ba',     name:'Glass Igloo Dome',     mfr:'Guangzhou Yuntu · aluminium + glass', area:'304–541 ft²', psf:'$19–21', price:'from $5,847',
     certs:[{t:'Structural calc report',s:'has'},{t:'Bath/kitchen (used in Canada)',s:'has'},{t:'ESA (if wired)',s:'need'}],
     surtax:'Covered — DDP incl. customs &amp; duty', surtaxNone:true, extra:'ESA (if wired) · permit'},
   // ── Renewable energy ──
@@ -4891,6 +4892,7 @@ function renderSummaryTables(){
   if(cb){
     const rows=SUM_CABINS.map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
+        `<td><span class="sum-bd">${c.bd||'&mdash;'}</span></td>`+
         `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area} · ${c.price}</span></td>`+
         `<td>${sumPills(c.certs)}</td>`+
         `<td>${sumSurtaxCell(id)}</td>`+
@@ -4899,8 +4901,8 @@ function renderSummaryTables(){
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
     const tot=SUM_CABINS.reduce((a,id)=>a+sumAllIn(id),0);
     const avg=Math.round(tot/SUM_CABINS.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="6">Estimated all-in &mdash; ${SUM_CABINS.length} cabins &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
-    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1040px"><tr><th class="name">Cabin</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    const foot=`<tr class="sum-foot"><td class="name" colspan="7">Estimated all-in &mdash; ${SUM_CABINS.length} cabins &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1120px"><tr><th class="name">Cabin</th><th>Beds / baths</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
   }
   const en=document.getElementById('summary-energy-table');
   if(en){
