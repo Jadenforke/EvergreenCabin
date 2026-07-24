@@ -531,7 +531,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .sp-gap{background:#fbe7e3;color:#A34327}
     #page-shipping .sum-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font-size:12.5px;color:var(--steel);align-items:center}
     #page-shipping .sum-legend .sp{margin:0}
-    #page-shipping .sum-tbl .sum-bd{font-weight:700;color:var(--ink);font-size:12.5px;white-space:nowrap}
+    #page-shipping .sum-tbl .sum-bd{display:block;margin-top:4px;font-weight:700;color:var(--ink);font-size:12px;white-space:nowrap}
     #page-shipping .sum-exp{cursor:pointer}
     #page-shipping .sum-exp summary{list-style:none;cursor:pointer;display:block}
     #page-shipping .sum-exp summary::-webkit-details-marker{display:none}
@@ -546,9 +546,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .sum-tbl .ot-list{display:flex;flex-direction:column;gap:2px;min-width:190px}
     #page-shipping .ot-line{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;color:var(--steel);line-height:1.35}
     #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
-    #page-shipping .ot-line.ot-tot{margin-top:3px;padding-top:4px;border-top:1px solid var(--line)}
-    #page-shipping .ot-line.ot-tot .ot-lbl{color:var(--ink);font-family:'Archivo',sans-serif;font-weight:800}
-    #page-shipping .ot-line.ot-tot .ot-val{color:var(--pine);font-weight:800}
     #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
     #page-shipping .sum-tbl tr.sum-foot td{background:var(--pine-light);border-top:2px solid var(--pine);font-family:'Archivo',sans-serif;font-weight:800;color:var(--pine);vertical-align:middle}
@@ -4490,11 +4487,12 @@ function sumSubtotalCell(id, label){
   return `<span class="sum-allin">${sumMoney(k.fob)}</span><span class="sum-note">${label}</span>`;
 }
 // Itemized "Other one-time costs" — one line per compliance/permit item + a total.
+// Tappable one-time total: the total on top; expands to the itemized breakdown.
 function sumCompCell(id){
   const k=SUM_COST[id]; if(!k||!k.comp) return '<span class="sum-note">&mdash;</span>';
   const items=k.comp.map(x=>`<div class="ot-line"><span class="ot-lbl">${x.t}</span><span class="ot-val">${sumMoney(x.v)}</span></div>`).join('');
   const note=k.compNote?`<div class="ot-note">+ ${k.compNote} (by buyer)</div>`:'';
-  return `<div class="ot-list">${items}<div class="ot-line ot-tot"><span class="ot-lbl">One-time total</span><span class="ot-val">${sumMoney(compTotal(id))}</span></div></div>${note}`;
+  return `<details class="sum-exp"><summary><span class="sum-allin">${sumMoney(compTotal(id))}</span><span class="sum-note">one-time total &#9662; tap</span></summary><div class="sum-math ot-list">${items}${note}</div></details>`;
 }
 // Tappable est. all-in: the amount on top; expands to the math — each addend
 // as "$amount (what it is)".
@@ -4518,8 +4516,7 @@ function renderSummaryTables(){
   if(cb){
     const rows=SUM_CABINS.map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
-        `<td><span class="sum-bd">${c.bd||'&mdash;'}</span></td>`+
-        `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area}</span></td>`+
+        `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area}</span><span class="sum-bd">${c.bd||'&mdash;'}</span></td>`+
         `<td>${sumPills(c.certs)}</td>`+
         `<td>${sumSubtotalCell(id,'cabin only')}</td>`+
         `<td>${sumSurtaxCell(id)}</td>`+
@@ -4528,13 +4525,13 @@ function renderSummaryTables(){
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
     const totFob=sumSumOf(SUM_CABINS,'fob'), totSur=sumSumOf(SUM_CABINS,'surtaxAmt'), totShip=sumSumOf(SUM_CABINS,'shipEst'), totComp=SUM_CABINS.reduce((a,id)=>a+compTotal(id),0);
     const tot=totFob+totSur+totShip+totComp, avg=Math.round(tot/SUM_CABINS.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_CABINS.length} cabins &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
+    const foot=`<tr class="sum-foot"><td class="name" colspan="3">Totals &middot; ${SUM_CABINS.length} cabins &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
       `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
       `<td><span class="tot">${sumMoney(totSur)}</span></td>`+
       `<td><span class="tot">${sumMoney(totShip)}</span></td>`+
       `<td><span class="tot">${sumMoney(totComp)}</span></td>`+
       `<td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">all-in</span></td></tr>`;
-    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1240px"><tr><th class="name">Cabin</th><th>Beds / baths</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1160px"><tr><th class="name">Cabin</th><th>$ / ft² &middot; beds/baths</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
   }
   const en=document.getElementById('summary-energy-table');
   if(en){
