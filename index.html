@@ -555,6 +555,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
     #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
+    #page-shipping .sum-tbl th.sortable{cursor:pointer;user-select:none}
+    #page-shipping .sum-tbl th.sortable:hover{color:var(--pine)}
+    #page-shipping .sum-tbl .sort-ind{font-size:9px;margin-left:5px;color:var(--steel);opacity:.5;vertical-align:middle}
+    #page-shipping .sum-tbl .sort-ind.on{color:var(--pine);opacity:1}
     #page-shipping .flow{position:relative;margin-top:26px}
     #page-shipping .flow-step{position:relative;display:grid;grid-template-columns:46px 1fr;gap:18px;padding-bottom:28px}
     #page-shipping .flow-step:not(:last-child)::before{content:"";position:absolute;left:22px;top:40px;bottom:0;width:2px;background:var(--line)}
@@ -615,7 +619,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <div class="subsec" id="sub-ship-summary"><div class="wrap">
     <div class="eyebrow">Decision summary</div>
     <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
-    <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing.</strong> Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
+    <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
 
     <h3 class="sum-h">Cabins &amp; structures <span class="cnt">10 listings</span></h3>
     <p class="sum-sub">Cost per square foot, the <strong>cabin subtotal</strong> (the unit alone, before shipping &amp; other costs), the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406), and an <strong>estimated all-in</strong> per unit. <strong>Tap any all-in figure to expand the math.</strong></p>
@@ -4558,10 +4562,42 @@ function sumPerWattCell(id){
   const k=SUM_COST[id]; if(!k||!k.watts) return '<span class="sum-note">&mdash;</span>';
   return `<span class="sum-allin">$${(k.fob/k.watts).toFixed(2)}</span><span class="sum-note">/ W · ${(k.watts/1000).toFixed(2).replace(/\.?0+$/,'')} kW</span>`;
 }
+// ─── SORTABLE SUMMARY TABLES ──────────────────────────────────────────────────
+let SUM_SORT={cab:{col:null,dir:1}, en:{col:null,dir:1}};
+const sumNumOf=s=>{const m=(''+s).replace(/,/g,'').match(/-?\d+(?:\.\d+)?/); return m?parseFloat(m[0]):NaN;};
+function sumCertScore(id){const c=SUMMARY[id]; if(!c||!c.certs) return 0; return c.certs.reduce((a,x)=>a+(x.s==='has'?1:x.s==='gap'?-1:0),0);}
+function sumShipNum(id){const s=SHIPPING[id]; if(!s) return NaN; if(s.status==='quoted') return sumNumOf(s.cost); if(s.status==='estimated') return sumNumOf(s.landed); return NaN;}
+function sumSortIds(baseIds, accessors, st){
+  const ids=baseIds.slice();
+  if(st.col==null) return ids;
+  const acc=accessors[st.col];
+  ids.sort((a,b)=>{
+    let x=acc(a), y=acc(b);
+    const nx=(typeof x==='number'&&isNaN(x)), ny=(typeof y==='number'&&isNaN(y));
+    if(nx&&ny) return 0; if(nx) return 1; if(ny) return -1;
+    const base=(typeof x==='number'&&typeof y==='number')?(x-y):(''+x).localeCompare(''+y);
+    return base*st.dir;
+  });
+  return ids;
+}
+function sumSortHdr(tbl, labels, st){
+  return labels.map((lab,i)=>{
+    const active=st.col===i;
+    const ind=active?(st.dir>0?'&#9650;':'&#9660;'):'&#8597;';
+    return `<th class="${i===0?'name ':''}sortable" onclick="sortSummary('${tbl}',${i})" title="Sort by ${lab.replace(/&[a-z]+;/g,' ').replace(/"/g,'')}">${lab}<span class="sort-ind${active?' on':''}">${ind}</span></th>`;
+  }).join('');
+}
+function sortSummary(tbl, col){
+  const st=SUM_SORT[tbl];
+  if(st.col===col) st.dir*=-1; else { st.col=col; st.dir=1; }
+  renderSummaryTables();
+}
 function renderSummaryTables(){
   const cb=document.getElementById('summary-cabins-table');
   if(cb){
-    const rows=SUM_CABINS.map(id=>{const c=SUMMARY[id]; if(!c) return '';
+    const acc=[ id=>SUMMARY[id].name, id=>sumNumOf(SUMMARY[id].psf), id=>sumCertScore(id), id=>(SUM_COST[id]||{}).fob, id=>((SUM_COST[id]||{}).surtaxAmt||0), id=>sumShipNum(id), id=>compTotal(id), id=>sumAllIn(id) ];
+    const labels=['Cabin','$ / ft² &middot; beds/baths','Certificates — has / needs','Cabin subtotal','25% steel/Al surtax','Shipping','Other one-time costs','Est. all-in each'];
+    const rows=sumSortIds(SUM_CABINS, acc, SUM_SORT.cab).map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
         `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area}</span><span class="sum-bd">${c.bd||'&mdash;'}</span></td>`+
         `<td>${sumPills(c.certs)}</td>`+
@@ -4570,11 +4606,13 @@ function renderSummaryTables(){
         `<td>${sumShipCell(id)}</td>`+
         `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1160px"><tr><th class="name">Cabin</th><th>$ / ft² &middot; beds/baths</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}</table></div>`;
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1160px"><tr>${sumSortHdr('cab',labels,SUM_SORT.cab)}</tr>${rows}</table></div>`;
   }
   const en=document.getElementById('summary-energy-table');
   if(en){
-    const rows=SUM_ENERGY.map(id=>{const c=SUMMARY[id]; if(!c) return '';
+    const acc=[ id=>SUMMARY[id].name, id=>(SUM_COST[id]||{}).watts, id=>{const k=SUM_COST[id]||{}; return k.watts?k.fob/k.watts:NaN;}, id=>sumCertScore(id), id=>(SUM_COST[id]||{}).fob, id=>sumShipNum(id), id=>compTotal(id), id=>sumAllIn(id) ];
+    const labels=['System','Output &amp; storage','$ / W','Certificates — has / needs','Kit price','Shipping','Other costs','Est. all-in each'];
+    const rows=sumSortIds(SUM_ENERGY, acc, SUM_SORT.en).map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
         `<td>${c.output}</td>`+
         `<td>${sumPerWattCell(id)}</td>`+
@@ -4583,7 +4621,7 @@ function renderSummaryTables(){
         `<td>${sumShipCell(id)}</td>`+
         `<td>${sumCompCell(id)}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1060px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Kit price</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}</table></div>`;
+    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1060px"><tr>${sumSortHdr('en',labels,SUM_SORT.en)}</tr>${rows}</table></div>`;
   }
 }
 // ─── INSULATION & R-VALUE CONCERN ─────────────────────────────────────────────
