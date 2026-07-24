@@ -140,6 +140,13 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 .php-price-shipping .ship-lbl{display:block;font-family:'Archivo',sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--pine);margin-bottom:2px}
 .php-price-shipping .ship-req-link{color:var(--pine);font-weight:700;white-space:nowrap;text-decoration:none}
 .php-price-shipping .ship-req-link:hover{text-decoration:underline}
+.php-price-fees{font-size:12.5px;color:var(--ink);margin-top:8px;background:var(--tint);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:10px 12px;line-height:1.5;display:flex;gap:9px;align-items:flex-start}
+.php-price-fees .fee-ico{flex:none;margin-top:1px;color:var(--amber)}
+.php-price-fees .fee-lbl{display:block;font-family:'Archivo',sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:2px}
+.php-price-fees .fee-req-link{color:var(--amber);font-weight:700;white-space:nowrap;text-decoration:none}
+.php-price-fees .fee-req-link:hover{text-decoration:underline}
+.php-price-fees .fee-allin{display:block;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--steel);font-size:11.5px}
+.php-price-fees .fee-allin b{color:var(--ink);font-family:'Archivo',sans-serif}
 .php-incl-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin:14px 0 7px}
 .php-incl{display:flex;flex-wrap:wrap;gap:6px}
 .php-incl .pill{display:inline-flex;align-items:center;gap:5px;font-family:'Archivo',sans-serif;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:20px;border:1.5px solid var(--line)}
@@ -4343,6 +4350,7 @@ function route(){
   renderIncl(page);
   buildAddonConfig(page);
   enhanceShipping(page);
+  enhanceFees(page);
   renderInsulation(page);
   renderMfrQuestions(page);
   autoImperial(document.getElementById('page-'+page));
@@ -4397,6 +4405,20 @@ function enhanceShipping(page){
   const body=formatShipping(s);
   pg.querySelectorAll('.php-price-shipping').forEach(el=>{
     el.innerHTML=`<span class="ship-ico" aria-hidden="true">${SHIP_SVG}</span><span class="ship-txt"><span class="ship-lbl">Shipping &amp; import</span>${body} &middot; <a class="ship-req-link" href="#/shipping/costs">See requirements &rarr;</a></span>`;
+  });
+}
+const FEE_SVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 4h8v3H8zM6 5H5v16h14V5h-1" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 12.5l2 2 3.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Add an "Other one-time costs" callout under the price, from the same SUM_COST
+// data as the decision summary. Injected once, updated in place on re-render.
+function enhanceFees(page){
+  const pg=document.getElementById('page-'+page); if(!pg) return;
+  const k=SUM_COST[page]; if(!k||!k.comp) return;
+  const labels=k.comp.map(x=>x.t).join(', ');
+  const html=`<span class="fee-ico" aria-hidden="true">${FEE_SVG}</span><span class="fee-txt"><span class="fee-lbl">Other one-time costs</span><strong>${sumMoney(compTotal(page))}</strong> &mdash; ${labels}. <a class="fee-req-link" href="#/shipping/summary">Breakdown &rarr;</a><span class="fee-allin">Est. all-in &asymp; <b>${sumMoney(sumAllIn(page))}</b> &mdash; unit + shipping + surtax (if parts) + these fees</span></span>`;
+  pg.querySelectorAll('.php-price-shipping').forEach(shipEl=>{
+    let fee=shipEl.nextElementSibling;
+    if(!fee||!fee.classList.contains('php-price-fees')){ fee=document.createElement('div'); fee.className='php-price-fees'; shipEl.after(fee); }
+    fee.innerHTML=html;
   });
 }
 // Render the Cost & terms table on the #/shipping page from the same map.
