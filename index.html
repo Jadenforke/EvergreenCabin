@@ -209,17 +209,8 @@ td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-
 tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:#F8FAF8}
 
 /* ─── size selector ───────────────────────────────────── */
-.size-sel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
-.size-opt{border:1.5px solid var(--line);border-radius:8px;padding:14px;cursor:pointer;transition:.18s;text-align:center;background:var(--card)}
-.size-opt:hover{border-color:#B0C0B6}.size-opt.on{border-color:var(--pine);background:var(--pine-light)}
-.size-opt .sz{font-family:'Archivo',sans-serif;font-size:18px;font-weight:800;color:var(--pine)}
-.size-opt .sl{font-size:12px;color:var(--steel);margin-top:3px}.size-opt .sp{font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;margin-top:6px}
-@media(max-width:720px){.size-sel{grid-template-columns:repeat(2,1fr)}}
 
 /* ─── configurator ────────────────────────────────────── */
-.config-wrap{display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start}
-@media(max-width:900px){.config-wrap{grid-template-columns:1fr}}
-.addon-list{display:flex;flex-direction:column;gap:10px}
 .addon{border:1.5px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:.18s;background:var(--card);user-select:none}
 .addon:hover{border-color:#B0C0B6}.addon.on{border-color:var(--pine);background:var(--pine-light)}
 .addon .chk{width:20px;height:20px;border-radius:4px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;transition:.18s;background:#fff}
@@ -232,18 +223,9 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 .addon .price{font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;color:var(--pine);white-space:nowrap}
 
 /* ─── price panel ─────────────────────────────────────── */
-.price-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;position:sticky;top:128px}
-.price-panel h3{font-family:'Archivo',sans-serif;font-size:17px;font-weight:750;margin-bottom:18px}
-.price-line{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;border-bottom:1px dashed var(--line)}
-.price-line:last-of-type{border-bottom:none}.price-line .k{color:var(--steel)}.price-line .v{font-weight:600;font-variant-numeric:tabular-nums}
 .price-total{border-top:2px solid var(--ink);margin-top:12px;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline}
 .price-total .k{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px}
 .price-total .v{font-family:'Archivo',sans-serif;font-size:26px;font-weight:800}
-.price-sqft{font-size:12px;color:var(--steel);margin-top:4px;text-align:right}
-.export-btn{width:100%;margin-top:20px;padding:14px;background:var(--pine);color:#fff;border:none;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px;transition:.18s}
-.export-btn:hover{background:var(--pine-deep)}
-.reset-btn{width:100%;margin-top:8px;padding:11px;background:transparent;color:var(--steel);border:1.5px solid var(--line);border-radius:8px;font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;transition:.18s}
-.reset-btn:hover{border-color:#B0C0B6;color:var(--ink)}
 .selected-list{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
 .selected-list h4{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:10px}
 .sel-item{font-size:13px;display:flex;justify-content:space-between;padding:4px 0;gap:8px}
@@ -308,18 +290,8 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 .pillar h3{font-size:17px;font-weight:750;margin:10px 0 8px}.pillar p{font-size:14px;color:var(--steel)}
 
 /* ─── var tabs ─────────────────────────────────────────── */
-.var-tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--line)}
-.var-tab{font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;color:var(--steel);padding:10px 18px;border-bottom:2.5px solid transparent;cursor:pointer;transition:.15s;background:none;border-top:none;border-left:none;border-right:none}
-.var-tab:hover{color:var(--ink)}.var-tab.on{color:var(--pine);border-bottom-color:var(--pine)}
 
 /* ─── PDF overlay ─────────────────────────────────────── */
-#pdf-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);align-items:center;justify-content:center}
-#pdf-overlay.show{display:flex}
-.pdf-modal{background:#fff;border-radius:16px;width:min(780px,96vw);max-height:92vh;overflow:auto;box-shadow:0 32px 80px rgba(0,0,0,.35)}
-.pdf-modal-head{display:flex;justify-content:space-between;align-items:center;padding:24px 28px;border-bottom:1px solid var(--line)}
-.pdf-modal-head h2{font-family:'Archivo',sans-serif;font-size:20px;font-weight:750}
-.pdf-close{background:none;border:none;font-size:22px;color:var(--steel);padding:4px 8px}
-.pdf-close:hover{color:var(--ink)}.pdf-body{padding:28px}
 
 /* ─── lightbox ─────────────────────────────────────── */
 #lightbox{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column}
@@ -343,7 +315,7 @@ footer h5{font-family:'Archivo',sans-serif;color:#fff;font-size:13px;font-weight
 footer a{display:block;padding:4px 0}footer a:hover{color:#fff}
 footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:#6E7A74}
 .crumbs{font-size:13px;color:var(--steel);padding:22px 0 0}.crumbs a:hover{color:var(--pine)}
-@media print{header,footer,.pd-tabs,.gal-thumbs,.export-btn,.reset-btn,#pdf-overlay,.filter-bar,.btnrow{display:none!important}.page{display:block!important}#page-home,#page-catalog{display:none!important}.price-panel{position:static;border:1px solid #ccc}.config-wrap{grid-template-columns:1fr}body{font-size:12px}.pd-hero-grid{grid-template-columns:1fr;gap:20px}}
+@media print{header,footer,.pd-tabs,.gal-thumbs,.filter-bar,.btnrow{display:none!important}.page{display:block!important}#page-home,#page-catalog{display:none!important}body{font-size:12px}.pd-hero-grid{grid-template-columns:1fr;gap:20px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
 .addon-details{border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -370,23 +342,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 .ini-x{color:var(--danger);font-weight:700;font-size:14px}
 
 /* ─── mobile sticky price bar ─────────────────────────── */
-#mobile-price-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--pine);color:#fff;z-index:200;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 24px rgba(0,0,0,.18);padding:14px 20px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
-#mobile-price-bar.visible{transform:translateY(0)}
-.mpb-inner{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.mpb-left{flex:1;min-width:0}
-.mpb-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin-bottom:2px}
-.mpb-total{font-family:'Archivo',sans-serif;font-size:24px;font-weight:800;line-height:1}
-.mpb-sub{font-size:11px;opacity:.65;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mpb-actions{display:flex;gap:8px;flex:none}
-.mpb-btn{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;padding:10px 14px;font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
-.mpb-btn:hover{background:rgba(255,255,255,.28)}
-.mpb-btn.primary{background:#fff;color:var(--pine);border-color:#fff}
-.mpb-btn.primary:hover{background:#E8F2EC}
 
 /* ─── mobile overrides ─────────────────────────────────── */
 @media(max-width:768px){
-  #mobile-price-bar{display:block}
-  .price-panel{display:none}
   #sub-pricing{padding-bottom:90px!important}
 
   /* layout */
@@ -419,9 +377,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   .pd-tabs a{font-size:13px;padding:13px 13px}
 
   /* configurator */
-  .size-opt{padding:11px 8px}
-  .size-opt .sz{font-size:16px}
-  .size-opt .sp{font-size:12px}
   .addon{padding:12px 13px;gap:10px}
   .addon .info .name{font-size:13px}
   .addon .info .spec{font-size:11.5px}
@@ -3829,14 +3784,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <div id="lb-counter"></div>
 </div>
 
-<!-- PDF OVERLAY -->
-<div id="pdf-overlay" onclick="if(event.target===this)closePDFExport()">
-  <div class="pdf-modal">
-    <div class="pdf-modal-head"><h2>Export configuration summary</h2><button class="pdf-close" onclick="closePDFExport()">&#x2715;</button></div>
-    <div class="pdf-body" id="pdf-body"></div>
-  </div>
-</div>
-
 <footer>
   <div class="wrap">
     <div class="grid">
@@ -3849,18 +3796,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 </footer>
 
 <script>
-const IMGS = {
-  hero: '/img/hero.webp',
-  interior: '/img/interior.webp',
-  plan: '/img/plan.webp',
-  snow: '/img/snow.webp',
-  sizes: '/img/sizes.webp',
-  int2: '/img/int2.webp',
-  bath1: '/img/bath1.webp',
-  bath2: '/img/bath2.webp',
-  bath3: '/img/bath3.webp'
-};
-const GALLERY = [IMGS.hero, IMGS.interior, IMGS.snow, IMGS.sizes, IMGS.int2, IMGS.bath2, IMGS.bath1, IMGS.bath3, IMGS.plan];
 const GLASS_HERO = '/img/glass/hero.webp';
 const GLASS_GALLERY = ['/img/glass/hero.webp','/img/glass/int1.webp','/img/glass/int2.webp','/img/glass/int3.webp','/img/glass/ext2.webp','/img/glass/bath.webp','/img/glass/struct.webp','/img/glass/plan.webp'];
 const GLASS_VIDEOS = [{src:'/video/glass-dome-demo.mp4', poster:'/img/glass/ext2.webp'}];
@@ -3899,12 +3834,6 @@ const SOL_MEDIA = SOL_GALLERY.map(src=>({type:'img',src}));
 const WK_HERO = '/img/windkit/hero.webp';
 const WK_GALLERY = ['/img/windkit/hero.webp','/img/windkit/power-curve.webp','/img/windkit/bom.webp'];
 const WK_MEDIA = WK_GALLERY.map(src=>({type:'img',src}));
-const GW_HERO = '/img/gwind/turbine.webp';
-const GW_GALLERY = ['/img/gwind/turbine.webp','/img/gwind/curve.webp','/img/gwind/energy.webp'];
-const GW_MEDIA = GW_GALLERY.map(src=>({type:'img',src}));
-const AW_HERO = '/img/archwind/hero.webp';
-const AW_GALLERY = ['/img/archwind/hero.webp'];
-const AW_MEDIA = AW_GALLERY.map(src=>({type:'img',src}));
 const HJ_HERO = '/img/huijue/hero.webp';
 const HJ_GALLERY = ['/img/huijue/hero.webp','/img/huijue/system.webp','/img/huijue/invoice.webp'];
 const HJ_MEDIA = HJ_GALLERY.map(src=>({type:'img',src}));
@@ -3915,94 +3844,6 @@ const IG_HERO = '/img/igloo/interior.webp';
 const IG_GALLERY = ['/img/igloo/interior.webp','/img/igloo/hero.webp','/img/igloo/kitchen.webp','/img/igloo/bath.webp','/img/igloo/plan.webp'];
 const IG_VIDEOS = [{src:'/img/igloo/walkthrough.webm',poster:'/img/igloo/hero.webp'}];
 const IG_MEDIA = [...IG_GALLERY.map(src=>({type:'img',src})), ...IG_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
-
-// ─── SIZE DATA (from Shelter Architecture PDF) ───────────────────────────────
-const SIZE_DATA = {
-  '5m':{ label:'5m / 16.4 ft', diam:'5.0 m', height:'2.9 m', sqft:211, sqm:19.63, shell:1347,
-    frameStd:'φ20×1.5 mm Q235 steel', frameUp:'+$60 for φ25×1.5mm &bull; +$420 for φ32×2mm',
-    frameUpLabel:'Upgrade: φ25×1.5 mm steel pipe', frameUpPrice:60,
-    addons:{
-      insulation:680, curtain:295, wpc_door:410, glass_window:496,
-      glass_door:312, triangle_window:17, vent_cap:15, mosquito_screen:12,
-      solar_fan:327, stove_jack:124, central_skylight:19,
-      elec_curtain:197, wooden_floor:973, floor_underlay:74,
-      pvc_platform:1636,
-      bay_win1:null, bay_win2:null, prefab_wpc:null,
-      modular_bath:8106, loft:1268, kitchen:1901
-    }},
-  '6m':{ label:'6m / 19.6 ft', diam:'6.0 m', height:'3.5 m', sqft:304, sqm:28.2, shell:1734,
-    frameStd:'φ25×1.5 mm Q235 steel', frameUp:'+$450 for φ32×2mm',
-    frameUpLabel:'Upgrade: φ32×2 mm steel pipe', frameUpPrice:450,
-    addons:{
-      insulation:976, curtain:269, wpc_door:410, glass_window:496,
-      glass_door:312, triangle_window:17, vent_cap:15, mosquito_screen:12,
-      solar_fan:327, stove_jack:124, central_skylight:19,
-      elec_curtain:209, wooden_floor:1401, floor_underlay:106,
-      pvc_platform:2357, bay_win1:1530, bay_win2:2332, prefab_wpc:9886,
-      modular_bath:8106, loft:1268, kitchen:1901
-    }},
-  '7m':{ label:'7m / 22.9 ft', diam:'7.0 m', height:'4.0 m', sqft:413, sqm:38.4, shell:2032,
-    frameStd:'φ25×1.5 mm Q235 steel', frameUp:'+$510 for φ32×2mm',
-    frameUpLabel:'Upgrade: φ32×2 mm steel pipe', frameUpPrice:510,
-    addons:{
-      insulation:1121, curtain:311, wpc_door:410, glass_window:496,
-      glass_door:312, triangle_window:17, vent_cap:15, mosquito_screen:12,
-      solar_fan:327, stove_jack:124, central_skylight:19,
-      elec_curtain:223, wooden_floor:1907, floor_underlay:144,
-      pvc_platform:3174, bay_win1:1758, bay_win2:2829, prefab_wpc:12709,
-      modular_bath:8106, loft:1268, kitchen:1901
-    }},
-  '8m':{ label:'8m / 26.2 ft', diam:'8.0 m', height:'4.7 m', sqft:540, sqm:50.2, shell:2921,
-    frameStd:'φ32×2 mm Q235 steel (standard)', frameUp:'+$570 for φ38×2mm',
-    frameUpLabel:'Upgrade: φ38×2 mm steel pipe', frameUpPrice:570,
-    addons:{
-      insulation:1308, curtain:344, wpc_door:410, glass_window:496,
-      glass_door:312, triangle_window:17, vent_cap:15, mosquito_screen:12,
-      solar_fan:327, stove_jack:124, central_skylight:19,
-      elec_curtain:239, wooden_floor:2491, floor_underlay:189,
-      pvc_platform:4136, bay_win1:1989, bay_win2:3426, prefab_wpc:15890,
-      modular_bath:8106, loft:1268, kitchen:1901
-    }}
-};
-
-const ADDON_GROUPS = [
-  { group:'Standard add-ons', items:[
-    {id:'insulation',   name:'Insulation',        spec:'Aluminum foil bubble + canvas fabric. 85% heat reflection, waterproof, fire retardant'},
-    {id:'curtain',      name:'Curtain kit',        spec:'Flexible track + curtain (multiple optional colors)'},
-    {id:'wpc_door',     name:'WPC Door',           spec:'0.9×2.1 m, WPC panel, black aluminum frame, hinges, closures, blockout curtains'},
-    {id:'glass_window', name:'Glass Windows ×2',   spec:'Porthole Φ445 mm, openable & lockable, aluminium alloy, stainless mosquito net'},
-  ]},
-  { group:'Doors & windows', items:[
-    {id:'glass_door',      name:'Glass Door',           spec:'0.9×2.1 m, double layer frosted glass, white frame, outswing, lock & keys'},
-    {id:'triangle_window', name:'Triangle Window',       spec:'Openable roll-up PVC fabric, hook-and-loop seal, buckle fastener, fly screen'},
-    {id:'bay_win1',        name:'Bay Window — single glass',  spec:'Aluminum frame + single 6mm tempered glass', notFor5m:true},
-    {id:'bay_win2',        name:'Bay Window — double laminated', spec:'Aluminum frame + double pane laminated glass 5+0.76pvb+5', notFor5m:true},
-  ]},
-  { group:'Ventilation & heating', items:[
-    {id:'vent_cap',     name:'Ventilation cap',       spec:'Round vent with mesh and PVC cap to keep out rain'},
-    {id:'mosquito_screen', name:'Mosquito screen',    spec:'Magnetic screen door with hook-and-loop seal'},
-    {id:'solar_fan',    name:'Solar Extractor Fan',   spec:'Active ventilation 565×565×245 mm, 35W, white, <45 dBA'},
-    {id:'stove_jack',   name:'Stove Jack',            spec:'Black coated triangle steel panel, applicable to Φ6" outlet pipe'},
-  ]},
-  { group:'Skylight', items:[
-    {id:'central_skylight', name:'Central Skylight',     spec:'Central polygon skylight, 950 g/sqm transparent PVC'},
-    {id:'elec_curtain',     name:'Electric Skylight Curtain', spec:'Automatic retractable shades for central skylight, remote control'},
-  ]},
-  { group:'Flooring', items:[
-    {id:'wooden_floor',   name:'Wooden Floor',           spec:'Interior pine, tongue-and-groove planks 920×130 mm'},
-    {id:'floor_underlay', name:'PVC Moisture Underlayment', spec:'PVC moisture barrier underlayment for flooring'},
-  ]},
-  { group:'Platform', items:[
-    {id:'pvc_platform',  name:'Platform — PVC panel',     spec:'Outriggers (30cm) with 12mm white solid PVC panel'},
-    {id:'prefab_wpc',    name:'Prefab WPC Platform',      spec:'Rectangular WPC, galvanized steel, adjustable supports, 4-side pine guardrail & stair', notFor5m:true},
-  ]},
-  { group:'Interior fit-out', items:[
-    {id:'modular_bath', name:'Modular Bathroom Pod',   spec:'2990×1300×2450 mm — full fit-out inc. smart toilet, marble sink, shower, piping & wiring inside walls'},
-    {id:'loft',         name:'Loft / Mezzanine',       spec:'Steel loft 2900×1358×340 mm with safety rail + folding aluminium stairs (bed not included)'},
-    {id:'kitchen',      name:'Kitchen & Closet Combo', spec:'Marble worktable, SS sink & faucet, storage, closet, lighting, electrical sockets + counter & 2 chairs'},
-  ]},
-];
-const ADDON_DEFS = ADDON_GROUPS.flatMap(g=>g.items);
 
 const PRODUCTS = [
   { id:'glassdome', live:true, type:'dome', mfr:'meihua',
@@ -4092,92 +3933,12 @@ const PRODUCTS = [
 ];
 
 const MANUFACTURERS = ['all','shelter','meihua','meishu','platinum','zhongjun','one','yidongxiang','pawa','yuntu','huijue','shandong','other'];
-const MFR_LABELS = {all:'All manufacturers', shelter:'Shelter Architecture', meihua:'Meihua Prefab', meishu:'Beautiful Villa', platinum:'Platinum Building Tech', zhongjun:'Zhongjun Teng', one:'ONE Living Capsules', yidongxiang:'Qingdao Yidongxiang', pawa:'Hunan Pawa (iParwa)', yuntu:'Guangzhou Yuntu', huijue:'HuiJue Group', shandong:'Shandong Mars / YDX', other:'Other / TBD'};
+const MFR_LABELS = {all:'All manufacturers', meihua:'Meihua Prefab', meishu:'Beautiful Villa', platinum:'Platinum Building Tech', zhongjun:'Zhongjun Teng', one:'ONE Living Capsules', yidongxiang:'Qingdao Yidongxiang', pawa:'Hunan Pawa (iParwa)', yuntu:'Guangzhou Yuntu', huijue:'HuiJue Group', shandong:'Shandong Mars / YDX', other:'Other / TBD'};
 const TYPES = ['all','dome','villa','container','aframe','capsule','solar','custom'];
 const TYPE_LABELS = {all:'All types', dome:'Dome', villa:'Villa', container:'Modular / Container', aframe:'A-Frame', capsule:'Capsule / Apple', solar:'Solar / Power', custom:'Custom Cabins'};
 
-let activeMfr='all', activeType='all', selectedSize='6m', selectedAddons=new Set();
+let activeMfr='all', activeType='all';
 
-// ─── SPEC VARIANTS ────────────────────────────────────────────────────────────
-const SPEC_VARIANTS = {
-  '5m':[['Footprint','211 sq ft / 19.63 m² — 16.4 ft (5.0 m) diameter, 9.5 ft (2.9 m) peak height'],
-        ['Frame (standard)','Q235 steel pipe φ20×1.5 mm, white powder coated'],
-        ['Frame upgrades','+$60 for φ25×1.5 mm &bull; +$420 for φ32×2 mm'],
-        ['Cover (70%)','850 g/m² double-coated opaque PVC (white/dark green/beige), waterproof, UV resistant'],
-        ['Cover (30%)','950 g/m² transparent PVC panoramic bay window'],
-        ['Fire certifications','CAN/ULC-S109-14 · NFPA701 · DIN4102 B1 · BS7837 · M1'],
-        ['Wind load','120 km/h (74.5 mph)'],
-        ['Snow load','0.5 kN/m² (51 kg/m²) <strong style="color:var(--danger)">— below Northern Ontario requirements; see Compliance</strong>'],
-        ['Entrance','1 pc rectangular metal frame 0.9×2.1 m (door not included in shell)'],
-        ['Shell price (FOB)','<strong>$1,347.00</strong>'],
-        ['Electrical','Not included — available as add-on (Solar Fan $327)'],
-        ['Plumbing','Not included — Modular Bathroom Pod available ($8,106)']],
-  '6m':[['Footprint','303.5 sq ft / 28.2 m² — 19.6 ft (6.0 m) diameter, 11.5 ft (3.5 m) peak height'],
-        ['Frame (standard)','Q235 steel pipe φ25×1.5 mm, white powder coated'],
-        ['Frame upgrade','+$450 for φ32×2 mm'],
-        ['Cover (70%)','850 g/m² double-coated opaque PVC (white/dark green/beige), waterproof, UV resistant'],
-        ['Cover (30%)','950 g/m² transparent PVC panoramic bay window'],
-        ['Fire certifications','CAN/ULC-S109-14 · NFPA701 · DIN4102 B1 · BS7837 · M1'],
-        ['Wind load','120 km/h (74.5 mph)'],
-        ['Snow load','0.5 kN/m² (51 kg/m²) <strong style="color:var(--danger)">— below Northern Ontario requirements; see Compliance</strong>'],
-        ['Entrance','1 pc rectangular metal frame 0.9×2.1 m (door not included in shell)'],
-        ['Shell price (FOB)','<strong>$1,734.00</strong>'],
-        ['Electrical','Not included — available as add-on (Solar Fan $327)'],
-        ['Plumbing','Not included — Modular Bathroom Pod available ($8,106)']],
-  '7m':[['Footprint','413.3 sq ft / 38.4 m² — 22.9 ft (7.0 m) diameter, 13.1 ft (4.0 m) peak height'],
-        ['Frame (standard)','Q235 steel pipe φ25×1.5 mm, white powder coated'],
-        ['Frame upgrade','+$510 for φ32×2 mm'],
-        ['Cover (70%)','850 g/m² double-coated opaque PVC (white/dark green/beige), waterproof, UV resistant'],
-        ['Cover (30%)','950 g/m² transparent PVC panoramic bay window'],
-        ['Fire certifications','CAN/ULC-S109-14 · NFPA701 · DIN4102 B1 · BS7837 · M1'],
-        ['Wind load','120 km/h (74.5 mph)'],
-        ['Snow load','0.5 kN/m² (51 kg/m²) <strong style="color:var(--danger)">— below Northern Ontario requirements; see Compliance</strong>'],
-        ['Entrance','1 pc rectangular metal frame 0.9×2.1 m (door not included in shell)'],
-        ['Shell price (FOB)','<strong>$2,032.00</strong>'],
-        ['Electrical','Not included — available as add-on (Solar Fan $327)'],
-        ['Plumbing','Not included — Modular Bathroom Pod available ($8,106)']],
-  '8m':[['Footprint','540.3 sq ft / 50.2 m² — 26.2 ft (8.0 m) diameter, 15.4 ft (4.7 m) peak height'],
-        ['Frame (standard)','Q235 steel pipe φ32×2 mm, white powder coated (heaviest pipe is the standard for 8m)'],
-        ['Frame upgrade','+$570 for φ38×2 mm'],
-        ['Cover (70%)','850 g/m² double-coated opaque PVC (white/dark green/beige), waterproof, UV resistant'],
-        ['Cover (30%)','950 g/m² transparent PVC panoramic bay window'],
-        ['Fire certifications','CAN/ULC-S109-14 · NFPA701 · DIN4102 B1 · BS7837 · M1'],
-        ['Wind load','120 km/h (74.5 mph)'],
-        ['Snow load','0.5 kN/m² (51 kg/m²) <strong style="color:var(--danger)">— below Northern Ontario requirements; see Compliance</strong>'],
-        ['Entrance','1 pc rectangular metal frame 0.9×2.1 m (door not included in shell)'],
-        ['Shell price (FOB)','<strong>$2,921.00</strong>'],
-        ['Electrical','Not included — available as add-on (Solar Fan $327)'],
-        ['Plumbing','Not included — Modular Bathroom Pod available ($8,106)']]
-};
-
-function switchSpecVariant(v){
-  document.querySelectorAll('.var-tab').forEach(t=>t.classList.toggle('on',t.dataset.var===v));
-  const rows = SPEC_VARIANTS[v]||SPEC_VARIANTS['6m'];
-  document.getElementById('spec-table').innerHTML = rows.map(([k,val])=>`<tr><td class="k">${k}</td><td>${val}</td></tr>`).join('');
-}
-document.addEventListener('click',e=>{const vt=e.target.closest('.var-tab'); if(vt&&vt.dataset.var) switchSpecVariant(vt.dataset.var);});
-
-// ─── GALLERY ─────────────────────────────────────────────────────────────────
-function buildGallery(){
-  const main=document.getElementById('gal-main'); const thumbs=document.getElementById('gal-thumbs');
-  if(!main||!thumbs) return;
-  const valid=GALLERY.filter(Boolean);
-  let curIdx=0;
-  main.style.backgroundImage=`url(${valid[0]})`;
-  main.onclick=()=>openLightbox(valid,curIdx);
-  thumbs.innerHTML='';
-  valid.slice(0,6).forEach((src,i)=>{
-    const t=document.createElement('div'); t.className='t'+(i===0?' on':'');
-    t.style.backgroundImage=`url(${src})`;
-    t.onclick=()=>{
-      curIdx=i;
-      main.style.backgroundImage=`url(${src})`;
-      thumbs.querySelectorAll('.t').forEach(x=>x.classList.remove('on'));
-      t.classList.add('on');
-    };
-    thumbs.appendChild(t);
-  });
-}
 function buildMediaGallery(main, thumbs, media){
   if(!main||!thumbs) return;
   const imgs=media.filter(m=>m.type==='img').map(m=>m.src);
@@ -4217,202 +3978,10 @@ function buildT9Gallery(){ buildMediaGallery(document.getElementById('t9-gal-mai
 function buildAfGallery(){ buildMediaGallery(document.getElementById('af-gal-main'), document.getElementById('af-gal-thumbs'), AF_MEDIA); }
 function buildSolGallery(){ buildMediaGallery(document.getElementById('sol-gal-main'), document.getElementById('sol-gal-thumbs'), SOL_MEDIA); }
 function buildWkGallery(){ buildMediaGallery(document.getElementById('wk-gal-main'), document.getElementById('wk-gal-thumbs'), WK_MEDIA); }
-function buildGwGallery(){ buildMediaGallery(document.getElementById('gw-gal-main'), document.getElementById('gw-gal-thumbs'), GW_MEDIA); }
-function buildAwGallery(){ buildMediaGallery(document.getElementById('aw-gal-main'), document.getElementById('aw-gal-thumbs'), AW_MEDIA); }
 function buildHjGallery(){ buildMediaGallery(document.getElementById('hj-gal-main'), document.getElementById('hj-gal-thumbs'), HJ_MEDIA); }
 function buildArGallery(){ buildMediaGallery(document.getElementById('ar-gal-main'), document.getElementById('ar-gal-thumbs'), AR_MEDIA); }
 function buildIgGallery(){ buildMediaGallery(document.getElementById('ig-gal-main'), document.getElementById('ig-gal-thumbs'), IG_MEDIA); }
 function buildCapsuleGallery(){ buildMediaGallery(document.getElementById('cap-gal-main'), document.getElementById('cap-gal-thumbs'), CAPSULE_MEDIA); }
-
-// ─── SIZE SELECTOR ────────────────────────────────────────────────────────────
-function buildSizeSel(){
-  const el=document.getElementById('size-sel-config'); if(!el) return;
-  el.innerHTML=Object.entries(SIZE_DATA).map(([k,sd])=>`
-    <div class="size-opt${k==='6m'?' on':''}" data-size="${k}" onclick="selectSize('${k}',this)">
-      <div class="sz">${k}</div>
-      <div class="sl">${sd.sqft} sq ft · ${sd.diam}</div>
-      <div class="sp">$${sd.shell.toLocaleString()} shell</div>
-    </div>`).join('');
-  // update frame names
-  updateFrameNames();
-}
-function selectSize(sz, el){
-  selectedSize=sz;
-  document.querySelectorAll('.size-opt').forEach(x=>x.classList.remove('on'));
-  el.classList.add('on');
-  // reset frame upgrade selection when size changes
-  document.getElementById('addon-frameup').classList.remove('on');
-  selectedAddons.delete('frameup');
-  updateFrameNames();
-  buildAddonList();
-  updatePricePanel();
-}
-function updateFrameNames(){
-  const sd=SIZE_DATA[selectedSize];
-  const stdEl=document.getElementById('std-frame-name');
-  const upEl=document.getElementById('frameup-name');
-  const upPrice=document.getElementById('frameup-price');
-  const upSpec=document.getElementById('frameup-spec');
-  if(stdEl) stdEl.innerHTML='Standard frame &mdash; '+sd.frameStd+' (included)';
-  if(upEl) upEl.textContent=sd.frameUpLabel;
-  if(upPrice) upPrice.textContent='+$'+SIZE_DATA[selectedSize].frameUpPrice.toLocaleString();
-  if(upSpec) upSpec.innerHTML='Heavier wall for enhanced load capacity &mdash; '+sd.frameUp;
-}
-
-// ─── ADD-ONS ─────────────────────────────────────────────────────────────────
-function buildAddonList(){
-  const sd=SIZE_DATA[selectedSize];
-  const wrap=document.getElementById('addon-groups-wrap');
-  if(!wrap) return;
-  const lbl='font-family:\'Archivo\',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:12px;margin-top:20px';
-  let out='';
-  ADDON_GROUPS.forEach(function(g){
-    const items=g.items.filter(function(a){
-      if(a.notFor5m && selectedSize==='5m') return false;
-      return true;
-    });
-    if(!items.length) return;
-    let rows='';
-    items.forEach(function(a){
-      const price=sd.addons[a.id];
-      const priceStr=price!=null ? '+$'+price.toLocaleString() : '<span class="tbd">N/A this size</span>';
-      const disabled=price==null;
-      const onStr=disabled ? '' : ' onclick="toggleAddon(\''+a.id+'\',this)"';
-      const cls='addon'+(selectedAddons.has(a.id)?' on':'')+(disabled?' disabled-addon':'');
-      rows+='<div class="'+cls+'" id="addon-'+a.id+'"'+onStr+'>'
-           +'<div class="chk"></div>'
-           +'<div class="info"><div class="name">'+a.name+'</div><div class="spec">'+a.spec+'</div></div>'
-           +'<div class="price">'+priceStr+'</div>'
-           +'</div>';
-    });
-    out+='<div style="'+lbl+'">'+g.group+'</div><div class="addon-list">'+rows+'</div>';
-  });
-  wrap.innerHTML=out;
-}
-function toggleFrameUp(el){
-  if(selectedAddons.has('frameup')) selectedAddons.delete('frameup');
-  else selectedAddons.add('frameup');
-  el.classList.toggle('on');
-  updatePricePanel();
-}
-function toggleAddon(id,el){
-  const sd=SIZE_DATA[selectedSize];
-  if(sd.addons[id]==null) return; // not available for this size
-  if(selectedAddons.has(id)) selectedAddons.delete(id); else selectedAddons.add(id);
-  el.classList.toggle('on'); updatePricePanel();
-}
-
-// ─── PRICE PANEL ─────────────────────────────────────────────────────────────
-function updatePricePanel(){
-  const sd=SIZE_DATA[selectedSize];
-  const shell=sd.shell;
-  let addonsTotal=0;
-  const selItems=[];
-  ADDON_DEFS.forEach(a=>{ if(selectedAddons.has(a.id) && sd.addons[a.id]!=null){addonsTotal+=sd.addons[a.id]; selItems.push({name:a.name,price:sd.addons[a.id]});}});
-  // frame upgrade
-  if(selectedAddons.has('frameup')){addonsTotal+=sd.frameUpPrice; selItems.push({name:sd.frameUpLabel,price:sd.frameUpPrice});}
-  const total=shell+addonsTotal;
-  // configurator panel
-  document.getElementById('panel-shell').textContent=`$${shell.toLocaleString()}.00`;
-  syncHeroPanel(total,sd,addonsTotal);
-  document.getElementById('panel-size-line').querySelector('.v').textContent=sd.label;
-  document.getElementById('panel-total').textContent=`$${total.toLocaleString()}`;
-  document.getElementById('panel-sqft').textContent=`$${(total/sd.sqft).toFixed(2)} / sq ft  ·  $${(total/sd.sqm).toFixed(2)} / m²`;
-  const slEl=document.getElementById('selected-list'), siEl=document.getElementById('selected-items');
-  if(selItems.length){slEl.style.display='block'; siEl.innerHTML=selItems.map(s=>`<div class="sel-item"><span class="k">${s.name}</span><span class="v">+$${s.price.toLocaleString()}</span></div>`).join('');
-  } else { slEl.style.display='none'; }
-  updateMobilePriceBar(total, sd.label);
-}
-function syncHeroPanel(total,sd,addonsTotal){
-  const sq=document.getElementById('php-shell-price'),sr=document.getElementById('php-shell-rate');
-  const tp=document.getElementById('php-total-price'),ts=document.getElementById('php-total-sub'),tr=document.getElementById('php-total-rate');
-  if(sq) sq.textContent='$'+sd.shell.toLocaleString();
-  if(sr) sr.textContent='$'+(sd.shell/sd.sqft).toFixed(2)+' / sq ft  ·  $'+(sd.shell/sd.sqm).toFixed(2)+' / m²';
-  if(tp) tp.textContent='$'+total.toLocaleString();
-  if(ts) ts.textContent=addonsTotal>0?'+$'+addonsTotal.toLocaleString()+' in add-ons':'no add-ons selected';
-  if(tr) tr.textContent='$'+(total/sd.sqft).toFixed(2)+' / sq ft  ·  $'+(total/sd.sqm).toFixed(2)+' / m²';
-}
-function resetConfig(){
-  selectedAddons.clear(); selectedSize='6m';
-  document.querySelectorAll('.size-opt').forEach(x=>x.classList.remove('on'));
-  document.querySelector('[data-size="6m"]').classList.add('on');
-  document.getElementById('addon-frameup').classList.remove('on');
-  updateFrameNames(); buildAddonList(); updatePricePanel();
-}
-
-// ─── PDF EXPORT ───────────────────────────────────────────────────────────────
-function openPDFExport(){
-  const sd=SIZE_DATA[selectedSize]; let addonsTotal=0; const selItems=[];
-  ADDON_DEFS.forEach(a=>{if(selectedAddons.has(a.id)&&sd.addons[a.id]!=null){addonsTotal+=sd.addons[a.id];selItems.push({name:a.name,price:sd.addons[a.id]});}});
-  if(selectedAddons.has('frameup')){addonsTotal+=sd.frameUpPrice;selItems.push({name:sd.frameUpLabel,price:sd.frameUpPrice});}
-  const total=sd.shell+addonsTotal;
-  const now=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  const ratePerSqft=(total/sd.sqft).toFixed(2);
-  const featHTML=selItems.length
-    ? selItems.map(s=>`<div style="padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF;display:flex;align-items:center;gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:#1E5138;display:inline-block;flex-shrink:0"></span>${s.name}</div>`).join('')
-    : '<div style="font-size:13px;color:#5F6A64;font-style:italic;padding:6px 0">Shell only — no add-ons selected</div>';
-  const priceRowsHTML=selItems.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF"><span style="color:#5F6A64">${s.name}</span><span style="font-weight:600">+$${s.price.toLocaleString()}</span></div>`).join('');
-  document.getElementById('pdf-body').innerHTML=`
-  <div style="font-family:Arial,sans-serif;color:#121815;line-height:1.4">
-    <div style="display:flex;border-radius:8px 8px 0 0;overflow:hidden;min-height:170px">
-      <img src="${IMGS.hero}" alt="Geo Dome" style="width:210px;flex-shrink:0;object-fit:cover;display:block">
-      <div style="background:#1E5138;color:#fff;padding:20px 22px;flex:1;display:flex;flex-direction:column;justify-content:space-between">
-        <div>
-          <div style="font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Shelter Architecture Technology (Guangdong) Co., Ltd</div>
-          <div style="font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.2">Geodesic Dome</div>
-          <div style="font-size:13px;opacity:.75;margin-top:5px">Factory specification &amp; pricing quote</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-          <span style="background:rgba(255,255,255,.18);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700">${sd.label}</span>
-          <span style="background:rgba(255,255,255,.1);padding:5px 13px;border-radius:20px;font-size:12px">${sd.diam} diameter</span>
-          <span style="background:rgba(255,255,255,.1);padding:5px 13px;border-radius:20px;font-size:12px">${sd.sqft} ft²</span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
-          ${[['Peak height',sd.height],['Floor area',sd.sqft+' ft² ('+sd.sqm+' m²)'],['Rate','$'+ratePerSqft+'/ft²']].map(([l,v])=>`<div style="background:rgba(0,0,0,.2);border-radius:6px;padding:8px 10px"><div style="font-size:14px;font-weight:700">${v}</div><div style="font-size:10px;opacity:.65;margin-top:2px;text-transform:uppercase;letter-spacing:.06em">${l}</div></div>`).join('')}
-        </div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #DFE5E1">
-      <div style="padding:16px 20px;border-right:1px solid #DFE5E1">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #DFE5E1">Specifications</div>
-        ${[['Type','3/8 Geodesic dome'],['Frame',sd.frameStd],['Floor area',sd.sqft+' ft² / '+sd.sqm+' m²'],['Origin','Guangzhou, China'],['Incoterm','FOB']].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF;gap:12px"><span style="color:#5F6A64;flex-shrink:0">${k}</span><span style="font-weight:600;text-align:right">${v}</span></div>`).join('')}
-      </div>
-      <div style="padding:16px 20px">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #DFE5E1">Selected features</div>
-        ${featHTML}
-      </div>
-    </div>
-    <div style="padding:16px 20px;border-bottom:2px solid #DFE5E1">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5F6A64;margin-bottom:10px">Pricing</div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px dashed #EEF3EF"><span style="color:#5F6A64">Shell — ${sd.label}</span><span style="font-weight:600">$${sd.shell.toLocaleString()}</span></div>
-      ${priceRowsHTML}
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:12px 0 4px;border-top:2px solid #121815;margin-top:6px">
-        <div><div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Total</div><div style="font-size:11px;color:#5F6A64;margin-top:3px">FOB Guangzhou · USD · excl. shipping &amp; import duties</div></div>
-        <div style="font-size:26px;font-weight:700;color:#1E5138">$${total.toLocaleString()}</div>
-      </div>
-    </div>
-    <div style="background:#F5F8F6;padding:11px 20px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#5F6A64;border-radius:0 0 8px 8px">
-      <span style="font-weight:700;color:#1E5138;font-size:12px">Evergreen Cabin</span>
-      <span>Prices valid for factory order · subject to change</span>
-      <span>${now}</span>
-    </div>
-  </div>
-  <div style="display:flex;gap:10px;margin-top:18px">
-    <button onclick="printListingPDF()" style="flex:1;padding:13px;background:#1E5138;color:#fff;border:none;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Print / Save as PDF</button>
-    <button onclick="closePDFExport()" style="padding:13px 20px;background:transparent;border:1.5px solid #DFE5E1;border-radius:8px;font-family:'Archivo',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#5F6A64">Close</button>
-  </div>`;
-  document.getElementById('pdf-overlay').classList.add('show');
-  document.body.style.overflow='hidden';
-}
-function printListingPDF(){
-  const body=document.getElementById('pdf-body').firstElementChild.outerHTML;
-  const w=window.open('','_blank','width=820,height=960');
-  w.document.write(`<!doctype html><html><head><title>Geo Dome Quote</title><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#fff;padding:24px;font-family:Arial,sans-serif}@media print{body{padding:0}button{display:none!important}}</style></head><body>${body}</body></html>`);
-  w.document.close();
-  w.focus();
-  setTimeout(()=>w.print(),400);
-}
-function closePDFExport(){document.getElementById('pdf-overlay').classList.remove('show');document.body.style.overflow='';}
 
 // ─── LIGHTBOX ─────────────────────────────────────────────────────────────────
 let _lbImgs=[],_lbIdx=0;
@@ -4500,7 +4069,6 @@ function autoImperial(root){
 // ─── "INCLUDED IN PRICE" INDICATOR ────────────────────────────────────────────
 // 1 = included, 0 = not included, -1 = confirm with manufacturer.
 const INCL = {
-  product:  {bath:0, kitchen:0, ac:0, tank:0},   // Geo Dome — shell only, all add-ons
   glass:    {bath:1, kitchen:1, ac:-1, tank:0},  // Standing Glass Dome — bathroom pod excl. water heater/tank
   chunshu:  {bath:1, kitchen:1, ac:-1, tank:-1}, // Chun Shu villa
   steel:    {bath:1, kitchen:1, ac:-1, tank:0},  // Steel Modular — water heater not incl.
@@ -4625,12 +4193,7 @@ function route(){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
   document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===page));
-  if(page==='product'){
-    document.querySelectorAll('#pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===sub));
-    buildGallery(); buildSizeSel(); buildAddonList(); switchSpecVariant('6m'); updatePricePanel();
-    if(sub){const el=document.getElementById('sub-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
-    else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
-  } else if(page==='glass'){
+  if(page==='glass'){
     document.querySelectorAll('#g-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('g-'+sub)));
     buildGlassGallery();
     if(sub){const el=document.getElementById('sub-g-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
@@ -4689,16 +4252,6 @@ function route(){
     document.querySelectorAll('#wk-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('wk-'+sub)));
     buildWkGallery();
     if(sub){const el=document.getElementById('sub-wk-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
-    else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
-  } else if(page==='gwind'){
-    document.querySelectorAll('#gw-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('gw-'+sub)));
-    buildGwGallery();
-    if(sub){const el=document.getElementById('sub-gw-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
-    else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
-  } else if(page==='archwind'){
-    document.querySelectorAll('#aw-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('aw-'+sub)));
-    buildAwGallery();
-    if(sub){const el=document.getElementById('sub-aw-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else if(page==='huijue'){
     document.querySelectorAll('#hj-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('hj-'+sub)));
@@ -4800,34 +4353,34 @@ const SUMMARY = {
   // ── Cabins & structures ──
   glass:    {slug:'glassdome', bd:'Loft · 1 ba', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
     certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}],
-    surtax:'~+25% (~$4,200) if aluminium parts', extra:'$3,000 CSA approval · P.Eng · insulation upgrade · permit'},
+    extra:'$3,000 CSA approval · P.Eng · insulation upgrade · permit'},
   chunshu:  {slug:'chunshu', bd:'1 bd · 1 ba',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
     certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}],
-    surtax:'~+25% (~$12,700) if steel parts', extra:'P.Eng · ESA field eval · permit'},
+    extra:'P.Eng · ESA field eval · permit'},
   steel:    {slug:'steel', bd:'1 bd · 1 ba',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
     certs:[{t:'Structural calcs provided',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical',s:'need'}],
-    surtax:'~+25% (~$11,300) if steel parts', extra:'Local P.Eng seal (~$2–6k) · ESA · permit'},
+    extra:'Local P.Eng seal (~$2–6k) · ESA · permit'},
   capsule:  {slug:'capsule', bd:'Studio · 1 ba',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'gap'}],
-    surtax:'~+25% (~$8,500) if steel parts', extra:'ESA + ISED · winter insulation · P.Eng · permit'},
+    extra:'ESA + ISED · winter insulation · P.Eng · permit'},
   one:      {slug:'one', bd:'1 bd · 1 ba',       name:'ONE Living Capsule',   mfr:'Hebei Qianyan · steel, smart', area:'646 ft²', psf:'$54.91', price:'$35,463',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
-    surtax:'~+25% (~$8,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
+    extra:'ESA + ISED · P.Eng · permit'},
   branson:  {slug:'branson', bd:'2 bd · 2 ba',   name:'Branson Project',      mfr:'Qingdao Yidongxiang · light-steel', area:'775 ft²', psf:'$32.52', price:'$25,200',
     certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire wall test (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical (local)',s:'need'}],
-    surtax:'~+25% (~$6,300) if steel parts', extra:'Local P.Eng seal · local MEP/ESA · slab foundation · permit'},
+    extra:'Local P.Eng seal · local MEP/ESA · slab foundation · permit'},
   twofloor: {slug:'twofloor', bd:'1 bd · 2 ba',  name:'Two Floor Capsule',    mfr:'Hunan Pawa · steel, smart', area:'484 ft²', psf:'$65.20', price:'$31,579',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'Insulation R',s:'need'}],
-    surtax:'~+25% (~$7,900) if steel parts', extra:'ESA + ISED · P.Eng · permit'},
+    extra:'ESA + ISED · P.Eng · permit'},
   t9:       {slug:'t9', bd:'1 bd · 1 ba',        name:'Steele Capsule (T9)',  mfr:'Zhongjun · steel + appliances', area:'409 ft²', psf:'$72.74', price:'$29,751',
     certs:[{t:'ESA electrical',s:'gap'},{t:'ISED wireless',s:'gap'},{t:'NRCan appliances',s:'need'},{t:'Insulation R',s:'need'}],
-    surtax:'~+25% (~$7,400) if steel parts', extra:'ESA + ISED + NRCan · P.Eng · permit'},
+    extra:'ESA + ISED + NRCan · P.Eng · permit'},
   aframe:   {slug:'aframe', bd:'2 bd · 1 ba',    name:'A-Frame Cabin',        mfr:'Qingdao Yidongxiang · glulam + SIPs', area:'969 ft²', psf:'~$32.52', price:'~$31,500',
     certs:[{t:'Designed to OBC/CSA + calcs',s:'has'},{t:'Fire test on file (Intertek)',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ISPM 15 wood',s:'need'}],
-    surtax:'None — timber (minimal steel/Al)', surtaxNone:true, extra:'Local P.Eng seal · ISPM 15 · slab foundation · permit'},
+    extra:'Local P.Eng seal · ISPM 15 · slab foundation · permit'},
   igloo:    {slug:'igloo', bd:'Studio · opt. ba',     name:'Glass Igloo Dome',     mfr:'Guangzhou Yuntu · aluminium + glass', area:'304–541 ft²', psf:'$19–21', price:'from $5,847',
     certs:[{t:'Structural calc report',s:'has'},{t:'Bath/kitchen (used in Canada)',s:'has'},{t:'ESA (if wired)',s:'need'}],
-    surtax:'Covered — DDP incl. customs &amp; duty', surtaxNone:true, extra:'ESA (if wired) · permit'},
+    extra:'ESA (if wired) · permit'},
   // ── Renewable energy ──
   solar:    {slug:'solar',     name:'Solar Power System',   mfr:'Yidongxiang', output:'5.5 kW + 16 kWh LiFePO4',
     certs:[{t:'cULus / CSA',s:'gap'},{t:'Battery UN 38.3 DG',s:'need'}],
@@ -4860,10 +4413,10 @@ const SUM_COST = {
   t9:       {fob:29751, surtaxAmt:7400,  surtaxNote:'if steel parts',     shipEst:4500,  compEst:7500},
   aframe:   {fob:31500, surtaxAmt:0,     surtaxNote:'None — timber',      shipEst:19000, compEst:6000},
   igloo:    {fob:5847,  surtaxAmt:0,     surtaxNote:'Covered — DDP incl. duty', shipEst:15969, compEst:3000},
-  solar:    {fob:3696,  surtaxAmt:0, shipEst:1500, compEst:1500},
-  windkit:  {fob:2509,  surtaxAmt:0, shipEst:1900, compEst:1500},
-  huijue:   {fob:5310,  surtaxAmt:0, shipEst:2300, compEst:1500},
-  allrun:   {fob:3995,  surtaxAmt:0, shipEst:2000, compEst:1500}
+  solar:    {fob:3696,  surtaxAmt:0, shipEst:1500, compEst:1500, watts:5500},
+  windkit:  {fob:2509,  surtaxAmt:0, shipEst:1900, compEst:1500, watts:7000},
+  huijue:   {fob:5310,  surtaxAmt:0, shipEst:2300, compEst:1500, watts:6250},
+  allrun:   {fob:3995,  surtaxAmt:0, shipEst:2000, compEst:1500, watts:10400}
 };
 const sumMoney=n=>'$'+n.toLocaleString('en-US');
 const sumAllIn=id=>{const k=SUM_COST[id]||{}; return (k.fob||0)+(k.surtaxAmt||0)+(k.shipEst||0)+(k.compEst||0);};
@@ -4887,6 +4440,10 @@ function sumAllInCell(id){
   const k=SUM_COST[id]||{};
   return `<span class="sum-allin">${sumMoney(sumAllIn(id))}</span><span class="sum-note">est. all-in</span>`;
 }
+function sumPerWattCell(id){
+  const k=SUM_COST[id]; if(!k||!k.watts) return '<span class="sum-note">&mdash;</span>';
+  return `<span class="sum-allin">$${(k.fob/k.watts).toFixed(2)}</span><span class="sum-note">/ W · ${(k.watts/1000).toFixed(2).replace(/\.?0+$/,'')} kW</span>`;
+}
 function renderSummaryTables(){
   const cb=document.getElementById('summary-cabins-table');
   if(cb){
@@ -4909,14 +4466,15 @@ function renderSummaryTables(){
     const rows=SUM_ENERGY.map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
         `<td>${c.output}</td>`+
+        `<td>${sumPerWattCell(id)}</td>`+
         `<td>${sumPills(c.certs)}</td>`+
         `<td>${sumShipCell(id)}</td>`+
         `<td style="color:var(--steel)">${c.extra}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
     const tot=SUM_ENERGY.reduce((a,id)=>a+sumAllIn(id),0);
     const avg=Math.round(tot/SUM_ENERGY.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="4">Estimated all-in &mdash; ${SUM_ENERGY.length} kits &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
-    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:900px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>Certificates — has / needs</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    const foot=`<tr class="sum-foot"><td class="name" colspan="5">Estimated all-in &mdash; ${SUM_ENERGY.length} kits &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
+    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:960px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
   }
 }
 // ─── INSULATION & R-VALUE CONCERN ─────────────────────────────────────────────
@@ -4926,7 +4484,6 @@ function renderSummaryTables(){
 // severity 'danger' = insulation spec missing/inadequate, 'warn' = documented
 // but unrated. OBC SB-12 targets for Gore Bay: ~R-22+ walls, ~R-49+ roof.
 const INSULATION = {
-  product:  {sev:'danger', head:'Insulation &mdash; cover only, no rated R', body:'Sold as a shell; insulation is an add-on (aluminium-foil bubble + canvas, or the 4-layer package). A single cover is only ~R-2.5 and even the 4-layer build is well under code, with no rated wall / roof / floor R-value. For year-round Gore Bay use, confirm the delivered effective R in writing and add supplementary insulation + HVAC.'},
   glass:    {sev:'warn',   head:'Insulation &amp; R-value &mdash; partial, unrated', body:'Envelope: insulated 5+9+5 mm glazing + ~30 mm XPS (&asymp;R-6) with 8 mm carbon-crystal board over only ~2/3 of the interior. No rated wall / roof / floor R-value, and coverage is partial. Confirm full-coverage effective R against OBC SB-12; the large glazed area is the thermal weak point.'},
   chunshu:  {sev:'warn',   head:'Insulation &amp; R-value &mdash; not quantified', body:'Walls list XPS + insulation cotton with SBS waterproofing, but no thickness or rated R-value is given, and the roof / floor build-ups aren&rsquo;t specified. Obtain the full wall / roof / floor assembly and the rated effective R for OBC SB-12 before permit.'},
   steel:    {sev:'warn',   head:'Insulation &amp; R-value &mdash; built to your spec', body:'Best-documented envelope in the catalog: 150 mm rockwool in the roof, exterior walls and floor (&asymp;R-25 each) + 90 mm interior-wall rockwool, triple-glazed Low-E/Argon windows. Platinum confirmed they will <strong>calculate and build to a specified R-value</strong> from the thermal conductivity &mdash; so give them the <strong>OBC SB-12 targets</strong> (~R-22+ walls, ~R-49 roof, ~R-30 floor) and get the delivered effective-R in writing.'},
@@ -4959,12 +4516,6 @@ function renderInsulation(page){
 const MFRQ_CABIN='Every unit also needs an Ontario <strong>building permit (Group C, OBC Part 9)</strong> and an <strong>ESA electrical inspection</strong> — the certificates and stamps above are what make both go smoothly.';
 const MFRQ_KIT='For ESA, every energised component needs a <strong>Canada-recognised mark (cULus / CSA)</strong> or a <strong>CSA SPE-1000 field evaluation</strong> — the questions above pin down which route applies.';
 const MFR_QUESTIONS = {
-  product:{mfr:'Shelter Architecture Technology (Guangdong) Co., Ltd', note:MFRQ_CABIN, q:[
-    'What ground snow load (kPa) does the φ32×2 mm frame upgrade carry, and can any frame option reach <strong>2.0–2.5 kPa</strong> for our site?',
-    'Please provide the <strong>CAN/ULC-S109 cover fire-test certificate</strong> document.',
-    'Do you hold <strong>CSA A277</strong>? If not, can you supply stamped structural drawings + load calculations for our engineer?',
-    'What is the <strong>delivered R-value</strong> of the 4-layer insulation package (walls and roof)?',
-    'Is the wood packaging <strong>ISPM 15</strong> heat-treated and stamped?']},
   glass:{mfr:'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd', note:MFRQ_CABIN, q:[
     'What is the <strong>rated snow load</strong> (kPa)? It isn’t stated on the quote.',
     'Your <strong>CSA approval</strong> is a paid option — what’s the price, and is it a Canada-recognised mark (cULus/CSA)?',
@@ -5035,18 +4586,6 @@ const MFR_QUESTIONS = {
     'The gear is <strong>CE only</strong> — will you support <strong>cULus / CSA</strong>, or is an Ontario <strong>SPE-1000 field evaluation</strong> the route (budget it)?',
     'Is the battery (M16S200BL-U) also <strong>UL 1973 / 9540 listed</strong> for stationary storage, on top of UN 38.3?',
     'Confirm <strong>DDP $1,900 to Gore Bay / $1,000 to Toronto</strong>, and that packaging is <strong>ISPM 15</strong> heat-treated.']},
-  gwind:{mfr:'Jiangsu DHC Environmental Si-tech Co., Ltd', note:MFRQ_KIT, q:[
-    'The turbine is <strong>CE certified</strong> — can you provide <strong>cULus/CSA</strong>, or support a field evaluation in Canada?',
-    'Please send the <strong>field-tested power curve</strong> and any <strong>IEC 61400</strong> test report.',
-    '<strong>Tower engineering drawings + foundation reaction loads</strong> for the 9/12/18 m options (for our permit and P.Eng).',
-    'Documentation for the <strong>−45 °C cold-climate</strong> track record (measured data / references).',
-    '<strong>Noise data (dB)</strong> at rated wind for the zoning setback, plus the <strong>price and tower quote</strong> and controller spec.']},
-  archwind:{mfr:'Wenzhou DGIT Machinery Commercial Co., Ltd', note:MFRQ_KIT, q:[
-    'What <strong>certifications</strong> does the turbine hold (CE / cUL / CSA)? None are stated — this is the biggest open item.',
-    'Please send the full <strong>spec sheet / datasheet</strong> and the <strong>power curve</strong>.',
-    'Documentation for the <strong>−30 °C rating</strong> and the <strong>38 dB noise</strong> claim (for zoning).',
-    '<strong>Tower/mount engineering + foundation loads</strong> and permit drawings.',
-    'Controller spec and warranty terms.']},
   huijue:{mfr:'Shanghai HuiJue Technologies Group Co., Ltd', note:MFRQ_KIT, q:[
     'The inverter listing is to <strong>UL 1741 + CSA C22.2 No. 107.1 / No. 330</strong> via SGS &mdash; is that certifying body&rsquo;s mark <strong>SCC-accredited</strong> so ESA will accept it without a field evaluation?',
     'The supplied rack is rated <strong>1.4 kN/m&sup2; snow</strong> &mdash; can you supply a <strong>reinforced mount rated &ge; 2.5 kN/m&sup2;</strong> (or ground-mount) for Gore Bay?',
@@ -5099,36 +4638,6 @@ buildFilters(); renderCards();
 window.addEventListener('hashchange',route);
 route();
 
-// ─── MOBILE PRICE BAR ────────────────────────────────────────────────────────
-function updateMobilePriceBar(total, sizeLabel){
-  const el=document.getElementById('mpb-total');
-  const sub=document.getElementById('mpb-sub');
-  if(el) el.textContent='$'+total.toLocaleString();
-  if(sub) sub.textContent=sizeLabel+' Dome · USD FOB';
-}
-function initMobilePriceBar(){
-  const bar=document.getElementById('mobile-price-bar');
-  const target=document.getElementById('sub-pricing');
-  if(!bar||!target) return;
-  const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>bar.classList.toggle('visible',e.isIntersecting));
-  },{threshold:0.05});
-  obs.observe(target);
-}
-window.addEventListener('hashchange',()=>{ setTimeout(initMobilePriceBar,120); });
-setTimeout(initMobilePriceBar,300);
 </script>
-<div id="mobile-price-bar">
-  <div class="mpb-inner">
-    <div class="mpb-left">
-      <div class="mpb-eyebrow">Total (FOB Guangzhou)</div>
-      <div class="mpb-total" id="mpb-total">$1,734</div>
-      <div class="mpb-sub" id="mpb-sub">6m Dome · USD FOB</div>
-    </div>
-    <div class="mpb-actions">
-      <button class="mpb-btn primary" onclick="openPDFExport()">Export PDF</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
