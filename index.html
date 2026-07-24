@@ -532,6 +532,17 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .sum-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font-size:12.5px;color:var(--steel);align-items:center}
     #page-shipping .sum-legend .sp{margin:0}
     #page-shipping .sum-tbl .sum-bd{font-weight:700;color:var(--ink);font-size:12.5px;white-space:nowrap}
+    #page-shipping .sum-exp{cursor:pointer}
+    #page-shipping .sum-exp summary{list-style:none;cursor:pointer;display:block}
+    #page-shipping .sum-exp summary::-webkit-details-marker{display:none}
+    #page-shipping .sum-exp[open] summary .sum-note{color:var(--pine)}
+    #page-shipping .sum-math{margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:3px}
+    #page-shipping .sum-math .bk-line{font-size:12px;white-space:nowrap;color:var(--steel)}
+    #page-shipping .sum-math .bk-line b{font-family:'Archivo',sans-serif;color:var(--ink);font-weight:800}
+    #page-shipping .sum-math .bk-lbl{font-size:11px}
+    #page-shipping .sum-math .bk-op{display:inline-block;width:12px;color:var(--steel);font-weight:800}
+    #page-shipping .sum-math .bk-eq{margin-top:3px;padding-top:5px;border-top:1px solid var(--line)}
+    #page-shipping .sum-math .bk-eq b{color:var(--pine)}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
     #page-shipping .sum-tbl tr.sum-foot td{background:var(--pine-light);border-top:2px solid var(--pine);font-family:'Archivo',sans-serif;font-weight:800;color:var(--pine);vertical-align:middle}
     #page-shipping .sum-tbl tr.sum-foot .tot{color:var(--ink);font-size:15px}
@@ -578,7 +589,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing.</strong> Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
 
     <h3 class="sum-h">Cabins &amp; structures <span class="cnt">10 listings</span></h3>
-    <p class="sum-sub">Cost per square foot, the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406), and an <strong>estimated all-in</strong> per unit on the right for the totals.</p>
+    <p class="sum-sub">Cost per square foot, the <strong>cabin subtotal</strong> (the unit alone, before shipping &amp; other costs), the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406), and an <strong>estimated all-in</strong> per unit. <strong>Tap any all-in figure to expand the math.</strong></p>
     <div id="summary-cabins-table"></div>
 
     <h3 class="sum-h">Renewable energy systems <span class="cnt">4 listings</span></h3>
@@ -593,7 +604,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     </div>
     <div class="callout" style="margin-top:16px;background:var(--tint);border-color:var(--pine)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#1E5138" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>How to read it:</strong> the <strong>&ldquo;Est. all-in each&rdquo;</strong> column on the right adds up the FOB unit price + the 25% surtax (assuming it&rsquo;s classed as parts, worst case) + a freight estimate + a one-time compliance allowance (P.Eng, permit, any field evaluation) &mdash; and the footer row totals and averages it. Every figure is a <strong>planning estimate, not a quote</strong>: the surtax only lands if a broker classifies the unit as parts, and freight/compliance vary by unit. Confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
+      <div><strong>How to read it:</strong> the <strong>Cabin subtotal</strong> is the unit alone (before shipping &amp; other costs). The <strong>&ldquo;Est. all-in each&rdquo;</strong> column adds that subtotal + the 25% surtax (assuming it&rsquo;s classed as parts, worst case) + a freight estimate + a one-time compliance allowance (P.Eng, permit, any field evaluation) &mdash; <strong>tap any all-in figure to expand the full math</strong>. The footer row totals each column and averages the all-in. Every figure is a <strong>planning estimate, not a quote</strong>: the surtax only lands if a broker classifies the unit as parts, and freight/compliance vary by unit. Confirm each with a licensed customs broker, the ESA and the Town of Gore Bay. The reasoning behind each column is in the tabs below.</div>
     </div>
   </div></div>
 
@@ -4436,30 +4447,49 @@ function sumSurtaxCell(id){
   if(k.surtaxAmt>0) return `<span class="sum-surtax">~+25%</span><span class="sum-note">(~${sumMoney(k.surtaxAmt)}) ${k.surtaxNote}</span>`;
   return `<span class="sum-surtax none">${k.surtaxNote}</span>`;
 }
+function sumSubtotalCell(id, label){
+  const k=SUM_COST[id]; if(!k) return '<span class="sum-note">&mdash;</span>';
+  return `<span class="sum-allin">${sumMoney(k.fob)}</span><span class="sum-note">${label}</span>`;
+}
+// Tappable est. all-in: the amount on top; expands to the math — each addend
+// as "$amount (what it is)".
 function sumAllInCell(id){
   const k=SUM_COST[id]||{};
-  return `<span class="sum-allin">${sumMoney(sumAllIn(id))}</span><span class="sum-note">est. all-in</span>`;
+  const parts=[['Cabin / kit price', k.fob||0]];
+  if(k.surtaxAmt>0) parts.push(['25% surtax', k.surtaxAmt]);
+  if(k.shipEst>0)   parts.push(['Shipping', k.shipEst]);
+  if(k.compEst>0)   parts.push(['Other one-time', k.compEst]);
+  const math=parts.map((p,i)=>`<div class="bk-line">${i?'<span class="bk-op">+</span>':''}<b>${sumMoney(p[1])}</b> <span class="bk-lbl">(${p[0]})</span></div>`).join('')
+    +`<div class="bk-line bk-eq"><span class="bk-op">=</span><b>${sumMoney(sumAllIn(id))}</b> <span class="bk-lbl">(all-in)</span></div>`;
+  return `<details class="sum-exp"><summary><span class="sum-allin">${sumMoney(sumAllIn(id))}</span><span class="sum-note">est. all-in &#9662; tap</span></summary><div class="sum-math">${math}</div></details>`;
 }
 function sumPerWattCell(id){
   const k=SUM_COST[id]; if(!k||!k.watts) return '<span class="sum-note">&mdash;</span>';
   return `<span class="sum-allin">$${(k.fob/k.watts).toFixed(2)}</span><span class="sum-note">/ W · ${(k.watts/1000).toFixed(2).replace(/\.?0+$/,'')} kW</span>`;
 }
+const sumSumOf=(ids,key)=>ids.reduce((a,id)=>a+((SUM_COST[id]||{})[key]||0),0);
 function renderSummaryTables(){
   const cb=document.getElementById('summary-cabins-table');
   if(cb){
     const rows=SUM_CABINS.map(id=>{const c=SUMMARY[id]; if(!c) return '';
       return `<tr><td class="name"><span class="nm"><a href="#/product/${c.slug}">${c.name}</a></span><span class="mf">${c.mfr}</span></td>`+
         `<td><span class="sum-bd">${c.bd||'&mdash;'}</span></td>`+
-        `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area} · ${c.price}</span></td>`+
+        `<td><span class="sum-psf">${c.psf}</span> / ft²<span class="sum-note">${c.area}</span></td>`+
         `<td>${sumPills(c.certs)}</td>`+
+        `<td>${sumSubtotalCell(id,'cabin only')}</td>`+
         `<td>${sumSurtaxCell(id)}</td>`+
         `<td>${sumShipCell(id)}</td>`+
         `<td style="color:var(--steel)">${c.extra}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const tot=SUM_CABINS.reduce((a,id)=>a+sumAllIn(id),0);
-    const avg=Math.round(tot/SUM_CABINS.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="7">Estimated all-in &mdash; ${SUM_CABINS.length} cabins &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
-    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1120px"><tr><th class="name">Cabin</th><th>Beds / baths</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    const totFob=sumSumOf(SUM_CABINS,'fob'), totSur=sumSumOf(SUM_CABINS,'surtaxAmt'), totShip=sumSumOf(SUM_CABINS,'shipEst'), totComp=sumSumOf(SUM_CABINS,'compEst');
+    const tot=totFob+totSur+totShip+totComp, avg=Math.round(tot/SUM_CABINS.length);
+    const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_CABINS.length} cabins &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totSur)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totShip)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totComp)}</span></td>`+
+      `<td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">all-in</span></td></tr>`;
+    cb.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1240px"><tr><th class="name">Cabin</th><th>Beds / baths</th><th>$ / ft²</th><th>Certificates — has / needs</th><th>Cabin subtotal</th><th>25% steel/Al surtax</th><th>Shipping</th><th>Other one-time costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
   }
   const en=document.getElementById('summary-energy-table');
   if(en){
@@ -4468,13 +4498,18 @@ function renderSummaryTables(){
         `<td>${c.output}</td>`+
         `<td>${sumPerWattCell(id)}</td>`+
         `<td>${sumPills(c.certs)}</td>`+
+        `<td>${sumSubtotalCell(id,'kit only')}</td>`+
         `<td>${sumShipCell(id)}</td>`+
         `<td style="color:var(--steel)">${c.extra}</td>`+
         `<td>${sumAllInCell(id)}</td></tr>`;}).join('');
-    const tot=SUM_ENERGY.reduce((a,id)=>a+sumAllIn(id),0);
-    const avg=Math.round(tot/SUM_ENERGY.length);
-    const foot=`<tr class="sum-foot"><td class="name" colspan="5">Estimated all-in &mdash; ${SUM_ENERGY.length} kits &middot; average <span class="tot">${sumMoney(avg)}</span> each</td><td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">total</span></td></tr>`;
-    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:960px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
+    const totFob=sumSumOf(SUM_ENERGY,'fob'), totShip=sumSumOf(SUM_ENERGY,'shipEst'), totComp=sumSumOf(SUM_ENERGY,'compEst');
+    const tot=totFob+totShip+totComp, avg=Math.round(tot/SUM_ENERGY.length);
+    const foot=`<tr class="sum-foot"><td class="name" colspan="4">Totals &middot; ${SUM_ENERGY.length} kits &middot; avg all-in <span class="tot">${sumMoney(avg)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totFob)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totShip)}</span></td>`+
+      `<td><span class="tot">${sumMoney(totComp)}</span></td>`+
+      `<td><span class="tot">${sumMoney(tot)}</span><span class="sum-note">all-in</span></td></tr>`;
+    en.innerHTML=`<div class="tablewrap mtx"><table class="sum-tbl" style="min-width:1060px"><tr><th class="name">System</th><th>Output &amp; storage</th><th>$ / W</th><th>Certificates — has / needs</th><th>Kit price</th><th>Shipping</th><th>Other costs</th><th>Est. all-in each</th></tr>${rows}${foot}</table></div>`;
   }
 }
 // ─── INSULATION & R-VALUE CONCERN ─────────────────────────────────────────────
