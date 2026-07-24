@@ -548,6 +548,28 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
     #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
+    #page-shipping .flow{position:relative;margin-top:26px}
+    #page-shipping .flow-step{position:relative;display:grid;grid-template-columns:46px 1fr;gap:18px;padding-bottom:28px}
+    #page-shipping .flow-step:not(:last-child)::before{content:"";position:absolute;left:22px;top:40px;bottom:0;width:2px;background:var(--line)}
+    #page-shipping .flow-num{width:46px;height:46px;border-radius:50%;background:var(--pine);color:#fff;font-family:'Archivo',sans-serif;font-weight:800;font-size:19px;display:grid;place-items:center;z-index:1}
+    #page-shipping .flow-body{padding-top:8px;min-width:0}
+    #page-shipping .flow-body>h4{font-family:'Archivo',sans-serif;font-size:17.5px;font-weight:800;margin:0 0 3px;letter-spacing:-.01em;color:var(--ink)}
+    #page-shipping .flow-lead{font-size:13px;color:var(--steel);margin:0 0 12px;max-width:70ch}
+    #page-shipping .flow-tracks{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    #page-shipping .flow-track{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card)}
+    #page-shipping .flow-track.cab{border-left:3px solid var(--pine)}
+    #page-shipping .flow-track.ren{border-left:3px solid var(--amber)}
+    #page-shipping .flow-track.both{grid-column:1/-1;border-left:3px solid var(--steel);background:var(--tint)}
+    #page-shipping .ft-tag{display:inline-block;font-family:'Archivo',sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+    #page-shipping .flow-track.cab .ft-tag{color:var(--pine)}
+    #page-shipping .flow-track.ren .ft-tag{color:var(--amber)}
+    #page-shipping .flow-track.both .ft-tag{color:var(--steel)}
+    #page-shipping .flow-track p{margin:0;font-size:13px;color:var(--steel);line-height:1.5}
+    #page-shipping .flow-track p b{color:var(--ink)}
+    #page-shipping .flow-done{display:grid;grid-template-columns:46px 1fr;gap:18px;align-items:center}
+    #page-shipping .flow-done .flow-num{background:var(--pine-deep)}
+    #page-shipping .flow-done .fd-txt{font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;color:var(--pine)}
+    @media(max-width:720px){#page-shipping .flow-tracks{grid-template-columns:1fr}#page-shipping .flow-step,#page-shipping .flow-done{grid-template-columns:38px 1fr;gap:12px}#page-shipping .flow-num{width:38px;height:38px;font-size:16px}#page-shipping .flow-step:not(:last-child)::before{left:18px}}
   </style>
 
   <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Decision summary</strong></div>
@@ -574,7 +596,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 
   <nav class="pd-tabs wrap" id="ship-pd-tabs">
     <a href="#/shipping/summary" data-sub="ship-summary">Summary</a>
-    <a href="#/shipping/overview" data-sub="ship-overview">Overview</a>
+    <a href="#/shipping/overview" data-sub="ship-overview">Workflow</a>
     <a href="#/shipping/costs" data-sub="ship-costs">Cost &amp; terms</a>
     <a href="#/shipping/baseline" data-sub="ship-baseline">Customs baseline</a>
     <a href="#/shipping/structures" data-sub="ship-structures">Structures</a>
@@ -610,31 +632,97 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 
   <div class="subsec" id="sub-ship-overview"><div class="wrap">
     <div class="eyebrow">Start here</div>
-    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">Two import tracks, two sets of gates</h2>
-    <p class="intro" style="max-width:66ch">Every shipment shares the customs baseline. Beyond that, the make-or-break requirements differ by what&rsquo;s in the crate &mdash; a steel/aluminium/glass building, or lithium batteries and uncertified electronics.</p>
-    <div class="comp-grid" style="margin-top:22px">
-      <div class="comp ok">
-        <div class="agency">Track A</div>
-        <h4>Prefab structures &mdash; 10 listings</h4>
-        <p style="margin-bottom:6px">Standing Glass Dome, Chun Shu, Steel Modular, Steele T5/T9, ONE Capsule, Branson, Two Floor, A-Frame, Glass Igloo.</p>
-        <ul>
-          <li><b>25% surtax risk</b> on Chinese steel &amp; aluminium &mdash; hinges on how the kit is classified (whole building vs. structural parts)</li>
-          <li><b>ESA electrical approval</b> for any turnkey unit shipped with fitted wiring, lighting or smart systems</li>
-          <li><b>Wood packaging &amp; timber</b> (ISPM 15 heat-treatment) &mdash; especially the glulam A-Frame</li>
-        </ul>
-        <div class="applies">Building permit &amp; Ontario Building Code review are a <b>separate</b> municipal process &mdash; importing &ne; permission to build.</div>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The workflow &mdash; from quote to occupancy</h2>
+    <p class="intro" style="max-width:70ch">The whole path, top to bottom &mdash; what to settle at each stage, from the first manufacturer conversation to landing on site and building. <span style="color:var(--pine);font-weight:700">Cabins &amp; structures</span> and <span style="color:var(--amber);font-weight:700">renewable-energy kits</span> share the customs spine but diverge on the make-or-break gates, so each step is split by track.</p>
+    <div class="flow">
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Talk to the manufacturer</h4>
+          <p class="flow-lead">Get the quotation and close the open questions early &mdash; every listing has a &ldquo;Questions for the manufacturer&rdquo; panel to work through.</p>
+          <div class="flow-tracks">
+            <div class="flow-track cab"><span class="ft-tag">Cabins</span><p>Confirm the <b>snow / wind / seismic loads</b>, the <b>rated R-value</b> and glazing spec, whether they hold <b>CSA A277</b>, and whether the outer packaging uses <b>wood</b> (ISPM 15). Collect the <b>structural calculations</b> and material / component test reports.</p></div>
+            <div class="flow-track ren"><span class="ft-tag">Renewable energy</span><p>Confirm the <b>cULus / CSA marks</b> per component, that the inverter is <b>120/240 V split-phase</b>, and that the battery has a <b>UN 38.3 summary + SDS</b>. Ask for a <b>DDP door-to-door price</b> to Gore Bay.</p></div>
+          </div>
+        </div>
       </div>
-      <div class="comp tbdc">
-        <div class="agency">Track B</div>
-        <h4>Off-grid electrical kits &mdash; 4 listings</h4>
-        <p style="margin-bottom:6px">Solar Power System, Full Solar + Wind Kit, HuiJue, ARXT10KW.</p>
-        <ul>
-          <li><b>ESA approval or SPE-1000 field evaluation</b> &mdash; uncertified Chinese inverters/batteries/turbines can&rsquo;t be legally connected until approved</li>
-          <li><b>Lithium-battery dangerous goods</b> rules (UN 3480/3481) for kits carrying LiFePO4 &mdash; ocean and Canadian road leg</li>
-          <li><b>Solar/battery surtax watch</b> &mdash; not imposed today, but under active consideration by Finance Canada</li>
-        </ul>
-        <div class="applies">The electrical approval gate applies <b>whether or not</b> you ever grid-connect &mdash; off-grid still needs ESA.</div>
+
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Classify &amp; confirm certification</h4>
+          <p class="flow-lead">Two answers that decide the landed cost and whether the gear is even legal to install.</p>
+          <div class="flow-tracks">
+            <div class="flow-track cab"><span class="ft-tag">Cabins</span><p>Have a licensed <b>customs broker classify it</b>: a complete building (HS <b>9406</b>, no surtax) vs. steel / aluminium <b>parts</b> (7308 / 7610, <b>+25% surtax</b>). Same crate, five-figure swing.</p></div>
+            <div class="flow-track ren"><span class="ft-tag">Renewable energy</span><p>Confirm which components carry a <b>Canada-recognized (cULus / CSA)</b> mark and which will need a <b>field evaluation</b>. The Chinese <b>solar / battery surtax</b> is on Finance Canada&rsquo;s watchlist &mdash; re-check before ordering.</p></div>
+          </div>
+        </div>
       </div>
+
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Engineer &amp; pre-approve</h4>
+          <p class="flow-lead">Line up the Canadian sign-offs before you commit money.</p>
+          <div class="flow-tracks">
+            <div class="flow-track cab"><span class="ft-tag">Cabins</span><p>Hand the maker&rsquo;s calcs to an <b>Ontario-licensed P.Eng</b> to review, sign and seal, and book a <b>pre-application meeting</b> with the Gore Bay CBO (Chris Meloche).</p></div>
+            <div class="flow-track ren"><span class="ft-tag">Renewable energy</span><p>Budget an <b>SPE-1000 field evaluation</b> for any uncertified inverter, battery or turbine &mdash; get the cost and lead time per model, and gather the component test reports to support it.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Set up as an importer &amp; place the order</h4>
+          <p class="flow-lead">The customs spine &mdash; the same for both tracks.</p>
+          <div class="flow-tracks">
+            <div class="flow-track both"><span class="ft-tag">Both tracks</span><p>Hold a CRA <b>Business Number with an import (RM) account</b> and register in the <b>CARM portal</b>, posting your own financial security. Write the required documents into the <b>purchase order</b> &mdash; commercial invoice, packing list, bill of lading, certificate marks and <b>&ldquo;Made in China&rdquo;</b> origin marking &mdash; then pay the deposit.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <h4>Ship &amp; clear customs</h4>
+          <p class="flow-lead">Freight to Gore Bay, plus the border formalities. <b>5% GST</b> is collected at import (usually recoverable) on both tracks.</p>
+          <div class="flow-tracks">
+            <div class="flow-track cab"><span class="ft-tag">Cabins</span><p>Ocean freight on your incoterm (<b>EXW / FOB</b> &mdash; add freight yourself &mdash; or <b>DDP</b> delivered). Wood packaging must be <b>ISPM 15</b> heat-treated where used; pay the <b>25% surtax</b> only if classed as parts.</p></div>
+            <div class="flow-track ren"><span class="ft-tag">Renewable energy</span><p>Ship lithium batteries as <b>Class 9 dangerous goods</b> (UN 3480 / 3481; IMDG by sea + TDG by road) with the <b>UN 38.3 summary + SDS</b>. A <b>DDP quote</b> absorbs freight, customs and duty in one figure.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-body">
+          <h4>Land on site</h4>
+          <p class="flow-lead">Delivery and set-down at Gore Bay / Manitoulin.</p>
+          <div class="flow-tracks">
+            <div class="flow-track both"><span class="ft-tag">Both tracks</span><p>Delivery to site (~1 month transit typical), unloaded by <b>crane or forklift + labour</b>. Have the <b>foundation ready</b> to the maker&rsquo;s drawings (slab / raft) &mdash; all concrete work is by your local trades.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">7</div>
+        <div class="flow-body">
+          <h4>Permit, build &amp; connect</h4>
+          <p class="flow-lead">The municipal build process is separate from import &mdash; importing a unit isn&rsquo;t permission to occupy it.</p>
+          <div class="flow-tracks">
+            <div class="flow-track cab"><span class="ft-tag">Cabins</span><p><b>Building permit</b> under OBC Part 9 (likely <b>Group C</b>) with the stamped drawings; assemble / finish on site; use <b>licensed Ontario trades</b> for all MEP.</p></div>
+            <div class="flow-track ren"><span class="ft-tag">Renewable energy</span><p>Installed by a <b>Licensed Electrical Contractor</b> under an <b>ESA notification + inspection</b> &mdash; required even fully off-grid; observe the <b>Ontario Fire Code</b> for a scaled battery bank.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-done">
+        <div class="flow-num">&#10003;</div>
+        <div class="fd-txt">Occupancy &amp; power on.</div>
+      </div>
+
     </div>
   </div></div>
 
