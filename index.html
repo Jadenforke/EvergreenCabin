@@ -562,6 +562,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .ot-line .ot-val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
     #page-shipping .ot-note{font-size:10.5px;color:var(--steel);margin-top:4px;font-style:italic}
     #page-shipping .sum-tbl .sum-allin{font-family:'Archivo',sans-serif;font-weight:800;color:var(--ink);font-size:13.5px;white-space:nowrap}
+    #page-shipping .wrap-wide{max-width:min(1760px, calc(100vw - 40px))}
+    #page-shipping .wrap-wide .sum-tbl{width:100%}
+    #page-shipping .wrap-wide .sum-sub{max-width:96ch}
+    #page-shipping .wrap-wide .callout>div{max-width:110ch}
     #page-shipping .sum-tbl th.sortable{cursor:pointer;user-select:none}
     #page-shipping .sum-tbl th.sortable:hover{color:var(--pine)}
     #page-shipping .sum-tbl .sort-ind{font-size:9px;margin-left:5px;color:var(--steel);opacity:.5;vertical-align:middle}
@@ -623,7 +627,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   </nav>
 
   <!-- SUMMARY (decision tables) -->
-  <div class="subsec" id="sub-ship-summary"><div class="wrap">
+  <div class="subsec" id="sub-ship-summary"><div class="wrap wrap-wide">
     <div class="eyebrow">Decision summary</div>
     <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
     <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
