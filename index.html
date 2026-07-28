@@ -2813,7 +2813,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="incl-title">Logistics</div>
         <ul class="incl-bullets">
           <li>Sea transit approx. <strong>7&ndash;9 weeks</strong> (vessel-dependent)</li>
-          <li>Freight priced by capsule dimensions &amp; incoterm (to-door or to-port)</li>
+          <li><strong>DDP door-to-door: $19,500 USD</strong> &mdash; quoted for <strong>2 &times; 40 ft containers</strong> per unit</li>
+          <li>Freight otherwise priced by capsule dimensions &amp; incoterm (to-door or to-port)</li>
           <li>Unloading: crane, 25-ton capacity or more</li>
         </ul>
       </div></div>
@@ -4392,10 +4393,10 @@ const SHIPPING = {
   one:      {name:'ONE Living Capsule',       incoterm:'FOB',           status:'tbd'},
   branson:  {name:'Branson Project',          incoterm:'DDP',           status:'quoted', cost:'~$19,000', transit:'~1 month', note:'door-to-door per set, incl. customs duties &amp; freight to site'},
   twofloor: {name:'Two Floor Capsule',        incoterm:null,            status:'tbd'},
-  t9:       {name:'Steele Capsule (T9)',      incoterm:null,            status:'tbd', transit:'~7–9 weeks', note:'priced by dimension &amp; incoterm'},
+  t9:       {name:'Steele Capsule (T9)',      incoterm:'DDP',           status:'quoted', cost:'$19,500', transit:'~7–9 weeks', alt:'door-to-door · 2 × 40 ft containers', note:'door-to-door for <strong>2 &times; 40 ft containers</strong> per unit'},
   aframe:   {name:'A-Frame Cabin',            incoterm:'DDP',           status:'quoted', cost:'~$19,000', transit:'~1 month', note:'door-to-door per set, incl. customs duties &amp; freight to site'},
   solar:    {name:'Solar Power System',       incoterm:'EXW',           status:'note', note:'excludes tax &amp; shipping &middot; installed on-site by a licensed team'},
-  igloo:    {name:'Glass Igloo Dome',         incoterm:'DDP',           status:'quoted', cost:'~$15,969', transit:'~30 days', alt:'or ~$9,015 to Toronto port (20 ft)', note:'door-to-door to site, no other fees (incl. customs &amp; duty) &middot; or <strong>~$9,015 to Toronto port</strong> (20 ft, you collect) &middot; 40 ft fits 3 units &middot; ~9,800 kg'},
+  igloo:    {name:'Glass Igloo Dome',         incoterm:'DDP',           status:'quoted', cost:'~$15,969', transit:'~30 days', alt:'or ~$9,015 to Toronto port (20 ft) · 40 ft fits 3 units', note:'door-to-door to site, no other fees (incl. customs &amp; duty) &middot; or <strong>~$9,015 to Toronto port</strong> (20 ft, you collect) &middot; 40 ft fits 3 units &middot; ~9,800 kg'},
   windkit:  {name:'Full Solar + Wind Kit',    incoterm:'DDP',           status:'quoted', cost:'$1,900', transit:'35–40 days', note:'door-to-door, incl. customs &amp; duty (~435 kg) &middot; $1,000 to Toronto'},
   huijue:   {name:'HuiJue Off-Grid Kit',      incoterm:'DDP',           status:'quoted', cost:'$2,300', note:'door-to-door all-in (freight + customs + taxes + delivery) &middot; or CIF Toronto $885 (self-clear) &middot; ISPM 15 certified'},
   allrun:   {name:'ARXT10KW Solar System',    incoterm:'FOB Qingdao/Shanghai', status:'tbd', note:'request a DDP door-to-door quote'}
@@ -4521,7 +4522,7 @@ const SUM_COST = {
     comp:[{t:'Local P.Eng seal',v:3000},{t:'Building permit',v:2000},{t:'ESA (local MEP)',v:1000}]},
   twofloor: {fob:31579, surtaxAmt:7900,  surtaxNote:'if steel parts',     shipEst:4500,
     comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'ISED (wireless)',v:500}]},
-  t9:       {fob:29751, surtaxAmt:7400,  surtaxNote:'if steel parts',     shipEst:4500,
+  t9:       {fob:29751, surtaxAmt:7400,  surtaxNote:'if steel parts',     shipEst:19500,
     comp:[{t:'P.Eng review',v:3000},{t:'Building permit',v:2000},{t:'ESA field evaluation',v:1500},{t:'ISED (wireless)',v:500},{t:'NRCan (appliances)',v:500}]},
   aframe:   {fob:31500, surtaxAmt:0,     surtaxNote:'None — timber',      shipEst:19000, compNote:'slab foundation &amp; MEP by local trades',
     comp:[{t:'Local P.Eng seal',v:3000},{t:'Building permit',v:2000},{t:'ESA (local MEP)',v:1000}]},
