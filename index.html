@@ -87,6 +87,13 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 /* ─── cards ───────────────────────────────────────────── */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:26px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.22s;display:flex;flex-direction:column}
+.arch-sec{grid-column:1/-1;display:contents}
+.arch-head{grid-column:1/-1;margin:34px 0 2px;padding-top:22px;border-top:1px dashed var(--line)}
+.arch-head h3{font-family:'Archivo',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--steel);margin:0 0 3px}
+.arch-head p{font-size:12.5px;color:var(--steel);margin:0}
+.card.is-arch{opacity:.62}
+.card.is-arch:hover{opacity:1}
+.badge.arch{background:var(--tint);color:var(--steel)}
 .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px -18px rgba(18,54,38,.35);border-color:#C3CFC8}
 .card .ph{aspect-ratio:4/3;background-size:cover;background-position:center;position:relative}
 .card .ph .tag{position:absolute;top:14px;left:14px}
@@ -592,8 +599,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <p style="max-width:70ch">Everything you need to make the final call in one place &mdash; cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
-      <span class="ship-tag"><b>14</b> listings covered</span>
-      <span class="ship-tag"><b>10</b> structures &middot; <b>4</b> power kits</span>
+      <span class="ship-tag"><b>9</b> active listings &middot; 5 archived</span>
+      <span class="ship-tag"><b>7</b> structures &middot; <b>2</b> power kits</span>
       <span class="ship-tag">Origin <b>China</b> &middot; dest. <b>Ontario (HST)</b></span>
       <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
     </div>
@@ -621,11 +628,11 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
     <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
 
-    <h3 class="sum-h">Cabins &amp; structures <span class="cnt">10 listings</span></h3>
+    <h3 class="sum-h">Cabins &amp; structures <span class="cnt">7 listings</span></h3>
     <p class="sum-sub">Cost per square foot, the <strong>cabin subtotal</strong> (the unit alone, before shipping &amp; other costs), the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406), and an <strong>estimated all-in</strong> per unit. <strong>Tap any all-in figure to expand the math.</strong></p>
     <div id="summary-cabins-table"></div>
 
-    <h3 class="sum-h">Renewable energy systems <span class="cnt">4 listings</span></h3>
+    <h3 class="sum-h">Renewable energy systems <span class="cnt">2 listings</span></h3>
     <p class="sum-sub">Solar and battery kits. The decisive gate is electrical certification for ESA; the surtax doesn&rsquo;t apply to these today (on the watchlist).</p>
     <div id="summary-energy-table"></div>
 
@@ -748,7 +755,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
 
   <!-- BASELINE -->
   <div class="subsec" id="sub-ship-baseline"><div class="wrap">
-    <div class="eyebrow">Baseline &middot; applies to all 14 shipments</div>
+    <div class="eyebrow">Baseline &middot; applies to every shipment</div>
     <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The customs foundation</h2>
     <p class="intro" style="max-width:66ch">Required for any commercial import from China, structure or kit alike. Set these up once, before the first purchase order.</p>
     <div class="comp-grid" style="margin-top:22px">
@@ -782,7 +789,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <!-- STRUCTURES -->
   <div class="subsec" id="sub-ship-structures"><div class="wrap">
     <div class="eyebrow">Track A &middot; prefab structures</div>
-    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 10 buildings add</h2>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 7 buildings add</h2>
     <p class="intro" style="max-width:66ch">These are steel, aluminium and glass &mdash; the exact materials Canada now surtaxes from China. The tariff classification of your kit is a five-figure decision.</p>
     <div class="comp-grid" style="margin-top:22px">
       <div class="comp tbdc">
@@ -795,7 +802,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
         <div class="agency">Electrical Safety Authority (ON)</div>
         <h4>Fitted electrical &rarr; ESA approval</h4>
         <p>Turnkey capsules and villas ship with wiring, lighting, heating and &ldquo;smart&rdquo; systems. Under the Ontario Electrical Safety Code, that equipment can&rsquo;t be <b>connected</b> until it&rsquo;s <b>approved</b> &mdash; a recognized mark (cULus/CSA) or an <b>SPE-1000 field evaluation</b>. Chinese-standard voltage (e.g. 220 V) also needs conversion to 120/240 V.</p>
-        <div class="applies"><b>Applies to:</b> Standing Glass Dome, Chun Shu, Steel Modular, Steele T5/T9, ONE, Two Floor + optional bath/kitchen modules</div>
+        <div class="applies"><b>Applies to:</b> Chun Shu, Steel Modular, Steele T5/T9 + optional bath/kitchen modules</div>
       </div>
       <div class="comp tbdc">
         <div class="agency">ISED Canada</div>
@@ -815,20 +822,20 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <!-- OFF-GRID KITS -->
   <div class="subsec" id="sub-ship-kits"><div class="wrap">
     <div class="eyebrow">Track B &middot; off-grid electrical</div>
-    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 4 power kits add</h2>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 2 power kits add</h2>
     <p class="intro" style="max-width:66ch">Two hard gates dominate: getting uncertified gear legally approved for connection, and shipping lithium batteries as dangerous goods.</p>
     <div class="comp-grid" style="margin-top:22px">
       <div class="comp danger">
         <div class="agency">Electrical Safety Authority (ON)</div>
         <h4>Electrical approval or SPE-1000 field evaluation</h4>
         <p>The single biggest gate. No electrical equipment may be <b>sold or connected</b> in Ontario unless <b>approved</b>: either it carries a <b>Canada-recognized mark</b> (cULus / CSA &mdash; a Chinese-only or bare-US &ldquo;UL&rdquo; mark isn&rsquo;t enough), or it passes a <b>CSA SPE-1000 field evaluation</b> per unit/model. Budget cost and lead time for field evaluation on any uncertified inverter, battery or turbine.</p>
-        <div class="applies"><b>Applies to:</b> all 6 kits &mdash; inverters, controllers, batteries, panels &amp; turbines</div>
+        <div class="applies"><b>Applies to:</b> both kits &mdash; inverters, controllers, batteries &amp; panels</div>
       </div>
       <div class="comp warn">
         <div class="agency">IMDG (sea) &middot; Transport Canada TDG (road)</div>
         <h4>Lithium batteries as dangerous goods</h4>
         <p>LiFePO4 packs are <b>Class 9 dangerous goods</b> &mdash; <b>UN 3480</b> alone, <b>UN 3481</b> with equipment. Sea freight must meet the <b>IMDG Code</b> (packing, labels, signed DG declaration); the port-to-Manitoulin truck leg falls under Canada&rsquo;s <b>TDG</b> regs. Every model needs a <b>UN 38.3 test summary</b> + SDS. The Chinese <b>shipper/consignor</b> carries primary legal responsibility &mdash; require compliant documentation.</p>
-        <div class="applies"><b>Applies to:</b> battery kits &mdash; Solar Power System, Full Solar + Wind Kit, HuiJue</div>
+        <div class="applies"><b>Applies to:</b> battery kits &mdash; HuiJue, ARXT10KW</div>
       </div>
       <div class="comp tbdc">
         <div class="agency">Dept. of Finance Canada</div>
@@ -895,6 +902,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
+          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Quoted &middot; Jul 10, 2026</span>
           <span class="badge tbdb">CSA in progress</span>
           <span class="badge ok">EXW Guangzhou</span>
@@ -1777,6 +1785,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
+          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Quoted &middot; Jul 2026</span>
           <span class="badge ok">Living capsule</span>
           <span class="badge ok">$35,463 FOB</span>
@@ -2333,6 +2342,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
+          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Quoted &middot; Jul 2026</span>
           <span class="badge ok">Two-storey capsule</span>
           <span class="badge ok">$31,579 package</span>
@@ -3121,6 +3131,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
+          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Quoted &middot; Jul 2026</span>
           <span class="badge ok">Off-grid</span>
           <span class="badge ok">16 kWh battery</span>
@@ -3459,6 +3470,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
+          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Revised &middot; Jul 2026</span>
           <span class="badge ok">120/240 V split-phase</span>
           <span class="badge ok">UN 38.3 battery</span>
@@ -3929,7 +3941,7 @@ const IG_VIDEOS = [{src:'/img/igloo/walkthrough.webm',poster:'/img/igloo/hero.we
 const IG_MEDIA = [...IG_GALLERY.map(src=>({type:'img',src})), ...IG_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 
 const PRODUCTS = [
-  { id:'glassdome', live:true, type:'dome', mfr:'meihua',
+  { id:'glassdome', live:true, archived:true, type:'dome', mfr:'meihua',
     img: GLASS_HERO,
     name:'Standing Glass Dome', mfrName:'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd',
     desc:'6m aluminium-alloy geodesic glass dome elevated on legs. Turnkey unit — insulated glazing, interior insulation, integrated bathroom, kitchen, loft, and staircase all included in one price.',
@@ -3959,7 +3971,7 @@ const PRODUCTS = [
     desc:'The larger 38 m² space capsule for 2–4 people — 11.5 m galvanized-steel frame, aluminium shell, Low-E glass curtain wall, panoramic balcony, and a fully fitted smart interior with kitchen, AC & water heater. Delivered assembled.',
     price:'$29,751', unit:'USD ex-factory · +$6k solar', meta:'2–4 person · 38 m² · $73/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'one', live:true, type:'capsule', mfr:'one',
+  { id:'one', live:true, archived:true, type:'capsule', mfr:'one',
     img: ONE_HERO,
     name:'ONE Living Capsule', mfrName:'Hebei Qianyan Metal Products Co., Ltd. — ONE Living Capsules brand',
     desc:'Matte-black glass-walled living capsule — 60 m² one-bedroom with double-layer galvanized-steel frame, EPS + rock-wool walls, full-height Low-E glass, integrated bathroom, and a fully fitted smart interior with 2000W floor heating.',
@@ -3971,7 +3983,7 @@ const PRODUCTS = [
     desc:'72 m² light-steel modular home — 2 bedrooms, 2 bathrooms, open kitchen/living, and a rooftop terrace. Engineered to 2018 IBC / IRC and AISI S100 / S214; an identical unit is already installed in Indian Point, Missouri.',
     price:'$25,200', unit:'USD · $350/m² · +~$19k landed', meta:'2 bed · 72 m² · roof deck · $33/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'twofloor', live:true, type:'capsule', mfr:'pawa',
+  { id:'twofloor', live:true, archived:true, type:'capsule', mfr:'pawa',
     img: TF_HERO,
     name:'Two Floor Capsule', mfrName:'Hunan Pawa Technology Co., Ltd. (iParwa)',
     desc:'Futuristic two-storey capsule (Space Capsule SA3) — 45 m² over two floors: ground-floor kitchen/living/bath and an upper bedroom capsule, galvanized-steel frame, thermal-break glazing, turnkey fit-out with a 20-year warranty.',
@@ -3983,7 +3995,7 @@ const PRODUCTS = [
     desc:'90 m² glulam A-frame cabin with SIPs sheathing — 2 bedrooms, 1 bathroom, open kitchen/living, and an attic loft. Engineered to IBC / ASCE 7-22 with a 4.97 kPa snow rating — the strongest in the catalog.',
     price:'~$31,500', unit:'USD · ~$350/m²', meta:'2 bed · 90 m² · ~$33/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'solar', live:true, type:'solar', mfr:'yidongxiang',
+  { id:'solar', live:true, archived:true, type:'solar', mfr:'yidongxiang',
     img: SOL_HERO,
     name:'Solar Power System', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
     desc:'Complete off-grid solar-and-storage kit — 16 kWh LiFePO4 battery, 12 kW off-grid inverter, and ten 550W panels (5.5 kW), with mounting, cabling, and protection. Pairs with any cabin.',
@@ -3995,7 +4007,7 @@ const PRODUCTS = [
     desc:'Premium tempered-glass geodesic igloo in three sizes (6/7/8 m) — 6063-T5 aluminium frame, 5 mm tempered glass, 3-layer 55 mm insulation, 20–30 yr life. Door, windows, bathroom, kitchen & more are priced options. Sits on a wood deck.',
     price:'From $5,847', unit:'USD EXW · glass dome', meta:'Ø6–8m · 304–541 sq ft · $19–21/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'windkit', live:true, type:'solar', mfr:'other',
+  { id:'windkit', live:true, archived:true, type:'solar', mfr:'other',
     img: WK_HERO,
     name:'Full Solar + Wind Kit', mfrName:'Zhangjiagang Ry Electronic Co., Ltd',
     desc:'Complete off-grid kit — 4 kW solar, 3 kW vertical-axis wind (~20 dB), a 5 kW 120/240 V split-phase inverter (48 V) and a 10.24 kWh LiFePO4 battery with UN 38.3 + SDS. DDP $1,900 to Gore Bay / $1,000 to Toronto. Remaining: CE-only (needs field evaluation) & battery upsize. Revised total pending.',
@@ -4109,16 +4121,19 @@ function buildFilters(){
 }
 function cardHTML(p){
   const phStyle=p.img?`background-image:url(${p.img})`:'';
-  const phInner=p.img?`<span class="tag">${p.tag}</span><span class="type-tag">${TYPE_LABELS[p.type]}</span>`:`<span>${TYPE_LABELS[p.type].toUpperCase()} · COMING SOON</span>`;
+  const phInner=p.img?`<span class="tag">${p.archived?'<span class="badge arch">Archived</span>':p.tag}</span><span class="type-tag">${TYPE_LABELS[p.type]}</span>`:`<span>${TYPE_LABELS[p.type].toUpperCase()} · COMING SOON</span>`;
   const body=`<div class="body"><div style="font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)">${p.mfrName.split('—')[0].trim()}</div><h3>${p.name}</h3><div class="cmeta">${p.meta||p.desc}</div><div class="foot"><div class="price"><div class="n">${p.price}</div><div class="u">${p.unit}</div></div>${p.live?'<div class="go">Open catalog →</div>':'<div class="go" style="color:var(--steel)">Coming soon</div>'}</div></div>`;
-  if(p.live) return `<a class="card" href="#/product/${p.id}"><div class="ph${p.img?'':' soon'}" style="${phStyle}">${phInner}</div>${body}</a>`;
+  if(p.live) return `<a class="card${p.archived?' is-arch':''}" href="#/product/${p.id}"><div class="ph${p.img?'':' soon'}" style="${phStyle}">${phInner}</div>${body}</a>`;
   return `<div class="card${p.img?'':' soon'}"><div class="ph${p.img?'':' soon'}" style="${phStyle}">${phInner}</div>${body}</div>`;
 }
 function renderCards(){
-  const filtered=PRODUCTS.filter(p=>(activeMfr==='all'||p.mfr===activeMfr)&&(activeType==='all'||p.type===activeType));
-  const html=filtered.length?filtered.map(cardHTML).join(''):'<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
+  const match=p=>(activeMfr==='all'||p.mfr===activeMfr)&&(activeType==='all'||p.type===activeType);
+  const filtered=PRODUCTS.filter(p=>match(p)&&!p.archived);
+  const archived=PRODUCTS.filter(p=>match(p)&&p.archived);
+  let html=filtered.length?filtered.map(cardHTML).join(''):'<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
+  if(archived.length) html+=`<div class="arch-sec"><div class="arch-head"><h3>Archived &mdash; no longer under consideration</h3><p>Kept for reference; excluded from the decision summary.</p></div>${archived.map(cardHTML).join('')}</div>`;
   const el=document.getElementById('catalog-cards'); if(el){ el.innerHTML=html; autoImperial(el); }
-  const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.map(cardHTML).join(''); autoImperial(hel); }
+  const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.filter(p=>!p.archived).map(cardHTML).join(''); autoImperial(hel); }
 }
 
 // ─── ROUTER ───────────────────────────────────────────────────────────────────
@@ -4385,7 +4400,7 @@ const SHIPPING = {
   huijue:   {name:'HuiJue Off-Grid Kit',      incoterm:'DDP',           status:'quoted', cost:'$2,300', note:'door-to-door all-in (freight + customs + taxes + delivery) &middot; or CIF Toronto $885 (self-clear) &middot; ISPM 15 certified'},
   allrun:   {name:'ARXT10KW Solar System',    incoterm:'FOB Qingdao/Shanghai', status:'tbd', note:'request a DDP door-to-door quote'}
 };
-const SHIP_ORDER=['glass','chunshu','steel','capsule','t9','one','branson','twofloor','aframe','igloo','solar','windkit','huijue','allrun'];
+const SHIP_ORDER=['chunshu','steel','capsule','t9','branson','aframe','igloo','huijue','allrun'];
 const SHIP_SVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M2 6.5h11v8.5H2zM13 9.5h4l3 3v2.5h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/><circle cx="16.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/></svg>';
 function formatShipping(s){
   if(!s) return 'Freight &amp; duty to Canada: <span class="tbd">TBD</span>';
@@ -4479,8 +4494,8 @@ const SUMMARY = {
   allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
     certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA',s:'gap'}]}
 };
-const SUM_CABINS=['glass','chunshu','steel','capsule','one','branson','twofloor','t9','aframe','igloo'];
-const SUM_ENERGY=['solar','windkit','huijue','allrun'];
+const SUM_CABINS=['chunshu','steel','capsule','branson','t9','aframe','igloo'];
+const SUM_ENERGY=['huijue','allrun'];
 // ─── PRICE / COST ESTIMATES (planning figures for the summary totals) ──────────
 // fob = quoted FOB/EXW unit price (USD, from the spec sheet); surtaxAmt = 25% of
 // fob IF classed as steel/aluminium parts (0 = none/timber/DDP-covered);
