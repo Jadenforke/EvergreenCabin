@@ -277,6 +277,18 @@ tr.total-row td{background:var(--tint);font-weight:700}tr.sub-row td{background:
 .comp.ok{border-left-color:var(--pine)}.comp.warn{border-left-color:var(--danger)}.comp.tbdc{border-left-color:var(--amber)}
 .comp.danger{border-color:var(--danger);border-left-color:var(--danger);background:rgba(163,67,39,.05)}
 .comp h4{font-size:15px;font-weight:700;margin:8px 0 6px}.comp p{font-size:13.5px;color:var(--steel)}
+/* ─── collapsible compliance cards ─────────────────────── */
+.comp.is-exp{padding:0;align-self:start}
+.comp.is-exp>details{padding:0}
+.comp.is-exp summary{list-style:none;cursor:pointer;display:block;padding:16px 18px;position:relative;padding-right:42px}
+.comp.is-exp summary::-webkit-details-marker{display:none}
+.comp.is-exp summary h4{margin:6px 0 0}
+.comp.is-exp summary::after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;margin-top:-6px;border-right:2px solid var(--steel);border-bottom:2px solid var(--steel);transform:rotate(45deg);transition:.18s}
+.comp.is-exp details[open] summary::after{transform:rotate(-135deg);margin-top:-2px}
+.comp.is-exp summary:hover::after{border-color:var(--pine)}
+.comp.is-exp .comp-body{padding:0 18px 16px}
+.comp.is-exp .comp-body>*:first-child{margin-top:0}
+.comp.is-exp .comp-body ul,.comp.is-exp .comp-body ol{margin-top:8px}
 .mfr-q{margin-top:24px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
 .mfr-q-head{display:flex;gap:12px;align-items:flex-start;padding:16px 20px;background:var(--pine-light);border-bottom:1px solid var(--line)}
 .mfr-q-head svg{flex:none;color:var(--pine);margin-top:1px}
@@ -1132,11 +1144,15 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <div class="php-spec"><div class="php-spec-k">Footprint</div><div class="php-spec-v">42.7 &times; 37.1 ft (13.0 &times; 11.3 m)</div></div>
           <div class="php-spec"><div class="php-spec-k">Height</div><div class="php-spec-v">17.7 ft (5.4 m)</div></div>
           <div class="php-spec"><div class="php-spec-k">Storeys</div><div class="php-spec-v">2 + sunroom</div></div>
-          <div class="php-spec"><div class="php-spec-k">Frame</div><div class="php-spec-v">Steel (light + heavy)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Frame</div><div class="php-spec-v">S550 light steel + heavy</div></div>
           <div class="php-spec"><div class="php-spec-k">Bedrooms</div><div class="php-spec-v">1 + attic</div></div>
-          <div class="php-spec"><div class="php-spec-k">Bathroom</div><div class="php-spec-v ok-text">Included</div></div>
+          <div class="php-spec"><div class="php-spec-k">Wall build-up</div><div class="php-spec-v">160 mm ext &middot; 130 mm int</div></div>
+          <div class="php-spec"><div class="php-spec-k">Insulation</div><div class="php-spec-v">100 mm rock wool (16K)</div></div>
+          <div class="php-spec"><div class="php-spec-k">Fire rating</div><div class="php-spec-v ok-text">Class A</div></div>
+          <div class="php-spec"><div class="php-spec-k">Service life</div><div class="php-spec-v ok-text">Steel 70&ndash;100 yrs</div></div>
+          <div class="php-spec"><div class="php-spec-k">Snow load</div><div class="php-spec-v warn">Not specified</div></div>
+          <div class="php-spec"><div class="php-spec-k">Wind load</div><div class="php-spec-v warn">0.35&ndash;0.5 kN (basis unclear)</div></div>
           <div class="php-spec"><div class="php-spec-k">Interior</div><div class="php-spec-v ok-text">Fully finished</div></div>
-          <div class="php-spec"><div class="php-spec-k">Glazing</div><div class="php-spec-v">Hollow tempered</div></div>
         </div>
       </div>
       <a href="#/product/chunshu/floorplan" class="php-cta-btn">See floor plan &amp; scope &rarr;</a>
@@ -1182,6 +1198,62 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr><td class="k">Electrical / plumbing</td><td>Whole-house cabling (1.5&ndash;10 mm&sup2;) + Cat6, PVC conduit, pressure water supply &amp; drainage, card-power system</td></tr>
       <tr><td class="k">Manufacturer</td><td>Beautiful Villa &mdash; Foshan Meishu Tourism Development Co., Ltd</td></tr>
       <tr class="total-row"><td class="k">Unit price</td><td>$50,655.15 USD</td></tr>
+    </table></div>
+
+    <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:30px 0 10px">Envelope &amp; performance (manufacturer data, Jul 2026)</h3>
+    <div class="tablewrap"><table>
+      <tr><td class="k">Exterior wall thickness</td><td><strong>160 mm (16 cm)</strong> including interior and exterior finishes</td></tr>
+      <tr><td class="k">Interior wall thickness</td><td><strong>130 mm (13 cm)</strong> including finishes</td></tr>
+      <tr><td class="k">Insulation material</td><td><strong>Rock wool, 100 mm, 16K density</strong></td></tr>
+      <tr><td class="k">Insulation thickness</td><td>100 mm &mdash; nominally <strong>&asymp;R-16</strong> for the rock-wool layer alone <span style="color:#7A5A12">(no rated whole-assembly R provided &mdash; see Compliance)</span></td></tr>
+      <tr><td class="k">Fire resistance rating</td><td><strong>Class A</strong> (per the manufacturer &mdash; request the underlying test report)</td></tr>
+      <tr><td class="k">Snow load</td><td><strong style="color:var(--danger)">Not specified</strong> &mdash; the manufacturer states it &ldquo;depends on the design, appearance and roof slope&rdquo;. A certified figure is required for Gore Bay (<strong>2.0&ndash;2.5 kN/m&sup2;</strong>, OBC SB-1)</td></tr>
+      <tr><td class="k">Wind load</td><td><strong style="color:var(--danger)">0.35&ndash;0.5 kN</strong> &mdash; quoted in kN with <strong>no reference area</strong>, so it can&rsquo;t be compared to a code pressure (kPa = kN/m&sup2;). Separately rated <strong>wind resistance level 14 (Chinese standard)</strong> &asymp; 150&ndash;167 km/h &mdash; reassuring, but not an OBC figure. Have the basis clarified in writing</td></tr>
+      <tr><td class="k">Design life (maker&rsquo;s summary)</td><td>Light-gauge steel buildings are described as inherently safe, environmentally friendly and good for <strong>50 years&rsquo; use</strong>. The maker states the <strong>materials themselves meet standards</strong>, but that <strong>compliance with Canadian building standards must be verified by a third party</strong></td></tr>
+      <tr><td class="k">Container fit</td><td><strong>One container holds one Chun Shu set</strong> &mdash; no consolidation savings on multiples; budget one container per unit</td></tr>
+      <tr><td class="k">Service life</td><td>Light-gauge steel members <strong>70&ndash;100 years</strong>; aerospace-grade aluminium panels <strong>30&ndash;50 years</strong></td></tr>
+    </table></div>
+
+    <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:30px 0 10px">Material list &mdash; 1 &middot; Main peripheral structure</h3>
+    <div class="tablewrap"><table>
+      <tr><th class="k">#</th><th>Item</th><th>Standard configuration</th></tr>
+      <tr><td class="k">1</td><td>Main frame material 1</td><td>Aluminized-zinc light-gauge steel (<strong>S550</strong>)</td></tr>
+      <tr><td class="k">2</td><td>Main frame material 2</td><td>High-strength heavy steel frame (<strong>2.5&ndash;5.0 mm</strong>)</td></tr>
+      <tr><td class="k">3</td><td>Exterior finish</td><td>Aluminium veneer / aluminium alloy panels (<strong>1.0&ndash;2.0 mm</strong>)</td></tr>
+      <tr><td class="k">4</td><td>Wall structural panel</td><td>Plywood base layer / <strong>Magnesium Oxide (MGO)</strong> board</td></tr>
+      <tr><td class="k">5</td><td>Thermal insulation</td><td>Insulation cotton / <strong>XPS rigid foam board</strong></td></tr>
+      <tr><td class="k">6</td><td>Waterproofing</td><td>Flame-retardant breathable membrane, <strong>SBS</strong> waterproof membrane, waterproof coating</td></tr>
+      <tr><td class="k">7</td><td>Second-floor floor structure</td><td>Cement pressure board (15 / 20 mm)</td></tr>
+      <tr><td class="k">8</td><td>Entry door</td><td>Aluminium-alloy glass sliding door or solid wood door</td></tr>
+      <tr><td class="k">9</td><td>Entry lock</td><td>Outdoor waterproof smart hotel lock</td></tr>
+      <tr><td class="k">10</td><td>Fixed windows</td><td>Hollow tempered glass (5+12A+5 or 5+20A+5)</td></tr>
+      <tr><td class="k">11</td><td>Operable windows</td><td><strong>Thermal-break aluminium</strong> with integrated insect screen (5+20A+5 or 6+18A+6 insulated tempered)</td></tr>
+      <tr><td class="k">12</td><td>Electrical equipment box</td><td>Included</td></tr>
+    </table></div>
+
+    <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:26px 0 10px">Material list &mdash; 2 &middot; Indoor eco-friendly finishing</h3>
+    <div class="tablewrap"><table>
+      <tr><th class="k">#</th><th>Item</th><th>Standard configuration</th></tr>
+      <tr><td class="k">1</td><td>Ceiling</td><td>Aluminium panels, aluminium veneer, carbon-crystal panels</td></tr>
+      <tr><td class="k">2</td><td>Interior walls</td><td>Aluminium alloy panels, eco carbon-crystal panels, bamboo-wood fibre panels</td></tr>
+      <tr><td class="k">3</td><td>Flooring</td><td>Multi-layer hardwood flooring or ceramic tile</td></tr>
+      <tr><td class="k">4</td><td>Ambient lighting</td><td>LED ambient light strips</td></tr>
+      <tr><td class="k">5</td><td>General lighting</td><td>Branded recessed downlights</td></tr>
+      <tr><td class="k">6</td><td>Bathroom ceiling</td><td>Aluminium / carbon-crystal / bamboo-wood fibre panels</td></tr>
+      <tr><td class="k">7</td><td>Bathroom walls</td><td>Aluminium / carbon-crystal / bamboo-wood fibre panels</td></tr>
+      <tr><td class="k">8</td><td>Bathroom floor</td><td>Premium anti-slip ceramic tile</td></tr>
+      <tr><td class="k">9</td><td>Bathroom door</td><td>One-way frosted aluminium-alloy glass door</td></tr>
+    </table></div>
+
+    <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:26px 0 10px">Material list &mdash; 3 &middot; Electrical / plumbing</h3>
+    <div class="tablewrap"><table>
+      <tr><th class="k">#</th><th>Item</th><th>Standard configuration</th></tr>
+      <tr><td class="k">1</td><td>Electrical wiring</td><td>Brand-name <strong>1.5 / 2.5 / 4 / 10 mm&sup2;</strong> cable with <strong>Cat 6</strong> network cable</td></tr>
+      <tr><td class="k">2</td><td>Electrical conduit</td><td>Insulated PVC conduit</td></tr>
+      <tr><td class="k">3</td><td>Plumbing</td><td>Anti-explosion, pressure-resistant water supply and drainage piping</td></tr>
+      <tr><td class="k">4</td><td>Outlets</td><td>Five-hole and three-hole receptacles <span style="color:var(--danger)">(Chinese pattern &mdash; not NEMA/CSA)</span></td></tr>
+      <tr><td class="k">5</td><td>Switches</td><td>Switch panels</td></tr>
+      <tr><td class="k">6</td><td>Power management</td><td>Key-card power activation / automatic power-off when card removed</td></tr>
     </table></div>
   </div></div>
 
@@ -1258,15 +1330,33 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">Based on OBC 2024 (O.Reg. 163/24), Ontario Fire Code, and Town of Gore Bay building department requirements. Status as of July 2026 quotation.</p>
     <div class="comp-grid">
       <div class="comp warn"><span class="badge warn">Confirm with manufacturer</span><h4>Structural certification &mdash; not stated</h4><p>The material list does not mention CSA A277 factory certification or P.Eng-stamped drawings. Town of Gore Bay requires manufacturer-stamped structural drawings with every permit (OBC Division B, Part 4). Ask Beautiful Villa whether CSA A277 certification is available for this model; otherwise an Ontario P.Eng review of structure, foundation, and anchoring will be required. As a two-storey building this is scrutinised more closely than a single-storey unit.</p></div>
-      <div class="comp warn"><span class="badge warn">Confirm with manufacturer</span><h4>Snow load &mdash; not stated</h4><p>No snow-load rating is given. Gore Bay (Manitoulin Island) ground snow load (Ss) is estimated at <strong>2.0&ndash;2.5 kN/m&sup2;</strong> per OBC Supplementary Standard SB-1. The steel roof/frame capacity must be confirmed in writing and validated by a licensed Ontario P.Eng before winter occupancy &mdash; especially given the large glass sunroom span.</p></div>
-      <div class="comp warn"><span class="badge warn">Confirm with manufacturer</span><h4>Wind load &mdash; not stated</h4><p>No wind rating is given. Confirm the rated wind resistance with the manufacturer and ensure anchoring to an engineered foundation per OBC Part 4.</p></div>
-      <div class="comp ok"><span class="badge ok">Favourable</span><h4>Envelope &amp; fire</h4><p>Steel frame, aluminium panels, and MGO board are non-combustible, which is favourable under OBC. Interior insulation (XPS) and some finish panels are combustible and must meet flame-spread / smoke-developed limits (OBC 3.1.5 / 9.10.17). Ontario Fire Code 2.9.3.3 still requires a site-wide fire alarm or fire watch for commercial sleeping accommodation. Request fire-rating documentation from the manufacturer.</p></div>
+      <div class="comp danger"><span class="badge" style="background:var(--danger);color:#fff">Biggest flag</span><h4>Snow load &mdash; still not specified</h4><p>Asked directly, the manufacturer answered only that it <strong>&ldquo;depends on the design, appearance and roof slope&rdquo;</strong> &mdash; i.e. <strong>no certified figure</strong>. Gore Bay&rsquo;s ground snow load (Ss) is <strong>2.0&ndash;2.5 kN/m&sup2;</strong> (OBC SB-1). You cannot permit or safely occupy this in winter without a <strong>stated capacity plus structural calculations</strong>, validated by a licensed Ontario P.Eng &mdash; especially across the large glass sunroom span.</p></div>
+      <div class="comp warn"><span class="badge warn">Unit basis unclear</span><h4>Wind load &mdash; 0.35&ndash;0.5 kN, no reference area</h4><p>The manufacturer quotes <strong>0.35&ndash;0.5 kN</strong>, but a force in kN <strong>can&rsquo;t be compared to a code wind pressure</strong> without the area it acts on (kPa = kN/m&sup2;). If it is meant as <strong>0.35&ndash;0.5 kPa</strong>, that is around Gore Bay&rsquo;s design pressure with little margin. Get the basis clarified in writing and anchor to an engineered foundation per OBC Part 4.</p></div>
+      <div class="comp ok"><span class="badge ok">Favourable</span><h4>Envelope &amp; fire &mdash; Class A claimed</h4><p>The manufacturer now states a <strong>Class A fire resistance rating</strong>, and the steel frame, aluminium panels and MGO board are non-combustible &mdash; favourable under OBC. But &ldquo;Class A&rdquo; is a <strong>Chinese classification, not a CAN/ULC rating</strong>: request the <strong>underlying test report</strong> plus <strong>flame-spread and smoke-developed indices</strong> (OBC 3.1.5 / 9.10.17), since the XPS insulation and some finish panels are combustible. Ontario Fire Code 2.9.3.3 still requires a site-wide fire alarm or fire watch for commercial sleeping accommodation.</p></div>
+      <div class="comp warn"><span class="badge warn">Quantified, not rated</span><h4>Envelope &mdash; 160 mm walls, 100 mm rock wool</h4><p>Now quantified: <strong>160 mm exterior / 130 mm interior</strong> walls with <strong>100 mm rock wool at 16K density</strong> (nominally &asymp;R-16 for that layer alone). Real progress, but it is <strong>still not a rated whole-assembly R-value</strong>, and &asymp;R-16 sits <strong>below the OBC SB-12 wall target (~R-22+)</strong>. Request rated <strong>wall / roof / floor R and window U-value + SHGC</strong>, and expect to upgrade for a Manitoulin winter.</p></div>
+      <div class="comp ok"><span class="badge ok">Favourable</span><h4>Durability &mdash; 70&ndash;100 yr steel</h4><p>The manufacturer rates the <strong>light-gauge steel members at 70&ndash;100 years</strong> and the <strong>aluminium panels at 30&ndash;50 years</strong>, on an S550 aluminized-zinc frame with a 2.5&ndash;5.0 mm heavy-steel frame, MGO sheathing and a three-part waterproofing build-up (breathable membrane + SBS + coating). A genuinely long-life shell &mdash; note the cladding will need replacing before the structure does.</p></div>
+      <div class="comp danger"><span class="badge" style="background:var(--danger);color:#fff">Must change</span><h4>Electrical &mdash; Chinese outlets &amp; no CSA</h4><p>The material list specifies <strong>five-hole and three-hole receptacles</strong> &mdash; the Chinese pattern, <strong>not NEMA</strong> &mdash; and no CSA marks, breaker ratings, panel size, voltage (120/240 V) or grounding detail are given. Expect to <strong>re-specify the wiring devices and panel to CSA</strong> and have the installation <strong>field-evaluated (SPE-1000)</strong> before ESA will accept it.</p></div>
+      <div class="comp warn"><span class="badge warn">Maker&rsquo;s own caveat</span><h4>Canadian standards &mdash; third-party verification needed</h4><p>The manufacturer is candid: light-gauge steel is inherently safe and good for <strong>50 years&rsquo; use</strong>, and the <strong>materials themselves meet standards</strong> &mdash; but whether the building <strong>meets Canadian building-code requirements must be verified by a third party</strong>. Read that as: budget an <strong>independent Ontario engineering review</strong> as a certainty, not a contingency. They also rate <strong>wind resistance level 14</strong> on the Chinese scale (&asymp;150&ndash;167 km/h) &mdash; encouraging, but not an OBC-referenced figure.</p></div>
       <div class="comp warn"><span class="badge warn">Permit required</span><h4>Building permit &mdash; Group C, OBC Part 9</h4><p>A building permit is mandatory in Gore Bay. As two-storey fixed sleeping accommodation, the villa will likely be classified as <strong>Group C (Tourist Accommodation)</strong> under OBC Part 9. Jurisdiction: <strong>Town of Gore Bay</strong>. CBO: Chris Meloche &mdash; <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--pine)">CBOwestmanitoulin@outlook.com</a> &middot; 705-956-0472. A pre-application meeting is strongly recommended before ordering.</p></div>
       <div class="comp tbdc"><span class="badge tbdb">Site work required</span><h4>Plumbing &amp; electrical &mdash; included, hookup by licensed trades</h4><p>The villa ships with whole-house wiring and plumbing, sockets, and a card-power system. Site hookup, electrical panel, and plumbing rough-in must be completed by licensed Ontario trades to OBC/ESA standards; each electrical connection requires an ESA inspection. Water heater is not listed on the material sheet &mdash; confirm.</p></div>
     </div>
+    <div class="mfr-q noimp" style="margin-top:24px">
+      <div class="mfr-q-head"><span class="mfr-q-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2h9l5 5v15H6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 2v6h6M9.5 13.5h5M9.5 17h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><div><div class="mfr-q-title">Missing documentation for Canadian approval</div><div class="mfr-q-sub">Beautiful Villa has <strong>not</strong> supplied any of the following &mdash; this is the gap list to close before ordering</div></div></div>
+      <div class="ini-grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Structural</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Certified snow load (kPa) &middot; certified wind load (kPa) &middot; seismic rating &middot; structural calculations &middot; engineering drawings &middot; Canadian or international test reports</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Building code</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">CSA A277 certification &middot; CSA certification for electrical components &middot; code-compliance documentation &middot; factory quality certifications (ISO)</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Thermal performance</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Wall / roof / floor R-values &middot; window U-value &middot; SHGC &middot; air-leakage rating</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Fire &amp; safety</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Fire test reports &middot; fire separation ratings &middot; smoke development index &middot; flame spread index</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Mechanical</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">HVAC specifications &middot; ventilation system &middot; HRV / ERV &middot; plumbing fixture specifications</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Electrical</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Main panel size &middot; voltage (120/240 V) &middot; CSA-approved breakers &middot; grounding details</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Installation</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Foundation requirements &middot; anchoring details &middot; maximum building height &middot; crane requirements &middot; installation manual</div></div>
+        <div class="ini-item" style="display:block"><strong style="color:var(--ink)">Warranty</strong><div style="font-size:12.5px;color:var(--steel);margin-top:4px;line-height:1.5">Structural &middot; exterior panel &middot; window &middot; waterproofing &middot; electrical &middot; plumbing</div></div>
+      </div>
+      <div class="mfr-q-foot">Eight categories, none supplied. Treat this as the <strong>pre-order document request</strong> &mdash; a permit application in Gore Bay will need the structural, thermal, fire and electrical items at minimum.</div>
+    </div>
     <div class="callout red" style="margin-top:24px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 2.5 20h19L12 3Z" stroke="#A34327" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17v.5" stroke="#A34327" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Sourcing manager&rsquo;s flag:</strong> Chun Shu is a fully-finished two-storey villa, but the material list carries no structural ratings, no certification, and no price terms. Before committing: get written snow/wind load ratings, ask whether CSA A277 certification is available, and confirm the incoterm and what shipping to Canada adds. As a two-storey Group C building it will face full OBC Part 9 review &mdash; start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
+      <div><strong>Sourcing manager&rsquo;s flag:</strong> Chun Shu is a fully-finished two-storey villa and the maker has now supplied a <strong>full material list plus envelope data</strong> &mdash; 160 mm walls, 100 mm rock wool (16K), Class A fire rating and a 70&ndash;100 year steel service life. What it still has <strong>not</strong> supplied is anything a permit actually needs: <strong>no certified snow load</strong> (&ldquo;depends on the design&rdquo;), a <strong>wind figure in kN with no reference area</strong>, no rated R-values, no CSA A277, no CSA electrical, and no test reports &mdash; eight categories of missing documentation listed above. The electrical also ships with <strong>Chinese-pattern outlets</strong> and will need re-specifying to CSA plus an SPE-1000 field evaluation. Before committing: close that document list, get the incoterm and Canadian shipping cost. As a two-storey Group C building it will face full OBC Part 9 review &mdash; start with a pre-application meeting: CBO Chris Meloche, <a href="mailto:CBOwestmanitoulin@outlook.com" style="color:var(--danger)">CBOwestmanitoulin@outlook.com</a>, 705-956-0472.</div>
     </div>
   </div></div>
 </div>
@@ -2219,7 +2309,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Solar package (option)</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Snow-load upgrade (cold climate)</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Permit &amp; P.Eng review</div>
-          </div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Furniture (confirmed excluded)</div>
+        <div class="ini-item"><span class="ini-x">&#x2715;</span>Appliances (confirmed excluded)</div>
+      </div>
           <p style="font-size:13px;color:var(--steel);margin-top:12px">Exterior, layout, and size can be customized. Shipping (~$19,000) includes customs duties and delivery to site &mdash; see Foundation &amp; delivery.</p>
         </div>
         </div>
@@ -3050,7 +3142,9 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Shipping &amp; duties</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Permit &amp; P.Eng review</div>
             <div class="ini-item"><span class="ini-x">&#x2715;</span>Appliances (confirm scope)</div>
-          </div>
+            <div class="ini-item"><span class="ini-x">&#x2715;</span>Furniture (confirmed excluded)</div>
+        <div class="ini-item"><span class="ini-x">&#x2715;</span>Appliances (confirmed excluded)</div>
+      </div>
           <p style="font-size:13px;color:var(--steel);margin-top:12px">Price is indicative at ~$350/m&sup2; &mdash; confirm the final quote, the exact appliance / MEP scope, and shipping to Manitoulin.</p>
         </div>
         </div>
@@ -3492,7 +3586,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <p class="intro">Bonneville Industries (Produits Bonneville) is a <strong>4th-generation, family-owned Quebec manufacturer</strong> &mdash; roughly <strong>65 years</strong> in business, <strong>45,000+ houses built</strong>, <strong>10 sales offices across Quebec and Ontario</strong> and 2 innovation centres. The Ch&iuml;c Shack is a <strong>contemporary flat-roof chalet built entirely indoors</strong> using Bonneville&rsquo;s exclusive <strong>R-3000</strong> technique, then delivered as modules. It is <strong>fully customizable</strong>, which is why the price is quoted as a range rather than a fixed figure.</p>
     <div class="callout" style="margin:6px 0 22px;background:var(--tint);border-color:var(--pine)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1E5138" stroke-width="2"/><path d="M12 8v5M12 16v.5" stroke="#1E5138" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><strong>Note on the two Quebec listings:</strong> Bonneville and <a href="#/product/batiscan" style="color:var(--pine);font-weight:700">Bor&eacute;al</a> publish the <strong>same corporate profile</strong> (4th generation, ~65 years, 45,000+ homes, 10 Quebec/Ontario offices), so they appear to be <strong>the same corporate group</strong> with Bor&eacute;al as the log-kit brand and Bonneville the finished-modular brand. Worth confirming &mdash; if so, a <strong>single multi-unit negotiation could cover both</strong>, and you could mix kit cabins and finished units on one order.</div>
+      <div><strong>Note on the two Quebec listings:</strong> Bonneville and <a href="#/product/batiscan" style="color:var(--pine);font-weight:700">Bor&eacute;al</a> are <strong>separate companies</strong> (different domains and ownership), even though they publish similar corporate profiles and both serve Quebec and Ontario. Quote and negotiate them <strong>independently</strong> &mdash; Bor&eacute;al for a log-kit shell, Bonneville for a factory-finished home.</div>
     </div>
     <div class="tablewrap"><table>
       <tr><th class="k">Room</th><th>Dimensions</th></tr>
@@ -4755,6 +4849,7 @@ function route(){
   enhanceFees(page);
   renderInsulation(page);
   renderMfrQuestions(page);
+  collapseCompliance(page);
   autoImperial(document.getElementById('page-'+page));
 }
 // ─── SHIPPING — SINGLE SOURCE OF TRUTH ────────────────────────────────────────
@@ -4767,7 +4862,7 @@ function route(){
 //           'tbd'       -> awaiting a freight quote
 const SHIPPING = {
   glass:    {name:'Standing Glass Dome',      incoterm:'EXW',           status:'tbd', note:'price excludes tax'},
-  chunshu:  {name:'Chun Shu',                 incoterm:null,            status:'tbd', note:'incoterm to confirm'},
+  chunshu:  {name:'Chun Shu',                 incoterm:null,            status:'tbd', alt:'1 container per unit', note:'incoterm to confirm &middot; <strong>one container holds one set</strong> &mdash; no consolidation on multiples'},
   steel:    {name:'Steel Frame Modular',      incoterm:'FOB Shanghai',  status:'quoted', cost:'~$4,200–$5,800 est.', transit:'~30–40 days', note:'40HQ container to Gore Bay (market estimate; no firm quote yet)'},
   capsule:  {name:'Steele Capsule (T5)',      incoterm:'FOB',           status:'tbd'},
   one:      {name:'ONE Living Capsule',       incoterm:'FOB',           status:'tbd'},
@@ -4850,7 +4945,7 @@ const SUMMARY = {
   glass:    {slug:'glassdome', bd:'Loft · 1 ba', name:'Standing Glass Dome',  mfr:'Meihua · aluminium + glass', area:'463 ft² interior', psf:'~$55', price:'$16,800 turnkey',
     certs:[{t:'Glazing safety',s:'need'},{t:'Rated insulation R',s:'gap'},{t:'ESA / CSA approval',s:'need'}]},
   chunshu:  {slug:'chunshu', bd:'1 bd · 1 ba',   name:'Chun Shu',             mfr:'Beautiful Villa · steel', area:'1,170 ft²', psf:'$43.29', price:'$50,655',
-    certs:[{t:'Structural / snow',s:'need'},{t:'Insulation R',s:'need'},{t:'ESA electrical',s:'gap'}]},
+    certs:[{t:'Full material list',s:'has'},{t:'Class A fire (China)',s:'has'},{t:'Certified snow load',s:'gap'},{t:'Rated R-values',s:'gap'},{t:'CSA A277 / CSA electrical',s:'gap'},{t:'Test reports',s:'need'}]},
   steel:    {slug:'steel', bd:'1 bd · 1 ba',     name:'Steel Frame Modular',  mfr:'Platinum · light-gauge steel', area:'517 ft²', psf:'$87.66', price:'$45,292',
     certs:[{t:'Structural calcs provided',s:'has'},{t:'Glazing ANSI Z97.1',s:'has'},{t:'Insulation to spec',s:'has'},{t:'Local P.Eng seal',s:'need'},{t:'ESA electrical',s:'need'}]},
   capsule:  {slug:'capsule', bd:'Studio · 1 ba',   name:'Steele Capsule (T5)',  mfr:'Zhongjun · steel, smart', area:'301 ft²', psf:'$112.81', price:'$34,000',
@@ -5040,7 +5135,7 @@ function renderSummaryTables(){
 // but unrated. OBC SB-12 targets for Gore Bay: ~R-22+ walls, ~R-49+ roof.
 const INSULATION = {
   glass:    {sev:'warn',   head:'Insulation &amp; R-value &mdash; partial, unrated', body:'Envelope: insulated 5+9+5 mm glazing + ~30 mm XPS (&asymp;R-6) with 8 mm carbon-crystal board over only ~2/3 of the interior. No rated wall / roof / floor R-value, and coverage is partial. Confirm full-coverage effective R against OBC SB-12; the large glazed area is the thermal weak point.'},
-  chunshu:  {sev:'warn',   head:'Insulation &amp; R-value &mdash; not quantified', body:'Walls list XPS + insulation cotton with SBS waterproofing, but no thickness or rated R-value is given, and the roof / floor build-ups aren&rsquo;t specified. Obtain the full wall / roof / floor assembly and the rated effective R for OBC SB-12 before permit.'},
+  chunshu:  {sev:'warn',   head:'Insulation &amp; R-value &mdash; quantified, not rated', body:'Now quantified: <strong>160 mm exterior / 130 mm interior</strong> walls with <strong>100 mm rock wool at 16K density</strong> &mdash; nominally <strong>&asymp;R-16</strong> for that layer alone. Still <strong>no rated whole-assembly R</strong>, and &asymp;R-16 is <strong>below the OBC SB-12 wall target (~R-22+)</strong>, with no roof or floor value and no window U-value / SHGC. Request the rated effective R for walls, roof and floor and budget an upgrade for a Manitoulin winter.'},
   steel:    {sev:'warn',   head:'Insulation &amp; R-value &mdash; built to your spec', body:'Best-documented envelope in the catalog: 150 mm rockwool in the roof, exterior walls and floor (&asymp;R-25 each) + 90 mm interior-wall rockwool, triple-glazed Low-E/Argon windows. Platinum confirmed they will <strong>calculate and build to a specified R-value</strong> from the thermal conductivity &mdash; so give them the <strong>OBC SB-12 targets</strong> (~R-22+ walls, ~R-49 roof, ~R-30 floor) and get the delivered effective-R in writing.'},
   capsule:  {sev:'danger', head:'Insulation &amp; R-value &mdash; base RSI 1.3, cold-kit needed', body:'The maker now rates the standard 18 mm rubber + 50 mm rock-wool envelope at <strong>RSI 1.3 (&asymp; R-7.4)</strong> &mdash; well below OBC SB-12 (~R-22 walls, ~R-49 roof), so a Gore Bay winter <strong>requires the cold-region kit</strong>: glazing upgraded to <strong>triple-pane 6+12+6+12+6</strong>, insulation to <strong>100 mm polyurethane spray</strong>, plus <strong>water-pipe heating and whole-house graphene electric floor heating</strong>. Specify the kit and confirm the delivered effective R in writing.'},
   t9:       {sev:'danger', head:'Insulation &amp; R-value &mdash; base RSI 1.3, cold-kit needed', body:'Same envelope as the T5, now rated at <strong>RSI 1.3 (&asymp; R-7.4)</strong> for the 18 mm rubber + 50 mm rock wool &mdash; well below OBC SB-12. A Gore Bay winter <strong>requires the cold-region kit</strong>: <strong>triple-pane 6+12+6+12+6</strong> glazing, <strong>100 mm polyurethane spray</strong> insulation, plus <strong>water-pipe + graphene electric floor heating</strong>. Confirm the delivered effective R in writing.'},
@@ -5080,11 +5175,12 @@ const MFR_QUESTIONS = {
     'Is the electrical wired to <strong>cULus/CSA</strong> and available in <strong>120/240 V split-phase</strong>?',
     'Confirm the water tank/heater is not supplied. ISPM 15 packaging cert?']},
   chunshu:{mfr:'Beautiful Villa — Foshan Meishu Tourism Development Co., Ltd', note:MFRQ_CABIN, q:[
-    'What are the rated <strong>snow, wind and seismic loads</strong> (kPa)? None are stated on the quote.',
-    'Do you hold <strong>CSA A277</strong>, or supply stamped drawings + calculations for OBC Part 9 review (this is a 2-storey building)?',
-    'What is the <strong>insulation thickness and rated R-value</strong> for walls, roof and floor? (Quote says only “XPS + insulation cotton”.)',
-    'Glazing specs (U-value, Low-E) and the <strong>steel-frame grade / mill certs</strong>?',
-    'Is the electrical <strong>cULus/CSA</strong> and available in <strong>120/240 V split-phase</strong>? ISPM 15 cert?']},
+    '<strong>Answered:</strong> walls <strong>160 mm ext / 130 mm int</strong>; insulation <strong>100 mm rock wool (16K)</strong>; fire rating <strong>Class A</strong>; service life <strong>70–100 yr steel / 30–50 yr aluminium panels</strong> (50 yr building use); <strong>wind resistance level 14</strong> (Chinese scale); <strong>one container per set</strong>; full material list supplied. They confirm <strong>Canadian code compliance needs third-party verification</strong>.',
+    'We still need a <strong>certified snow load in kPa</strong> — &ldquo;depends on the design and roof slope&rdquo; can&rsquo;t be permitted. Please state the capacity for our roof design and send the <strong>structural calculations + engineering drawings</strong> against Gore Bay&rsquo;s <strong>2.0–2.5 kN/m²</strong>.',
+    'The wind load is quoted as <strong>0.35–0.5 kN</strong> — please confirm the <strong>reference area</strong> (is it 0.35–0.5 <strong>kPa</strong>?), plus the <strong>seismic rating</strong>.',
+    'Please send <strong>rated R-values</strong> (wall / roof / floor), <strong>window U-value and SHGC</strong>, and an air-leakage rating — the 100 mm rock wool alone is ≈R-16, below our ~R-22+ wall target.',
+    'Do you hold <strong>CSA A277</strong> and <strong>CSA-certified electrical components</strong>? The outlets listed are <strong>Chinese five/three-hole</strong> — we need <strong>120/240 V, CSA breakers, panel size and grounding detail</strong> re-specified for Ontario.',
+    'Please supply the <strong>fire test report</strong> behind the Class A claim (with flame-spread and smoke-developed indices), plus <strong>HVAC / ventilation / HRV specs</strong>, <strong>foundation and anchoring requirements</strong>, <strong>crane requirements</strong>, an <strong>installation manual</strong>, and your <strong>written warranties</strong> (structural, panels, windows, waterproofing, electrical, plumbing).']},
   steel:{mfr:'Platinum Building Technology Development Inc.', note:MFRQ_CABIN, q:[
     '<strong>Answered:</strong> buildable to <strong>2.5 kPa snow</strong>; will <strong>build to a specified R-value</strong>; glazing to <strong>ANSI Z97.1 + IGCC</strong> with <strong>U-value to spec</strong>; wood cladding by buyer (16 mm+, anti-corrosion, local fire); <strong>appliances/water heater excluded</strong>; <strong>structural calculation reports provided</strong> (their P.Eng stamp isn&rsquo;t valid in Canada &mdash; we seal locally).',
     'Please send the full <strong>structural calculation reports + shop drawings</strong> in a format our <strong>Ontario P.Eng</strong> can review, sign and seal for the permit.',
@@ -5107,6 +5203,7 @@ const MFR_QUESTIONS = {
     'Are the <strong>smart/WiFi systems ISED-certified</strong>, and is the 2000 W floor heating + wiring <strong>cULus/CSA</strong> in 120/240 V?',
     'ISPM 15 packaging cert?']},
   branson:{mfr:'Qingdao Yidongxiang Steel Structure Co., Ltd', note:MFRQ_CABIN, q:[
+    '<strong>Answered:</strong> <strong>furniture and appliances are NOT included</strong> — budget these locally (they also recommend buying the water tank / AC locally to keep warranty valid).',
     'Snow is rated <strong>0.72 kPa</strong> — please <strong>re-engineer and provide stamped calcs to ~2.5 kPa</strong> for our site.',
     'Provide the <strong>Intertek fire-test report</strong> for the wall assembly.',
     'Provide the stamped <strong>OBC/CSA-compliant design package + structural calculations</strong> you offer.',
@@ -5119,6 +5216,7 @@ const MFR_QUESTIONS = {
     'Is the electrical available in <strong>120/240 V split-phase</strong> with <strong>cULus/CSA</strong> components?',
     'Provide the <strong>20-year warranty terms in writing</strong>. ISPM 15 packaging cert?']},
   aframe:{mfr:'Qingdao Yidongxiang Steel Structure Co., Ltd', note:MFRQ_CABIN, q:[
+    '<strong>Answered:</strong> <strong>furniture and appliances are NOT included</strong> — budget these locally (they also recommend buying the water tank / AC locally to keep warranty valid).',
     'Provide the <strong>Intertek fire-test report</strong> for the wall system.',
     'Provide the stamped <strong>OBC/CSA-compliant design package + structural calculations</strong>.',
     'What is the <strong>SIP core type, thickness and rated R-value</strong> for walls, roof and floor?',
@@ -5165,15 +5263,36 @@ const MFR_QUESTIONS = {
     'Please quote <strong>DDP door-to-door to Gore Bay</strong> and confirm <strong>ISPM 15</strong> packaging.']}
 };
 const MFRQ_SVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.3" stroke="currentColor" stroke-width="1.6"/><path d="M9.4 9.2a2.7 2.7 0 1 1 3.6 2.5c-.7.3-1 .9-1 1.6M12 16.5v.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Turn each Compliance card into a dropdown: badge + title stay visible,
+// the body collapses. Runs after the insulation card is injected.
+function collapseCompliance(page){
+  const pg=document.getElementById('page-'+page); if(!pg) return;
+  pg.querySelectorAll('[id$="compliance"] .comp').forEach(c=>{
+    if(c.classList.contains('is-exp')) return;
+    const h4=c.querySelector(':scope > h4'); if(!h4) return;
+    const badge=c.querySelector(':scope > .badge, :scope > span.badge');
+    const d=document.createElement('details'); d.className='comp-exp';
+    const sm=document.createElement('summary');
+    const body=document.createElement('div'); body.className='comp-body';
+    Array.from(c.childNodes).forEach(n=>{
+      if(n===h4||n===badge) return;
+      body.appendChild(n);
+    });
+    if(badge) sm.appendChild(badge);
+    sm.appendChild(h4);
+    d.appendChild(sm); d.appendChild(body);
+    c.appendChild(d); c.classList.add('is-exp');
+  });
+}
 function renderMfrQuestions(page){
   const d=MFR_QUESTIONS[page]; if(!d) return;
   const pg=document.getElementById('page-'+page); if(!pg) return;
   let host=pg.querySelector('[id$="compliance"] > .wrap');
   if(!host){ const subs=pg.querySelectorAll('.subsec > .wrap'); host=subs[subs.length-1]; }
-  if(!host || host.querySelector('.mfr-q')) return;
+  if(!host || host.querySelector('.mfr-q-auto')) return;
   const items=d.q.map(x=>`<li>${x}</li>`).join('');
   const panel=document.createElement('div');
-  panel.className='mfr-q noimp';
+  panel.className='mfr-q mfr-q-auto noimp';
   panel.innerHTML=`<div class="mfr-q-head"><span class="mfr-q-ico">${MFRQ_SVG}</span><div><div class="mfr-q-title">Questions for the manufacturer</div><div class="mfr-q-sub">${d.mfr} &mdash; clarify before ordering</div></div></div><ol class="mfr-q-list">${items}</ol>${d.note?`<div class="mfr-q-foot">${d.note}</div>`:''}`;
   host.appendChild(panel);
 }
