@@ -3441,6 +3441,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <tr class="total-row"><td class="k">Basis</td><td colspan="3">CAD, <strong>unit only</strong> &mdash; transportation and taxes not included; foundation excluded on every tier</td></tr>
     </table></div>
     <p style="font-size:13px;color:var(--steel);margin:12px 0 0">The mezzanine adds usable area above the footprint (Bor&eacute;al classes the model as <strong>500&ndash;800 sq ft</strong>), so the $/sq ft above is a <strong>footprint basis</strong> and the effective rate per finished square foot is lower. Prices are <strong>CAD</strong> &mdash; the decision summary converts at a stated rate for like-for-like comparison with the imported listings.</p>
+    <div class="addon-config" id="batiscan-addon-config"></div>
 
     <h3 style="font-family:'Archivo',sans-serif;font-size:16px;margin:26px 0 10px">Full specification</h3>
     <div class="tablewrap"><table>
@@ -4317,13 +4318,13 @@ const PRODUCTS = [
     img: BT_HERO,
     name:'Batiscan — Thermolog Cabin Kit', mfrName:'Produits Boréal — Quebec, Canada',
     desc:'Canadian-made log-kit cabin — 2 bed, 1 bath with a partial mezzanine, pre-cut numbered Thermologs, rated R-30 walls / R-45 roof, argon double glazing. Four footprints, $67,852–$100,235 CAD (unit only). Domestic: no import classification, surtax, ISPM 15 or CARM. Snow/wind rating & delivery quote still to confirm.',
-    price:'From $67,852', unit:'CAD · wall kit · unit only', meta:'2 bed · 500–800 sq ft · R-30/R-45 · Canada',
+    price:'Starting at $67,852', unit:'CAD · wall kit · unit only', meta:'2 bed · 500–800 sq ft · R-30/R-45 · Canada',
     tag:'<span class="badge ok">Made in Canada</span>' },
   { id:'igloo', live:true, type:'dome', mfr:'yuntu',
     img: IG_HERO,
     name:'Glass Igloo Dome (6–8 m)', mfrName:'Guangzhou Yuntu Tent Technology Co., Ltd.',
     desc:'Premium tempered-glass geodesic igloo in three sizes (6/7/8 m) — 6063-T5 aluminium frame, 5 mm tempered glass, 3-layer 55 mm insulation, 20–30 yr life. Door, windows, bathroom, kitchen & more are priced options. Sits on a wood deck.',
-    price:'From $5,847', unit:'USD EXW · glass dome', meta:'Ø6–8m · 304–541 sq ft · $19–21/sq ft',
+    price:'Starting at $5,847', unit:'USD EXW · glass dome', meta:'Ø6–8m · 304–541 sq ft · $19–21/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
   { id:'windkit', live:true, archived:true, type:'solar', mfr:'other',
     img: WK_HERO,
@@ -4519,7 +4520,7 @@ const ADDON_CONFIG = {
   t9: { base:29751, cur:'USD', addons:[
     {k:'solar',   name:'Solar — 15 kWh (battery + panels + inverter)', price:6000}
   ]},
-  igloo: { cur:'USD', sizes:[
+  igloo: { cur:'USD', sizeLabel:'Choose your dome size', sizes:[
       {k:'6mg', name:'6 m &middot; Ø20 ft &middot; 304 sq ft', base:5847, ov:{gcurtain:231}},
       {k:'7mg', name:'7 m &middot; Ø23 ft &middot; 414 sq ft', base:8000, ov:{gcurtain:339}},
       {k:'8mg', name:'8 m &middot; Ø26 ft &middot; 541 sq ft', base:11231, ov:{gcurtain:585}}
@@ -4530,7 +4531,13 @@ const ADDON_CONFIG = {
       {k:'gfan',     name:'Solar exhaust fan (18W)', price:250},
       {k:'bathroom', name:'Bathroom module (toilet, basin, shower)', price:1288},
       {k:'kitchen',  name:'Kitchen unit (worktable, sink, storage)', price:1516}
-    ]}
+    ]},
+  batiscan: { cur:'CAD', sizeLabel:'Choose your footprint', sizes:[
+      {k:'2024', name:'20&prime; &times; 24&prime; &middot; 480 sq ft', base:67852},
+      {k:'2424', name:'24&prime; &times; 24&prime; &middot; 576 sq ft', base:81459},
+      {k:'2428', name:'24&prime; &times; 28&prime; &middot; 672 sq ft', base:91234},
+      {k:'2828', name:'28&prime; &times; 28&prime; &middot; 784 sq ft', base:100235}
+    ], defaultSize:'2024' }
 };
 const addonState = {};
 const sizeState = {};
@@ -4540,13 +4547,14 @@ function addonBase(page){ const s=activeScope(page); if(!s) return 0; if(s.sizes
 function curSize(page){ const s=activeScope(page); if(!s||!s.sizes) return null; return s.sizes.find(z=>z.k===sizeState[page])||s.sizes[0]; }
 function addonPrice(page,a){ const z=curSize(page); if(z&&z.ov&&z.ov[a.k]!=null) return z.ov[a.k]; return a.price; }
 function fmtUSD(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:(n%1?2:0), maximumFractionDigits:2}); }
+function fmtMoney(page,n){ const cfg=ADDON_CONFIG[page]; const suf=(cfg&&cfg.cur&&cfg.cur!=='USD')?' '+cfg.cur:''; return fmtUSD(n)+suf; }
 function updateAddonTotal(page){
   const s=activeScope(page); if(!s) return;
   const base=addonBase(page);
   let total=base;
   (s.addons||[]).forEach(a=>{ if(a.disabled) return; if(addonState[page] && addonState[page].has(a.k)) total+=addonPrice(page,a); });
-  const t=document.getElementById(page+'-addon-total'); if(t) t.textContent=fmtUSD(total);
-  const b=document.getElementById(page+'-addon-base'); if(b) b.textContent=fmtUSD(base);
+  const t=document.getElementById(page+'-addon-total'); if(t) t.textContent=fmtMoney(page,total);
+  const b=document.getElementById(page+'-addon-base'); if(b) b.textContent=fmtMoney(page,base);
 }
 function buildAddonConfig(page){
   const cfg=ADDON_CONFIG[page]; if(!cfg) return;
@@ -4557,24 +4565,24 @@ function buildAddonConfig(page){
   if(cfg.variants){
     variantBlock=`<div class="ac-sizetitle">Choose structure</div><div class="ac-sizes ac-variants">`+cfg.variants.map(v=>{
       const from=v.sizes?Math.min(...v.sizes.map(z=>z.base)):(v.base||0);
-      return `<label class="ac-size${v.k===variantState[page]?' on':''}"><input type="radio" name="${page}-variant" data-var="${v.k}"${v.k===variantState[page]?' checked':''}><span class="ac-sname">${v.name}</span><span class="ac-sprice">from ${fmtUSD(from)}</span></label>`;
+      return `<label class="ac-size${v.k===variantState[page]?' on':''}"><input type="radio" name="${page}-variant" data-var="${v.k}"${v.k===variantState[page]?' checked':''}><span class="ac-sname">${v.name}</span><span class="ac-sprice">from ${fmtMoney(page,from)}</span></label>`;
     }).join('')+`</div>`;
   }
   let sizeBlock='';
   if(s.sizes && s.sizes.length>1){
-    sizeBlock=`<div class="ac-sizetitle">Choose your dome size</div><div class="ac-sizes">`+s.sizes.map(z=>
-      `<label class="ac-size${z.k===sizeState[page]?' on':''}"><input type="radio" name="${page}-size" data-sz="${z.k}"${z.k===sizeState[page]?' checked':''}><span class="ac-sname">${z.name}</span><span class="ac-sprice">${fmtUSD(z.base)}</span></label>`).join('')+`</div>`;
+    sizeBlock=`<div class="ac-sizetitle">${cfg.sizeLabel||'Choose your size'}</div><div class="ac-sizes">`+s.sizes.map(z=>
+      `<label class="ac-size${z.k===sizeState[page]?' on':''}"><input type="radio" name="${page}-size" data-sz="${z.k}"${z.k===sizeState[page]?' checked':''}><span class="ac-sname">${z.name}</span><span class="ac-sprice">${fmtMoney(page,z.base)}</span></label>`).join('')+`</div>`;
   }
   const baseLabel = s.sizes ? `Base set price <span class="ac-basenote">(selected)</span>` : 'Base unit price';
-  let rows=`<div class="ac-line ac-base"><span>${baseLabel}</span><b id="${page}-addon-base">${fmtUSD(addonBase(page))}</b></div>`;
+  let rows=`<div class="ac-line ac-base"><span>${baseLabel}</span><b id="${page}-addon-base">${fmtMoney(page,addonBase(page))}</b></div>`;
   (s.addons||[]).forEach(a=>{
     if(a.disabled){
-      rows+=`<label class="ac-line ac-disabled" title="Not currently available"><span class="ac-check"><input type="checkbox" data-k="${a.k}" disabled><span class="ac-name">${a.name} <span class="ac-unavail">&mdash; unavailable</span></span></span><span class="ac-add">+${fmtUSD(addonPrice(page,a))}</span></label>`;
+      rows+=`<label class="ac-line ac-disabled" title="Not currently available"><span class="ac-check"><input type="checkbox" data-k="${a.k}" disabled><span class="ac-name">${a.name} <span class="ac-unavail">&mdash; unavailable</span></span></span><span class="ac-add">+${fmtMoney(page,addonPrice(page,a))}</span></label>`;
     } else {
-      rows+=`<label class="ac-line"><span class="ac-check"><input type="checkbox" data-k="${a.k}"><span class="ac-name">${a.name}</span></span><span class="ac-add">+${fmtUSD(addonPrice(page,a))}</span></label>`;
+      rows+=`<label class="ac-line"><span class="ac-check"><input type="checkbox" data-k="${a.k}"><span class="ac-name">${a.name}</span></span><span class="ac-add">+${fmtMoney(page,addonPrice(page,a))}</span></label>`;
     }
   });
-  rows+=`<div class="ac-line ac-total"><span class="ac-tlabel">Your configured total</span><span class="ac-tval" id="${page}-addon-total">${fmtUSD(addonBase(page))}</span></div>`;
+  rows+=`<div class="ac-line ac-total"><span class="ac-tlabel">Your configured total</span><span class="ac-tval" id="${page}-addon-total">${fmtMoney(page,addonBase(page))}</span></div>`;
   el.innerHTML=`<div class="ac-head">Configure your price <span class="ac-note">${s.sizes?'Pick a size — add-ons are extra':'Add-ons are not in the base price'}</span></div>${variantBlock}${sizeBlock}<div class="ac-body">${rows}</div>`;
   el.querySelectorAll('input[data-var]').forEach(r=>{
     r.onchange=()=>{ if(r.checked){ variantState[page]=r.dataset.var; addonState[page]=new Set(); sizeState[page]=null; buildAddonConfig(page); } };
