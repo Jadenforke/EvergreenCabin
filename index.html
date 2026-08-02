@@ -3470,7 +3470,10 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <h2>First floor + mezzanine, room by room</h2>
     <p class="intro">Manufacturer dimensioned drawings for the standard 2-bedroom layout &mdash; one bedroom on the first floor, the second in the half mezzanine above, with an open cathedral ceiling over the living area. Room sizes below are interior, from the drawings.</p>
     <div class="planbox">
-      <div class="img plan-sticky"><img src="/img/batiscan/plan-first.webp" alt="Batiscan first floor plan" onclick="openLightbox(['/img/batiscan/plan-first.webp','/img/batiscan/plan-mezzanine.webp'],0)"></div>
+      <div>
+        <div class="gal-main" id="bt-fp-gal-main"></div>
+        <div class="gal-thumbs" id="bt-fp-gal-thumbs"></div>
+      </div>
       <div class="plan-info">
         <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">First floor &mdash; room dimensions</span><span class="rail"></span><span class="tick"></span></div>
         <div class="dimstats">
@@ -3481,10 +3484,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
           <div class="dimstat"><div class="v">7&prime;9&Prime; &times; 3&prime;7&Prime;</div><div class="k">Mechanical room</div></div>
           <div class="dimstat"><div class="v">3&prime;4&Prime; &times; 6&prime;0&Prime;</div><div class="k">Entry</div></div>
         </div>
-        <div style="margin-top:28px">
-          <div class="img" style="margin-bottom:14px"><img src="/img/batiscan/plan-mezzanine.webp" alt="Batiscan mezzanine floor plan" onclick="openLightbox(['/img/batiscan/plan-first.webp','/img/batiscan/plan-mezzanine.webp'],1)" style="width:100%;border:1px solid var(--line);border-radius:10px;cursor:zoom-in"></div>
-        </div>
-        <div class="dimline"><span class="tick"></span><span class="rail"></span><span class="lbl">Mezzanine</span><span class="rail"></span><span class="tick"></span></div>
+        <div class="dimline" style="margin-top:20px"><span class="tick"></span><span class="rail"></span><span class="lbl">Mezzanine</span><span class="rail"></span><span class="tick"></span></div>
         <div class="dimstats">
           <div class="dimstat"><div class="v">11&prime;10&Prime; &times; 9&prime;4&Prime;</div><div class="k">Bedroom (mezzanine)</div></div>
           <div class="dimstat"><div class="v">Open</div><div class="k">Cathedral ceiling over 1st floor</div></div>
@@ -4245,8 +4245,10 @@ const IG_GALLERY = ['/img/igloo/interior.webp','/img/igloo/hero.webp','/img/iglo
 const IG_VIDEOS = [{src:'/img/igloo/walkthrough.webm',poster:'/img/igloo/hero.webp'}];
 const IG_MEDIA = [...IG_GALLERY.map(src=>({type:'img',src})), ...IG_VIDEOS.map(v=>({type:'video',src:v.src,poster:v.poster}))];
 const BT_HERO = '/img/batiscan/hero.webp';
-const BT_GALLERY = ['/img/batiscan/hero.webp','/img/batiscan/bedroom.webp','/img/batiscan/plan-first.webp','/img/batiscan/plan-mezzanine.webp'];
+const BT_GALLERY = ['/img/batiscan/hero.webp','/img/batiscan/bath.webp','/img/batiscan/bedroom.webp'];
 const BT_MEDIA = BT_GALLERY.map(src=>({type:'img',src}));
+const BT_FP_GALLERY = ['/img/batiscan/plan-first.webp','/img/batiscan/plan-mezzanine.webp'];
+const BT_FP_MEDIA = BT_FP_GALLERY.map(src=>({type:'img',src}));
 
 const PRODUCTS = [
   { id:'glassdome', live:true, archived:true, type:'dome', mfr:'meihua',
@@ -4391,6 +4393,7 @@ function buildHjGallery(){ buildMediaGallery(document.getElementById('hj-gal-mai
 function buildArGallery(){ buildMediaGallery(document.getElementById('ar-gal-main'), document.getElementById('ar-gal-thumbs'), AR_MEDIA); }
 function buildIgGallery(){ buildMediaGallery(document.getElementById('ig-gal-main'), document.getElementById('ig-gal-thumbs'), IG_MEDIA); }
 function buildBtGallery(){ buildMediaGallery(document.getElementById('bt-gal-main'), document.getElementById('bt-gal-thumbs'), BT_MEDIA); }
+function buildBtFpGallery(){ buildMediaGallery(document.getElementById('bt-fp-gal-main'), document.getElementById('bt-fp-gal-thumbs'), BT_FP_MEDIA); }
 function buildCapsuleGallery(){ buildMediaGallery(document.getElementById('cap-gal-main'), document.getElementById('cap-gal-thumbs'), CAPSULE_MEDIA); }
 
 // ─── LIGHTBOX ─────────────────────────────────────────────────────────────────
@@ -4669,6 +4672,7 @@ function route(){
   } else if(page==='batiscan'){
     document.querySelectorAll('#bt-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('bt-'+sub)));
     buildBtGallery();
+    buildBtFpGallery();
     if(sub){const el=document.getElementById('sub-bt-'+sub);if(el) setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-118;window.scrollTo({top:y,behavior:'smooth'});},80);}
     else setTimeout(()=>window.scrollTo({top:0,behavior:'instant'}),50);
   } else if(page==='huijue'){
