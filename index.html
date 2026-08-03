@@ -617,7 +617,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <p style="max-width:70ch">Everything you need to make the final call in one place &mdash; cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
-      <span class="ship-tag"><b>11</b> active listings &middot; 5 archived</span>
+      <span class="ship-tag"><b>11</b> active listings &middot; 4 archived</span>
       <span class="ship-tag"><b>9</b> structures &middot; <b>2</b> power kits</span>
       <span class="ship-tag">Origin <b>China + Canada</b> &middot; dest. <b>Ontario (HST)</b></span>
       <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
@@ -646,7 +646,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <h2 style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
     <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget &mdash; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
 
-    <h3 class="sum-h">Cabins &amp; structures <span class="cnt">8 listings</span></h3>
+    <h3 class="sum-h">Cabins &amp; structures <span class="cnt">9 listings</span></h3>
     <p class="sum-sub">Cost per square foot, the <strong>cabin subtotal</strong> (the unit alone, before shipping &amp; other costs), the 25% surtax that applies <em>only</em> if a unit is classified as steel/aluminium parts (7308/7610) rather than a complete building (9406), and an <strong>estimated all-in</strong> per unit. <strong>Tap any all-in figure to expand the math.</strong></p>
     <div id="summary-cabins-table"></div>
 
@@ -808,7 +808,7 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <!-- STRUCTURES -->
   <div class="subsec" id="sub-ship-structures"><div class="wrap">
     <div class="eyebrow">Track A &middot; prefab structures</div>
-    <h2 style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 8 buildings add</h2>
+    <h2 style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">What the 9 buildings add</h2>
     <p class="intro" style="max-width:66ch">These are steel, aluminium and glass &mdash; the exact materials Canada now surtaxes from China. The tariff classification of your kit is a five-figure decision.</p>
     <div class="comp-grid" style="margin-top:22px">
       <div class="comp tbdc">
@@ -921,7 +921,6 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     <div class="pd-hero-panel">
       <div class="php-header">
         <div class="php-badges">
-          <span class="badge arch">Archived &mdash; not under consideration</span>
           <span class="badge ok">Quoted &middot; Jul 10, 2026</span>
           <span class="badge tbdb">CSA in progress</span>
           <span class="badge ok">EXW Guangzhou</span>
@@ -4264,7 +4263,7 @@ const BT_FP_GALLERY = ['/img/batiscan/plan-first.webp','/img/batiscan/plan-mezza
 const BT_FP_MEDIA = BT_FP_GALLERY.map(src=>({type:'img',src}));
 
 const PRODUCTS = [
-  { id:'glassdome', live:true, archived:true, type:'dome', mfr:'meihua',
+  { id:'glassdome', live:true, type:'dome', mfr:'meihua',
     img: GLASS_HERO,
     name:'Standing Glass Dome', mfrName:'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd',
     desc:'6m aluminium-alloy geodesic glass dome elevated on legs. Turnkey unit — insulated glazing, interior insulation, integrated bathroom, kitchen, loft, and staircase all included in one price.',
@@ -4774,7 +4773,7 @@ const SHIPPING = {
   huijue:   {name:'HuiJue Off-Grid Kit',      incoterm:'DDP',           status:'quoted', cost:'$2,300', note:'door-to-door all-in (freight + customs + taxes + delivery) &middot; or CIF Toronto $885 (self-clear) &middot; ISPM 15 certified'},
   allrun:   {name:'ARXT10KW Solar System',    incoterm:'FOB Qingdao/Shanghai', status:'tbd', note:'request a DDP door-to-door quote'}
 };
-const SHIP_ORDER=['batiscan','chunshu','steel','capsule','t9','branson','aframe','igloo','huijue','allrun'];
+const SHIP_ORDER=['batiscan','chunshu','steel','capsule','t9','branson','aframe','igloo','glass','huijue','allrun'];
 const SHIP_SVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M2 6.5h11v8.5H2zM13 9.5h4l3 3v2.5h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/><circle cx="16.5" cy="17.5" r="1.5" stroke="currentColor" stroke-width="1.7"/></svg>';
 function formatShipping(s){
   if(!s) return 'Freight &amp; duty to Canada: <span class="tbd">TBD</span>';
@@ -4856,7 +4855,7 @@ const SUMMARY = {
   allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
     certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA (confirmed no)',s:'warn'}]}
 };
-const SUM_CABINS=['batiscan','branson','aframe','chunshu','igloo','steel','capsule','t9'];
+const SUM_CABINS=['batiscan','branson','aframe','chunshu','igloo','glass','steel','capsule','t9'];
 const SUM_ENERGY=['huijue','allrun'];
 // ─── PRICE / COST ESTIMATES (planning figures for the summary totals) ──────────
 // fob = quoted FOB/EXW unit price (USD, from the spec sheet); surtaxAmt = 25% of
