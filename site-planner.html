@@ -878,6 +878,9 @@ const CAT=[
   {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
   {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'twostorey',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
+  {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015},
+  {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015},
+  {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015},
   {id:'one',n:'ONE Living Capsule',mfr:'Hebei Qianyan',kind:'glassbox',archived:true,w:7.7,d:7.8,h:3.4,area:'60 m²',sleeps:2,usd:35463,freight:5600},
   {id:'twofloor',n:'Two Floor Capsule',mfr:'Hunan Pawa',kind:'stack',archived:true,w:3,d:9,h:6.2,area:'45 m² over 2 floors',sleeps:2,usd:31579,freight:6800},
  ]},
@@ -1135,6 +1138,26 @@ function buildMesh(d){
     const b=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,16,1,true),body(0xd8d9da));b.rotation.x=Math.PI/2;b.position.y=r+.5;b.castShadow=true;g.add(b);
     [-1,1].forEach(s=>{const c=new THREE.Mesh(new THREE.SphereGeometry(r,16,10),body(0xd8d9da));c.position.set(0,r+.5,s*len/2);c.castShadow=true;g.add(c);});
     const w=new THREE.Mesh(new THREE.PlaneGeometry(d.d*.55,r*1.1),glass());w.position.set(r+.02,r+.6,0);w.rotation.y=Math.PI/2;g.add(w);
+  }else if(k==='igloo'){
+    const R=d.w/2;
+    const sh=new THREE.Mesh(new THREE.SphereGeometry(R,20,12,0,Math.PI*2,0,Math.PI/2),
+      new THREE.MeshStandardMaterial({color:0xbcd6df,roughness:.14,metalness:.32,
+        transparent:true,opacity:.62,side:THREE.DoubleSide}));
+    sh.scale.y=d.h/R*0.92; sh.castShadow=true; g.add(sh);
+    for(let i=0;i<8;i++){                       // aluminium ribs
+      const a=i/8*Math.PI*2;
+      const rib=new THREE.Mesh(new THREE.TorusGeometry(R,0.045,4,18,Math.PI),
+        body(0xd3d6d8));
+      rib.rotation.y=a; rib.scale.y=d.h/R*0.92; g.add(rib);
+    }
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(R,0.07,5,26),body(0xb9bdc0));
+    ring.rotation.x=Math.PI/2; ring.position.y=0.05; g.add(ring);
+    const flr=new THREE.Mesh(new THREE.CylinderGeometry(R*0.99,R*0.99,0.16,20),body(0x6d5a45));
+    flr.position.y=0.08; flr.receiveShadow=true; g.add(flr);
+    const core=new THREE.Mesh(new THREE.SphereGeometry(R*0.5,10,8),glass());
+    core.position.y=d.h*0.42; g.add(core);
+    const dr=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(1.1,R*0.5),Math.min(2,d.h*0.6)),glass());
+    dr.position.set(0,Math.min(1,d.h*0.3),R*0.97); g.add(dr);
   }else if(k==='dome'){
     const dm=new THREE.Mesh(new THREE.IcosahedronGeometry(d.w/2,1),new THREE.MeshStandardMaterial({color:0xbfd6dd,roughness:.28,metalness:.25,transparent:true,opacity:.72,flatShading:true}));
     dm.position.y=3+d.w/2*.8;dm.scale.y=.85;dm.castShadow=true;g.add(dm);
@@ -1196,7 +1219,7 @@ function buildMesh(d){
   return g;
 }
 /* everything with a lit interior — cabins, domes, lodge, sauna, pavilion */
-const HABITABLE={gable:1,twostorey:1,flatroof:1,glassbox:1,capsule:1,dome:1,stack:1,barrel:1,pavilion:1};
+const HABITABLE={gable:1,twostorey:1,flatroof:1,glassbox:1,capsule:1,dome:1,igloo:1,stack:1,barrel:1,pavilion:1};
 
 /* ---------------- validation ---------------- */
 function inFootprint(o,x,z,pad){
@@ -2148,6 +2171,11 @@ function serialize(withUnder){
     under:withUnder?SITE.underUrl:null,
     fin:JSON.parse(JSON.stringify(FIN)),rates:JSON.parse(JSON.stringify(RATES)),
     rules:JSON.parse(JSON.stringify(RULES)),custom:JSON.parse(JSON.stringify(CUSTOM)),
+    /* every figure the Prices panel can edit, so a plan carries its own
+       pricing instead of silently falling back to the built-in numbers */
+    prices:(()=>{const o={};CAT.forEach(g=>g.items.forEach(i=>{
+      if(i.usd!=null)o[i.id]={usd:i.usd,freight:i.freight||0};
+      else if(i.cad!=null)o[i.id]={cad:i.cad};}));return o;})(),
     items:placed.map(p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
       :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost}
       :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
@@ -2160,6 +2188,13 @@ function applyState(d,keepUnder){
     [...placed].forEach(removeObj);extras.length=0;
     Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
     Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
+    if(d.prices)for(const id in d.prices){                 // restore edited unit prices
+      const def=DEF[id]; if(!def)continue;
+      const v=d.prices[id];
+      if(v.usd!=null)def.usd=v.usd;
+      if(v.freight!=null)def.freight=v.freight;
+      if(v.cad!=null)def.cad=v.cad;
+    }
     lenSet('lDepth',LAND.depth);lenSet('lBank',LAND.bank);lenSet('lBeach',LAND.beach);
     lenSet('lRelief',LAND.relief);$('lSlope').value=(LAND.slope*100).toFixed(1);lenSet('lCont',LAND.cont);
     $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
@@ -2195,7 +2230,7 @@ function applyState(d,keepUnder){
     });
     (d.extras||[]).forEach(c=>extras.push(c));
     treeStats=d.treeStats||{moved:0,felled:0};
-    styleMode=d.style||'survey';applyStyle();buildOverlays();refresh();
+    styleMode=d.style||'survey';applyStyle();buildOverlays();buildPalette();buildPricing();refresh();
   } finally { restoring=false; }
 }
 $('btnSave').onclick=()=>{
