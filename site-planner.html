@@ -940,25 +940,25 @@ function syncTrees(){
 /* ---------------- catalogue ---------------- */
 const CAT=[
  {g:'Quoted cabins & structures',items:[
-  {id:'glassdome',n:'Standing Glass Dome',mfr:'Meihua (Guangzhou)',kind:'dome',w:6,d:6,h:6.5,area:'6.0 m ⌀ · 43 m² insulated',sleeps:2,usd:16800,freight:4200,csa:3000,
+  {id:'glassdome',n:'Standing Glass Dome',mfr:'Meihua (Guangzhou)',kind:'dome',w:6,d:6,h:6.5,area:'6.0 m ⌀ · 43 m² insulated',sleeps:2,usd:16800,freight:4200,csa:3000,join:true,
    note:'EXW Guangzhou. CSA approval $3,000 one-time per model.'},
-  {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200},
+  {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200,join:true},
   {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
   {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'twostorey',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
-  {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015},
-  {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015},
-  {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015},
+  {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true},
+  {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015,join:true},
+  {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015,join:true},
   {id:'one',n:'ONE Living Capsule',mfr:'Hebei Qianyan',kind:'glassbox',archived:true,w:7.7,d:7.8,h:3.4,area:'60 m²',sleeps:2,usd:35463,freight:5600},
   {id:'twofloor',n:'Two Floor Capsule',mfr:'Hunan Pawa',kind:'stack',archived:true,w:3,d:9,h:6.2,area:'45 m² over 2 floors',sleeps:2,usd:31579,freight:6800},
  ]},
  {g:'Local build & site works',items:[
   {id:'lodge',n:'Main lodge',kind:'gable',w:16,d:22,h:6.5,cad:720000,local:true},
   {id:'washhs',n:'Washhouse',kind:'gable',w:6,d:9,h:3.2,cad:118000,local:true},
-  {id:'pavil',n:'Open pavilion',kind:'pavilion',w:9,d:9,h:4,cad:64000,local:true},
-  {id:'cabin9',n:'Square cabin',kind:'gable',w:9,d:9,h:4,area:'81 m² · same footprint as the pavilion',sleeps:4,cad:175000,local:true},
-  {id:'sauna',n:'Barrel sauna',kind:'barrel',w:2.4,d:4.5,h:2.4,cad:26000,local:true},
-  {id:'shed',n:'Utility shed',kind:'gable',w:4,d:6,h:3,cad:22000,local:true},
+  {id:'pavil',n:'Open pavilion',kind:'pavilion',w:9,d:9,h:4,cad:64000,local:true,join:true},
+  {id:'cabin9',n:'Square cabin',kind:'gable',w:9,d:9,h:4,area:'81 m² · same footprint as the pavilion',sleeps:4,cad:175000,local:true,join:true},
+  {id:'sauna',n:'Barrel sauna',kind:'barrel',w:2.4,d:4.5,h:2.4,cad:26000,local:true,join:true},
+  {id:'shed',n:'Utility shed',kind:'gable',w:4,d:6,h:3,cad:22000,local:true,join:true},
   {id:'boatho',n:'Boathouse',kind:'gable',w:7,d:9,h:4,cad:142000,local:true,shore:true},
   {id:'dock',n:'Floating dock',kind:'dock',w:3,d:14,h:.5,cad:19000,local:true,water:true},
   {id:'firepit',n:'Fire pit',kind:'firepit',w:3,d:3,h:.5,cad:4200,local:true},
@@ -1324,6 +1324,26 @@ function corners(def,x,z,rot){
 const isStructure=d=>d.w&&d.kind!=='pad'&&d.kind!=='road'&&d.kind!=='dock';
 const footprintArea=()=>placed.reduce((a,p)=>a+(p.type==='custom'?p.area:(p.type==='obj'&&isStructure(p.def)?p.def.w*p.def.d:0)),0);
 
+/* The general proximity test uses each footprint's circumscribed radius,
+   which is deliberately conservative — fine for keeping cabins apart, but it
+   would report two square cabins sitting flush as overlapping. Joinable units
+   get an exact separating-axis test instead, so they can share a wall. */
+function obbHit(a,b){
+  const cor=o=>{const c=Math.cos(o.rot),s=Math.sin(o.rot),out=[];
+    [[-o.hw,-o.hd],[o.hw,-o.hd],[o.hw,o.hd],[-o.hw,o.hd]].forEach(q=>
+      out.push([o.cx+q[0]*c-q[1]*s, o.cz+q[0]*s+q[1]*c]));
+    return out;};
+  const ca=cor(a), cb=cor(b), ax=[];
+  [a,b].forEach(o=>{const c=Math.cos(o.rot),s=Math.sin(o.rot);ax.push([c,s],[-s,c]);});
+  for(const v of ax){
+    let a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
+    ca.forEach(q=>{const d=q[0]*v[0]+q[1]*v[1];if(d<a0)a0=d;if(d>a1)a1=d;});
+    cb.forEach(q=>{const d=q[0]*v[0]+q[1]*v[1];if(d<b0)b0=d;if(d>b1)b1=d;});
+    if(a1<=b0+1e-4||b1<=a0+1e-4)return false;      // touching counts as clear
+  }
+  return true;
+}
+const box=(d,x,z,r)=>({cx:x,cz:z,hw:d.w/2,hd:d.d/2,rot:r||0});
 function validate(def,x,z,rot,ignore){
   const iss=[],hard=m=>iss.push({m,soft:false}),soft=m=>iss.push({m,soft:true});
   if(def.kind==='road'||def.kind==='plant'||def.kind==='treelight')return iss;
@@ -1345,6 +1365,10 @@ function validate(def,x,z,rot,ignore){
   const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
   const r1=Math.hypot(def.w,def.d)/2, meCabin=!!def.sleeps;
   for(const p of others){
+    if(def.join&&p.def.join){                       // may be built shoulder to shoulder
+      if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
+      continue;
+    }
     const gap=Math.hypot(p.x-x,p.z-z)-r1-Math.hypot(p.def.w,p.def.d)/2;
     if(gap<0){hard(`Overlaps ${p.def.n}`);break;}
     if(meCabin&&p.def.sleeps&&gap<RULES.sep){
@@ -1815,10 +1839,13 @@ renderer.domElement.addEventListener('wheel',e=>{
 let dockSnap=null;
 function snapDock(d,x,z,rot){
   dockSnap=null;
-  if(!d||d.kind!=='dock')return {x,z,rot};
+  if(!d)return {x,z,rot};
+  const wantDock=d.kind==='dock', wantJoin=!!d.join;
+  if(!wantDock&&!wantJoin)return {x,z,rot};
   let best=null;
   placed.forEach(o=>{
-    if(o.type!=='obj'||o.def.kind!=='dock')return;
+    if(o.type!=='obj')return;
+    if(wantDock?o.def.kind!=='dock':!o.def.join)return;
     const c=Math.cos(o.rot),si=Math.sin(o.rot);
     const cand=[
       {x:o.x+(-si)*0,           z:o.z+0,           lx:0, lz:(o.def.d/2+d.d/2)},   // end to end
@@ -1828,7 +1855,8 @@ function snapDock(d,x,z,rot){
     cand.forEach(k=>{
       const px=o.x+k.lx*c-k.lz*si, pz=o.z+k.lx*si+k.lz*c;
       const dd=Math.hypot(x-px,z-pz);
-      if(dd<14&&(!best||dd<best.d))best={d:dd,x:px,z:pz,rot:o.rot};
+      const reach=wantDock?14:Math.max(5,(o.def.w+o.def.d+d.w+d.d)/6);
+      if(dd<reach&&(!best||dd<best.d))best={d:dd,x:px,z:pz,rot:o.rot};
     });
   });
   if(best){ dockSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
@@ -1854,7 +1882,7 @@ function updateGhost(e){
     }
     if(!ghost)return;
     const y=terrainH(x,z);
-    if(d.kind==='dock'){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
+    if(d.kind==='dock'||d.join){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
     else ghost.position.set(x,d.water?0:padY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
@@ -1928,8 +1956,8 @@ renderer.domElement.addEventListener('click',e=>{
       return;
     }
     let px=x,pz=z,prot=ghostRot;
-    if(d.kind==='dock'){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
-      if(dockSnap)toast('Snapped to the neighbouring dock'); }
+    if(d.kind==='dock'||d.join){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+      if(dockSnap)toast(d.kind==='dock'?'Snapped to the neighbouring dock':'Joined to the neighbouring unit'); }
     const bad=validate(d,px,pz,prot).filter(i=>!i.soft);
     if(bad.length){toast('Blocked — '+bad[0].m);return;}
     place(d,px,pz,prot);return;
