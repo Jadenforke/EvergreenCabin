@@ -124,6 +124,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnSettings">Prices</button>
   <button class="tbtn" id="btnScale">Set scale</button>
   <button class="tbtn" id="btnOverlay">Overlays</button>
+  <button class="tbtn" id="btnUnits">Units: m</button>
   <button class="tbtn" id="btnUndo">Undo</button>
   <button class="tbtn" id="btnShot">Snapshot</button>
   <button class="tbtn" id="btnSave">Export</button>
@@ -249,6 +250,27 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
    ========================================================================= */
 const $=id=>document.getElementById(id), FT=0.3048;
 
+/* ---- units -------------------------------------------------------------
+   Everything is stored in metres. UNITS only changes what is shown and what
+   the number inputs are read/written in, so switching never alters the plan. */
+let UNITS='m';
+const uLen   = m => UNITS==='m' ? m : m/FT;                 // metres -> display
+const uLenIn = v => UNITS==='m' ? v : v*FT;                 // display -> metres
+const uArea  = m2=> UNITS==='m' ? m2 : m2/(FT*FT);
+const LBL    = ()=> UNITS==='m' ? 'm'  : 'ft';
+const ALBL   = ()=> UNITS==='m' ? 'm\u00b2' : 'ft\u00b2';
+function dimOf(d){ return UNITS==='m' ? `${d.w} × ${d.d} m` : `${(d.w/FT).toFixed(0)}′ × ${(d.d/FT).toFixed(0)}′`; }
+function fmtLen(m,dp){ dp=dp===undefined?1:dp; return uLen(m).toFixed(dp)+' '+LBL(); }
+function fmtArea(m2){ return Math.round(uArea(m2)).toLocaleString()+' '+ALBL(); }
+function fmtBigArea(m2){
+  return UNITS==='m' ? (m2/1e4).toFixed(2)+' ha' : (m2/4046.8564).toFixed(2)+' ac';
+}
+function fmtFtIn(m){                                        // 12\u2032 6\u2033 for the pen tool
+  const f=m/FT, w=Math.floor(f), i=Math.round((f-w)*12);
+  return i===12?`${w+1}\u2032 0\u2033`:`${w}\u2032 ${i}\u2033`;
+}
+const fmtSpan = m => UNITS==='m' ? m.toFixed(1)+' m' : fmtFtIn(m);
+
 /* ---------------- land parameters ---------------- */
 const LAND={ex:640,ez:560,res:2.5,depth:4.5,bank:1.6,beach:9,relief:2.6,slope:0.018,cont:1,seed:7};
 let NX,NZ,X0,Z0,R,H=null;
@@ -334,6 +356,8 @@ function fbm(x,y,s){ let t=0,a=.5,f=1; for(let i=0;i<4;i++){t+=a*vnoise(x*f,y*f,
 const scene=new THREE.Scene();
 const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;      // was linear — that is what made it look flat
+renderer.physicallyCorrectLights=false;
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 $('stage').appendChild(renderer.domElement);
 
@@ -664,11 +688,13 @@ const baseYFor=pts=>Math.min(...pts.map(q=>terrainH(q[0],q[1])));
 function readInputs(){
   FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;FIN.peng=+$('fPeng').value;FIN.esa=+$('fEsa').value;
   FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;FIN.cont=+$('fCont').value;
-  ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>RATES[k]=+$(k).value);
-  RULES.edge=+$('rEdge').value;RULES.cov=+$('rCov').value;
+  ['cRoadG','cRoadP','cPath'].forEach(k=>RATES[k]=rateVal(k));   // stored per metre
+  RATES.treeCore=+$('treeCore').value;
+  RATES.wRoad=lenVal('wRoad');RATES.wClear=lenVal('wClear');
+  RULES.edge=lenVal('rEdge');RULES.cov=+$('rCov').value;
   RULES.sepFt=+$('rSep').value;RULES.sep=RULES.sepFt*FT;RULES.max=+$('rMax').value;
-  const sm=$('sepM'); if(sm)sm.textContent='= '+RULES.sep.toFixed(2)+' m';
-  if($('cusRate')){CUSTOM.rate=+$('cusRate').value;CUSTOM.h=+$('cusH').value;CUSTOM.storeys=+$('cusSt').value;}
+  const sm=$('sepM'); if(sm)sm.textContent='= '+RULES.sep.toFixed(2)+' m ('+(RULES.sepFt).toFixed(0)+' ft)';
+  if($('cusRate')){CUSTOM.rate=UNITS==='m'?+$('cusRate').value:+$('cusRate').value/(FT*FT);CUSTOM.h=lenVal('cusH');CUSTOM.storeys=+$('cusSt').value;}
 }
 function unitCost(d){
   if(d.local)return d.cad||0;
@@ -688,20 +714,36 @@ function styleObject(root){
       const c=new THREE.Color(b.c); c.getHSL(hsl);
       c.setHSL(hsl.h,hsl.s*0.5,Math.min(0.84,hsl.l*0.88+0.13)); c.lerp(MUTE,0.16);
       m.color.copy(c); m.roughness=Math.min(1,(b.r==null?.8:b.r)*.8+.24); m.metalness=(b.mt||0)*.3;
-    }else{ m.color.setHex(b.c); if(b.r!=null)m.roughness=b.r; if(b.mt!=null)m.metalness=b.mt; }
+    }else if(styleMode==='real'){
+      const c=new THREE.Color(b.c); c.getHSL(hsl);
+      c.setHSL(hsl.h,Math.min(1,hsl.s*1.35),Math.max(0.03,hsl.l*0.9));   // richer, more contrast
+      m.color.copy(c);
+      m.roughness=Math.min(1,(b.r==null?.8:b.r)*0.88);
+      m.metalness=(b.mt||0);
+      m.flatShading=false;
+    }else{ m.color.setHex(b.c); if(b.r!=null)m.roughness=b.r; if(b.mt!=null)m.metalness=b.mt; m.flatShading=false; }
     m.needsUpdate=true;
   });
 }
+const STYLES=['survey','diorama','real'];
+const STYLE_NAME={survey:'Survey',diorama:'Diorama',real:'Realistic'};
 function applyStyle(){
-  const dio=styleMode==='diorama';
+  const dio=styleMode==='diorama', real=styleMode==='real';
   styleObject(objGroup);
   if(plinth)plinth.visible=dio;
-  if(terrainMat){ terrainMat.roughness=dio?1:.97; terrainMat.flatShading=!dio?true:true; terrainMat.needsUpdate=true; }
-  if(contours)contours.material.opacity=dio?.22:.5;
-  renderer.toneMapping=dio?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
-  renderer.toneMappingExposure=dio?1.18:1;
-  sun.shadow.radius=dio?5:1;
-  const b=$('btnStyle'); if(b){b.textContent='Style: '+(dio?'Diorama':'Survey');b.classList.toggle('on',dio);}
+  if(terrainMat){
+    terrainMat.roughness=dio?1:real?0.92:0.97;
+    terrainMat.flatShading=!real;                 // smooth ground reads far more like real land
+    terrainMat.needsUpdate=true;
+  }
+  if(contours)contours.material.opacity=dio?.22:real?.12:.5;
+  renderer.toneMapping=(dio||real)?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
+  renderer.toneMappingExposure=dio?1.18:real?1.0:1;
+  renderer.shadowMap.type=real?THREE.PCFSoftShadowMap:THREE.PCFSoftShadowMap;
+  sun.shadow.radius=dio?5:real?2.5:1;
+  sun.shadow.bias=real?-0.0006:-0.0004;
+  scene.fog=real?new THREE.Fog(0x9fb3bd,900,2600):null;   // gentle depth on the far shore only
+  const b=$('btnStyle'); if(b){b.textContent='Style: '+STYLE_NAME[styleMode];b.classList.toggle('on',styleMode!=='survey');}
   updateSun();
 }
 
@@ -1252,7 +1294,7 @@ function placeCustom(pts){
   pushTrees(o);
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees(); refresh();
-  toast(`${Math.round(area*M2SQFT).toLocaleString()} ft² footprint · ${Math.max(1,CUSTOM.storeys)} storey · ${(h*M2FT).toFixed(0)}′ tall · ${money(o.cost)}`);
+  toast(`${fmtArea(area)} footprint · ${Math.max(1,CUSTOM.storeys)} storey · ${fmtLen(h,1)} tall · ${money(o.cost)}`);
 }
 const extras=[];
 function extra(label,amt){const e=extras.find(c=>c.label===label);if(e)e.amt+=amt;else extras.push({label,amt});}
@@ -1262,11 +1304,11 @@ function select(o){
   if(selBox){scene.remove(selBox);selBox=null;}
   if(o&&o.type==='obj'&&o.def.w){selBox=new THREE.Box3Helper(new THREE.Box3().setFromObject(o.mesh),0xff7a2f);scene.add(selBox);}
   if(!o)return;
-  if(o.type==='road')hint(`${o.def.n} · ${o.len.toFixed(1)} m × ${o.width} m · ${money(o.len*RATES[o.def.rate])} — Delete removes`);
-  else if(o.type==='custom')hint(`Custom building · ${Math.round(o.area*M2SQFT).toLocaleString()} ft² (${o.area.toFixed(0)} m²) × ${CUSTOM.storeys} storey · ${(o.h*M2FT).toFixed(0)}′ / ${o.h.toFixed(1)} m tall · ${money(o.cost)} — Delete removes`);
+  if(o.type==='road')hint(`${o.def.n} · ${fmtLen(o.len,1)} × ${fmtLen(o.width,1)} · ${money(o.len*RATES[o.def.rate])} — Delete removes`);
+  else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${money(o.cost)} — Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
-    hint(`${o.def.n}${o.def.w?` · ${o.def.w} × ${o.def.d} m`:''} · ${ds>0?ds.toFixed(0)+' m from water':'over water'} · ${el.toFixed(1)} m elev · ${money(unitCost(o.def))} — R rotates, Delete removes`);
+    hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} — R rotates, Delete removes`);
   }
 }
 
@@ -1312,7 +1354,7 @@ renderer.domElement.addEventListener('pointermove',e=>{
       dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.4,p.z);
       buildOverlays();
       const a=polyArea(SITE.boundary);
-      hint(`Lot corner ${dragHandle.userData.i+1} · ${(a/1e4).toFixed(2)} ha · ${Math.round(a*10.7639).toLocaleString()} ft²`,false,true);
+      hint(`Lot corner ${dragHandle.userData.i+1} · ${fmtBigArea(a)} · ${fmtArea(a)}`,false,true);
     }else{
       SITE.shore[dragHandle.userData.i]=[p.x,p.z];
       dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.2,p.z);
@@ -1380,9 +1422,9 @@ function updateGhost(e){
     tint(bad.length);
     if(bad.length)hint('✕ '+bad[0].m,true);
     else if(iss.length)hint('⚠ '+iss[0].m,false,true);
-    else hint(`${d.n}${d.w?` · ${d.w} × ${d.d} m`:''} · ${money(unitCost(d))} · ${y.toFixed(1)} m elev`);
+    else hint(`${d.n}${d.w?` · ${dimOf(d)}`:''} · ${money(unitCost(d))} · ${fmtLen(y,1)} elev`);
   }else if(tool==='measure'&&measurePts.length===1){
-    hint(`${Math.hypot(x-measurePts[0][0],z-measurePts[0][1]).toFixed(2)} m`);
+    hint(fmtSpan(Math.hypot(x-measurePts[0][0],z-measurePts[0][1])));
     drawMeasure([measurePts[0],[x,z]]);
   }
 }
@@ -1463,7 +1505,7 @@ renderer.domElement.addEventListener('click',e=>{
     if(measurePts.length>=2)measurePts=[];
     measurePts.push([x,z]);
     if(measurePts.length===2){drawMeasure(measurePts);
-      hint(`${Math.hypot(measurePts[1][0]-measurePts[0][0],measurePts[1][1]-measurePts[0][1]).toFixed(2)} m — click again to restart`);}
+      hint(`${fmtSpan(Math.hypot(measurePts[1][0]-measurePts[0][0],measurePts[1][1]-measurePts[0][1]))} — click again to restart`);}
     return;
   }
   select(pickObj(e));
@@ -1506,9 +1548,20 @@ function rebuildLand(){
   });
   syncTrees();refresh();
 }
+/* every number input that holds a LENGTH, with its base label text.
+   Stored in metres; shown and typed in whatever UNITS is set to. */
+const LEN_INPUTS=[
+  ['lDepth','Lake depth'],['lBank','Bank height above water'],['lBeach','Beach width'],
+  ['lRelief','Rolling relief'],['lCont','Contour interval'],
+  ['wRoad','Road width'],['wClear','Tree clearance'],
+  ['rEdge','Lot line setback'],['cusH','Custom building — storey height']];
+const rateVal=id=>UNITS==='m'?+$(id).value:+$(id).value/FT;      // $/ft input -> $/m
+const rateSet=(id,perM)=>{ $(id).value=+(UNITS==='m'?perM:perM*FT).toFixed(3); };
+const lenVal =id=>uLenIn(+$(id).value);                  // input -> metres
+const lenSet =(id,m)=>{ $(id).value=+uLen(m).toFixed(2); };
 function readLand(){
-  LAND.depth=+$('lDepth').value;LAND.bank=+$('lBank').value;LAND.beach=+$('lBeach').value;
-  LAND.relief=+$('lRelief').value;LAND.slope=(+$('lSlope').value)/100;LAND.cont=+$('lCont').value;
+  LAND.depth=lenVal('lDepth');LAND.bank=lenVal('lBank');LAND.beach=lenVal('lBeach');
+  LAND.relief=lenVal('lRelief');LAND.slope=(+$('lSlope').value)/100;LAND.cont=lenVal('lCont');
 }
 
 /* ---------------- day / night ---------------- */
@@ -1518,21 +1571,26 @@ function skyAt(h){for(let i=0;i<SKY.length-1;i++)if(h>=SKY[i][0]&&h<=SKY[i+1][0]
   const t=(h-SKY[i][0])/(SKY[i+1][0]-SKY[i][0]);return new THREE.Color(SKY[i][1]).lerp(new THREE.Color(SKY[i+1][1]),t);}
   return new THREE.Color(0x060b14);}
 function updateSun(){
-  const h=minutes/60,t=(h-5)/16,dio=styleMode==='diorama';
+  const h=minutes/60,t=(h-5)/16,dio=styleMode==='diorama',real=styleMode==='real';
   const el=Math.sin(Math.max(0,Math.min(1,t))*Math.PI)*1.15,az=Math.PI*(0.25+t*1.1);
   const day=Math.max(0,Math.min(1,(el-0.05)*3));
   sun.position.set(Math.cos(az)*300,Math.max(-20,el*260),Math.sin(az)*210-20);
-  sun.intensity=(dio?1.06:1.34)*day;sun.visible=day>.01;
+  sun.intensity=(dio?1.06:real?1.15:1.34)*day;sun.visible=day>.01;
   sun.color.setHSL(0.09,0.09*(1-day),0.64+0.32*day);       // essentially neutral daylight
   moon.position.set(-140,190,-90);moon.intensity=(1-day)*.3;
   fill.position.set(-Math.cos(az)*240,Math.max(90,el*120),-Math.sin(az)*180);
-  fill.intensity=dio?0.34*(0.35+day*0.65):0;
-  hemi.intensity=(.16+day*.5)*(dio?1.4:1);
+  fill.intensity=dio?0.34*(0.35+day*0.65):real?0.22*(0.3+day*0.7):0;
+  hemi.intensity=(.16+day*.5)*(dio?1.4:real?0.95:1);
   hemi.color.set(day>.2?0xe4e7e6:0x30363a);
   scene.background=skyAt(h);
   waterMat.color.setHex(day>.35?0x1d6b7d:0x0a1e2b);
   if(dio){waterMat.color.lerp(new THREE.Color(0x9db4b8),0.3);waterMat.roughness=.34;waterMat.metalness=.3;}
-  else{waterMat.roughness=.15;waterMat.metalness=.55;}
+  else if(styleMode==='real'){
+    waterMat.color.setHex(day>.35?0x186079:0x081a26);
+    waterMat.roughness=.08;waterMat.metalness=.72;waterMat.opacity=.82;
+  }
+  else{waterMat.roughness=.15;waterMat.metalness=.55;waterMat.opacity=.72;}
+  if(scene.fog)scene.fog.color.copy(scene.background);
   const night=lightMode==='off'?0:lightMode==='on'?1:1-day;
   nightMats.forEach(m=>m.emissiveIntensity=night*1.7);
   glowMat.emissiveIntensity=night*2.4;
@@ -1546,9 +1604,10 @@ function buildPalette(){
   let n=0;
   $('palList').innerHTML=CAT.map(g=>{
     const rows=g.items.map(i=>{n++;
-      const dims=i.kind==='road'?(i.fixedW?`${i.fixedW} m wide · per metre`:'width from settings · per metre')
-        :i.area?`${i.area}${i.sleeps?` · sleeps ${i.sleeps}`:''}`
-        :i.w?`${i.w} × ${i.d} m`:'point item';
+      const per=UNITS==='m'?'per metre':'per foot';
+      const dims=i.kind==='road'?(i.fixedW?`${fmtLen(i.fixedW,1)} wide · ${per}`:`width from settings · ${per}`)
+        :i.area?`${UNITS==='m'?i.area:i.area.replace(/([\d.]+)\s*m²/g,(x,n)=>Math.round(+n/(FT*FT)).toLocaleString()+' ft²').replace(/([\d.]+)\s*m\s*⌀/g,(x,n)=>(+n/FT).toFixed(1)+'′ ⌀')}${i.sleeps?` · sleeps ${i.sleeps}`:''}`
+        :i.w?dimOf(i):'point item';
       const price=i.kind==='road'?'rate':i.local?(i.cad?'$'+i.cad.toLocaleString():'—'):'$'+i.usd.toLocaleString()+' US';
       const sw=i.swatch!=null?`<span class="sw" style="background:#${i.swatch.toString(16).padStart(6,'0')}"></span>`:'<span></span>';
       return `<div class="item${i.archived?' arch':''}" data-id="${i.id}">${sw}
@@ -1615,13 +1674,13 @@ function refresh(){
   $('costLines').innerHTML=html||'<div class="note">Nothing placed yet.</div>';
 
   const foot=footprintArea();
-  $('mLand').textContent=LOT_AREA?`${(LOT_AREA/10000).toFixed(2)} ha · ${(LAND_AREA/10000).toFixed(2)} ha dry`:'—';
-  $('mFoot').textContent=foot.toFixed(0)+' m²';
+  $('mLand').textContent=LOT_AREA?`${fmtBigArea(LOT_AREA)} · ${fmtBigArea(LAND_AREA)} dry`:'—';
+  $('mFoot').textContent=fmtArea(foot);
   const cov=LAND_AREA?foot/LAND_AREA*100:0;
   $('mCov').textContent=LAND_AREA?cov.toFixed(2)+' %':'—';
   const bar=$('covBar');bar.style.width=Math.min(100,LAND_AREA?cov/RULES.cov*100:0)+'%';bar.classList.toggle('over',cov>RULES.cov);
-  $('mRoad').textContent=placed.filter(p=>p.type==='road').reduce((a,p)=>a+p.len,0).toFixed(0)+' m';
-  $('mFront').textContent=FRONTAGE?FRONTAGE.toFixed(0)+' m':'—';
+  $('mRoad').textContent=fmtLen(placed.filter(p=>p.type==='road').reduce((a,p)=>a+p.len,0),0);
+  $('mFront').textContent=FRONTAGE?fmtLen(FRONTAGE,0):'—';
   const beds=placed.reduce((a,p)=>a+(p.def.sleeps||0),0);
   $('mBeds').textContent=beds;
   $('mTrees').textContent=trees.filter(t=>!t.dead).length;
@@ -1706,11 +1765,43 @@ $('btnResetShore').onclick=()=>{
 $('btnRegrow').onclick=()=>{treeStats={moved:0,felled:0};seedTrees();refresh();toast('Forest cover regrown');};
 $('btnNoTrees').onclick=()=>{trees.length=0;syncTrees();refresh();toast('All stems cleared');};
 $('btnTrees').onclick=()=>{treesVisible=!treesVisible;$('btnTrees').textContent='Trees: '+(treesVisible?'on':'off');syncTrees();};
-$('btnStyle').onclick=()=>{styleMode=styleMode==='survey'?'diorama':'survey';applyStyle();
-  toast(styleMode==='diorama'?'Diorama — soft materials, muted palette':'Survey — literal colours');};
+$('btnStyle').onclick=()=>{styleMode=STYLES[(STYLES.indexOf(styleMode)+1)%STYLES.length];applyStyle();refresh();toast('Style: '+STYLE_NAME[styleMode]);};
 $('btnLights').onclick=()=>{lightMode=lightMode==='auto'?'on':lightMode==='on'?'off':'auto';$('btnLights').textContent='Lights: '+lightMode;updateSun();};
 $('btnPlay').onclick=()=>{playing=!playing;$('btnPlay').textContent=playing?'Pause day':'Play day';$('btnPlay').classList.toggle('on',playing);};
 $('time').oninput=e=>{minutes=+e.target.value;updateSun();};
+function setUnits(u){
+  const prev=UNITS;
+  if(u===prev)return;
+  readInputs(); readLand();                     // capture current values as metres
+  UNITS=u;
+  // rewrite every length input and its label in the new unit
+  LEN_INPUTS.forEach(([id,base])=>{
+    const el=$(id); if(!el)return;
+    const lab=el.parentElement.querySelector('label');
+    if(lab)lab.innerHTML=`${base} (${LBL()})`;
+  });
+  lenSet('lDepth',LAND.depth);lenSet('lBank',LAND.bank);lenSet('lBeach',LAND.beach);
+  lenSet('lRelief',LAND.relief);lenSet('lCont',LAND.cont);
+  lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
+  lenSet('rEdge',RULES.edge);lenSet('cusH',CUSTOM.h);
+  // per-length rates convert too
+  [['cRoadG','Gravel road'],['cRoadP','Paved road'],['cPath','Walking path']].forEach(([id,base])=>{
+    rateSet(id,RATES[id]);
+    const lab=$(id).parentElement.querySelector('label'); if(lab)lab.textContent=`${base} / ${LBL()}`;
+  });
+  if($('cusRate')){
+    $('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
+    const cl=$('cusRate').parentElement.querySelector('label');
+    if(cl)cl.innerHTML=`Custom building — CAD / ${ALBL()} of floor`;
+  }
+  const sl=$('lSlope').parentElement.querySelector('label');
+  if(sl)sl.innerHTML=UNITS==='m'?'Inland rise (m per 100 m)':'Inland rise (ft per 100 ft)';
+  $('btnUnits').textContent='Units: '+(UNITS==='m'?'m':'ft');
+  buildPalette(); buildPricing(); updateScaleBar(); buildOverlays(); refresh();
+  if(pen)penDraw();
+  toast('Units: '+(UNITS==='m'?'metres':'feet'));
+}
+$('btnUnits').onclick=()=>setUnits(UNITS==='m'?'ft':'m');
 $('btnUndo').onclick=undo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
@@ -1758,13 +1849,16 @@ function applyState(d,keepUnder){
     [...placed].forEach(removeObj);extras.length=0;
     Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
     Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
-    $('lDepth').value=LAND.depth;$('lBank').value=LAND.bank;$('lBeach').value=LAND.beach;
-    $('lRelief').value=LAND.relief;$('lSlope').value=(LAND.slope*100).toFixed(1);$('lCont').value=LAND.cont;
+    lenSet('lDepth',LAND.depth);lenSet('lBank',LAND.bank);lenSet('lBeach',LAND.beach);
+    lenSet('lRelief',LAND.relief);$('lSlope').value=(LAND.slope*100).toFixed(1);lenSet('lCont',LAND.cont);
     $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
     $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
-    $('cusRate').value=CUSTOM.rate;$('cusH').value=CUSTOM.h;$('cusSt').value=CUSTOM.storeys;
-    ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>$(k).value=RATES[k]??50);
-    $('rEdge').value=RULES.edge;$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
+    $('cusRate').value=CUSTOM.rate;lenSet('cusH',CUSTOM.h);$('cusSt').value=CUSTOM.storeys;
+    ['cRoadG','cRoadP','cPath'].forEach(k=>rateSet(k,RATES[k]??50));
+    $('treeCore').value=RATES.treeCore??50;
+    if($('cusRate'))$('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
+    lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
+    lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
     SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
     if(!keepUnder){
       if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
@@ -1813,10 +1907,16 @@ $('fileIn').onchange=e=>{
 
 function updateScaleBar(){
   if(viewMode!=='plan')return;
-  const mpx=ctrl.orthoSize*2/innerHeight;
-  const m=[1,2,5,10,20,25,50,100,200,500].find(t=>t/mpx>90)||500;
-  $('scalebar').querySelector('.ln').style.width=(m/mpx)+'px';
-  $('scalebar').querySelector('span').textContent=m+' m';
+  const mpx=ctrl.orthoSize*2/innerHeight;                  // metres per pixel
+  if(UNITS==='m'){
+    const m=[1,2,5,10,20,25,50,100,200,500].find(t=>t/mpx>90)||500;
+    $('scalebar').querySelector('.ln').style.width=(m/mpx)+'px';
+    $('scalebar').querySelector('span').textContent=m+' m';
+  }else{
+    const f=[5,10,25,50,100,200,300,500,1000,2000].find(t=>(t*FT)/mpx>90)||2000;
+    $('scalebar').querySelector('.ln').style.width=((f*FT)/mpx)+'px';
+    $('scalebar').querySelector('span').textContent=f+' ft';
+  }
 }
 
 /* ---------------- loop ---------------- */
