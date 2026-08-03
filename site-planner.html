@@ -567,6 +567,8 @@ function pickSpecies(mix,d){
 
 const TCAP=900, trees=[], dummy=new THREE.Object3D(), tmpCol=new THREE.Color();
 const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,flatShading:false,vertexColors:true});
+const leafMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,map:FOLIAGE_TEX,alphaTest:0.42,
+  roughness:.94,metalness:0,side:THREE.DoubleSide,vertexColors:true});
 
 /* ---- canopy geometry ---------------------------------------------------
    A single icosahedron reads as a ball on a stick. Real canopies are a
@@ -578,7 +580,7 @@ const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,f
    from the per-instance colour, so this multiplies on top of it. */
 function mergeGeos(list){
   let n=0; list.forEach(g=>{n+=(g.index?g.toNonIndexed():g).attributes.position.count;});
-  const pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3);
+  const pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3),uv=new Float32Array(n*2);
   let o=0;
   list.forEach(g0=>{
     const g=g0.index?g0.toNonIndexed():g0;
@@ -586,13 +588,106 @@ function mergeGeos(list){
     nor.set(g.attributes.normal.array,o*3);
     if(g.attributes.color)col.set(g.attributes.color.array,o*3);
     else col.fill(1,o*3,(o+g.attributes.position.count)*3);
+    if(g.attributes.uv)uv.set(g.attributes.uv.array,o*2);
     o+=g.attributes.position.count;
   });
   const out=new THREE.BufferGeometry();
   out.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
   out.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));
   out.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  out.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
   return out;
+}
+
+/* ---- procedural foliage atlas -----------------------------------------
+   Four tiles of leaf and needle clusters drawn to a canvas with real alpha,
+   so the crown silhouette comes from cut-out foliage rather than from solid
+   geometry. Leaves are painted in greyscale with luminance variation only —
+   the species colour arrives as the per-instance colour and tints them, so
+   every species keeps its own palette. */
+const FOL_TILES=4;
+function foliageAtlas(){
+  const S=1024, T=S/2, c=document.createElement('canvas'); c.width=c.height=S;
+  const g=c.getContext('2d'); g.clearRect(0,0,S,S);
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  function leaf(x,y,L,W,rot,lum,alpha){
+    g.save(); g.translate(x,y); g.rotate(rot);
+    const v=Math.round(255*lum);
+    g.fillStyle=`rgba(${v},${v},${v},${alpha})`;
+    g.beginPath();
+    g.moveTo(0,-L/2);
+    g.bezierCurveTo(W/2,-L/6, W/2,L/6, 0,L/2);
+    g.bezierCurveTo(-W/2,L/6, -W/2,-L/6, 0,-L/2);
+    g.fill(); g.restore();
+  }
+  // three broadleaf clusters, one needle sprig
+  for(let t=0;t<3;t++){
+    const ox=(t%2)*T, oy=Math.floor(t/2)*T, cx=ox+T/2, cy=oy+T/2;
+    for(let pass=0;pass<3;pass++){                    // dark bed, mid, bright tips
+      const lum=[0.42,0.72,1.0][pass], n=[130,150,110][pass];
+      for(let i=0;i<n;i++){
+        const a=rnd(0,6.283), r=Math.pow(Math.random(),0.62)*T*0.46;
+        const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r*0.92;
+        const sz=rnd(26,52)*(1-r/(T*0.9)*0.35);
+        leaf(x,y,sz,sz*rnd(0.42,0.66),rnd(0,6.283),lum*rnd(0.82,1.12),rnd(0.75,1));
+      }
+    }
+  }
+  // needle sprig tile
+  const ox=T, oy=T, cx=ox+T/2, cy=oy+T/2;
+  for(let b=0;b<26;b++){
+    const ba=rnd(-0.5,0.5)+Math.PI/2, bl=rnd(T*0.18,T*0.44);
+    const bx=cx+rnd(-T*0.34,T*0.34), by=cy+rnd(-T*0.30,T*0.30);
+    g.save(); g.translate(bx,by); g.rotate(rnd(0,6.283));
+    for(let i=0;i<34;i++){
+      const t2=i/34, sgn=i%2?1:-1;
+      const lum=rnd(0.35,1.0);
+      leaf(0+t2*bl*0.06, -bl/2+t2*bl, rnd(14,26), rnd(3.2,5.4),
+           sgn*rnd(0.7,1.15), lum, rnd(0.8,1));
+    }
+    g.restore();
+  }
+  const tex=new THREE.CanvasTexture(c);
+  tex.anisotropy=8; tex.needsUpdate=true;
+  return tex;
+}
+const FOLIAGE_TEX=foliageAtlas();
+function tileUV(geo,tile){
+  const uv=geo.attributes.uv, ox=(tile%2)*0.5, oy=1-(Math.floor(tile/2)+1)*0.5;
+  for(let i=0;i<uv.count;i++) uv.setXY(i, ox+uv.getX(i)*0.5, oy+uv.getY(i)*0.5);
+  uv.needsUpdate=true; return geo;
+}
+/* scatter alpha-cut foliage cards through a crown volume */
+function leafCards(n,shape){
+  const parts=[],o=new THREE.Object3D(),up=new THREE.Vector3(0,1,0);
+  for(let i=0;i<n;i++){
+    let x,y,z,sz;
+    if(shape==='cone'){
+      const t=Math.pow(Math.random(),0.75);            // denser low down
+      const rad=(1-t*0.86)*(0.55+Math.random()*0.5);
+      const a=Math.random()*6.283;
+      x=Math.cos(a)*rad; z=Math.sin(a)*rad; y=-1+t*2;
+      sz=0.62+Math.random()*0.34;
+    }else{
+      const a=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
+      const rad=0.58+Math.random()*0.44;
+      x=Math.sin(ph)*Math.cos(a)*rad; y=Math.cos(ph)*rad*0.92; z=Math.sin(ph)*Math.sin(a)*rad;
+      sz=0.78+Math.random()*0.46;
+    }
+    const q=new THREE.PlaneGeometry(sz,sz);
+    tileUV(q, shape==='cone'?3:Math.floor(Math.random()*3));
+    o.position.set(x,y,z);
+    const outward=new THREE.Vector3(x,shape==='cone'?y*0.35-0.25:y,z).normalize();
+    o.lookAt(outward.multiplyScalar(9));
+    o.rotateZ(Math.random()*6.283);
+    o.rotateX((Math.random()-0.5)*0.9);
+    o.updateMatrix();
+    q.applyMatrix4(o.matrix);
+    parts.push(q);
+  }
+  const m=mergeGeos(parts);
+  m.computeVertexNormals();
+  return m;
 }
 /* roughen a lobe and shade it by height so the crown has volume */
 function foliage(g,amp,seed){
@@ -626,13 +721,14 @@ function buildRoundCanopy(){
     g.translate(l[0],l[1],l[2]);
     lobes.push(g);
   });
-  const m=mergeGeos(lobes);
-  // normalise to a unit crown so the existing per-tree scaling still applies
-  m.computeBoundingBox(); const bb=m.boundingBox;
+  const core=mergeGeos(lobes);
+  core.computeBoundingBox(); const bb=core.boundingBox;
   const sx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)/2, sy=(bb.max.y-bb.min.y)/2;
-  m.scale(1/sx,1/sy,1/sx);
-  m.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
-  return shadeByHeight(m,0.52,1.16,0.5);
+  core.scale(1/sx,1/sy,1/sx);
+  core.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
+  core.scale(0.62,0.62,0.62);                       // inner mass, hidden behind the leaves
+  const m=mergeGeos([core,leafCards(96,'round')]);
+  return shadeByHeight(m,0.50,1.18,0.5);
 }
 function buildConeCanopy(){
   const tiers=[],N=6;
@@ -645,27 +741,29 @@ function buildConeCanopy(){
     g.translate(0,-0.9+t*1.66,0);
     tiers.push(g);
   }
-  const m=mergeGeos(tiers);
-  m.computeBoundingBox(); const bb=m.boundingBox;
+  const core=mergeGeos(tiers);
+  core.computeBoundingBox(); const bb=core.boundingBox;
   const sx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)/2, sy=(bb.max.y-bb.min.y)/2;
-  m.scale(1/sx,1/sy,1/sx);
-  m.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
-  return shadeByHeight(m,0.44,1.10,0.6);
+  core.scale(1/sx,1/sy,1/sx);
+  core.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
+  core.scale(0.80,0.94,0.80);
+  const m=mergeGeos([core,leafCards(120,'cone')]);
+  return shadeByHeight(m,0.42,1.12,0.6);
 }
 function buildTrunk(){
   const parts=[];
-  const bole=new THREE.CylinderGeometry(0.34,0.72,1,8); parts.push(bole);
-  const flare=new THREE.CylinderGeometry(0.72,1.25,0.20,8); flare.translate(0,-0.40,0); parts.push(flare);
+  const bole=new THREE.CylinderGeometry(0.46,0.60,1,9); parts.push(bole);
+  const flare=new THREE.CylinderGeometry(0.60,0.82,0.12,9); flare.translate(0,-0.44,0); parts.push(flare);
   for(let i=0;i<3;i++){                       // a few limbs into the crown
-    const a=i*2.2+0.4, b=new THREE.CylinderGeometry(0.09,0.20,0.62,5);
-    b.rotateZ(0.62); b.rotateY(a); b.translate(Math.cos(a)*0.24,0.34,Math.sin(a)*0.24);
+    const a=i*2.2+0.4, b=new THREE.CylinderGeometry(0.07,0.16,0.62,5);
+    b.rotateZ(0.62); b.rotateY(a); b.translate(Math.cos(a)*0.20,0.34,Math.sin(a)*0.20);
     parts.push(b);
   }
   const m=mergeGeos(parts);
   return shadeByHeight(m,0.62,1.06,0.15);
 }
-const coneIM =new THREE.InstancedMesh(buildConeCanopy(),treeMat(),TCAP);
-const roundIM=new THREE.InstancedMesh(buildRoundCanopy(),treeMat(),TCAP);
+const coneIM =new THREE.InstancedMesh(buildConeCanopy(),leafMat(),TCAP);
+const roundIM=new THREE.InstancedMesh(buildRoundCanopy(),leafMat(),TCAP);
 const trunkIM=new THREE.InstancedMesh(buildTrunk(),treeMat(),TCAP);
 [coneIM,roundIM,trunkIM].forEach(m=>{m.castShadow=true;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);});
 const glowMat=new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc978,emissiveIntensity:0,roughness:.5});
@@ -673,6 +771,26 @@ const glowIM=new THREE.InstancedMesh(new THREE.SphereGeometry(.18,6,5),glowMat,9
 let treeStats={moved:0,felled:0}, treesVisible=true;
 const HIDE=new THREE.Matrix4().makeScale(0,0,0);
 
+/* nothing should regrow through a building, a custom footprint or a road
+   corridor — the same clearance the placement tools use when they push
+   standing stems aside. */
+function blockedForTree(x,z){
+  const clear=RATES.wClear;
+  for(const o of placed){
+    if(o.type==='road'){
+      const hw=o.width/2+clear;
+      for(let i=0;i<o.pts.length-1;i++){
+        const a=o.pts[i],b=o.pts[i+1];
+        if(segDist(x,z,a[0],a[1],b[0],b[1]).d<hw)return true;
+      }
+    }else if(o.type==='custom'){
+      if(pointInPoly(x,z,o.pts)||polyNear(x,z,o.pts).d<clear)return true;
+    }else if(o.def&&o.def.w){
+      if(inFootprint(o,x,z,clear))return true;
+    }
+  }
+  return false;
+}
 function seedTrees(){
   trees.length=0;
   const n=Math.min(TCAP,+$('tDens').value||400), mix=$('tMix').value;
@@ -684,7 +802,7 @@ function seedTrees(){
     for(let a=0;a<30;a++){
       x=x0+Math.random()*(x1-x0); z=z0+Math.random()*(z1-z0);
       d=distShore(x,z);
-      if(inLot(x,z)&&d>LAND.beach*0.8){ok=true;break;}
+      if(inLot(x,z)&&d>LAND.beach*0.8&&!blockedForTree(x,z)){ok=true;break;}
     }
     trees.push(ok?{x,z,tx:x,tz:z,sp:pickSpecies(mix,d),s:.72+Math.random()*.5,rot:Math.random()*6.28,lit:false,dead:false}
                  :{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false});
@@ -700,7 +818,7 @@ function syncTrees(){
     const cone=sp.form==='cone';
     const trunkH=cone?h*0.20:h*0.46, canH=h-trunkH;
     dummy.position.set(t.x,y+trunkH/2,t.z); dummy.rotation.set(0,t.rot,0);
-    dummy.scale.set(cone?0.18*rr:0.26*rr,trunkH,cone?0.18*rr:0.26*rr); dummy.updateMatrix();
+    dummy.scale.set(cone?0.15*rr:0.20*rr,trunkH,cone?0.15*rr:0.20*rr); dummy.updateMatrix();
     trunkIM.setMatrixAt(i,dummy.matrix); trunkIM.setColorAt(i,tmpCol.setHex(sp.trunk));
     const jitter=1+(hash2(i,3,1)-0.5)*0.16;
     tmpCol.setHex(sp.col); tmpCol.offsetHSL(0,(hash2(i,7,2)-0.5)*0.05,(hash2(i,11,3)-0.5)*0.09);
