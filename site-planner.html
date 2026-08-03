@@ -143,6 +143,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnUnits">Units: m</button>
   <button class="tbtn" id="btnAnim">Anim: on</button>
   <button class="tbtn" id="btnUndo">Undo</button>
+  <button class="tbtn" id="btnRedo">Redo</button>
   <button class="tbtn" id="btnShot">Snapshot</button>
   <button class="tbtn" id="btnSave">Export</button>
   <button class="tbtn" id="btnLoad">Import</button>
@@ -933,6 +934,7 @@ const CAT=[
   {id:'lodge',n:'Main lodge',kind:'gable',w:16,d:22,h:6.5,cad:720000,local:true},
   {id:'washhs',n:'Washhouse',kind:'gable',w:6,d:9,h:3.2,cad:118000,local:true},
   {id:'pavil',n:'Open pavilion',kind:'pavilion',w:9,d:9,h:4,cad:64000,local:true},
+  {id:'cabin9',n:'Square cabin',kind:'gable',w:9,d:9,h:4,area:'81 m² · same footprint as the pavilion',sleeps:4,cad:175000,local:true},
   {id:'sauna',n:'Barrel sauna',kind:'barrel',w:2.4,d:4.5,h:2.4,cad:26000,local:true},
   {id:'shed',n:'Utility shed',kind:'gable',w:4,d:6,h:3,cad:22000,local:true},
   {id:'boatho',n:'Boathouse',kind:'gable',w:7,d:9,h:4,cad:142000,local:true,shore:true},
@@ -1055,25 +1057,45 @@ const placed=[],objGroup=new THREE.Group(); scene.add(objGroup);
    Snapshot the whole plan before each change. Restoring runs the same code
    path as loading a file, so it covers placements, deletions, tree edits,
    shoreline and lot-line moves alike. */
-const undoStack=[]; const UNDO_MAX=40; let restoring=false;
+const undoStack=[], redoStack=[]; const UNDO_MAX=40; let restoring=false;
 function pushUndo(label){
   if(restoring)return;
   try{ undoStack.push({label:label||'change',state:JSON.stringify(serialize(false))}); }catch(e){ return; }
   if(undoStack.length>UNDO_MAX)undoStack.shift();
+  redoStack.length=0;                      // a fresh action ends the old redo chain
   updateUndoBtn();
 }
 function updateUndoBtn(){
-  const b=$('btnUndo'); if(!b)return;
-  b.disabled=!undoStack.length;
-  b.style.opacity=undoStack.length?1:.4;
-  b.title=undoStack.length?`Undo ${undoStack[undoStack.length-1].label}`:'Nothing to undo';
+  const b=$('btnUndo');
+  if(b){
+    b.disabled=!undoStack.length;
+    b.style.opacity=undoStack.length?1:.4;
+    b.title=undoStack.length?`Undo ${undoStack[undoStack.length-1].label}`:'Nothing to undo';
+  }
+  const r=$('btnRedo');
+  if(r){
+    r.disabled=!redoStack.length;
+    r.style.opacity=redoStack.length?1:.4;
+    r.title=redoStack.length?`Redo ${redoStack[redoStack.length-1].label}`:'Nothing to redo';
+  }
 }
 function undo(){
   if(!undoStack.length){toast('Nothing to undo');return;}
   const e=undoStack.pop();
+  redoStack.push({label:e.label,state:JSON.stringify(serialize(false))});
+  if(redoStack.length>UNDO_MAX)redoStack.shift();
   applyState(JSON.parse(e.state),true);
   updateUndoBtn();
   toast('Undid '+e.label);
+}
+function redo(){
+  if(!redoStack.length){toast('Nothing to redo');return;}
+  const e=redoStack.pop();
+  undoStack.push({label:e.label,state:JSON.stringify(serialize(false))});
+  if(undoStack.length>UNDO_MAX)undoStack.shift();
+  applyState(JSON.parse(e.state),true);
+  updateUndoBtn();
+  toast('Redid '+e.label);
 }
 const nightMats=[];
 
@@ -1898,7 +1920,8 @@ addEventListener('keydown',e=>{
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
   if((e.key==='Delete'||e.key==='Backspace')&&selected){pushUndo('delete '+(selected.def?selected.def.n:'building'));removeObj(selected);toast('Removed');}
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
-  if((e.key==='z'||e.key==='Z')&&(e.ctrlKey||e.metaKey)){undo();return;}
+  if((e.key==='z'||e.key==='Z')&&(e.ctrlKey||e.metaKey)){e.shiftKey?redo():undo();return;}
+  if((e.key==='y'||e.key==='Y')&&(e.ctrlKey||e.metaKey)){redo();return;}
   if((e.key==='u'||e.key==='U')&&SITE.under)showUnder(!SITE.underOn);
 },{passive:true});
 addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
@@ -2199,6 +2222,7 @@ $('tuckR').onclick=()=>tuck('R');
 $('showL').onclick=()=>tuck('L',true);
 $('showR').onclick=()=>tuck('R',true);
 $('btnUndo').onclick=undo;
+$('btnRedo').onclick=redo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
 function loadUnderlay(url,announce){
