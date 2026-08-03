@@ -97,6 +97,16 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 @keyframes in{from{opacity:0;transform:translateY(-6px)}}
 ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#284039;border:2px solid var(--pine)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* collapsible ledger groups + a prices-only settings view */
+.grp>.hdr{cursor:pointer;user-select:none}
+.grp>.hdr .caret{float:right;opacity:.55;font-size:9px;transition:transform .15s}
+.grp.closed>.hdr .caret{transform:rotate(-90deg)}
+.grp.closed>*:not(.hdr){display:none}
+#ledger.setonly .grp[data-grp="other"]{display:none}
+#ledger.setonly .grp[data-grp="set"]>.hdr{border-left:2px solid var(--survey);padding-left:8px}
+#setBanner{display:none;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#140b04;background:var(--survey);padding:7px 12px;font-weight:700}
+#ledger.setonly #setBanner{display:block}
 </style>
 </head>
 <body>
@@ -110,6 +120,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnLand">Shape shoreline</button>
   <button class="tbtn" id="btnBound">Trace lot line</button>
   <button class="tbtn" id="btnUnder">Underlay…</button>
+  <button class="tbtn" id="btnSettings">Prices</button>
   <button class="tbtn" id="btnScale">Set scale</button>
   <button class="tbtn" id="btnOverlay">Overlays</button>
   <button class="tbtn" id="btnShot">Snapshot</button>
@@ -120,11 +131,13 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 <aside id="palette" class="panel"><div class="hdr">Catalogue <b id="palCount"></b></div><div id="palList"></div></aside>
 
 <aside id="ledger" class="panel">
+  <div id="setBanner">Settings — prices &amp; rates · press Prices again for the full panel</div>
   <div class="hdr">Landed cost <b>CAD</b></div>
   <div class="row big"><span class="k">Project total</span><span class="v" id="mTotal">$0</span></div>
   <div id="costLines"></div>
 
-  <div class="hdr t">Site measurements</div>
+ <section class="grp" data-grp="other">
+  <div class="hdr t">Site measurements <span class="caret">▾</span></div>
   <div class="row"><span class="k">Lot area</span><span class="v" id="mLand">—</span></div>
   <div class="row"><span class="k">Building footprint</span><span class="v" id="mFoot">0 m²</span></div>
   <div class="row"><span class="k">Lot coverage</span><span class="v" id="mCov">—</span></div>
@@ -135,7 +148,9 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="row"><span class="k">Trees standing</span><span class="v" id="mTrees">0</span></div>
   <div class="row"><span class="k">Trees moved / felled</span><span class="v" id="mMoved">0 / 0</span></div>
 
-  <div class="hdr t">Land model</div>
+ </section>
+ <section class="grp" data-grp="other">
+  <div class="hdr t">Land model <span class="caret">▾</span></div>
   <div class="field"><label>Lake depth (m)</label><input id="lDepth" type="number" value="4.5" step="0.5"></div>
   <div class="field"><label>Bank height above water (m)</label><input id="lBank" type="number" value="1.6" step="0.2"></div>
   <div class="field"><label>Beach width (m)</label><input id="lBeach" type="number" value="9" step="1"></div>
@@ -144,7 +159,9 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Contour interval (m)</label><input id="lCont" type="number" value="1" step="0.5"></div>
   <div class="acts"><button class="tbtn" id="btnReshape">Rebuild land</button><button class="tbtn" id="btnNewSeed">New relief</button></div>
 
-  <div class="hdr t">Forest cover</div>
+ </section>
+ <section class="grp" data-grp="other">
+  <div class="hdr t">Forest cover <span class="caret">▾</span></div>
   <div class="field"><label>Stems on the lot</label><input id="tDens" type="number" value="420" step="20"></div>
   <div class="field"><label>Mix</label><select id="tMix">
     <option value="mixed">Mixed Manitoulin bush</option>
@@ -156,7 +173,9 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="acts"><button class="tbtn" id="btnRegrow">Regrow cover</button><button class="tbtn" id="btnNoTrees">Clear all</button></div>
   <div class="note">Individual species can be planted one at a time from the catalogue.</div>
 
-  <div class="hdr t">Import &amp; compliance rates</div>
+ </section>
+ <section class="grp" data-grp="set">
+  <div class="hdr t">Import &amp; compliance rates <span class="caret">▾</span></div>
   <div class="field"><label>USD → CAD</label><input id="fFx" type="number" value="1.37" step="0.01"></div>
   <div class="field"><label>Apply 25% steel/alu surtax<br><span style="color:var(--faint);font-size:10px">worst case: classed as parts, not 9406</span></label><input id="fSurtax" type="checkbox"></div>
   <div class="field"><label>P.Eng review — per model</label><input id="fPeng" type="number" value="4000" step="500"></div>
@@ -166,14 +185,18 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Contingency %</label><input id="fCont" type="number" value="12" step="1"></div>
   <div class="note">Unit prices and freight are the quoted USD figures from the sourcing catalogue. <b>P.Eng and ESA are charged once per model</b>, not per unit. 5% GST at import is recoverable and excluded.</div>
 
-  <div class="hdr t">Pricing <b id="priceCount"></b></div>
+ </section>
+ <section class="grp" data-grp="set">
+  <div class="hdr t">Unit prices <b id="priceCount"></b> <span class="caret">▾</span></div>
   <div class="field"><label>Custom building — CAD / m² of floor</label><input id="cusRate" type="number" value="2400" step="50"></div>
   <div class="field"><label>Custom building — storey height (m)</label><input id="cusH" type="number" value="4.2" step="0.2"></div>
   <div class="field"><label>Custom building — storeys</label><input id="cusSt" type="number" value="2" step="1" min="1"></div>
   <div id="priceList"></div>
   <div class="note">Edit any figure and every total, the catalogue and the placed units reprice immediately. Quoted units are in <b>USD</b> and convert at the rate above; local builds are already CAD.</div>
 
-  <div class="hdr t">Local trades — site works</div>
+ </section>
+ <section class="grp" data-grp="set">
+  <div class="hdr t">Local trades — site works <span class="caret">▾</span></div>
   <div class="field"><label>Gravel road / m</label><input id="cRoadG" type="number" value="185" step="5"></div>
   <div class="field"><label>Paved road / m</label><input id="cRoadP" type="number" value="420" step="5"></div>
   <div class="field"><label>Walking path / m</label><input id="cPath" type="number" value="65" step="5"></div>
@@ -181,15 +204,20 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Tree clearance (m)</label><input id="wClear" type="number" value="2" step="0.5"></div>
   <div class="field"><label>Fell trees inside inner % of footprint<br><span style="color:var(--faint);font-size:10px">outside this, they shift aside instead</span></label><input id="treeCore" type="number" value="50" step="5"></div>
 
-  <div class="hdr t">Zoning &amp; by-law limits</div>
+ </section>
+ <section class="grp" data-grp="set">
+  <div class="hdr t">Zoning &amp; by-law limits <span class="caret">▾</span></div>
   <div class="field"><label>Lot line setback (m)</label><input id="rEdge" type="number" value="7.5" step="0.5"></div>
   <div class="field"><label>Max lot coverage %</label><input id="rCov" type="number" value="15" step="0.5"></div>
   <div class="field"><label>Min gap between cabins (ft)<br><span style="color:var(--faint);font-size:10px" id="sepM">= 4.57 m</span></label><input id="rSep" type="number" value="15" step="1"></div>
   <div class="field"><label>Max sleeping units</label><input id="rMax" type="number" value="24" step="1"></div>
   <div class="note">The gap rule applies <b>only between main sleeping cabins</b> — saunas, sheds, pavilions and docks can sit closer, they just can't overlap. No shoreline setback is applied, but nothing can be built in the water. Confirm the real numbers with the <b>Town of Gore Bay / NEMI</b> zoning by-law.</div>
 
-  <div class="hdr t">Compliance <b id="issCount"></b></div>
+ </section>
+ <section class="grp" data-grp="other">
+  <div class="hdr t">Compliance <b id="issCount"></b> <span class="caret">▾</span></div>
   <div id="issues"></div>
+ </section>
 </aside>
 
 <div id="timebar" class="panel">
@@ -221,7 +249,7 @@ const $=id=>document.getElementById(id), FT=0.3048;
 const LAND={ex:640,ez:560,res:2.5,depth:4.5,bank:1.6,beach:9,relief:2.6,slope:0.018,cont:1,seed:7};
 let NX,NZ,X0,Z0,R,H=null;
 
-const SITE={ shore:[], boundary:[], under:null, underUrl:null, mpp:0.25 };
+const SITE={ shore:[], boundary:[], under:null, underUrl:null, underOn:false, mpp:0.25 };
 
 /* Evergreen Resort, Lake Wolsey (Gore Bay / Manitoulin Is.) — traced from Google
    satellite imagery, scaled off its 50 m bar (0.368 m/px). 1 world unit = 1 m.
@@ -1368,6 +1396,7 @@ addEventListener('keydown',e=>{
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
   if((e.key==='Delete'||e.key==='Backspace')&&selected)removeObj(selected);
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
+  if((e.key==='u'||e.key==='U')&&SITE.under)showUnder(!SITE.underOn);
 },{passive:true});
 addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
 
@@ -1525,7 +1554,7 @@ function switchView(v){
   viewMode=v;camera=v==='3d'?persp:ortho;
   document.querySelectorAll('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   $('scalebar').style.display=v==='plan'?'block':'none';
-  if(SITE.under)SITE.under.visible=(v==='plan');
+  if(SITE.under)SITE.under.visible=(v==='plan')&&SITE.underOn!==false;
   applyCam();updateScaleBar();
 }
 document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
@@ -1534,7 +1563,44 @@ $('btnOverlay').onclick=()=>{const v=!overlays.visible;overlays.visible=v;if(con
 $('btnLand').onclick=()=>setLandMode(!landMode);
 $('btnBound').onclick=()=>startTrace('boundary',$('btnBound'));
 $('btnScale').onclick=()=>{if(!SITE.under){toast('Load an underlay first');return;}startTrace('scale',$('btnScale'));};
-$('btnUnder').onclick=()=>$('fileMap').click();
+/* ---- underlay on / off ------------------------------------------------
+   No underlay yet  → pick an image.  Underlay loaded → click toggles it
+   off and on; shift-click drops it entirely.  Also bound to the U key. */
+function underLabel(){
+  $('btnUnder').textContent=!SITE.under?'Underlay…':SITE.underOn?'Underlay: on':'Underlay: off';
+  $('btnUnder').classList.toggle('on',!!SITE.under&&SITE.underOn);
+}
+function showUnder(on){
+  SITE.underOn=on;
+  if(SITE.under)SITE.under.visible=on&&viewMode==='plan';
+  underLabel();
+}
+function dropUnder(){
+  if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
+  SITE.underUrl=null;SITE.underOn=false;underLabel();toast('Underlay removed');
+}
+$('btnUnder').onclick=e=>{
+  if(!SITE.under){
+    if(SITE.underUrl)loadUnderlay(SITE.underUrl,false);   // one saved with an imported plan
+    else $('fileMap').click();
+    return;
+  }
+  if(e.shiftKey){dropUnder();return;}
+  showUnder(!SITE.underOn);
+  toast(SITE.underOn?'Underlay on':'Underlay off');
+};
+/* ---- prices & settings view ---- */
+$('btnSettings').onclick=()=>{
+  const l=$('ledger'), on=l.classList.toggle('setonly');
+  $('btnSettings').classList.toggle('on',on);
+  if(on)l.querySelectorAll('.grp[data-grp="set"]').forEach(s=>s.classList.remove('closed'));
+  l.scrollTop=0;
+  toast(on?'Settings — adjust any price or rate':'Full panel');
+};
+$('ledger').addEventListener('click',e=>{
+  const h=e.target.closest('.grp>.hdr'); if(!h)return;
+  h.parentElement.classList.toggle('closed');
+});
 $('btnReshape').onclick=()=>{rebuildLand();toast('Land rebuilt');};
 $('btnNewSeed').onclick=()=>{LAND.seed=Math.floor(Math.random()*900);rebuildLand();toast('New relief pattern');};
 $('btnRegrow').onclick=()=>{treeStats={moved:0,felled:0};seedTrees();refresh();toast('Forest cover regrown');};
@@ -1547,25 +1613,29 @@ $('btnPlay').onclick=()=>{playing=!playing;$('btnPlay').textContent=playing?'Pau
 $('time').oninput=e=>{minutes=+e.target.value;updateSun();};
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
+function loadUnderlay(url,announce){
+  const img=new Image();
+  img.onload=()=>{
+    if(SITE.under)scene.remove(SITE.under);
+    SITE.underUrl=url;
+    const tex=new THREE.Texture(img);tex.needsUpdate=true;tex.anisotropy=8;
+    const w=LAND.ex,h=w*img.height/img.width;
+    const g=new THREE.PlaneGeometry(w,h);g.rotateX(-Math.PI/2);
+    SITE.under=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.62,depthTest:false}));
+    SITE.under.position.y=60;SITE.under.renderOrder=2;
+    SITE.underOn=true;SITE.under.visible=(viewMode==='plan');
+    scene.add(SITE.under);underLabel();
+    if(announce){
+      toast('Underlay loaded — Set scale, then trace over it');
+      hint('Underlay is a tracing guide only — Shape shoreline to match it · U toggles it off',false,true);
+    }else toast('Underlay on');
+  };
+  img.src=url;
+}
 $('fileMap').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=()=>{
-    const img=new Image();
-    img.onload=()=>{
-      if(SITE.under)scene.remove(SITE.under);
-      SITE.underUrl=r.result;
-      const tex=new THREE.Texture(img);tex.needsUpdate=true;tex.anisotropy=8;
-      const w=LAND.ex,h=w*img.height/img.width;
-      const g=new THREE.PlaneGeometry(w,h);g.rotateX(-Math.PI/2);
-      SITE.under=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.62,depthTest:false}));
-      SITE.under.position.y=60;SITE.under.renderOrder=2;SITE.under.visible=(viewMode==='plan');
-      scene.add(SITE.under);
-      toast('Underlay loaded — Set scale, then trace over it');
-      hint('Underlay is a tracing guide only — Shape shoreline to match it',false,true);
-    };
-    img.src=r.result;
-  };
+  r.onload=()=>loadUnderlay(r.result,true);
   r.readAsDataURL(f);
 };
 
@@ -1597,6 +1667,9 @@ $('fileIn').onchange=e=>{
       ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>$(k).value=RATES[k]??50);
       $('rEdge').value=RULES.edge;$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
       SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
+      if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
+      SITE.underUrl=d.under||null;SITE.underOn=false;      // imported plans open with the underlay off
+      underLabel();
       buildTerrain();
       trees.length=0;
       (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
