@@ -602,7 +602,11 @@ function pickSpecies(mix,d){
   return 0;
 }
 
-const TCAP=900, trees=[], dummy=new THREE.Object3D(), tmpCol=new THREE.Color();
+let TCAP=1200;                                  // pool size, grown on demand
+const trees=[], dummy=new THREE.Object3D(), tmpCol=new THREE.Color();
+/* instance slot -> tree index, so picking still works once the instances are
+   packed contiguously instead of mirroring the trees array */
+let coneMap=[],roundMap=[],trunkMap=[];
 const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,flatShading:false,vertexColors:true});
 const leafMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,map:FOLIAGE_TEX,alphaTest:0.42,
   roughness:.94,metalness:0,side:THREE.DoubleSide,vertexColors:true});
@@ -832,9 +836,23 @@ function buildTrunk(){
   const m=mergeGeos(parts);
   return shadeByHeight(m,0.62,1.06,0.15);
 }
-const coneIM =new THREE.InstancedMesh(buildConeCanopy(),leafMat(),TCAP);
-const roundIM=new THREE.InstancedMesh(buildRoundCanopy(),leafMat(),TCAP);
-const trunkIM=new THREE.InstancedMesh(buildTrunk(),treeMat(),TCAP);
+const CONE_GEO=buildConeCanopy(), ROUND_GEO=buildRoundCanopy(), TRUNK_GEO=buildTrunk();
+let coneIM =new THREE.InstancedMesh(CONE_GEO ,leafMat(),TCAP);
+let roundIM=new THREE.InstancedMesh(ROUND_GEO,leafMat(),TCAP);
+let trunkIM=new THREE.InstancedMesh(TRUNK_GEO,treeMat(),TCAP);
+/* The pool has a fixed allocation because an InstancedMesh cannot be resized,
+   so when it fills we swap in bigger meshes rather than refusing to plant. */
+function growTreePool(need){
+  if(need<=TCAP)return;
+  const old=[coneIM,roundIM,trunkIM];
+  TCAP=Math.max(need,Math.ceil(TCAP*2));
+  old.forEach(m=>{scene.remove(m);m.dispose();});
+  coneIM =new THREE.InstancedMesh(CONE_GEO ,leafMat(),TCAP);
+  roundIM=new THREE.InstancedMesh(ROUND_GEO,leafMat(),TCAP);
+  trunkIM=new THREE.InstancedMesh(TRUNK_GEO,treeMat(),TCAP);
+  [coneIM,roundIM,trunkIM].forEach(m=>{m.castShadow=true;
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);});
+}
 [coneIM,roundIM,trunkIM].forEach(m=>{m.castShadow=true;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);});
 const glowMat=new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc978,emissiveIntensity:0,roughness:.5});
 const glowIM=new THREE.InstancedMesh(new THREE.SphereGeometry(.18,6,5),glowMat,900); scene.add(glowIM);
@@ -863,7 +881,8 @@ function blockedForTree(x,z){
 }
 function seedTrees(){
   trees.length=0;
-  const n=Math.min(TCAP,+$('tDens').value||400), mix=$('tMix').value;
+  const n=Math.max(0,+$('tDens').value||400), mix=$('tMix').value;
+  growTreePool(n);
   if(SITE.boundary.length<3){syncTrees();return;}
   const xs=SITE.boundary.map(p=>p[0]),zs=SITE.boundary.map(p=>p[1]);
   const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
@@ -880,26 +899,28 @@ function seedTrees(){
   syncTrees();
 }
 function syncTrees(){
-  let gi=0;
-  for(let i=0;i<TCAP;i++){
+  let gi=0, ci=0, ri=0, ti=0;
+  growTreePool(trees.length);
+  coneMap=[];roundMap=[];trunkMap=[];
+  for(let i=0;i<trees.length;i++){
     const t=trees[i];
-    if(!t||t.dead||!treesVisible){coneIM.setMatrixAt(i,HIDE);roundIM.setMatrixAt(i,HIDE);trunkIM.setMatrixAt(i,HIDE);continue;}
+    if(!t||t.dead||!treesVisible)continue;
     const sp=SPECIES[t.sp], y=terrainH(t.x,t.z), h=sp.h*t.s, rr=sp.r*t.s;
     const cone=sp.form==='cone';
     const trunkH=cone?h*0.20:h*0.46, canH=h-trunkH;
     dummy.position.set(t.x,y+trunkH/2,t.z); dummy.rotation.set(0,t.rot,0);
     dummy.scale.set(cone?0.15*rr:0.20*rr,trunkH,cone?0.15*rr:0.20*rr); dummy.updateMatrix();
-    trunkIM.setMatrixAt(i,dummy.matrix); trunkIM.setColorAt(i,tmpCol.setHex(sp.trunk));
+    trunkIM.setMatrixAt(ti,dummy.matrix); trunkIM.setColorAt(ti,tmpCol.setHex(sp.trunk)); trunkMap[ti++]=i;
     const jitter=1+(hash2(i,3,1)-0.5)*0.16;
     tmpCol.setHex(sp.col); tmpCol.offsetHSL(0,(hash2(i,7,2)-0.5)*0.05,(hash2(i,11,3)-0.5)*0.09);
     if(cone){
       dummy.position.set(t.x,y+trunkH+canH/2,t.z);
       dummy.scale.set(rr*jitter,canH/2,rr*jitter); dummy.updateMatrix();
-      coneIM.setMatrixAt(i,dummy.matrix); coneIM.setColorAt(i,tmpCol); roundIM.setMatrixAt(i,HIDE);
+      coneIM.setMatrixAt(ci,dummy.matrix); coneIM.setColorAt(ci,tmpCol); coneMap[ci++]=i;
     }else{
       dummy.position.set(t.x,y+trunkH+canH*0.46,t.z);
       dummy.scale.set(rr*jitter,canH*0.62,rr*0.92*jitter); dummy.updateMatrix();
-      roundIM.setMatrixAt(i,dummy.matrix); roundIM.setColorAt(i,tmpCol); coneIM.setMatrixAt(i,HIDE);
+      roundIM.setMatrixAt(ri,dummy.matrix); roundIM.setColorAt(ri,tmpCol); roundMap[ri++]=i;
     }
     if(t.lit&&gi<894){
       for(let k=0;k<6;k++){
@@ -911,6 +932,7 @@ function syncTrees(){
     }
   }
   for(let k=gi;k<900;k++)glowIM.setMatrixAt(k,HIDE);
+  coneIM.count=ci; roundIM.count=ri; trunkIM.count=ti;   // never draw unused slots
   [coneIM,roundIM,trunkIM,glowIM].forEach(m=>m.instanceMatrix.needsUpdate=true);
   [coneIM,roundIM,trunkIM].forEach(m=>{if(m.instanceColor)m.instanceColor.needsUpdate=true;});
 }
@@ -1588,9 +1610,32 @@ function finishTrace(){
 function place(d,x,z,rot){
   pushUndo('place '+d.n);
   if(d.kind==='plant'){
-    const t={x,z,tx:x,tz:z,sp:d.sp,s:.75+Math.random()*.45,rot:Math.random()*6.28,lit:false,dead:false};
+    const sp=SPECIES[d.sp], s0=.75+Math.random()*.45;
+    /* Plant it tight against a standing stem and the two grow together into a
+       single bigger tree rather than clipping through one another. Crowns
+       combine by mass, so two equal trees make one about 1.4x across, and the
+       merge reach follows the crown so a big tree absorbs from further out. */
+    let best=-1,bd=1e9;
+    trees.forEach((t2,j)=>{
+      if(!t2||t2.dead)return;
+      const reach=Math.max(1.8,(SPECIES[t2.sp].r*t2.s+sp.r*s0)*0.55);
+      const dd=Math.hypot(x-t2.x,z-t2.z);
+      if(dd<reach&&dd<bd){bd=dd;best=j;}
+    });
+    if(best>=0){
+      const t2=trees[best], MAXS=2.4;
+      const merged=Math.min(MAXS,Math.sqrt(t2.s*t2.s+s0*s0));
+      const grew=merged>t2.s+0.001;
+      t2.s=merged;
+      if(SPECIES[t2.sp].h*t2.s < sp.h*s0) t2.sp=d.sp;   // the taller species wins the crown
+      t2.x=t2.tx=(t2.x+x)/2; t2.z=t2.tz=(t2.z+z)/2;
+      syncTrees(); extra('Planting',d.cad); refresh();
+      toast(grew?`Merged into one larger ${SPECIES[t2.sp].n.toLowerCase()}`:'Merged into the neighbouring tree');
+      return;
+    }
+    const t={x,z,tx:x,tz:z,sp:d.sp,s:s0,rot:Math.random()*6.28,lit:false,dead:false};
     const i=trees.findIndex(t2=>t2.dead);
-    if(i>=0)trees[i]=t; else if(trees.length<TCAP)trees.push(t); else {toast('Stem limit reached');return;}
+    if(i>=0)trees[i]=t; else {growTreePool(trees.length+1);trees.push(t);}
     syncTrees();extra('Planting',d.cad);refresh();return;
   }
   const mesh=buildMesh(d);
@@ -1685,7 +1730,14 @@ function hitGround(e){ndcFrom(e);
   return h?h.point:null;}
 function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
   let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
-function pickTree(e){ndcFrom(e);const h=ray.intersectObjects([coneIM,roundIM,trunkIM],false);return h.length?h[0].instanceId:-1;}
+function pickTree(e){
+  ndcFrom(e);
+  const h=ray.intersectObjects([coneIM,roundIM,trunkIM],false);
+  if(!h.length)return -1;
+  const o=h[0].object, id=h[0].instanceId;
+  const map=o===coneIM?coneMap:o===roundIM?roundMap:trunkMap;
+  return map[id]===undefined?-1:map[id];
+}
 function pickHandle(e){ndcFrom(e);const list=boundMode?bHandles.children:handles.children;
   const h=ray.intersectObjects(list,false);return h.length?h[0].object:null;}
 
