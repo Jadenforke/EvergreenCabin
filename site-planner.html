@@ -125,6 +125,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnScale">Set scale</button>
   <button class="tbtn" id="btnOverlay">Overlays</button>
   <button class="tbtn" id="btnUnits">Units: m</button>
+  <button class="tbtn" id="btnAnim">Anim: on</button>
   <button class="tbtn" id="btnUndo">Undo</button>
   <button class="tbtn" id="btnShot">Snapshot</button>
   <button class="tbtn" id="btnSave">Export</button>
@@ -355,10 +356,10 @@ function fbm(x,y,s){ let t=0,a=.5,f=1; for(let i=0;i<4;i++){t+=a*vnoise(x*f,y*f,
 /* ---------------- three.js ---------------- */
 const scene=new THREE.Scene();
 const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 renderer.outputEncoding=THREE.sRGBEncoding;      // was linear — that is what made it look flat
 renderer.physicallyCorrectLights=false;
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled=true; renderer.shadowMap.autoUpdate=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 $('stage').appendChild(renderer.domElement);
 
 const persp=new THREE.PerspectiveCamera(48,1,0.5,4000);
@@ -382,7 +383,7 @@ function resize(){renderer.setSize(innerWidth,innerHeight);persp.aspect=innerWid
 addEventListener('resize',resize);
 
 const hemi=new THREE.HemisphereLight(0xe4e7e6,0x33372e,0.55); scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffffff,1.15); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+const sun=new THREE.DirectionalLight(0xffffff,1.15); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-340,right:340,top:300,bottom:-300,near:1,far:1200});
 scene.add(sun,sun.target);
 const moon=new THREE.DirectionalLight(0xc6cdd2,0); scene.add(moon);
@@ -434,7 +435,8 @@ function buildTerrain(){
   }
   g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));
   g.computeVertexNormals();
-  terrainMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97,metalness:0,flatShading:true});
+  terrainMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97,metalness:0,flatShading:true,
+    map:GROUND_TEX});
   terrain=new THREE.Mesh(g,terrainMat); terrain.receiveShadow=true; scene.add(terrain);
 
   if(plinth){scene.remove(plinth);plinth.geometry.dispose();}
@@ -488,7 +490,7 @@ function buildWater(){
      The terrain already sits above 0 on land and below 0 in the lake, so a
      sheet at water level is hidden ashore and shows everywhere it should. */
   const w=LAND.ex+120,h=LAND.ez+120;
-  waterGeo=new THREE.PlaneGeometry(w,h,Math.round(w/8),Math.round(h/8));
+  waterGeo=new THREE.PlaneGeometry(w,h,Math.round(w/16),Math.round(h/16));
   waterGeo.rotateX(-Math.PI/2);
   wBase=waterGeo.attributes.position.array.slice();
   waterMesh=new THREE.Mesh(waterGeo,waterMat);
@@ -652,6 +654,28 @@ function foliageAtlas(){
   return tex;
 }
 const FOLIAGE_TEX=foliageAtlas();
+/* fine ground grain — tufts and soil speckle, drawn near-white so it only
+   modulates the terrain's vertex colours rather than repainting them */
+const GROUND_TEX=(()=>{
+  const S=512,c=document.createElement('canvas');c.width=c.height=S;
+  const g=c.getContext('2d');
+  g.fillStyle='#ffffff';g.fillRect(0,0,S,S);
+  for(let i=0;i<26000;i++){                       // soil speckle
+    const v=205+Math.random()*50, a=0.05+Math.random()*0.16;
+    g.fillStyle=`rgba(${v|0},${v|0},${(v*0.97)|0},${a})`;
+    g.fillRect(Math.random()*S,Math.random()*S,1+Math.random()*2,1+Math.random()*2);
+  }
+  for(let i=0;i<3400;i++){                        // grass tufts
+    const x=Math.random()*S,y=Math.random()*S,L=3+Math.random()*8,a=Math.random()*6.283;
+    const v=175+Math.random()*70;
+    g.strokeStyle=`rgba(${v|0},${(v*1.03)|0},${(v*0.86)|0},${0.10+Math.random()*0.22})`;
+    g.lineWidth=0.7+Math.random()*0.9;
+    g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(a)*L,y+Math.sin(a)*L);g.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(46,40); t.anisotropy=8;
+  return t;
+})();
 function tileUV(geo,tile){
   const uv=geo.attributes.uv, ox=(tile%2)*0.5, oy=1-(Math.floor(tile/2)+1)*0.5;
   for(let i=0;i<uv.count;i++) uv.setXY(i, ox+uv.getX(i)*0.5, oy+uv.getY(i)*0.5);
@@ -899,7 +923,20 @@ function polyNear(x,z,poly){
     const r=segDist(x,z,a[0],a[1],b[0],b[1]); if(r.d<best.d)best=r;}
   return best;
 }
-const baseYFor=pts=>Math.min(...pts.map(q=>terrainH(q[0],q[1])));
+const baseYFor=pts=>Math.max(...pts.map(q=>terrainH(q[0],q[1])));
+/* On a slope, sampling only the centre buries the uphill corner. Sit the
+   unit on the highest ground under its footprint so it never sinks in. */
+function padY(def,x,z,rot){
+  if(!def||!def.w)return terrainH(x,z);
+  const c=Math.cos(rot||0),si=Math.sin(rot||0),hw=def.w/2,hd=def.d/2;
+  let y=terrainH(x,z);
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){
+    const lx=a*hw,lz=b*hd;
+    const h=terrainH(x+lx*c-lz*si, z+lx*si+lz*c);
+    if(h>y)y=h;
+  }
+  return y;
+}
 function readInputs(){
   FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;FIN.peng=+$('fPeng').value;FIN.esa=+$('fEsa').value;
   FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;FIN.cont=+$('fCont').value;
@@ -997,7 +1034,11 @@ const nightMats=[];
    from straight overhead in plan. Point lights are capped — past the cap a
    fixture still glows and still throws its pool, it just stops adding to
    the shader's light loop. */
-const LIGHT_CAP=30;
+/* Every extra PointLight is added to the fragment loop of every material on
+   screen, so a big cap was the main reason the scene bogged down once a site
+   filled up. Keep a handful of real lights and let the emissive glows and
+   ground pools — which cost nothing — carry the rest. */
+const LIGHT_CAP=12;
 const siteLights=[]; let lightsCapped=false, LIGHT_NIGHT=0, ATTACH_LIGHTS=true;
 const poolTex=(()=>{
   const c=document.createElement('canvas'); c.width=c.height=128;
@@ -1048,6 +1089,21 @@ function habLight(g,d){
   lit(g,0,Math.max(1.2,(d.h||3)*0.45),0,
     {base:1.05,dist:Math.max(15,(d.w||6)*2.6),
      pool:Math.max(10,Math.hypot(d.w||6,d.d||6)*1.15),col:0xffcf9a});
+  /* A porch lamp on every structure. Emissive costs nothing and is never
+     subject to the point-light cap, so a sauna or a boathouse still reads as
+     lit even when the real lights are all spoken for. */
+  const lampY=Math.min((d.h||3)*0.72,(d.h||3)-0.3);
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(0.17,8,6),
+    new THREE.MeshStandardMaterial({color:0xf6ead2,emissive:0xffc27a,emissiveIntensity:0,roughness:.45}));
+  lamp.position.set((d.w||3)/2*0.86,lampY,(d.d||3)/2*0.86);
+  nightMats.push(lamp.material); g.add(lamp);
+  /* windowless forms (barrel sauna, pavilion) get a lit doorway too */
+  if(d.kind==='barrel'||d.kind==='pavilion'||d.kind==='dome'){
+    const dr=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(1.1,(d.w||2)*0.5),Math.min(1.7,(d.h||2)*0.66)),
+      new THREE.MeshStandardMaterial({color:0x2a3037,emissive:0xffd39b,emissiveIntensity:0,roughness:.3,side:THREE.DoubleSide}));
+    dr.position.set(0,Math.min(0.95,(d.h||2)*0.4),(d.d||2)/2+0.04);
+    nightMats.push(dr.material); g.add(dr);
+  }
 }
 function glass(){const m=new THREE.MeshStandardMaterial({color:0x2a3037,emissive:0xffd39b,emissiveIntensity:0,roughness:.22,metalness:.15});nightMats.push(m);return m;}
 function pyramid(w,d,h,col){const g=new THREE.ConeGeometry(.72,h,4);g.rotateY(Math.PI/4);g.scale(w/1.02,1,d/1.02);
@@ -1447,7 +1503,7 @@ function place(d,x,z,rot){
     syncTrees();extra('Planting',d.cad);refresh();return;
   }
   const mesh=buildMesh(d);
-  mesh.position.set(x,d.water?0:terrainH(x,z),z);mesh.rotation.y=rot;objGroup.add(mesh);
+  mesh.position.set(x,d.water?0:padY(d,x,z,rot),z);mesh.rotation.y=rot;objGroup.add(mesh);
   const o={type:'obj',def:d,mesh,x,z,rot};placed.push(o);
   if(d.w&&d.kind!=='dock')pushTrees(o);
   if(styleMode==='diorama')styleObject(mesh);
@@ -1611,6 +1667,30 @@ renderer.domElement.addEventListener('wheel',e=>{
   applyCam();
 },{passive:false});
 
+/* docks read as one structure when they touch, so snap a new one onto the
+   end or the side of any dock already in the water. */
+let dockSnap=null;
+function snapDock(d,x,z,rot){
+  dockSnap=null;
+  if(!d||d.kind!=='dock')return {x,z,rot};
+  let best=null;
+  placed.forEach(o=>{
+    if(o.type!=='obj'||o.def.kind!=='dock')return;
+    const c=Math.cos(o.rot),si=Math.sin(o.rot);
+    const cand=[
+      {x:o.x+(-si)*0,           z:o.z+0,           lx:0, lz:(o.def.d/2+d.d/2)},   // end to end
+      {x:0,z:0, lx:0, lz:-(o.def.d/2+d.d/2)},
+      {x:0,z:0, lx:(o.def.w/2+d.w/2), lz:0},                                       // side by side
+      {x:0,z:0, lx:-(o.def.w/2+d.w/2), lz:0}];
+    cand.forEach(k=>{
+      const px=o.x+k.lx*c-k.lz*si, pz=o.z+k.lx*si+k.lz*c;
+      const dd=Math.hypot(x-px,z-pz);
+      if(dd<14&&(!best||dd<best.d))best={d:dd,x:px,z:pz,rot:o.rot};
+    });
+  });
+  if(best){ dockSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
+  return {x,z,rot};
+}
 function updateGhost(e){
   const p=hitGround(e);if(!p)return;
   let x=p.x,z=p.z;if(snap){x=Math.round(x);z=Math.round(z);}
@@ -1631,8 +1711,9 @@ function updateGhost(e){
     }
     if(!ghost)return;
     const y=terrainH(x,z);
+    if(d.kind==='dock'){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
-    else ghost.position.set(x,d.water?0:y,z);
+    else ghost.position.set(x,d.water?0:padY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
     tint(bad.length);
     if(bad.length)hint('✕ '+bad[0].m,true);
@@ -1703,9 +1784,12 @@ renderer.domElement.addEventListener('click',e=>{
       else toast('Click directly on a tree');
       return;
     }
-    const bad=validate(d,x,z,ghostRot).filter(i=>!i.soft);
+    let px=x,pz=z,prot=ghostRot;
+    if(d.kind==='dock'){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+      if(dockSnap)toast('Snapped to the neighbouring dock'); }
+    const bad=validate(d,px,pz,prot).filter(i=>!i.soft);
     if(bad.length){toast('Blocked — '+bad[0].m);return;}
-    place(d,x,z,ghostRot);return;
+    place(d,px,pz,prot);return;
   }
   if(tool==='erase'){
     const o=pickObj(e);
@@ -1759,7 +1843,7 @@ function rebuildLand(){
     if(o.type==='road'){objGroup.remove(o.mesh);o.mesh=roadMesh(o.pts,o.width,o.def.col);objGroup.add(o.mesh);
       if(styleMode==='diorama')styleObject(o.mesh);}
     else if(o.type==='custom')o.mesh.position.y=baseYFor(o.pts);
-    else o.mesh.position.y=o.def.water?0:terrainH(o.x,o.z);
+    else o.mesh.position.y=o.def.water?0:padY(o.def,o.x,o.z,o.rot);
   });
   syncTrees();refresh();
 }
@@ -1780,7 +1864,7 @@ function readLand(){
 }
 
 /* ---------------- day / night ---------------- */
-let minutes=390,playing=false,lightMode='auto';
+let minutes=390,playing=false,lightMode='auto',animOn=true;
 const SKY=[[0,0x0d1012],[5,0x212629],[6.5,0x4e565a],[8,0x8b9599],[12,0x99a3a7],[17,0x939da1],[19.5,0x565d61],[21,0x282d31],[24,0x0d1012]];
 function skyAt(h){for(let i=0;i<SKY.length-1;i++)if(h>=SKY[i][0]&&h<=SKY[i+1][0]){
   const t=(h-SKY[i][0])/(SKY[i+1][0]-SKY[i][0]);return new THREE.Color(SKY[i][1]).lerp(new THREE.Color(SKY[i+1][1]),t);}
@@ -2017,6 +2101,18 @@ function setUnits(u){
   toast('Units: '+(UNITS==='m'?'metres':'feet'));
 }
 $('btnUnits').onclick=()=>setUnits(UNITS==='m'?'ft':'m');
+$('btnAnim').onclick=()=>{
+  animOn=!animOn;
+  $('btnAnim').textContent='Anim: '+(animOn?'on':'off');
+  $('btnAnim').classList.toggle('on',!animOn);
+  if(!animOn&&playing){playing=false;$('btnPlay').textContent='Play day';$('btnPlay').classList.remove('on');}
+  if(!animOn&&waterGeo&&wBase){                       // settle the lake flat
+    const q=waterGeo.attributes.position.array;
+    for(let i=0;i<q.length;i+=3)q[i+1]=0;
+    waterGeo.attributes.position.needsUpdate=true;
+  }
+  toast(animOn?'Animation on':'Animation off — steadier on big sites');
+};
 $('btnUndo').onclick=undo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
@@ -2094,7 +2190,7 @@ function applyState(d,keepUnder){
           inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0});
       }
       else{const def=DEF[i.id];if(!def)return;
-        const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:terrainH(i.x,i.z),i.z);mesh.rotation.y=i.rot;
+        const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:padY(def,i.x,i.z,i.rot),i.z);mesh.rotation.y=i.rot;
         objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
     });
     (d.extras||[]).forEach(c=>extras.push(c));
@@ -2136,19 +2232,21 @@ function updateScaleBar(){
 
 /* ---------------- loop ---------------- */
 let last=performance.now();
+let frame=0;
 function tick(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  if(playing){minutes=(minutes+dt*140)%1440;$('time').value=minutes;updateSun();}
+  if(playing&&animOn){minutes=(minutes+dt*140)%1440;$('time').value=minutes;updateSun();}
   let moving=false;
   trees.forEach(t=>{if(t.dead)return;
     if(Math.abs(t.tx-t.x)>.01||Math.abs(t.tz-t.z)>.01){t.x+=(t.tx-t.x)*Math.min(1,dt*5);t.z+=(t.tz-t.z)*Math.min(1,dt*5);moving=true;}});
   if(moving)syncTrees();
-  if(waterGeo&&wBase){
+  if(animOn&&waterGeo&&wBase&&(frame&1)===0){        // waves on alternate frames only
     const p=waterGeo.attributes.position.array;
     for(let i=0;i<p.length;i+=3)p[i+1]=Math.sin(wBase[i]*.09+now*.0011)*.13+Math.cos(wBase[i+2]*.13+now*.0016)*.09;
     waterGeo.attributes.position.needsUpdate=true;
   }
-  if(LIGHT_NIGHT>0.02){                              // fire pits breathe
+  frame++;
+  if(animOn&&LIGHT_NIGHT>0.02){                      // fire pits breathe
     const f=0.80+0.16*Math.sin(now*0.011)+0.07*Math.sin(now*0.037);
     siteLights.forEach(r=>{ if(!r.flicker)return;
       if(r.light)r.light.intensity=r.base*LIGHT_NIGHT*f;
