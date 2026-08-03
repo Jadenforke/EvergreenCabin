@@ -115,7 +115,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 <div id="top" class="panel">
   <div id="brand">EVERGREEN<span>·</span>SITE</div>
   <div class="seg" id="viewseg"><button data-view="plan" class="on">Bird's-eye</button><button data-view="3d">3D</button></div>
-  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button></div>
+  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="erase">Erase</button></div>
   <div class="spacer"></div>
   <button class="tbtn" id="btnLand">Shape shoreline</button>
   <button class="tbtn" id="btnBound">Trace lot line</button>
@@ -124,6 +124,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnSettings">Prices</button>
   <button class="tbtn" id="btnScale">Set scale</button>
   <button class="tbtn" id="btnOverlay">Overlays</button>
+  <button class="tbtn" id="btnUndo">Undo</button>
   <button class="tbtn" id="btnShot">Snapshot</button>
   <button class="tbtn" id="btnSave">Export</button>
   <button class="tbtn" id="btnLoad">Import</button>
@@ -706,6 +707,31 @@ function applyStyle(){
 
 /* ---------------- objects ---------------- */
 const placed=[],objGroup=new THREE.Group(); scene.add(objGroup);
+
+/* ---- undo -------------------------------------------------------------
+   Snapshot the whole plan before each change. Restoring runs the same code
+   path as loading a file, so it covers placements, deletions, tree edits,
+   shoreline and lot-line moves alike. */
+const undoStack=[]; const UNDO_MAX=40; let restoring=false;
+function pushUndo(label){
+  if(restoring)return;
+  try{ undoStack.push({label:label||'change',state:JSON.stringify(serialize(false))}); }catch(e){ return; }
+  if(undoStack.length>UNDO_MAX)undoStack.shift();
+  updateUndoBtn();
+}
+function updateUndoBtn(){
+  const b=$('btnUndo'); if(!b)return;
+  b.disabled=!undoStack.length;
+  b.style.opacity=undoStack.length?1:.4;
+  b.title=undoStack.length?`Undo ${undoStack[undoStack.length-1].label}`:'Nothing to undo';
+}
+function undo(){
+  if(!undoStack.length){toast('Nothing to undo');return;}
+  const e=undoStack.pop();
+  applyState(JSON.parse(e.state),true);
+  updateUndoBtn();
+  toast('Undid '+e.label);
+}
 const nightMats=[];
 
 /* ---- light fixtures ----------------------------------------------------
@@ -1014,6 +1040,7 @@ function setTool(t,id){
       :d.kind==='plant'?`Click to plant ${d.n}`
       :'Click to place · R rotates · Shift snaps to 1 m');
   }else if(t==='measure')hint('Click two points to measure between them');
+  else if(t==='erase')hint('Click any unit, road, building or tree to remove it \u00b7 Esc leaves erase mode');
   else{select(null);hint('Pick something from the catalogue');}
 }
 function makeGhost(d){
@@ -1147,7 +1174,7 @@ function drawTrace(extra){
 }
 function finishTrace(){
   if(!trace)return;
-  if(trace.mode==='boundary'&&trace.pts.length>2)SITE.boundary=trace.pts.slice();
+  if(trace.mode==='boundary'&&trace.pts.length>2){pushUndo('retrace lot line');SITE.boundary=trace.pts.slice();}
   cancelTrace();recomputeAreas();buildOverlays();refresh();
   ['btnScale','btnBound'].forEach(b=>$(b).classList.remove('on'));
   hint('Lot line set');toast('Lot line updated');
@@ -1155,6 +1182,7 @@ function finishTrace(){
 
 /* ---------------- commit ---------------- */
 function place(d,x,z,rot){
+  pushUndo('place '+d.n);
   if(d.kind==='plant'){
     const t={x,z,tx:x,tz:z,sp:d.sp,s:.75+Math.random()*.45,rot:Math.random()*6.28,lit:false,dead:false};
     const i=trees.findIndex(t2=>t2.dead);
@@ -1169,6 +1197,7 @@ function place(d,x,z,rot){
   syncTrees();refresh();
 }
 function placeRoad(d,pts){
+  pushUndo('lay '+d.n);
   const width=d.fixedW||RATES[d.width];
   const mesh=roadMesh(pts,width,d.col);objGroup.add(mesh);
   const o={type:'road',def:d,mesh,pts:pts.slice(),width,len:polyLen(pts)};placed.push(o);
@@ -1210,6 +1239,7 @@ function placeCustom(pts){
       toast(`Blocked — overlaps ${q.def.n}`);return;}
     if(q.type==='custom'&&q.pts.some(c=>pointInPoly(c[0],c[1],pts))){toast('Blocked — overlaps another custom building');return;}
   }
+  pushUndo('draw custom building');
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const h=CUSTOM.h*Math.max(1,CUSTOM.storeys);
   const mesh=buildCustomMesh(pts,h);
@@ -1262,10 +1292,11 @@ renderer.domElement.addEventListener('pointerdown',e=>{
     if(hd){
       if(e.shiftKey){
         if(hd.userData.b){
-          if(SITE.boundary.length>3){SITE.boundary.splice(hd.userData.i,1);recomputeAreas();buildOverlays();refresh();toast('Corner removed');}
-        }else if(SITE.shore.length>6){SITE.shore.splice(hd.userData.i,1);rebuildLand();}
+          if(SITE.boundary.length>3){pushUndo('remove lot corner');SITE.boundary.splice(hd.userData.i,1);recomputeAreas();buildOverlays();refresh();toast('Corner removed');}
+        }else if(SITE.shore.length>6){pushUndo('remove shoreline point');SITE.shore.splice(hd.userData.i,1);rebuildLand();}
         return;
       }
+      pushUndo(hd.userData.b?'move lot corner':'move shoreline point');
       dragHandle=hd;draggingHandles=true;renderer.domElement.setPointerCapture(e.pointerId);return;
     }
   }
@@ -1384,7 +1415,7 @@ renderer.domElement.addEventListener('click',e=>{
       const r=segDist(x,z,a[0],a[1],b[0],b[1]);
       if(r.d<bd){bd=r.d;best=i;}
     }
-    if(best>=0&&bd<14){SITE.shore.splice(best+1,0,[x,z]);rebuildLand();toast('Point added');}
+    if(best>=0&&bd<14){pushUndo('add shoreline point');SITE.shore.splice(best+1,0,[x,z]);rebuildLand();toast('Point added');}
     return;
   }
   if(boundMode){                                    // insert a new lot corner
@@ -1394,7 +1425,7 @@ renderer.domElement.addEventListener('click',e=>{
       const r=segDist(x,z,a[0],a[1],b[0],b[1]);
       if(r.d<bd){bd=r.d;best=i;}
     }
-    if(best>=0&&bd<18){SITE.boundary.splice(best+1,0,[x,z]);recomputeAreas();buildOverlays();refresh();toast('Corner added');}
+    if(best>=0&&bd<18){pushUndo('add lot corner');SITE.boundary.splice(best+1,0,[x,z]);recomputeAreas();buildOverlays();refresh();toast('Corner added');}
     return;
   }
   if(tool==='place'&&activeId){
@@ -1418,6 +1449,15 @@ renderer.domElement.addEventListener('click',e=>{
     const bad=validate(d,x,z,ghostRot).filter(i=>!i.soft);
     if(bad.length){toast('Blocked — '+bad[0].m);return;}
     place(d,x,z,ghostRot);return;
+  }
+  if(tool==='erase'){
+    const o=pickObj(e);
+    if(o){ pushUndo('delete '+(o.def?o.def.n:'building')); removeObj(o); toast('Removed'); return; }
+    const ti=pickTree(e);
+    if(ti>=0&&trees[ti]&&!trees[ti].dead){
+      pushUndo('remove tree'); trees[ti].dead=true; treeStats.felled++; syncTrees(); refresh(); toast('Tree removed'); return;
+    }
+    toast('Nothing there to remove'); return;
   }
   if(tool==='measure'){
     if(measurePts.length>=2)measurePts=[];
@@ -1446,8 +1486,9 @@ addEventListener('keydown',e=>{
   }
   if(e.key==='Escape'){if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
-  if((e.key==='Delete'||e.key==='Backspace')&&selected)removeObj(selected);
+  if((e.key==='Delete'||e.key==='Backspace')&&selected){pushUndo('delete '+(selected.def?selected.def.n:'building'));removeObj(selected);toast('Removed');}
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
+  if((e.key==='z'||e.key==='Z')&&(e.ctrlKey||e.metaKey)){undo();return;}
   if((e.key==='u'||e.key==='U')&&SITE.under)showUnder(!SITE.underOn);
 },{passive:true});
 addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
@@ -1657,6 +1698,7 @@ $('ledger').addEventListener('click',e=>{
 $('btnReshape').onclick=()=>{rebuildLand();toast('Land rebuilt');};
 $('btnNewSeed').onclick=()=>{LAND.seed=Math.floor(Math.random()*900);rebuildLand();toast('New relief pattern');};
 $('btnResetShore').onclick=()=>{
+  pushUndo('reset shoreline');
   SITE.shore=defaultShore();
   rebuildLand();recomputeAreas();buildOverlays();refresh();
   toast('Shoreline reset to the surveyed outline');
@@ -1669,6 +1711,7 @@ $('btnStyle').onclick=()=>{styleMode=styleMode==='survey'?'diorama':'survey';app
 $('btnLights').onclick=()=>{lightMode=lightMode==='auto'?'on':lightMode==='on'?'off':'auto';$('btnLights').textContent='Lights: '+lightMode;updateSun();};
 $('btnPlay').onclick=()=>{playing=!playing;$('btnPlay').textContent=playing?'Pause day':'Play day';$('btnPlay').classList.toggle('on',playing);};
 $('time').oninput=e=>{minutes=+e.target.value;updateSun();};
+$('btnUndo').onclick=undo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
 function loadUnderlay(url,announce){
@@ -1697,16 +1740,61 @@ $('fileMap').onchange=e=>{
   r.readAsDataURL(f);
 };
 
-$('btnSave').onclick=()=>{
-  const data={v:3,style:styleMode,land:LAND,shore:SITE.shore,boundary:SITE.boundary,under:SITE.underUrl,
-    fin:FIN,rates:RATES,rules:RULES,
-    custom:CUSTOM,
+function serialize(withUnder){
+  return {v:3,style:styleMode,land:JSON.parse(JSON.stringify(LAND)),
+    shore:JSON.parse(JSON.stringify(SITE.shore)),boundary:JSON.parse(JSON.stringify(SITE.boundary)),
+    under:withUnder?SITE.underUrl:null,
+    fin:JSON.parse(JSON.stringify(FIN)),rates:JSON.parse(JSON.stringify(RATES)),
+    rules:JSON.parse(JSON.stringify(RULES)),custom:JSON.parse(JSON.stringify(CUSTOM)),
     items:placed.map(p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
       :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost}
       :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
     trees:trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]),
-    extras,treeStats};
-  const b=new Blob([JSON.stringify(data)],{type:'application/json'});
+    extras:JSON.parse(JSON.stringify(extras)),treeStats:JSON.parse(JSON.stringify(treeStats))};
+}
+function applyState(d,keepUnder){
+  restoring=true;
+  try{
+    [...placed].forEach(removeObj);extras.length=0;
+    Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
+    Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
+    $('lDepth').value=LAND.depth;$('lBank').value=LAND.bank;$('lBeach').value=LAND.beach;
+    $('lRelief').value=LAND.relief;$('lSlope').value=(LAND.slope*100).toFixed(1);$('lCont').value=LAND.cont;
+    $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
+    $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
+    $('cusRate').value=CUSTOM.rate;$('cusH').value=CUSTOM.h;$('cusSt').value=CUSTOM.storeys;
+    ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>$(k).value=RATES[k]??50);
+    $('rEdge').value=RULES.edge;$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
+    SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
+    if(!keepUnder){
+      if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
+      SITE.underUrl=d.under||null;SITE.underOn=false;   // imported plans open with the underlay off
+      underLabel();
+    }
+    buildTerrain();
+    trees.length=0;
+    (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
+      :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
+    syncTrees();
+    (d.items||[]).forEach(i=>{
+      if(i.t==='road')placeRoad(DEF[i.id],i.pts);
+      else if(i.t==='custom'){
+        const mesh=buildCustomMesh(i.pts,i.h); mesh.position.y=baseYFor(i.pts); objGroup.add(mesh);
+        const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
+        placed.push({type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,cost:i.cost,
+          inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0});
+      }
+      else{const def=DEF[i.id];if(!def)return;
+        const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:terrainH(i.x,i.z),i.z);mesh.rotation.y=i.rot;
+        objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
+    });
+    (d.extras||[]).forEach(c=>extras.push(c));
+    treeStats=d.treeStats||{moved:0,felled:0};
+    styleMode=d.style||'survey';applyStyle();buildOverlays();refresh();
+  } finally { restoring=false; }
+}
+$('btnSave').onclick=()=>{
+  const b=new Blob([JSON.stringify(serialize(true))],{type:'application/json'});
   const a=document.createElement('a');a.download='evergreen-site-plan.json';a.href=URL.createObjectURL(b);a.click();
 };
 $('btnLoad').onclick=()=>$('fileIn').click();
@@ -1714,41 +1802,8 @@ $('fileIn').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=()=>{
-    try{
-      const d=JSON.parse(r.result);
-      [...placed].forEach(removeObj);extras.length=0;
-      Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
-      $('lDepth').value=LAND.depth;$('lBank').value=LAND.bank;$('lBeach').value=LAND.beach;
-      $('lRelief').value=LAND.relief;$('lSlope').value=(LAND.slope*100).toFixed(1);$('lCont').value=LAND.cont;
-      $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
-      $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
-      ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>$(k).value=RATES[k]??50);
-      $('rEdge').value=RULES.edge;$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
-      SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
-      if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
-      SITE.underUrl=d.under||null;SITE.underOn=false;      // imported plans open with the underlay off
-      underLabel();
-      buildTerrain();
-      trees.length=0;
-      (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
-        :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
-      syncTrees();
-      (d.items||[]).forEach(i=>{
-        if(i.t==='road')placeRoad(DEF[i.id],i.pts);
-        else if(i.t==='custom'){
-          const mesh=buildCustomMesh(i.pts,i.h); mesh.position.y=baseYFor(i.pts); objGroup.add(mesh);
-          const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
-          placed.push({type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,cost:i.cost,
-            inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0});
-        }
-        else{const def=DEF[i.id];if(!def)return;
-          const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:terrainH(i.x,i.z),i.z);mesh.rotation.y=i.rot;
-          objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
-      });
-      (d.extras||[]).forEach(c=>extras.push(c));
-      treeStats=d.treeStats||{moved:0,felled:0};
-      styleMode=d.style||'survey';applyStyle();refresh();toast('Plan loaded');
-    }catch(err){toast('That file could not be read');}
+    try{ pushUndo('Import'); applyState(JSON.parse(r.result)); toast('Plan loaded'); }
+    catch(err){ toast('That file could not be read'); }
   };
   r.readAsText(f);
 };
@@ -1793,7 +1848,7 @@ function tick(now){
 /* ---------------- boot ---------------- */
 SITE.shore=defaultShore(); SITE.boundary=defaultBoundary();
 readInputs(); readLand(); buildTerrain(); seedTrees(); buildPalette(); buildPricing();
-resize(); switchView('plan'); applyStyle(); refresh();
+resize(); switchView('plan'); applyStyle(); refresh(); updateUndoBtn();
 requestAnimationFrame(tick);
 </script>
 </body>
