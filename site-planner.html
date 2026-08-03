@@ -158,6 +158,8 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Inland rise (m per 100 m)</label><input id="lSlope" type="number" value="1.8" step="0.2"></div>
   <div class="field"><label>Contour interval (m)</label><input id="lCont" type="number" value="1" step="0.5"></div>
   <div class="acts"><button class="tbtn" id="btnReshape">Rebuild land</button><button class="tbtn" id="btnNewSeed">New relief</button></div>
+  <div class="acts"><button class="tbtn" id="btnResetShore">Reset shoreline</button></div>
+  <div class="note">Reset shoreline puts the lake back to the surveyed Evergreen outline if dragging the handles has pulled it out of shape.</div>
 
  </section>
  <section class="grp" data-grp="other">
@@ -453,11 +455,20 @@ let waterMesh=null,waterGeo=null,wBase=null;
 const waterMat=new THREE.MeshStandardMaterial({color:0x1d6b7d,roughness:.15,metalness:.55,transparent:true,opacity:.72});
 function buildWater(){
   if(waterMesh){scene.remove(waterMesh);waterMesh.geometry.dispose();}
-  if(SITE.shore.length<3){waterMesh=null;return;}
-  const shape=new THREE.Shape(SITE.shore.map(p=>new THREE.Vector2(p[0],p[1])));
-  waterGeo=new THREE.ShapeGeometry(shape,14); waterGeo.rotateX(Math.PI/2); waterGeo.scale(1,1,-1);
+  /* A flat sheet across the whole site rather than a polygon triangulated from
+     SITE.shore. Dragging the shoreline handles can easily make that polygon
+     cross itself, and a self-intersecting shape breaks the triangulator — which
+     rendered the lake as black slabs with the bare lake bed showing through.
+     The terrain already sits above 0 on land and below 0 in the lake, so a
+     sheet at water level is hidden ashore and shows everywhere it should. */
+  const w=LAND.ex+120,h=LAND.ez+120;
+  waterGeo=new THREE.PlaneGeometry(w,h,Math.round(w/8),Math.round(h/8));
+  waterGeo.rotateX(-Math.PI/2);
   wBase=waterGeo.attributes.position.array.slice();
-  waterMesh=new THREE.Mesh(waterGeo,waterMat); waterMesh.position.y=0; scene.add(waterMesh);
+  waterMesh=new THREE.Mesh(waterGeo,waterMat);
+  waterMesh.position.y=-0.04;          // just under the beach line, no z-fighting
+  waterMesh.receiveShadow=false;
+  scene.add(waterMesh);
 }
 
 /* ---------------- overlays & handles ---------------- */
@@ -1603,6 +1614,11 @@ $('ledger').addEventListener('click',e=>{
 });
 $('btnReshape').onclick=()=>{rebuildLand();toast('Land rebuilt');};
 $('btnNewSeed').onclick=()=>{LAND.seed=Math.floor(Math.random()*900);rebuildLand();toast('New relief pattern');};
+$('btnResetShore').onclick=()=>{
+  SITE.shore=defaultShore();
+  rebuildLand();recomputeAreas();buildOverlays();refresh();
+  toast('Shoreline reset to the surveyed outline');
+};
 $('btnRegrow').onclick=()=>{treeStats={moved:0,felled:0};seedTrees();refresh();toast('Forest cover regrown');};
 $('btnNoTrees').onclick=()=>{trees.length=0;syncTrees();refresh();toast('All stems cleared');};
 $('btnTrees').onclick=()=>{treesVisible=!treesVisible;$('btnTrees').textContent='Trees: '+(treesVisible?'on':'off');syncTrees();};
