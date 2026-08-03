@@ -566,10 +566,107 @@ function pickSpecies(mix,d){
 }
 
 const TCAP=900, trees=[], dummy=new THREE.Object3D(), tmpCol=new THREE.Color();
-const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,flatShading:true});
-const coneIM =new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),treeMat(),TCAP);
-const roundIM=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),treeMat(),TCAP);
-const trunkIM=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.55,0.85,1,6),treeMat(),TCAP);
+const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,flatShading:false,vertexColors:true});
+
+/* ---- canopy geometry ---------------------------------------------------
+   A single icosahedron reads as a ball on a stick. Real canopies are a
+   cluster of overlapping masses with a broken silhouette, so each crown is
+   built from several displaced lobes and merged into one geometry that can
+   still be instanced across every tree on the lot. A brightness ramp is
+   baked into vertex colours — dark and cool underneath, bright on top —
+   which is what gives the crowns their depth. Species colour still comes
+   from the per-instance colour, so this multiplies on top of it. */
+function mergeGeos(list){
+  let n=0; list.forEach(g=>{n+=(g.index?g.toNonIndexed():g).attributes.position.count;});
+  const pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3);
+  let o=0;
+  list.forEach(g0=>{
+    const g=g0.index?g0.toNonIndexed():g0;
+    pos.set(g.attributes.position.array,o*3);
+    nor.set(g.attributes.normal.array,o*3);
+    if(g.attributes.color)col.set(g.attributes.color.array,o*3);
+    else col.fill(1,o*3,(o+g.attributes.position.count)*3);
+    o+=g.attributes.position.count;
+  });
+  const out=new THREE.BufferGeometry();
+  out.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  out.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));
+  out.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  return out;
+}
+/* roughen a lobe and shade it by height so the crown has volume */
+function foliage(g,amp,seed){
+  const p=g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    const n=Math.sin(x*2.7+seed)*Math.cos(z*3.1-seed)*Math.sin(y*2.2+seed*1.7);
+    p.setXYZ(i,x*(1+n*amp),y*(1+n*amp*0.7),z*(1+n*amp));
+  }
+  g.computeVertexNormals();
+  return g;
+}
+function shadeByHeight(g,lo,hi,cool){
+  const p=g.attributes.position; let mn=1e9,mx=-1e9;
+  for(let i=0;i<p.count;i++){const y=p.getY(i);if(y<mn)mn=y;if(y>mx)mx=y;}
+  const c=new Float32Array(p.count*3);
+  for(let i=0;i<p.count;i++){
+    const t=(p.getY(i)-mn)/Math.max(0.001,mx-mn);
+    const b=lo+(hi-lo)*(t*t*(3-2*t));
+    c[i*3]=b*(1-cool*(1-t)*0.35); c[i*3+1]=b; c[i*3+2]=b*(1-cool*t*0.10);
+  }
+  g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
+  return g;
+}
+function buildRoundCanopy(){
+  const lobes=[],L=[[0,.12,0,.82],[.46,-.10,.20,.52],[-.42,-.04,-.24,.55],
+                   [.16,.40,-.40,.48],[-.24,.34,.38,.46],[.02,-.34,.06,.60]];
+  L.forEach((l,i)=>{
+    const g=new THREE.IcosahedronGeometry(l[3],1);
+    foliage(g,0.20,i*3.7+1);
+    g.translate(l[0],l[1],l[2]);
+    lobes.push(g);
+  });
+  const m=mergeGeos(lobes);
+  // normalise to a unit crown so the existing per-tree scaling still applies
+  m.computeBoundingBox(); const bb=m.boundingBox;
+  const sx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)/2, sy=(bb.max.y-bb.min.y)/2;
+  m.scale(1/sx,1/sy,1/sx);
+  m.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
+  return shadeByHeight(m,0.52,1.16,0.5);
+}
+function buildConeCanopy(){
+  const tiers=[],N=6;
+  for(let i=0;i<N;i++){
+    const t=i/(N-1);
+    const r=1.02*(1-t*0.82), h=0.42*(1-t*0.30);
+    const g=new THREE.ConeGeometry(r,h,9,1);
+    foliage(g,0.13,i*5.1+2);
+    g.rotateY(i*0.7);
+    g.translate(0,-0.9+t*1.66,0);
+    tiers.push(g);
+  }
+  const m=mergeGeos(tiers);
+  m.computeBoundingBox(); const bb=m.boundingBox;
+  const sx=Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)/2, sy=(bb.max.y-bb.min.y)/2;
+  m.scale(1/sx,1/sy,1/sx);
+  m.translate(0,-((bb.min.y+bb.max.y)/2)/sy,0);
+  return shadeByHeight(m,0.44,1.10,0.6);
+}
+function buildTrunk(){
+  const parts=[];
+  const bole=new THREE.CylinderGeometry(0.34,0.72,1,8); parts.push(bole);
+  const flare=new THREE.CylinderGeometry(0.72,1.25,0.20,8); flare.translate(0,-0.40,0); parts.push(flare);
+  for(let i=0;i<3;i++){                       // a few limbs into the crown
+    const a=i*2.2+0.4, b=new THREE.CylinderGeometry(0.09,0.20,0.62,5);
+    b.rotateZ(0.62); b.rotateY(a); b.translate(Math.cos(a)*0.24,0.34,Math.sin(a)*0.24);
+    parts.push(b);
+  }
+  const m=mergeGeos(parts);
+  return shadeByHeight(m,0.62,1.06,0.15);
+}
+const coneIM =new THREE.InstancedMesh(buildConeCanopy(),treeMat(),TCAP);
+const roundIM=new THREE.InstancedMesh(buildRoundCanopy(),treeMat(),TCAP);
+const trunkIM=new THREE.InstancedMesh(buildTrunk(),treeMat(),TCAP);
 [coneIM,roundIM,trunkIM].forEach(m=>{m.castShadow=true;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);});
 const glowMat=new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc978,emissiveIntensity:0,roughness:.5});
 const glowIM=new THREE.InstancedMesh(new THREE.SphereGeometry(.18,6,5),glowMat,900); scene.add(glowIM);
@@ -609,7 +706,7 @@ function syncTrees(){
     tmpCol.setHex(sp.col); tmpCol.offsetHSL(0,(hash2(i,7,2)-0.5)*0.05,(hash2(i,11,3)-0.5)*0.09);
     if(cone){
       dummy.position.set(t.x,y+trunkH+canH/2,t.z);
-      dummy.scale.set(rr*jitter,canH,rr*jitter); dummy.updateMatrix();
+      dummy.scale.set(rr*jitter,canH/2,rr*jitter); dummy.updateMatrix();
       coneIM.setMatrixAt(i,dummy.matrix); coneIM.setColorAt(i,tmpCol); roundIM.setMatrixAt(i,HIDE);
     }else{
       dummy.position.set(t.x,y+trunkH+canH*0.46,t.z);
