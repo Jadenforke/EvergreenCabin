@@ -119,6 +119,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="spacer"></div>
   <button class="tbtn" id="btnLand">Shape shoreline</button>
   <button class="tbtn" id="btnBound">Trace lot line</button>
+  <button class="tbtn" id="btnEditLot">Edit lot line</button>
   <button class="tbtn" id="btnUnder">Underlay…</button>
   <button class="tbtn" id="btnSettings">Prices</button>
   <button class="tbtn" id="btnScale">Set scale</button>
@@ -474,8 +475,11 @@ function buildWater(){
 /* ---------------- overlays & handles ---------------- */
 const overlays=new THREE.Group(); scene.add(overlays);
 const handles=new THREE.Group(); handles.visible=false; scene.add(handles);
+const bHandles=new THREE.Group(); bHandles.visible=false; scene.add(bHandles);
 const handleGeo=new THREE.SphereGeometry(1.6,10,8);
 const handleMat=new THREE.MeshBasicMaterial({color:0x4ec3c8});
+const bHandleMat=new THREE.MeshBasicMaterial({color:0xff7a2f});
+let draggingHandles=false;
 function lineLoop(poly,color,lift,dashed){
   const pts=poly.map(p=>new THREE.Vector3(p[0],terrainH(p[0],p[1])+lift,p[1]));
   if(poly.length>2)pts.push(pts[0].clone());
@@ -493,7 +497,7 @@ function buildOverlays(){
     overlays.add(lineLoop(insetPoly(SITE.boundary,RULES.edge),0x9a6b3f,0.55,true));
   }
   if(SITE.shore.length>2) overlays.add(lineLoop(SITE.shore,0x4ec3c8,0.15));
-  rebuildHandles();
+  if(!draggingHandles)rebuildHandles();
 }
 function rebuildHandles(){
   while(handles.children.length)handles.remove(handles.children[0]);
@@ -501,6 +505,11 @@ function rebuildHandles(){
     if(Math.abs(p[1])>LAND.ez/2-1) return;        // skip the off-map closing corners
     const m=new THREE.Mesh(handleGeo,handleMat);
     m.position.set(p[0],terrainH(p[0],p[1])+1.2,p[1]); m.userData.i=i; handles.add(m);
+  });
+  while(bHandles.children.length)bHandles.remove(bHandles.children[0]);
+  SITE.boundary.forEach((p,i)=>{
+    const m=new THREE.Mesh(handleGeo,bHandleMat);
+    m.position.set(p[0],terrainH(p[0],p[1])+1.4,p[1]); m.userData.i=i; m.userData.b=true; bHandles.add(m);
   });
 }
 
@@ -989,7 +998,7 @@ function roadMesh(pts,width,col){
 /* ---------------- interaction state ---------------- */
 let tool='select',activeId=null,ghost=null,ghostRot=0,snap=false;
 let roadPts=[],roadPrev=null,measurePts=[],measureLine=null,selected=null,selBox=null;
-let trace=null,landMode=false,dragHandle=null,pen=null;
+let trace=null,landMode=false,boundMode=false,dragHandle=null,pen=null;
 
 function setTool(t,id){
   tool=t;activeId=id||null;
@@ -1109,11 +1118,19 @@ function endPen(build){
 
 function setLandMode(on){
   landMode=on; handles.visible=on; $('btnLand').classList.toggle('on',on);
-  if(on){setTool('select');hint('Drag a shoreline handle to reshape · Shift-click removes · click the water edge to add a point',false,true);}
+  if(on){setBoundMode(false);setTool('select');hint('Drag a shoreline handle to reshape · Shift-click removes · click the water edge to add a point',false,true);}
   else hint('Pick something from the catalogue');
 }
+function setBoundMode(on){
+  boundMode=on; bHandles.visible=on; $('btnEditLot').classList.toggle('on',on);
+  if(on){
+    landMode=false;handles.visible=false;$('btnLand').classList.remove('on');
+    setTool('select');
+    hint('Drag an orange corner to move the lot line · Shift-click removes a corner · click an edge to add one',false,true);
+  }else hint('Pick something from the catalogue');
+}
 function startTrace(mode,btn){
-  setLandMode(false); setTool('select');
+  setLandMode(false); setBoundMode(false); setTool('select');
   trace={mode,pts:[],line:null};
   ['btnScale','btnBound'].forEach(b=>$(b).classList.toggle('on',b===btn));
   hint(mode==='scale'?'Click one end of the 50 m bar on the underlay, then the other'
@@ -1235,18 +1252,21 @@ function hitGround(e){ndcFrom(e);
 function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
   let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
 function pickTree(e){ndcFrom(e);const h=ray.intersectObjects([coneIM,roundIM,trunkIM],false);return h.length?h[0].instanceId:-1;}
-function pickHandle(e){ndcFrom(e);const h=ray.intersectObjects(handles.children,false);return h.length?h[0].object:null;}
+function pickHandle(e){ndcFrom(e);const list=boundMode?bHandles.children:handles.children;
+  const h=ray.intersectObjects(list,false);return h.length?h[0].object:null;}
 
 renderer.domElement.addEventListener('pointerdown',e=>{
   movedPx=0;
-  if(landMode&&e.button===0){
+  if((landMode||boundMode)&&e.button===0){
     const hd=pickHandle(e);
     if(hd){
       if(e.shiftKey){
-        if(SITE.shore.length>6){SITE.shore.splice(hd.userData.i,1);rebuildLand();}
+        if(hd.userData.b){
+          if(SITE.boundary.length>3){SITE.boundary.splice(hd.userData.i,1);recomputeAreas();buildOverlays();refresh();toast('Corner removed');}
+        }else if(SITE.shore.length>6){SITE.shore.splice(hd.userData.i,1);rebuildLand();}
         return;
       }
-      dragHandle=hd;renderer.domElement.setPointerCapture(e.pointerId);return;
+      dragHandle=hd;draggingHandles=true;renderer.domElement.setPointerCapture(e.pointerId);return;
     }
   }
   dragStart={x:e.clientX,y:e.clientY,theta:ctrl.theta,phi:ctrl.phi,tx:ctrl.target.x,tz:ctrl.target.z};
@@ -1256,12 +1276,20 @@ renderer.domElement.addEventListener('pointerdown',e=>{
 renderer.domElement.addEventListener('pointermove',e=>{
   if(dragHandle){
     const p=hitGround(e); if(!p)return;
-    SITE.shore[dragHandle.userData.i]=[p.x,p.z];
-    dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.2,p.z);
-    if(overlays.children.length){
-      const last=overlays.children[overlays.children.length-1];
-      overlays.remove(last);
-      overlays.add(lineLoop(SITE.shore,0x4ec3c8,0.15));
+    if(dragHandle.userData.b){
+      SITE.boundary[dragHandle.userData.i]=[p.x,p.z];
+      dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.4,p.z);
+      buildOverlays();
+      const a=polyArea(SITE.boundary);
+      hint(`Lot corner ${dragHandle.userData.i+1} · ${(a/1e4).toFixed(2)} ha · ${Math.round(a*10.7639).toLocaleString()} ft²`,false,true);
+    }else{
+      SITE.shore[dragHandle.userData.i]=[p.x,p.z];
+      dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.2,p.z);
+      if(overlays.children.length){
+        const last=overlays.children[overlays.children.length-1];
+        overlays.remove(last);
+        overlays.add(lineLoop(SITE.shore,0x4ec3c8,0.15));
+      }
     }
     return;
   }
@@ -1281,7 +1309,10 @@ renderer.domElement.addEventListener('pointermove',e=>{
   updateGhost(e);
 },{passive:true});
 addEventListener('pointerup',()=>{
-  if(dragHandle){dragHandle=null;rebuildLand();}
+  if(dragHandle){
+    const wasB=dragHandle.userData.b; dragHandle=null; draggingHandles=false;
+    if(wasB){recomputeAreas();buildOverlays();refresh();}else rebuildLand();
+  }
   dragging=null;dragStart=null;
 });
 renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
@@ -1356,6 +1387,16 @@ renderer.domElement.addEventListener('click',e=>{
     if(best>=0&&bd<14){SITE.shore.splice(best+1,0,[x,z]);rebuildLand();toast('Point added');}
     return;
   }
+  if(boundMode){                                    // insert a new lot corner
+    let best=-1,bd=1e9;
+    for(let i=0;i<SITE.boundary.length;i++){
+      const a=SITE.boundary[i],b=SITE.boundary[(i+1)%SITE.boundary.length];
+      const r=segDist(x,z,a[0],a[1],b[0],b[1]);
+      if(r.d<bd){bd=r.d;best=i;}
+    }
+    if(best>=0&&bd<18){SITE.boundary.splice(best+1,0,[x,z]);recomputeAreas();buildOverlays();refresh();toast('Corner added');}
+    return;
+  }
   if(tool==='place'&&activeId){
     const d=DEF[activeId];
     if(d.kind==='road'){roadPts.push([x,z]);return;}
@@ -1403,7 +1444,7 @@ addEventListener('keydown',e=>{
     else if(trace&&trace.pts.length>2)finishTrace();
     else if(roadPts.length>1){placeRoad(DEF[activeId],roadPts);cancelRoad();}
   }
-  if(e.key==='Escape'){if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
+  if(e.key==='Escape'){if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
   if((e.key==='Delete'||e.key==='Backspace')&&selected)removeObj(selected);
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
@@ -1572,7 +1613,8 @@ document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>switchView
 document.querySelectorAll('#toolseg button').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
 $('btnOverlay').onclick=()=>{const v=!overlays.visible;overlays.visible=v;if(contours)contours.visible=v;$('btnOverlay').classList.toggle('on',!v);};
 $('btnLand').onclick=()=>setLandMode(!landMode);
-$('btnBound').onclick=()=>startTrace('boundary',$('btnBound'));
+$('btnBound').onclick=()=>{setBoundMode(false);startTrace('boundary',$('btnBound'));};
+$('btnEditLot').onclick=()=>setBoundMode(!boundMode);
 $('btnScale').onclick=()=>{if(!SITE.under){toast('Load an underlay first');return;}startTrace('scale',$('btnScale'));};
 /* ---- underlay on / off ------------------------------------------------
    No underlay yet  → pick an image.  Underlay loaded → click toggles it
