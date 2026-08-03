@@ -4757,7 +4757,7 @@ function route(){
 //           'note'      -> show the note only (no incoterm/TBD)
 //           'tbd'       -> awaiting a freight quote
 const SHIPPING = {
-  glass:    {name:'Standing Glass Dome',      incoterm:'EXW',           status:'tbd', note:'price excludes tax'},
+  glass:    {name:'Standing Glass Dome',      incoterm:'EXW',           status:'quoted', cost:'$10,700 to port (40 ft)', note:'EXW &mdash; customs, duty, insurance &amp; inland delivery to Gore Bay are extra; price excludes tax'},
   chunshu:  {name:'Chun Shu',                 incoterm:'EXW',           status:'quoted', cost:'~$6,900&ndash;$8,300 USD', alt:'1 container per unit &mdash; confirmed sufficient', note:'freight <strong>to a Canadian port only</strong> &mdash; buyer still arranges customs &amp; insurance (EXW). A 40 ft container holds materials for a <strong>~100 m&sup2; house</strong>, so <strong>one container is confirmed enough</strong> for the 108 m&sup2; Chun Shu set &mdash; no consolidation on multiples. On-site crane fees (if needed) billed separately.'},
   steel:    {name:'Steel Frame Modular',      incoterm:'FOB Shanghai',  status:'quoted', cost:'$7,570 USD to Toronto port', transit:'~45 working days, sailing Aug 3', note:'firm 40HQ quote (Shanghai &rarr; Toronto): $7,200 ocean freight + ~$360 port charges + ~$14/entry customs clearance, ~10 tons &mdash; one container fits the whole 48 m&sup2; house. Excludes duties/taxes and the Toronto&ndash;Gore Bay inland leg. Rates rising &mdash; reconfirm closer to order. HS 94069001.'},
   capsule:  {name:'Steele Capsule (T5)',      incoterm:'FOB',           status:'tbd'},
@@ -4868,7 +4868,7 @@ const SUM_ENERGY=['huijue','allrun'];
 // terms" tab). One P.Eng review / field evaluation can cover multiple identical
 // units, so per-unit cost drops with fleet size.
 const SUM_COST = {
-  glass:    {fob:16800, surtaxAmt:4200,  surtaxNote:'if aluminium parts', shipEst:2500,
+  glass:    {fob:16800, surtaxAmt:4200,  surtaxNote:'if aluminium parts', shipEst:10700, compNote:'EXW — customs, duty, insurance &amp; Toronto&ndash;Gore Bay inland leg by buyer',
     comp:[{t:'CSA approval (quoted)',v:3000},{t:'P.Eng structural review',v:3000},{t:'Insulation upgrade',v:3000},{t:'Building permit',v:2000}]},
   chunshu:  {fob:50655, surtaxAmt:12700, surtaxNote:'HS 9406900090 claimed but inconsistent — confirm w/ broker', shipEst:7600, compNote:'EXW — freight is to port only; inland/ferry to Gore Bay, customs, duty &amp; insurance by buyer',
     comp:[{t:'P.Eng review (2-storey)',v:4000},{t:'Building permit',v:2500},{t:'ESA field evaluation',v:1500}]},
