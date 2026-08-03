@@ -15,26 +15,29 @@
 html,body{height:100%;overflow:hidden;background:var(--pine);color:var(--bark);font-family:var(--sans)}
 canvas{display:block}
 #stage{position:fixed;inset:0}
-.panel{position:fixed;background:rgba(13,25,23,.94);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.panel{position:fixed;background:rgba(11,21,19,.82);border:1px solid var(--line);
+  backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);
+  border-radius:14px;box-shadow:0 18px 48px -12px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.03) inset}
 .hdr{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);padding:9px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .hdr b{color:var(--survey);font-weight:600}
 .hdr.t{border-top:1px solid var(--line)}
 
-#top{top:0;left:0;right:0;height:46px;display:flex;align-items:center;gap:10px;padding:0 14px;border-width:0 0 1px 0;z-index:20}
+#top{top:12px;left:12px;right:12px;height:48px;display:flex;align-items:center;gap:9px;padding:0 14px;z-index:20}
 #brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
 #brand span{color:var(--survey)}
-.seg{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#00000030}
 .seg button{background:transparent;border:0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;cursor:pointer;transition:.15s;white-space:nowrap}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button:hover{color:var(--bark);background:#ffffff08}
 .seg button.on{background:var(--survey);color:#140b04;font-weight:600}
 .spacer{flex:1}
-.tbtn{background:transparent;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 9px;cursor:pointer;border-radius:2px;transition:.15s;white-space:nowrap}
+.tbtn{background:#ffffff05;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;cursor:pointer;border-radius:9px;transition:.15s;white-space:nowrap}
 .tbtn:hover{color:var(--bark);border-color:var(--survey)}
 .tbtn.on{background:var(--survey);color:#140b04;border-color:var(--survey);font-weight:600}
 .tbtn.hot{border-color:var(--survey);color:var(--survey)}
 
-#palette{top:46px;left:0;bottom:0;width:252px;border-width:0 1px 0 0;overflow-y:auto;z-index:15}
+#palette{top:72px;left:12px;bottom:78px;width:256px;overflow-y:auto;z-index:15;transition:transform .22s ease,opacity .22s ease}
+#palette.tuck{transform:translateX(calc(-100% - 18px));opacity:0;pointer-events:none}
 .group>h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);padding:11px 12px 6px;display:flex;justify-content:space-between;border-bottom:1px solid #ffffff0a}
 .group>h3 em{font-style:normal;color:var(--faint)}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;padding:8px 12px;cursor:pointer;border-left:2px solid transparent;transition:.12s;align-items:baseline}
@@ -48,7 +51,8 @@ canvas{display:block}
 .item.on .nm{color:#fff}
 .tag{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:1px 4px;color:var(--faint);margin-left:5px;vertical-align:1px}
 
-#ledger{top:46px;right:0;bottom:0;width:288px;border-width:0 0 0 1px;overflow-y:auto;z-index:15}
+#ledger{top:72px;right:12px;bottom:78px;width:292px;overflow-y:auto;z-index:15;transition:transform .22s ease,opacity .22s ease}
+#ledger.tuck{transform:translateX(calc(100% + 18px));opacity:0;pointer-events:none}
 .row{display:flex;justify-content:space-between;padding:6px 12px;font-size:12px;align-items:baseline;gap:10px}
 .row .k{color:var(--dim)}
 .row .v{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
@@ -78,7 +82,8 @@ canvas{display:block}
 .iss.ok{color:#8fbfa2}.iss.ok::before{content:"✓";color:var(--ok)}
 .iss.info{color:#a9bfd6}.iss.info::before{content:"i";color:var(--lake);font-style:italic;font-family:var(--mono)}
 
-#timebar{bottom:0;left:252px;right:288px;height:54px;border-width:1px 0 0 0;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:15}
+#timebar{bottom:12px;left:50%;transform:translateX(-50%);width:auto;max-width:calc(100vw - 24px);height:54px;
+  display:flex;align-items:center;gap:12px;padding:0 18px;z-index:15}
 #clock{font-family:var(--mono);font-size:18px;width:72px}
 #clock small{font-size:9px;color:var(--dim);letter-spacing:.15em;display:block;margin-top:1px}
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:linear-gradient(90deg,#12283c,#3b6f9c,#ffd9a8,#ffb46b,#3b6f9c,#12283c);border-radius:2px;outline:0}
@@ -86,10 +91,10 @@ input[type=range].plain{background:#2b4239}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:20px;background:var(--bark);border-radius:1px;cursor:grab;box-shadow:0 0 0 1px #0007}
 input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark);border:0;border-radius:1px}
 
-#hint{position:fixed;bottom:66px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;color:var(--bark);background:rgba(13,25,23,.94);border:1px solid var(--line);padding:7px 14px;border-radius:2px;z-index:18;pointer-events:none;white-space:nowrap;max-width:62vw;overflow:hidden;text-overflow:ellipsis}
+#hint{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;color:var(--bark);background:rgba(13,25,23,.94);border:1px solid var(--line);padding:7px 14px;border-radius:2px;z-index:18;pointer-events:none;white-space:nowrap;max-width:62vw;overflow:hidden;text-overflow:ellipsis}
 #hint.bad{border-color:var(--warn);color:#ffb1b1}
 #hint.go{border-color:var(--survey);color:var(--gold)}
-#scalebar{position:fixed;bottom:66px;left:266px;z-index:18;font-family:var(--mono);font-size:9.5px;color:var(--dim);pointer-events:none}
+#scalebar{position:fixed;bottom:22px;left:24px;z-index:18;font-family:var(--mono);font-size:9.5px;color:var(--dim);pointer-events:none}
 #scalebar .ln{height:6px;border:1px solid var(--dim);border-top:0;margin-bottom:3px}
 #compass{position:fixed;top:56px;right:300px;z-index:18;width:36px;height:36px;pointer-events:none;opacity:.7}
 #toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none}
@@ -107,6 +112,19 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 #setBanner{display:none;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:#140b04;background:var(--survey);padding:7px 12px;font-weight:700}
 #ledger.setonly #setBanner{display:block}
+#toolpill{top:72px;left:50%;transform:translateX(-50%);height:44px;display:flex;align-items:center;
+  gap:8px;padding:0 10px;z-index:19}
+#top{overflow:hidden}
+#rail{position:fixed;top:72px;z-index:16;display:flex;flex-direction:column;gap:8px}
+#railL{left:12px}#railR{right:12px}
+.rbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(11,21,19,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  color:var(--dim);font-family:var(--mono);font-size:14px;cursor:pointer;transition:.15s;
+  box-shadow:0 10px 26px -10px rgba(0,0,0,.6)}
+.rbtn:hover{color:var(--survey);border-color:var(--survey)}
+.xbtn{background:transparent;border:0;color:var(--faint);font-size:15px;line-height:1;cursor:pointer;
+  padding:0 2px;margin-left:8px;transition:.15s}
+.xbtn:hover{color:var(--survey)}
 </style>
 </head>
 <body>
@@ -114,8 +132,6 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 
 <div id="top" class="panel">
   <div id="brand">EVERGREEN<span>·</span>SITE</div>
-  <div class="seg" id="viewseg"><button data-view="plan" class="on">Bird's-eye</button><button data-view="3d">3D</button></div>
-  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="erase">Erase</button></div>
   <div class="spacer"></div>
   <button class="tbtn" id="btnLand">Shape shoreline</button>
   <button class="tbtn" id="btnBound">Trace lot line</button>
@@ -132,11 +148,11 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnLoad">Import</button>
 </div>
 
-<aside id="palette" class="panel"><div class="hdr">Catalogue <b id="palCount"></b></div><div id="palList"></div></aside>
+<aside id="palette" class="panel"><div class="hdr">Catalogue <span><b id="palCount"></b> <button class="xbtn" id="tuckL" title="Hide">&times;</button></span></div><div id="palList"></div></aside>
 
 <aside id="ledger" class="panel">
   <div id="setBanner">Settings — prices &amp; rates · press Prices again for the full panel</div>
-  <div class="hdr">Landed cost <b>CAD</b></div>
+  <div class="hdr">Landed cost <span><b>CAD</b> <button class="xbtn" id="tuckR" title="Hide">&times;</button></span></div>
   <div class="row big"><span class="k">Project total</span><span class="v" id="mTotal">$0</span></div>
   <div id="costLines"></div>
 
@@ -238,6 +254,14 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 <div id="hint">Drag the shoreline handles to match your map, then start placing</div>
 <div id="scalebar"><div class="ln" style="width:120px"></div><span>—</span></div>
 <svg id="compass" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#284039"/><path d="M20 5 L24 21 L20 18 L16 21 Z" fill="#ff7a2f"/><text x="20" y="36" font-size="8" font-family="monospace" fill="#94a49b" text-anchor="middle">N</text></svg>
+<div id="toolpill" class="panel">
+  <div class="seg" id="viewseg"><button data-view="plan" class="on">Bird's-eye</button><button data-view="3d">3D</button></div>
+  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="erase">Erase</button></div>
+</div>
+<div id="railL" style="position:fixed;top:124px;left:12px;z-index:16;display:none">
+  <button class="rbtn" id="showL" title="Show the catalogue">&#9776;</button></div>
+<div id="railR" style="position:fixed;top:124px;right:12px;z-index:16;display:none">
+  <button class="rbtn" id="showR" title="Show the cost panel">&#8942;</button></div>
 <div id="toast"></div>
 
 <input id="fileMap" type="file" accept="image/*" style="display:none">
@@ -382,6 +406,16 @@ function applyCam(){
 function resize(){renderer.setSize(innerWidth,innerHeight);persp.aspect=innerWidth/innerHeight;persp.updateProjectionMatrix();applyCam();updateScaleBar();}
 addEventListener('resize',resize);
 
+/* a graded sky dome reads far better than a flat clear colour, and gives the
+   horizon something to sit against */
+const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
+  uniforms:{top:{value:new THREE.Color(0x3f6f95)},bot:{value:new THREE.Color(0xcfd8d2)},
+            hz:{value:0.06}},
+  vertexShader:'varying vec3 vP; void main(){vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform vec3 top; uniform vec3 bot; uniform float hz; varying vec3 vP;'+
+    'void main(){float h=normalize(vP).y; float t=smoothstep(-hz,0.55,h); gl_FragColor=vec4(mix(bot,top,t),1.0);}'});
+const skyDome=new THREE.Mesh(new THREE.SphereGeometry(1900,24,16),skyMat);
+skyDome.visible=false; scene.add(skyDome);
 const hemi=new THREE.HemisphereLight(0xe4e7e6,0x33372e,0.55); scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffffff,1.15); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-340,right:340,top:300,bottom:-300,near:1,far:1200});
@@ -390,7 +424,7 @@ const moon=new THREE.DirectionalLight(0xc6cdd2,0); scene.add(moon);
 const fill=new THREE.DirectionalLight(0xeff0ee,0); scene.add(fill);
 scene.fog=null;   // no distance haze — in plan view the camera is 700 m up and it greyed out everything
 
-let styleMode='survey';
+let styleMode='real';
 
 /* ---------------- terrain ---------------- */
 let terrain=null,terrainMat=null,contours=null,plinth=null;
@@ -998,6 +1032,7 @@ function applyStyle(){
   sun.shadow.radius=dio?5:real?2.5:1;
   sun.shadow.bias=real?-0.0006:-0.0004;
   scene.fog=real?new THREE.Fog(0x9fb3bd,900,2600):null;   // gentle depth on the far shore only
+  if(skyMat)skyMat.visible=real;
   const b=$('btnStyle'); if(b){b.textContent='Style: '+STYLE_NAME[styleMode];b.classList.toggle('on',styleMode!=='survey');}
   updateSun();
 }
@@ -1905,6 +1940,11 @@ function updateSun(){
   hemi.intensity=(.16+day*.5)*(dio?1.4:real?0.95:1);
   hemi.color.set(day>.2?0xe4e7e6:0x30363a);
   scene.background=skyAt(h);
+  if(skyMat){                                     // sky follows the time of day
+    const sky=skyAt(h), horizon=sky.clone().lerp(new THREE.Color(0xffe0b8),day*0.35+0.1);
+    skyMat.uniforms.top.value.copy(sky).lerp(new THREE.Color(0x2d5f8a),0.45*day);
+    skyMat.uniforms.bot.value.copy(horizon);
+  }
   waterMat.color.setHex(day>.35?0x1d6b7d:0x0a1e2b);
   if(dio){waterMat.color.lerp(new THREE.Color(0x9db4b8),0.3);waterMat.roughness=.34;waterMat.metalness=.3;}
   else if(styleMode==='real'){
@@ -2136,6 +2176,17 @@ $('btnAnim').onclick=()=>{
   }
   toast(animOn?'Animation on':'Animation off — steadier on big sites');
 };
+/* tuck the side panels away for a full-bleed canvas */
+function tuck(which,show){
+  const el=$(which==='L'?'palette':'ledger'), rail=$(which==='L'?'railL':'railR');
+  const off=show===undefined?el.classList.toggle('tuck'):!(el.classList.toggle('tuck',!show));
+  rail.style.display=off?'block':'none';
+  resize();
+}
+$('tuckL').onclick=()=>tuck('L');
+$('tuckR').onclick=()=>tuck('R');
+$('showL').onclick=()=>tuck('L',true);
+$('showR').onclick=()=>tuck('R',true);
 $('btnUndo').onclick=undo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 
