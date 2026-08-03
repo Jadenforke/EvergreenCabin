@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evergreen — Site Planner</title>
+<style>
+:root{
+  --pine:#0d1917;--pine2:#132320;--line:#284039;--bark:#e9e3d5;--dim:#94a49b;--faint:#5b7168;
+  --survey:#ff7a2f;--lake:#4ec3c8;--warn:#ff4d4d;--ok:#6fdc8c;--gold:#e8c07a;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:"Inter","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--pine);color:var(--bark);font-family:var(--sans)}
+canvas{display:block}
+#stage{position:fixed;inset:0}
+.panel{position:fixed;background:rgba(13,25,23,.94);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.hdr{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);padding:9px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.hdr b{color:var(--survey);font-weight:600}
+.hdr.t{border-top:1px solid var(--line)}
+
+#top{top:0;left:0;right:0;height:46px;display:flex;align-items:center;gap:10px;padding:0 14px;border-width:0 0 1px 0;z-index:20}
+#brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+#brand span{color:var(--survey)}
+.seg{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;cursor:pointer;transition:.15s;white-space:nowrap}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button:hover{color:var(--bark);background:#ffffff08}
+.seg button.on{background:var(--survey);color:#140b04;font-weight:600}
+.spacer{flex:1}
+.tbtn{background:transparent;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 9px;cursor:pointer;border-radius:2px;transition:.15s;white-space:nowrap}
+.tbtn:hover{color:var(--bark);border-color:var(--survey)}
+.tbtn.on{background:var(--survey);color:#140b04;border-color:var(--survey);font-weight:600}
+.tbtn.hot{border-color:var(--survey);color:var(--survey)}
+
+#palette{top:46px;left:0;bottom:0;width:252px;border-width:0 1px 0 0;overflow-y:auto;z-index:15}
+.group>h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);padding:11px 12px 6px;display:flex;justify-content:space-between;border-bottom:1px solid #ffffff0a}
+.group>h3 em{font-style:normal;color:var(--faint)}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;padding:8px 12px;cursor:pointer;border-left:2px solid transparent;transition:.12s;align-items:baseline}
+.item:hover{background:#ffffff07}
+.item.on{background:#ff7a2f14;border-left-color:var(--survey)}
+.item.arch{opacity:.5}
+.sw{width:9px;height:9px;border-radius:50%;align-self:center;grid-row:1/3}
+.item .nm{font-size:12.5px;letter-spacing:-.01em}
+.item .pr{font-family:var(--mono);font-size:10.5px;color:var(--lake);white-space:nowrap}
+.item .dm{font-family:var(--mono);font-size:9.5px;color:var(--faint);grid-column:2/3;line-height:1.35}
+.item.on .nm{color:#fff}
+.tag{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:1px 4px;color:var(--faint);margin-left:5px;vertical-align:1px}
+
+#ledger{top:46px;right:0;bottom:0;width:288px;border-width:0 0 0 1px;overflow-y:auto;z-index:15}
+.row{display:flex;justify-content:space-between;padding:6px 12px;font-size:12px;align-items:baseline;gap:10px}
+.row .k{color:var(--dim)}
+.row .v{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+.row.big{padding:9px 12px}
+.row.big .k{color:var(--bark)}
+.row.big .v{font-size:16px;color:var(--survey)}
+.row.sub{padding:3px 12px 3px 20px}
+.row.sub .k{color:var(--faint);font-size:11px}
+.row.sub .v{color:#8fa79d;font-size:10.5px}
+.bar{height:3px;background:#ffffff10;margin:5px 12px 9px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--lake);transition:width .3s}
+.bar i.over{background:var(--warn)}
+.field{display:flex;justify-content:space-between;align-items:center;padding:4px 12px;gap:8px}
+.field label{font-size:11.5px;color:var(--dim);flex:1;line-height:1.3}
+.field input[type=number],.field select{width:92px;background:#00000047;border:1px solid var(--line);color:var(--bark);font-family:var(--mono);font-size:11px;padding:4px 6px;text-align:right;border-radius:2px}
+.field select{text-align:left}
+.field input:focus,.field select:focus{outline:0;border-color:var(--survey)}
+.field input[type=range]{width:92px}
+.field input[type=checkbox]{accent-color:var(--survey);width:14px;height:14px}
+.acts{display:flex;gap:6px;padding:6px 12px 10px}
+.acts .tbtn{flex:1;text-align:center}
+.note{font-size:10.5px;color:var(--faint);line-height:1.5;padding:4px 12px 10px}
+.note b{color:var(--dim);font-weight:500}
+#issues{padding:2px 12px 14px}
+.iss{display:flex;gap:7px;font-size:11px;line-height:1.45;padding:5px 0;border-top:1px solid #ffffff0d;color:#f2bda4}
+.iss::before{content:"▲";color:var(--warn);font-size:8px;padding-top:3px}
+.iss.ok{color:#8fbfa2}.iss.ok::before{content:"✓";color:var(--ok)}
+.iss.info{color:#a9bfd6}.iss.info::before{content:"i";color:var(--lake);font-style:italic;font-family:var(--mono)}
+
+#timebar{bottom:0;left:252px;right:288px;height:54px;border-width:1px 0 0 0;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:15}
+#clock{font-family:var(--mono);font-size:18px;width:72px}
+#clock small{font-size:9px;color:var(--dim);letter-spacing:.15em;display:block;margin-top:1px}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:linear-gradient(90deg,#12283c,#3b6f9c,#ffd9a8,#ffb46b,#3b6f9c,#12283c);border-radius:2px;outline:0}
+input[type=range].plain{background:#2b4239}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:20px;background:var(--bark);border-radius:1px;cursor:grab;box-shadow:0 0 0 1px #0007}
+input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark);border:0;border-radius:1px}
+
+#hint{position:fixed;bottom:66px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;color:var(--bark);background:rgba(13,25,23,.94);border:1px solid var(--line);padding:7px 14px;border-radius:2px;z-index:18;pointer-events:none;white-space:nowrap;max-width:62vw;overflow:hidden;text-overflow:ellipsis}
+#hint.bad{border-color:var(--warn);color:#ffb1b1}
+#hint.go{border-color:var(--survey);color:var(--gold)}
+#scalebar{position:fixed;bottom:66px;left:266px;z-index:18;font-family:var(--mono);font-size:9.5px;color:var(--dim);pointer-events:none}
+#scalebar .ln{height:6px;border:1px solid var(--dim);border-top:0;margin-bottom:3px}
+#compass{position:fixed;top:56px;right:300px;z-index:18;width:36px;height:36px;pointer-events:none;opacity:.7}
+#toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none}
+.tst{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;background:rgba(19,35,32,.96);border:1px solid var(--line);border-left:2px solid var(--survey);padding:6px 12px;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#284039;border:2px solid var(--pine)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div id="top" class="panel">
+  <div id="brand">EVERGREEN<span>·</span>SITE</div>
+  <div class="seg" id="viewseg"><button data-view="plan" class="on">Bird's-eye</button><button data-view="3d">3D</button></div>
+  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button></div>
+  <div class="spacer"></div>
+  <button class="tbtn" id="btnLand">Shape shoreline</button>
+  <button class="tbtn" id="btnBound">Trace lot line</button>
+  <button class="tbtn" id="btnUnder">Underlay…</button>
+  <button class="tbtn" id="btnScale">Set scale</button>
+  <button class="tbtn" id="btnOverlay">Overlays</button>
+  <button class="tbtn" id="btnShot">Snapshot</button>
+  <button class="tbtn" id="btnSave">Export</button>
+  <button class="tbtn" id="btnLoad">Import</button>
+</div>
+
+<aside id="palette" class="panel"><div class="hdr">Catalogue <b id="palCount"></b></div><div id="palList"></div></aside>
+
+<aside id="ledger" class="panel">
+  <div class="hdr">Landed cost <b>CAD</b></div>
+  <div class="row big"><span class="k">Project total</span><span class="v" id="mTotal">$0</span></div>
+  <div id="costLines"></div>
+
+  <div class="hdr t">Site measurements</div>
+  <div class="row"><span class="k">Lot area</span><span class="v" id="mLand">—</span></div>
+  <div class="row"><span class="k">Building footprint</span><span class="v" id="mFoot">0 m²</span></div>
+  <div class="row"><span class="k">Lot coverage</span><span class="v" id="mCov">—</span></div>
+  <div class="bar"><i id="covBar" style="width:0"></i></div>
+  <div class="row"><span class="k">Road / path length</span><span class="v" id="mRoad">0 m</span></div>
+  <div class="row"><span class="k">Water frontage</span><span class="v" id="mFront">—</span></div>
+  <div class="row"><span class="k">Beds on site</span><span class="v" id="mBeds">0</span></div>
+  <div class="row"><span class="k">Trees standing</span><span class="v" id="mTrees">0</span></div>
+  <div class="row"><span class="k">Trees moved / felled</span><span class="v" id="mMoved">0 / 0</span></div>
+
+  <div class="hdr t">Land model</div>
+  <div class="field"><label>Lake depth (m)</label><input id="lDepth" type="number" value="4.5" step="0.5"></div>
+  <div class="field"><label>Bank height above water (m)</label><input id="lBank" type="number" value="1.6" step="0.2"></div>
+  <div class="field"><label>Beach width (m)</label><input id="lBeach" type="number" value="9" step="1"></div>
+  <div class="field"><label>Rolling relief (m)</label><input id="lRelief" type="number" value="2.6" step="0.2"></div>
+  <div class="field"><label>Inland rise (m per 100 m)</label><input id="lSlope" type="number" value="1.8" step="0.2"></div>
+  <div class="field"><label>Contour interval (m)</label><input id="lCont" type="number" value="1" step="0.5"></div>
+  <div class="acts"><button class="tbtn" id="btnReshape">Rebuild land</button><button class="tbtn" id="btnNewSeed">New relief</button></div>
+
+  <div class="hdr t">Forest cover</div>
+  <div class="field"><label>Stems on the lot</label><input id="tDens" type="number" value="420" step="20"></div>
+  <div class="field"><label>Mix</label><select id="tMix">
+    <option value="mixed">Mixed Manitoulin bush</option>
+    <option value="pine">Pine dominant</option>
+    <option value="hardwood">Hardwood / maple</option>
+    <option value="cedar">Cedar shoreline</option>
+    <option value="open">Open meadow, scattered</option>
+  </select></div>
+  <div class="acts"><button class="tbtn" id="btnRegrow">Regrow cover</button><button class="tbtn" id="btnNoTrees">Clear all</button></div>
+  <div class="note">Individual species can be planted one at a time from the catalogue.</div>
+
+  <div class="hdr t">Import &amp; compliance rates</div>
+  <div class="field"><label>USD → CAD</label><input id="fFx" type="number" value="1.37" step="0.01"></div>
+  <div class="field"><label>Apply 25% steel/alu surtax<br><span style="color:var(--faint);font-size:10px">worst case: classed as parts, not 9406</span></label><input id="fSurtax" type="checkbox"></div>
+  <div class="field"><label>P.Eng review — per model</label><input id="fPeng" type="number" value="4000" step="500"></div>
+  <div class="field"><label>ESA field evaluation — per model</label><input id="fEsa" type="number" value="2500" step="500"></div>
+  <div class="field"><label>Building permit — per unit</label><input id="fPermit" type="number" value="2500" step="250"></div>
+  <div class="field"><label>Foundation + MEP — per unit</label><input id="fSite" type="number" value="28000" step="1000"></div>
+  <div class="field"><label>Contingency %</label><input id="fCont" type="number" value="12" step="1"></div>
+  <div class="note">Unit prices and freight are the quoted USD figures from the sourcing catalogue. <b>P.Eng and ESA are charged once per model</b>, not per unit. 5% GST at import is recoverable and excluded.</div>
+
+  <div class="hdr t">Pricing <b id="priceCount"></b></div>
+  <div class="field"><label>Custom building — CAD / m² of floor</label><input id="cusRate" type="number" value="2400" step="50"></div>
+  <div class="field"><label>Custom building — wall height (m)</label><input id="cusH" type="number" value="3.6" step="0.2"></div>
+  <div class="field"><label>Custom building — storeys</label><input id="cusSt" type="number" value="1" step="1" min="1"></div>
+  <div id="priceList"></div>
+  <div class="note">Edit any figure and every total, the catalogue and the placed units reprice immediately. Quoted units are in <b>USD</b> and convert at the rate above; local builds are already CAD.</div>
+
+  <div class="hdr t">Local trades — site works</div>
+  <div class="field"><label>Gravel road / m</label><input id="cRoadG" type="number" value="185" step="5"></div>
+  <div class="field"><label>Paved road / m</label><input id="cRoadP" type="number" value="420" step="5"></div>
+  <div class="field"><label>Walking path / m</label><input id="cPath" type="number" value="65" step="5"></div>
+  <div class="field"><label>Road width (m)</label><input id="wRoad" type="number" value="5" step="0.5"></div>
+  <div class="field"><label>Tree clearance (m)</label><input id="wClear" type="number" value="2" step="0.5"></div>
+  <div class="field"><label>Fell trees inside inner % of footprint<br><span style="color:var(--faint);font-size:10px">outside this, they shift aside instead</span></label><input id="treeCore" type="number" value="50" step="5"></div>
+
+  <div class="hdr t">Zoning &amp; by-law limits</div>
+  <div class="field"><label>Lot line setback (m)</label><input id="rEdge" type="number" value="7.5" step="0.5"></div>
+  <div class="field"><label>Max lot coverage %</label><input id="rCov" type="number" value="15" step="0.5"></div>
+  <div class="field"><label>Min gap between cabins (ft)<br><span style="color:var(--faint);font-size:10px" id="sepM">= 4.57 m</span></label><input id="rSep" type="number" value="15" step="1"></div>
+  <div class="field"><label>Max sleeping units</label><input id="rMax" type="number" value="24" step="1"></div>
+  <div class="note">The gap rule applies <b>only between main sleeping cabins</b> — saunas, sheds, pavilions and docks can sit closer, they just can't overlap. No shoreline setback is applied, but nothing can be built in the water. Confirm the real numbers with the <b>Town of Gore Bay / NEMI</b> zoning by-law.</div>
+
+  <div class="hdr t">Compliance <b id="issCount"></b></div>
+  <div id="issues"></div>
+</aside>
+
+<div id="timebar" class="panel">
+  <div id="clock">06:30<small id="phase">Sunrise</small></div>
+  <input id="time" type="range" min="0" max="1440" value="390" step="5">
+  <button class="tbtn" id="btnPlay">Play day</button>
+  <button class="tbtn" id="btnStyle">Style: Survey</button>
+  <button class="tbtn" id="btnLights">Lights: auto</button>
+  <button class="tbtn" id="btnTrees">Trees: on</button>
+</div>
+
+<div id="hint">Drag the shoreline handles to match your map, then start placing</div>
+<div id="scalebar"><div class="ln" style="width:120px"></div><span>—</span></div>
+<svg id="compass" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#284039"/><path d="M20 5 L24 21 L20 18 L16 21 Z" fill="#ff7a2f"/><text x="20" y="36" font-size="8" font-family="monospace" fill="#94a49b" text-anchor="middle">N</text></svg>
+<div id="toast"></div>
+
+<input id="fileMap" type="file" accept="image/*" style="display:none">
+<input id="fileIn" type="file" accept="application/json" style="display:none">
+
+<script src="/vendor/three.min.js"></script>
+<script>
+/* =========================================================================
+   EVERGREEN SITE PLANNER — modelled terrain build
+   1 world unit = 1 metre. Land is generated geometry, not a photo.
+   ========================================================================= */
+const $=id=>document.getElementById(id), FT=0.3048;
+
+/* ---------------- land parameters ---------------- */
+const LAND={ex:640,ez:560,res:2.5,depth:4.5,bank:1.6,beach:9,relief:2.6,slope:0.018,cont:1,seed:7};
+let NX,NZ,X0,Z0,R,H=null;
+
+const SITE={ shore:[], boundary:[], under:null, underUrl:null, mpp:0.25 };
+
+/* Evergreen Resort, Lake Wolsey (Gore Bay / Manitoulin Is.) — traced from Google
+   satellite imagery, scaled off its 50 m bar (0.368 m/px). 1 world unit = 1 m.
+   Origin sits by the shoreline lodge; -Z is north (Hwy 540), +Z south, -X the lake.
+   The lake wraps the west shore and the south bay; a wooded point runs to the SE. */
+function defaultShore(){
+  // land/water edge, traced N->SE, then closed out through the lake (W & S)
+  return [[-101,-173],[-107,-107],[-110,-44],[-110,11],[-99,53],[-78,83],[-48,100],
+    [-4,128],[48,148],[105,161],[164,176],[215,192],[259,210],[307,261],
+    [320,281],[-320,281],[-320,-281],[-190,-233]];
+}
+function defaultBoundary(){
+  // resort parcel: Hwy 540 frontage (N), field/tree line (E), lake shore (W & S)
+  return [[-99,-169],[15,-183],[121,-188],[162,-185],[158,-107],[138,-26],[107,33],
+    [116,109],[169,162],[258,212],[213,193],[107,162],[0,129],[-74,86],[-107,15],[-109,-74]];
+}
+
+/* ---------------- geometry helpers ---------------- */
+function pointInPoly(x,z,poly){
+  if(poly.length<3) return false;
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const xi=poly[i][0],zi=poly[i][1],xj=poly[j][0],zj=poly[j][1];
+    if(((zi>z)!==(zj>z))&&(x<(xj-xi)*(z-zi)/(zj-zi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+function segDist(px,pz,ax,az,bx,bz){
+  const dx=bx-ax,dz=bz-az,L=dx*dx+dz*dz;
+  let t=L?((px-ax)*dx+(pz-az)*dz)/L:0; t=Math.max(0,Math.min(1,t));
+  return {d:Math.hypot(px-(ax+t*dx),pz-(az+t*dz)),cx:ax+t*dx,cz:az+t*dz};
+}
+function polyDist(x,z,poly){
+  let best=1e9;
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i],b=poly[(i+1)%poly.length];
+    const r=segDist(x,z,a[0],a[1],b[0],b[1]); if(r.d<best)best=r.d;
+  }
+  return best;
+}
+function polyArea(poly){ let a=0; for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length];a+=p[0]*q[1]-q[0]*p[1];} return Math.abs(a)/2; }
+const isWater=(x,z)=>pointInPoly(x,z,SITE.shore);
+const inLot=(x,z)=>SITE.boundary.length>2?pointInPoly(x,z,SITE.boundary):true;
+const distShore=(x,z)=>(isWater(x,z)?-1:1)*polyDist(x,z,SITE.shore);
+const distLot=(x,z)=>SITE.boundary.length>2?(inLot(x,z)?1:-1)*polyDist(x,z,SITE.boundary):999;
+
+let LOT_AREA=0,LAND_AREA=0,FRONTAGE=0;
+function recomputeAreas(){
+  if(SITE.boundary.length<3){LOT_AREA=LAND_AREA=FRONTAGE=0;return;}
+  LOT_AREA=polyArea(SITE.boundary);
+  const xs=SITE.boundary.map(p=>p[0]),zs=SITE.boundary.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
+  const st=Math.max(1,(x1-x0)/130); let n=0,t=0;
+  for(let x=x0;x<=x1;x+=st)for(let z=z0;z<=z1;z+=st){
+    if(!pointInPoly(x,z,SITE.boundary))continue; t++; if(!isWater(x,z))n++;
+  }
+  LAND_AREA=t?LOT_AREA*n/t:LOT_AREA;
+  // frontage: length of shoreline running through the lot
+  let f=0;
+  for(let i=0;i<SITE.shore.length;i++){
+    const a=SITE.shore[i],b=SITE.shore[(i+1)%SITE.shore.length];
+    const mx=(a[0]+b[0])/2,mz=(a[1]+b[1])/2;
+    if(inLot(mx,mz)) f+=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  }
+  FRONTAGE=f;
+}
+
+/* ---------------- noise ---------------- */
+function hash2(x,y,s){ const n=Math.sin(x*127.1+y*311.7+s*74.7)*43758.5453; return n-Math.floor(n); }
+function vnoise(x,y,s){
+  const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;
+  const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  return hash2(xi,yi,s)*(1-u)*(1-v)+hash2(xi+1,yi,s)*u*(1-v)+hash2(xi,yi+1,s)*(1-u)*v+hash2(xi+1,yi+1,s)*u*v;
+}
+function fbm(x,y,s){ let t=0,a=.5,f=1; for(let i=0;i<4;i++){t+=a*vnoise(x*f,y*f,s+i*17);a*=.5;f*=2;} return t; }
+
+/* ---------------- three.js ---------------- */
+const scene=new THREE.Scene();
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+$('stage').appendChild(renderer.domElement);
+
+const persp=new THREE.PerspectiveCamera(48,1,0.5,4000);
+const ortho=new THREE.OrthographicCamera(-1,1,1,-1,-900,4000);
+let camera=ortho,viewMode='plan';
+const ctrl={target:new THREE.Vector3(10,0,15),radius:360,theta:Math.PI*0.02,phi:0.95,orthoSize:205};
+function applyCam(){
+  if(viewMode==='3d'){
+    persp.position.set(ctrl.target.x+ctrl.radius*Math.sin(ctrl.phi)*Math.sin(ctrl.theta),
+      ctrl.target.y+ctrl.radius*Math.cos(ctrl.phi),
+      ctrl.target.z+ctrl.radius*Math.sin(ctrl.phi)*Math.cos(ctrl.theta));
+    persp.lookAt(ctrl.target);
+  }else{
+    ortho.position.set(ctrl.target.x,700,ctrl.target.z+0.001);
+    ortho.lookAt(ctrl.target.x,0,ctrl.target.z);
+    const a=innerWidth/innerHeight,s=ctrl.orthoSize;
+    ortho.left=-s*a;ortho.right=s*a;ortho.top=s;ortho.bottom=-s;ortho.updateProjectionMatrix();
+  }
+}
+function resize(){renderer.setSize(innerWidth,innerHeight);persp.aspect=innerWidth/innerHeight;persp.updateProjectionMatrix();applyCam();updateScaleBar();}
+addEventListener('resize',resize);
+
+const hemi=new THREE.HemisphereLight(0xe4e7e6,0x33372e,0.55); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,1.15); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-340,right:340,top:300,bottom:-300,near:1,far:1200});
+scene.add(sun,sun.target);
+const moon=new THREE.DirectionalLight(0xc6cdd2,0); scene.add(moon);
+const fill=new THREE.DirectionalLight(0xeff0ee,0); scene.add(fill);
+scene.fog=null;   // no distance haze — in plan view the camera is 700 m up and it greyed out everything
+
+let styleMode='survey';
+
+/* ---------------- terrain ---------------- */
+let terrain=null,terrainMat=null,contours=null,plinth=null;
+function heightFor(d,x,z){
+  if(d<=0){ const t=Math.min(1,-d/50); return -LAND.depth*(t*t*(3-2*t))-0.12; }
+  const bt=Math.min(1,d/Math.max(0.5,LAND.beach)), beach=bt*bt*(3-2*bt);
+  const inland=Math.max(0,d-LAND.beach);
+  const rt=Math.min(1,inland/20), rr=rt*rt*(3-2*rt);
+  const n1=(fbm(x*0.011,z*0.011,LAND.seed)-0.5)*2;
+  const n2=(fbm(x*0.042,z*0.042,LAND.seed+31)-0.5)*2;
+  return LAND.bank*beach + inland*LAND.slope + (n1*LAND.relief+n2*LAND.relief*0.35)*rr;
+}
+function buildTerrain(){
+  NX=Math.round(LAND.ex/LAND.res)+1; NZ=Math.round(LAND.ez/LAND.res)+1;
+  R=LAND.res; X0=-LAND.ex/2; Z0=-LAND.ez/2;
+  H=new Float32Array(NX*NZ);
+  const DS=new Float32Array(NX*NZ);
+  for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++){
+    const x=X0+i*R,z=Z0+j*R;
+    const d=(pointInPoly(x,z,SITE.shore)?-1:1)*polyDist(x,z,SITE.shore);
+    DS[j*NX+i]=d; H[j*NX+i]=heightFor(d,x,z);
+  }
+  if(terrain){scene.remove(terrain);terrain.geometry.dispose();}
+  const g=new THREE.PlaneGeometry(LAND.ex,LAND.ez,NX-1,NZ-1); g.rotateX(-Math.PI/2);
+  const pos=g.attributes.position, cols=[];
+  const c=new THREE.Color();
+  for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++){
+    const k=j*NX+i, x=X0+i*R, z=Z0+j*R, h=H[k], d=DS[k];
+    pos.setY(k,h);
+    if(d<=0){                                   // lake bed
+      const t=Math.min(1,-d/40); c.setHSL(0.11,0.22,0.20-0.09*t);
+    }else if(d<LAND.beach*1.15){                // limestone shingle beach
+      const g2=fbm(x*0.3,z*0.3,3);
+      c.setHSL(0.11,0.20,0.60+g2*0.12);
+    }else{
+      const rock=fbm(x*0.06,z*0.06,LAND.seed+5);
+      const gr=fbm(x*0.14,z*0.14,LAND.seed+2);
+      if(rock>0.70) c.setHSL(0.10,0.06,0.46+gr*0.10);          // alvar limestone
+      else c.setHSL(0.245+gr*0.03,0.30+gr*0.12,0.19+gr*0.11);  // bush
+    }
+    cols.push(c.r,c.g,c.b);
+  }
+  g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));
+  g.computeVertexNormals();
+  terrainMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97,metalness:0,flatShading:true});
+  terrain=new THREE.Mesh(g,terrainMat); terrain.receiveShadow=true; scene.add(terrain);
+
+  if(plinth){scene.remove(plinth);plinth.geometry.dispose();}
+  plinth=new THREE.Mesh(new THREE.BoxGeometry(LAND.ex,26,LAND.ez),
+    new THREE.MeshStandardMaterial({color:0x8f8676,roughness:.96}));
+  plinth.position.y=-13-LAND.depth; plinth.visible=(styleMode==='diorama'); scene.add(plinth);
+
+  buildContours(); buildWater(); buildOverlays(); recomputeAreas();
+}
+function terrainH(x,z){
+  if(!H) return 0;
+  const fx=(x-X0)/R, fz=(z-Z0)/R;
+  const i=Math.max(0,Math.min(NX-2,Math.floor(fx))), j=Math.max(0,Math.min(NZ-2,Math.floor(fz)));
+  const tx=Math.max(0,Math.min(1,fx-i)), tz=Math.max(0,Math.min(1,fz-j));
+  const a=H[j*NX+i],b=H[j*NX+i+1],cc=H[(j+1)*NX+i],dd=H[(j+1)*NX+i+1];
+  return (a*(1-tx)+b*tx)*(1-tz)+(cc*(1-tx)+dd*tx)*tz;
+}
+function buildContours(){
+  if(contours){scene.remove(contours);contours.geometry.dispose();}
+  const step=Math.max(0.25,LAND.cont), pos=[];
+  for(let j=0;j<NZ-1&&pos.length<260000;j++)for(let i=0;i<NX-1;i++){
+    const k=j*NX+i, h00=H[k],h10=H[k+1],h01=H[k+NX],h11=H[k+NX+1];
+    let mn=Math.min(h00,h10,h01,h11),mx=Math.max(h00,h10,h01,h11);
+    if(mx<0) continue;
+    const x0=X0+i*R,z0=Z0+j*R;
+    for(let L=Math.ceil(Math.max(mn,0)/step)*step;L<=mx;L+=step){
+      const p=[];
+      if((h00<L)!==(h10<L))p.push([x0+R*(L-h00)/(h10-h00),z0]);
+      if((h10<L)!==(h11<L))p.push([x0+R,z0+R*(L-h10)/(h11-h10)]);
+      if((h01<L)!==(h11<L))p.push([x0+R*(L-h01)/(h11-h01),z0+R]);
+      if((h00<L)!==(h01<L))p.push([x0,z0+R*(L-h00)/(h01-h00)]);
+      if(p.length>=2) pos.push(p[0][0],L+0.05,p[0][1],p[1][0],L+0.05,p[1][1]);
+      if(p.length===4) pos.push(p[2][0],L+0.05,p[2][1],p[3][0],L+0.05,p[3][1]);
+    }
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  contours=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x2f4a41,transparent:true,opacity:.5}));
+  scene.add(contours);
+}
+
+/* ---------------- water ---------------- */
+let waterMesh=null,waterGeo=null,wBase=null;
+const waterMat=new THREE.MeshStandardMaterial({color:0x1d6b7d,roughness:.15,metalness:.55,transparent:true,opacity:.72});
+function buildWater(){
+  if(waterMesh){scene.remove(waterMesh);waterMesh.geometry.dispose();}
+  if(SITE.shore.length<3){waterMesh=null;return;}
+  const shape=new THREE.Shape(SITE.shore.map(p=>new THREE.Vector2(p[0],p[1])));
+  waterGeo=new THREE.ShapeGeometry(shape,14); waterGeo.rotateX(Math.PI/2); waterGeo.scale(1,1,-1);
+  wBase=waterGeo.attributes.position.array.slice();
+  waterMesh=new THREE.Mesh(waterGeo,waterMat); waterMesh.position.y=0; scene.add(waterMesh);
+}
+
+/* ---------------- overlays & handles ---------------- */
+const overlays=new THREE.Group(); scene.add(overlays);
+const handles=new THREE.Group(); handles.visible=false; scene.add(handles);
+const handleGeo=new THREE.SphereGeometry(1.6,10,8);
+const handleMat=new THREE.MeshBasicMaterial({color:0x4ec3c8});
+function lineLoop(poly,color,lift,dashed){
+  const pts=poly.map(p=>new THREE.Vector3(p[0],terrainH(p[0],p[1])+lift,p[1]));
+  if(poly.length>2)pts.push(pts[0].clone());
+  return new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({color,transparent:true,opacity:dashed?.55:.95}));
+}
+function insetPoly(poly,d){
+  const cx=poly.reduce((a,p)=>a+p[0],0)/poly.length, cz=poly.reduce((a,p)=>a+p[1],0)/poly.length;
+  return poly.map(p=>{let vx=cx-p[0],vz=cz-p[1];const L=Math.hypot(vx,vz)||1;return [p[0]+vx/L*d,p[1]+vz/L*d];});
+}
+function buildOverlays(){
+  while(overlays.children.length)overlays.remove(overlays.children[0]);
+  if(SITE.boundary.length>2){
+    overlays.add(lineLoop(SITE.boundary,0xff7a2f,0.6));
+    overlays.add(lineLoop(insetPoly(SITE.boundary,RULES.edge),0x9a6b3f,0.55,true));
+  }
+  if(SITE.shore.length>2) overlays.add(lineLoop(SITE.shore,0x4ec3c8,0.15));
+  rebuildHandles();
+}
+function rebuildHandles(){
+  while(handles.children.length)handles.remove(handles.children[0]);
+  SITE.shore.forEach((p,i)=>{
+    if(Math.abs(p[1])>LAND.ez/2-1) return;        // skip the off-map closing corners
+    const m=new THREE.Mesh(handleGeo,handleMat);
+    m.position.set(p[0],terrainH(p[0],p[1])+1.2,p[1]); m.userData.i=i; handles.add(m);
+  });
+}
+
+/* ---------------- tree species ---------------- */
+const SPECIES=[
+ {id:'wpine', n:'Eastern white pine',  form:'cone', h:21,r:4.4,col:0x4a6b52,trunk:0x5a4632,cad:340},
+ {id:'spruce',n:'Black spruce',        form:'cone', h:15,r:2.3,col:0x22402e,trunk:0x4a3b2c,cad:280},
+ {id:'fir',   n:'Balsam fir',          form:'cone', h:13,r:2.9,col:0x2b4d33,trunk:0x4a3b2c,cad:290},
+ {id:'cedar', n:'Eastern white cedar', form:'cone', h:10,r:1.9,col:0x4a6f3c,trunk:0x6b5540,cad:260},
+ {id:'birch', n:'Paper birch',         form:'round',h:16,r:3.3,col:0x7a9a4e,trunk:0xd6d3c9,cad:360},
+ {id:'maple', n:'Sugar maple',         form:'round',h:19,r:5.2,col:0x4f7a35,trunk:0x5b4837,cad:420},
+ {id:'aspen', n:'Trembling aspen',     form:'round',h:15,r:2.9,col:0x86a24f,trunk:0xb5b2a6,cad:300},
+ {id:'oak',   n:'Red oak',             form:'round',h:18,r:5.5,col:0x3f6330,trunk:0x53412f,cad:440},
+];
+const SPI={}; SPECIES.forEach((s,i)=>SPI[s.id]=i);
+const MIX={
+  mixed:   {wpine:18,spruce:16,fir:12,cedar:12,birch:14,maple:14,aspen:9,oak:5},
+  pine:    {wpine:42,spruce:18,fir:14,cedar:8,birch:8,maple:6,aspen:4},
+  hardwood:{maple:30,oak:18,birch:20,aspen:14,wpine:8,cedar:5,spruce:3,fir:2},
+  cedar:   {cedar:38,spruce:16,fir:12,wpine:10,birch:12,maple:6,aspen:6},
+  open:    {maple:26,oak:16,aspen:22,birch:20,wpine:10,cedar:6}
+};
+function pickSpecies(mix,d){
+  if(mix==='cedar'&&d<26&&Math.random()<0.6) return SPI.cedar;
+  const m=MIX[mix]||MIX.mixed; let tot=0; for(const k in m)tot+=m[k];
+  let r=Math.random()*tot;
+  for(const k in m){ r-=m[k]; if(r<=0) return SPI[k]; }
+  return 0;
+}
+
+const TCAP=900, trees=[], dummy=new THREE.Object3D(), tmpCol=new THREE.Color();
+const treeMat=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,flatShading:true});
+const coneIM =new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),treeMat(),TCAP);
+const roundIM=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),treeMat(),TCAP);
+const trunkIM=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.55,0.85,1,6),treeMat(),TCAP);
+[coneIM,roundIM,trunkIM].forEach(m=>{m.castShadow=true;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(m);});
+const glowMat=new THREE.MeshStandardMaterial({color:0xffe6b0,emissive:0xffc978,emissiveIntensity:0,roughness:.5});
+const glowIM=new THREE.InstancedMesh(new THREE.SphereGeometry(.18,6,5),glowMat,900); scene.add(glowIM);
+let treeStats={moved:0,felled:0}, treesVisible=true;
+const HIDE=new THREE.Matrix4().makeScale(0,0,0);
+
+function seedTrees(){
+  trees.length=0;
+  const n=Math.min(TCAP,+$('tDens').value||400), mix=$('tMix').value;
+  if(SITE.boundary.length<3){syncTrees();return;}
+  const xs=SITE.boundary.map(p=>p[0]),zs=SITE.boundary.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
+  for(let i=0;i<n;i++){
+    let x,z,d=0,ok=false;
+    for(let a=0;a<30;a++){
+      x=x0+Math.random()*(x1-x0); z=z0+Math.random()*(z1-z0);
+      d=distShore(x,z);
+      if(inLot(x,z)&&d>LAND.beach*0.8){ok=true;break;}
+    }
+    trees.push(ok?{x,z,tx:x,tz:z,sp:pickSpecies(mix,d),s:.72+Math.random()*.5,rot:Math.random()*6.28,lit:false,dead:false}
+                 :{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false});
+  }
+  syncTrees();
+}
+function syncTrees(){
+  let gi=0;
+  for(let i=0;i<TCAP;i++){
+    const t=trees[i];
+    if(!t||t.dead||!treesVisible){coneIM.setMatrixAt(i,HIDE);roundIM.setMatrixAt(i,HIDE);trunkIM.setMatrixAt(i,HIDE);continue;}
+    const sp=SPECIES[t.sp], y=terrainH(t.x,t.z), h=sp.h*t.s, rr=sp.r*t.s;
+    const cone=sp.form==='cone';
+    const trunkH=cone?h*0.20:h*0.46, canH=h-trunkH;
+    dummy.position.set(t.x,y+trunkH/2,t.z); dummy.rotation.set(0,t.rot,0);
+    dummy.scale.set(cone?0.18*rr:0.26*rr,trunkH,cone?0.18*rr:0.26*rr); dummy.updateMatrix();
+    trunkIM.setMatrixAt(i,dummy.matrix); trunkIM.setColorAt(i,tmpCol.setHex(sp.trunk));
+    const jitter=1+(hash2(i,3,1)-0.5)*0.16;
+    tmpCol.setHex(sp.col); tmpCol.offsetHSL(0,(hash2(i,7,2)-0.5)*0.05,(hash2(i,11,3)-0.5)*0.09);
+    if(cone){
+      dummy.position.set(t.x,y+trunkH+canH/2,t.z);
+      dummy.scale.set(rr*jitter,canH,rr*jitter); dummy.updateMatrix();
+      coneIM.setMatrixAt(i,dummy.matrix); coneIM.setColorAt(i,tmpCol); roundIM.setMatrixAt(i,HIDE);
+    }else{
+      dummy.position.set(t.x,y+trunkH+canH*0.46,t.z);
+      dummy.scale.set(rr*jitter,canH*0.62,rr*0.92*jitter); dummy.updateMatrix();
+      roundIM.setMatrixAt(i,dummy.matrix); roundIM.setColorAt(i,tmpCol); coneIM.setMatrixAt(i,HIDE);
+    }
+    if(t.lit&&gi<894){
+      for(let k=0;k<6;k++){
+        const a=k/6*6.283+t.rot;
+        dummy.position.set(t.x+Math.cos(a)*rr*0.7,y+trunkH+k*(canH/7),t.z+Math.sin(a)*rr*0.7);
+        dummy.rotation.set(0,0,0);dummy.scale.setScalar(1);dummy.updateMatrix();
+        glowIM.setMatrixAt(gi++,dummy.matrix);
+      }
+    }
+  }
+  for(let k=gi;k<900;k++)glowIM.setMatrixAt(k,HIDE);
+  [coneIM,roundIM,trunkIM,glowIM].forEach(m=>m.instanceMatrix.needsUpdate=true);
+  [coneIM,roundIM,trunkIM].forEach(m=>{if(m.instanceColor)m.instanceColor.needsUpdate=true;});
+}
+
+/* ---------------- catalogue ---------------- */
+const CAT=[
+ {g:'Quoted cabins & structures',items:[
+  {id:'glassdome',n:'Standing Glass Dome',mfr:'Meihua (Guangzhou)',kind:'dome',w:6,d:6,h:6.5,area:'6.0 m ⌀ · 43 m² insulated',sleeps:2,usd:16800,freight:4200,csa:3000,
+   note:'EXW Guangzhou. CSA approval $3,000 one-time per model.'},
+  {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200},
+  {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
+  {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
+  {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'twostorey',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
+  {id:'one',n:'ONE Living Capsule',mfr:'Hebei Qianyan',kind:'glassbox',archived:true,w:7.7,d:7.8,h:3.4,area:'60 m²',sleeps:2,usd:35463,freight:5600},
+  {id:'twofloor',n:'Two Floor Capsule',mfr:'Hunan Pawa',kind:'stack',archived:true,w:3,d:9,h:6.2,area:'45 m² over 2 floors',sleeps:2,usd:31579,freight:6800},
+ ]},
+ {g:'Local build & site works',items:[
+  {id:'lodge',n:'Main lodge',kind:'gable',w:16,d:22,h:6.5,cad:720000,local:true},
+  {id:'washhs',n:'Washhouse',kind:'gable',w:6,d:9,h:3.2,cad:118000,local:true},
+  {id:'pavil',n:'Open pavilion',kind:'pavilion',w:9,d:9,h:4,cad:64000,local:true},
+  {id:'sauna',n:'Barrel sauna',kind:'barrel',w:2.4,d:4.5,h:2.4,cad:26000,local:true},
+  {id:'shed',n:'Utility shed',kind:'gable',w:4,d:6,h:3,cad:22000,local:true},
+  {id:'boatho',n:'Boathouse',kind:'gable',w:7,d:9,h:4,cad:142000,local:true,shore:true},
+  {id:'dock',n:'Floating dock',kind:'dock',w:3,d:14,h:.5,cad:19000,local:true,water:true},
+  {id:'firepit',n:'Fire pit',kind:'firepit',w:3,d:3,h:.5,cad:4200,local:true},
+  {id:'park',n:'Parking pad (2)',kind:'pad',w:6,d:12,h:.12,cad:9800,local:true},
+ ]},
+ {g:'Roads & paths',items:[
+  {id:'road_g',n:'Gravel road',kind:'road',surf:'gravel',rate:'cRoadG',width:'wRoad',col:0x6b6154,local:true},
+  {id:'road_p',n:'Paved road',kind:'road',surf:'paved',rate:'cRoadP',width:'wRoad',col:0x3c3f42,local:true},
+  {id:'path',n:'Walking path',kind:'road',surf:'path',rate:'cPath',fixedW:1.4,col:0x8a7f6a,local:true},
+ ]},
+ {g:'Lighting & props',items:[
+  {id:'lamp',n:'Lamp post',kind:'lamp',cad:1450,local:true},
+  {id:'bollard',n:'Path bollard',kind:'bollard',cad:420,local:true},
+  {id:'uplight',n:'Tree uplight',kind:'treelight',cad:380,local:true},
+  {id:'car',n:'Parked car',kind:'car',cad:0,local:true},
+ ]},
+ {g:'Custom footprint',items:[
+   {id:'custom',n:'Custom building — lasso',kind:'lasso',local:true,area:'drag any shape · priced by floor area'}]},
+ {g:'Trees — plant individually',items:SPECIES.map(s=>({
+    id:'t_'+s.id,n:s.n,kind:'plant',sp:SPI[s.id],cad:s.cad,local:true,
+    area:`${s.h} m mature · ${(s.r*2).toFixed(1)} m crown`,swatch:s.col}))},
+];
+const DEF={}; CAT.forEach(g=>g.items.forEach(i=>DEF[i.id]=i));
+
+const FIN={fx:1.37,surtax:false,peng:4000,esa:2500,permit:2500,site:28000,cont:12};
+const RATES={cRoadG:185,cRoadP:420,cPath:65,wRoad:5,wClear:2,treeCore:50};
+const RULES={edge:7.5,cov:15,sepFt:15,sep:15*FT,max:24};
+const CUSTOM={rate:2400,h:3.6,storeys:1};
+const CUSTOMDEF={id:'custom',n:'Custom building',kind:'custom',local:true};
+function polyNear(x,z,poly){
+  let best={d:1e9,cx:x,cz:z};
+  for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];
+    const r=segDist(x,z,a[0],a[1],b[0],b[1]); if(r.d<best.d)best=r;}
+  return best;
+}
+const baseYFor=pts=>Math.min(...pts.map(q=>terrainH(q[0],q[1])));
+function readInputs(){
+  FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;FIN.peng=+$('fPeng').value;FIN.esa=+$('fEsa').value;
+  FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;FIN.cont=+$('fCont').value;
+  ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>RATES[k]=+$(k).value);
+  RULES.edge=+$('rEdge').value;RULES.cov=+$('rCov').value;
+  RULES.sepFt=+$('rSep').value;RULES.sep=RULES.sepFt*FT;RULES.max=+$('rMax').value;
+  const sm=$('sepM'); if(sm)sm.textContent='= '+RULES.sep.toFixed(2)+' m';
+  if($('cusRate')){CUSTOM.rate=+$('cusRate').value;CUSTOM.h=+$('cusH').value;CUSTOM.storeys=+$('cusSt').value;}
+}
+function unitCost(d){
+  if(d.local)return d.cad||0;
+  return (d.usd+(d.freight||0)+(FIN.surtax?d.usd*0.25:0))*FIN.fx+FIN.permit+FIN.site;
+}
+const modelOnce=d=>d.local?0:FIN.peng+FIN.esa+(d.csa||0)*FIN.fx;
+
+/* ---------------- style ---------------- */
+const MUTE=new THREE.Color(0xb6ad9c),hsl={};
+function styleObject(root){
+  root.traverse(o=>{
+    if(!o.isMesh||!o.material||o.material.isMeshBasicMaterial)return;
+    const m=o.material;
+    if(!m.userData.base)m.userData.base={c:m.color.getHex(),r:m.roughness,mt:m.metalness};
+    const b=m.userData.base;
+    if(styleMode==='diorama'){
+      const c=new THREE.Color(b.c); c.getHSL(hsl);
+      c.setHSL(hsl.h,hsl.s*0.5,Math.min(0.84,hsl.l*0.88+0.13)); c.lerp(MUTE,0.16);
+      m.color.copy(c); m.roughness=Math.min(1,(b.r==null?.8:b.r)*.8+.24); m.metalness=(b.mt||0)*.3;
+    }else{ m.color.setHex(b.c); if(b.r!=null)m.roughness=b.r; if(b.mt!=null)m.metalness=b.mt; }
+    m.needsUpdate=true;
+  });
+}
+function applyStyle(){
+  const dio=styleMode==='diorama';
+  styleObject(objGroup);
+  if(plinth)plinth.visible=dio;
+  if(terrainMat){ terrainMat.roughness=dio?1:.97; terrainMat.flatShading=!dio?true:true; terrainMat.needsUpdate=true; }
+  if(contours)contours.material.opacity=dio?.22:.5;
+  renderer.toneMapping=dio?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
+  renderer.toneMappingExposure=dio?1.18:1;
+  sun.shadow.radius=dio?5:1;
+  const b=$('btnStyle'); if(b){b.textContent='Style: '+(dio?'Diorama':'Survey');b.classList.toggle('on',dio);}
+  updateSun();
+}
+
+/* ---------------- objects ---------------- */
+const placed=[],objGroup=new THREE.Group(); scene.add(objGroup);
+const nightMats=[];
+function glass(){const m=new THREE.MeshStandardMaterial({color:0x2a3037,emissive:0xffd39b,emissiveIntensity:0,roughness:.22,metalness:.15});nightMats.push(m);return m;}
+function pyramid(w,d,h,col){const g=new THREE.ConeGeometry(.72,h,4);g.rotateY(Math.PI/4);g.scale(w/1.02,1,d/1.02);
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.92,flatShading:true}));m.castShadow=true;return m;}
+function bandWindows(w,d,y,h,g){const n=Math.max(1,Math.round(w/3));
+  for(let i=0;i<n;i++){const px=-w/2+(i+.5)*(w/n);
+    [-1,1].forEach(s=>{const q=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(1.3,w/n*.55),h),glass());
+      q.position.set(px,y,s*(d/2+.03));if(s<0)q.rotation.y=Math.PI;g.add(q);});}}
+function buildMesh(d){
+  const g=new THREE.Group(),k=d.kind,body=c=>new THREE.MeshStandardMaterial({color:c,roughness:.9});
+  if(k==='gable'||k==='twostorey'){
+    const wh=d.h*(k==='twostorey'?.78:.62);
+    const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,wh,d.d),body(0x8a6e50));b.position.y=wh/2;b.castShadow=b.receiveShadow=true;g.add(b);
+    const r=pyramid(d.w*1.08,d.d*1.08,d.h*.4,0x42301f);r.position.y=wh+d.h*.2;g.add(r);
+    bandWindows(d.w,d.d,wh*.55,Math.min(1.2,wh*.35),g);
+    if(k==='twostorey')bandWindows(d.w,d.d,wh*.2,Math.min(1.1,wh*.28),g);
+  }else if(k==='flatroof'){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,d.h,d.d),body(0x7d6b55));b.position.y=d.h/2;b.castShadow=b.receiveShadow=true;g.add(b);
+    bandWindows(d.w,d.d,d.h*.55,Math.min(1.3,d.h*.4),g);
+    const rl=new THREE.Mesh(new THREE.BoxGeometry(d.w,.06,d.d),body(0x3a3a3a));rl.position.y=d.h+.9;g.add(rl);
+    for(const sx of[-1,1])for(const sz of[-1,1]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.9,5),body(0x3a3a3a));
+      p.position.set(sx*(d.w/2-.1),d.h+.45,sz*(d.d/2-.1));g.add(p);}
+  }else if(k==='glassbox'){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,d.h,d.d),body(0x2f3436));b.position.y=d.h/2;b.castShadow=b.receiveShadow=true;g.add(b);
+    const w=new THREE.Mesh(new THREE.PlaneGeometry(d.w*.9,d.h*.72),glass());w.position.set(0,d.h*.45,d.d/2+.04);g.add(w);
+    bandWindows(d.w,d.d,d.h*.55,Math.min(1.2,d.h*.35),g);
+  }else if(k==='capsule'){
+    const r=d.w/2,len=d.d-d.w;
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,16,1,true),body(0xd8d9da));b.rotation.x=Math.PI/2;b.position.y=r+.5;b.castShadow=true;g.add(b);
+    [-1,1].forEach(s=>{const c=new THREE.Mesh(new THREE.SphereGeometry(r,16,10),body(0xd8d9da));c.position.set(0,r+.5,s*len/2);c.castShadow=true;g.add(c);});
+    const w=new THREE.Mesh(new THREE.PlaneGeometry(d.d*.55,r*1.1),glass());w.position.set(r+.02,r+.6,0);w.rotation.y=Math.PI/2;g.add(w);
+  }else if(k==='dome'){
+    const dm=new THREE.Mesh(new THREE.IcosahedronGeometry(d.w/2,1),new THREE.MeshStandardMaterial({color:0xbfd6dd,roughness:.28,metalness:.25,transparent:true,opacity:.72,flatShading:true}));
+    dm.position.y=3+d.w/2*.8;dm.scale.y=.85;dm.castShadow=true;g.add(dm);
+    const core=new THREE.Mesh(new THREE.SphereGeometry(d.w/2*.55,10,8),glass());core.position.y=3+d.w/2*.6;g.add(core);
+    for(let i=0;i<3;i++){const a=i/3*6.283;const leg=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,3,6),body(0x4a4d4f));
+      leg.position.set(Math.cos(a)*d.w*.3,1.5,Math.sin(a)*d.w*.3);leg.castShadow=true;g.add(leg);}
+    const st=new THREE.Mesh(new THREE.BoxGeometry(1,.15,3.4),body(0x5b4a38));st.position.set(0,1.6,d.w*.42);st.rotation.x=-.42;g.add(st);
+  }else if(k==='stack'){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,9),body(0x35393c));b.position.y=1.5;b.castShadow=true;g.add(b);
+    const u=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,6),body(0x44484b));u.position.set(0,4.5,-1);u.castShadow=true;g.add(u);
+  }else if(k==='barrel'){
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(d.h/2,d.h/2,d.d,14),body(0x8a6a45));m.rotation.x=Math.PI/2;m.position.y=d.h/2;m.castShadow=true;g.add(m);
+  }else if(k==='pavilion'){
+    const r=pyramid(d.w,d.d,d.h*.4,0x3a2c1e);r.position.y=d.h*.85;g.add(r);
+    for(const sx of[-1,1])for(const sz of[-1,1]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,d.h*.75,6),body(0x6f5a44));
+      p.position.set(sx*(d.w/2-.5),d.h*.375,sz*(d.d/2-.5));p.castShadow=true;g.add(p);}
+    const dk=new THREE.Mesh(new THREE.BoxGeometry(d.w,.2,d.d),body(0x6d5a45));dk.position.y=.1;dk.receiveShadow=true;g.add(dk);
+  }else if(k==='dock'){
+    const dk=new THREE.Mesh(new THREE.BoxGeometry(d.w,.28,d.d),body(0x9c8465));dk.position.y=.5;dk.castShadow=true;g.add(dk);
+    for(let i=0;i<Math.round(d.d/3.5);i++)for(const sx of[-1,1]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,3.2,6),body(0x4a3b2c));
+      p.position.set(sx*(d.w/2-.2),-1,-d.d/2+1.5+i*3.5);g.add(p);}
+  }else if(k==='pad'){
+    const p=new THREE.Mesh(new THREE.BoxGeometry(d.w,d.h,d.d),body(0x4a4c4e));p.position.y=d.h/2;p.receiveShadow=true;g.add(p);
+  }else if(k==='firepit'){
+    const r=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.5,16),body(0x5a5550));r.position.y=.25;r.castShadow=true;g.add(r);
+    const f=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,0),new THREE.MeshStandardMaterial({color:0x2a1a0c,emissive:0xff6a1a,emissiveIntensity:0,roughness:.8}));
+    f.position.y=.5;nightMats.push(f.material);g.add(f);
+  }else if(k==='lamp'||k==='bollard'){
+    const Hh=k==='lamp'?4.2:1;
+    const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.1,Hh,7),body(0x24282a));p.position.y=Hh/2;p.castShadow=true;g.add(p);
+    const hd=new THREE.Mesh(new THREE.SphereGeometry(k==='lamp'?.3:.14,8,7),new THREE.MeshStandardMaterial({color:0xf1e6cc,emissive:0xffcf8a,emissiveIntensity:0,roughness:.4}));
+    hd.position.y=Hh;nightMats.push(hd.material);g.add(hd);
+  }else if(k==='car'){
+    const c=[0xb03a2e,0x2e4a7d,0xd8d8d8,0x2b2b2b,0x3f6b4a][Math.floor(Math.random()*5)];
+    const b=new THREE.Mesh(new THREE.BoxGeometry(1.85,.72,4.4),new THREE.MeshStandardMaterial({color:c,roughness:.35,metalness:.4}));
+    b.position.y=.72;b.castShadow=true;g.add(b);
+    const t=new THREE.Mesh(new THREE.BoxGeometry(1.7,.62,2.2),new THREE.MeshStandardMaterial({color:0x1c2226,roughness:.2}));t.position.set(0,1.34,-.2);g.add(t);
+    for(const sx of[-1,1])for(const sz of[-1,1]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.22,10),body(0x15171a));
+      w.rotation.z=Math.PI/2;w.position.set(sx*.92,.34,sz*1.5);g.add(w);}
+  }
+  return g;
+}
+
+/* ---------------- validation ---------------- */
+function inFootprint(o,x,z,pad){
+  const c=Math.cos(-o.rot),s=Math.sin(-o.rot),dx=x-o.x,dz=z-o.z;
+  return Math.abs(dx*c-dz*s)<=o.def.w/2+pad&&Math.abs(dx*s+dz*c)<=o.def.d/2+pad;
+}
+function corners(def,x,z,rot){
+  const c=Math.cos(rot),s=Math.sin(rot),hw=def.w/2,hd=def.d/2,out=[];
+  [[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].forEach(([a,b])=>out.push([x+a*c-b*s,z+a*s+b*c]));
+  return out;
+}
+const isStructure=d=>d.w&&d.kind!=='pad'&&d.kind!=='road'&&d.kind!=='dock';
+const footprintArea=()=>placed.reduce((a,p)=>a+(p.type==='custom'?p.area:(p.type==='obj'&&isStructure(p.def)?p.def.w*p.def.d:0)),0);
+
+function validate(def,x,z,rot,ignore){
+  const iss=[],hard=m=>iss.push({m,soft:false}),soft=m=>iss.push({m,soft:true});
+  if(def.kind==='road'||def.kind==='plant'||def.kind==='treelight')return iss;
+  if(def.water){ if(!isWater(x,z))soft('Dock is on dry land'); return iss; }
+  if(isWater(x,z))hard('Can\u2019t build in the water');
+  if(!def.w){ if(!inLot(x,z))hard('Outside the lot line'); return iss; }
+  const cs=corners(def,x,z,rot);
+  if(cs.some(c=>isWater(c[0],c[1])))hard('Part of the footprint is in the water');
+  if(SITE.boundary.length>2){
+    const dl=Math.min(...cs.map(c=>distLot(c[0],c[1])));
+    if(dl<0)hard('Crosses the lot line');
+    else if(dl<RULES.edge)hard(`${dl.toFixed(1)} m to the lot line — by-law wants ${RULES.edge} m`);
+  }
+  // ground slope under the footprint
+  let lo=1e9,hi=-1e9;
+  cs.concat([[x,z]]).forEach(c=>{const h=terrainH(c[0],c[1]);if(h<lo)lo=h;if(h>hi)hi=h;});
+  if(hi-lo>2.2) soft(`${(hi-lo).toFixed(1)} m of fall across the pad — expect stepped piers or fill`);
+  // nothing may overlap; the 15 ft rule applies only between main sleeping cabins
+  const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
+  const r1=Math.hypot(def.w,def.d)/2, meCabin=!!def.sleeps;
+  for(const p of others){
+    const gap=Math.hypot(p.x-x,p.z-z)-r1-Math.hypot(p.def.w,p.def.d)/2;
+    if(gap<0){hard(`Overlaps ${p.def.n}`);break;}
+    if(meCabin&&p.def.sleeps&&gap<RULES.sep){
+      hard(`${(gap/FT).toFixed(1)} ft to ${p.def.n} — cabins need ${RULES.sepFt} ft`);break;}
+  }
+  for(const p of placed){
+    if(p.type!=='custom')continue;
+    if(pointInPoly(x,z,p.pts)||cs.some(c=>pointInPoly(c[0],c[1],p.pts))){hard('Overlaps a custom building');break;}
+  }
+  if(isStructure(def)&&LAND_AREA>0){
+    const cov=(footprintArea()-(ignore&&isStructure(ignore.def)?ignore.def.w*ignore.def.d:0)+def.w*def.d)/LAND_AREA*100;
+    if(cov>RULES.cov)hard(`Lot coverage would reach ${cov.toFixed(1)} % — cap is ${RULES.cov} %`);
+  }
+  if(def.sleeps){
+    const n=placed.filter(p=>p.def.sleeps).length+(ignore?0:1);
+    if(n>RULES.max)hard(`Over the ${RULES.max}-unit site limit`);
+  }
+  return iss;
+}
+
+/* ---------------- tree displacement ---------------- */
+function pushTrees(obj){
+  const clear=RATES.wClear,core=Math.max(0,Math.min(1,RATES.treeCore/100));
+  let moved=0,felled=0;
+  trees.forEach(t=>{
+    if(t.dead)return;
+    let hit=false,kill=false,nx=t.x,nz=t.z;
+    if(obj.type==='road'){
+      const hw=obj.width/2+clear;
+      for(let i=0;i<obj.pts.length-1;i++){
+        const a=obj.pts[i],b=obj.pts[i+1],r=segDist(t.x,t.z,a[0],a[1],b[0],b[1]);
+        if(r.d<hw){
+          hit=true;
+          if(r.d<=hw*core)kill=true;
+          else{let vx=t.x-r.cx,vz=t.z-r.cz,L=Math.hypot(vx,vz);
+            if(L<.01){const an=Math.atan2(b[1]-a[1],b[0]-a[0])+Math.PI/2;vx=Math.cos(an);vz=Math.sin(an);L=1;}
+            const push=(hw-r.d)+.6;nx=t.x+vx/L*push;nz=t.z+vz/L*push;}
+          break;
+        }
+      }
+    }else if(obj.type==='custom'){
+      const inside=pointInPoly(t.x,t.z,obj.pts), near=polyNear(t.x,t.z,obj.pts);
+      if(inside||near.d<clear){
+        hit=true;
+        if(inside&&near.d>=obj.inr*core)kill=true;
+        else{
+          let vx=t.x-near.cx,vz=t.z-near.cz,L=Math.hypot(vx,vz);
+          if(inside){vx=-vx;vz=-vz;}
+          if(L<.01){vx=1;vz=0;L=1;}
+          nx=near.cx+vx/L*(clear+0.9); nz=near.cz+vz/L*(clear+0.9);
+        }
+      }
+    }else{
+      const c=Math.cos(-obj.rot),s=Math.sin(-obj.rot),dx=t.x-obj.x,dz=t.z-obj.z;
+      const lx=Math.abs(dx*c-dz*s),lz=Math.abs(dx*s+dz*c);
+      const hw=obj.def.w/2+clear,hd=obj.def.d/2+clear;
+      if(lx<=hw&&lz<=hd){
+        hit=true;
+        if(Math.max(lx/hw,lz/hd)<=core)kill=true;
+        else{let vx=dx,vz=dz,L=Math.hypot(vx,vz);if(L<.01){vx=1;vz=0;L=1;}
+          const reach=Math.hypot(obj.def.w,obj.def.d)/2+clear+.8;
+          nx=obj.x+vx/L*reach;nz=obj.z+vz/L*reach;}
+      }
+    }
+    if(!hit)return;
+    if(!kill){
+      let ok=!isWater(nx,nz)&&inLot(nx,nz);
+      if(ok)for(const p of placed){if(p.type==='obj'&&p.def.w&&inFootprint(p,nx,nz,clear*.6)){ok=false;break;}}
+      if(ok&&Math.hypot(nx-t.x,nz-t.z)>26)ok=false;
+      if(ok){t.tx=nx;t.tz=nz;moved++;return;}
+      kill=true;
+    }
+    t.dead=true;t.lit=false;felled++;
+  });
+  treeStats.moved+=moved;treeStats.felled+=felled;
+  if(moved||felled)toast(`${moved} trees relocated · ${felled} felled`);
+}
+
+/* ---------------- roads on terrain ---------------- */
+const polyLen=p=>{let L=0;for(let i=0;i<p.length-1;i++)L+=Math.hypot(p[i+1][0]-p[i][0],p[i+1][1]-p[i][1]);return L;};
+function roadMesh(pts,width,col){
+  const dense=[];
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),st=Math.max(1,Math.ceil(len/2));
+    for(let s=0;s<st;s++)dense.push([a[0]+(b[0]-a[0])*s/st,a[1]+(b[1]-a[1])*s/st]);
+  }
+  dense.push(pts[pts.length-1]);
+  const pos=[],idx=[];
+  for(let i=0;i<dense.length;i++){
+    const p=dense[i],q=dense[Math.min(i+1,dense.length-1)],o=dense[Math.max(i-1,0)];
+    let dx=q[0]-o[0],dz=q[1]-o[1];const L=Math.hypot(dx,dz)||1;dx/=L;dz/=L;
+    const nx=-dz*width/2,nz=dx*width/2;
+    const lx=p[0]+nx,lz=p[1]+nz,rx=p[0]-nx,rz=p[1]-nz;
+    pos.push(lx,terrainH(lx,lz)+0.14,lz, rx,terrainH(rx,rz)+0.14,rz);
+  }
+  for(let i=0;i<dense.length-1;i++){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.95,side:THREE.DoubleSide}));
+  m.receiveShadow=true;return m;
+}
+
+/* ---------------- interaction state ---------------- */
+let tool='select',activeId=null,ghost=null,ghostRot=0,snap=false;
+let roadPts=[],roadPrev=null,measurePts=[],measureLine=null,selected=null,selBox=null;
+let trace=null,landMode=false,dragHandle=null,lasso=null;
+
+function setTool(t,id){
+  tool=t;activeId=id||null;
+  clearGhost();cancelRoad();clearMeasure();cancelTrace();
+  document.querySelectorAll('#toolseg button').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
+  document.querySelectorAll('.item').forEach(el=>el.classList.toggle('on',el.dataset.id===activeId));
+  if(t==='place'){
+    const d=DEF[id];makeGhost(d);
+    hint(d.kind==='road'?'Click to lay points · Enter to finish · Esc cancels'
+      :d.kind==='treelight'?'Click a tree to string lights on it'
+      :d.kind==='lasso'?'Press and drag on the ground to draw the footprint — release to build'
+      :d.kind==='plant'?`Click to plant ${d.n}`
+      :'Click to place · R rotates · Shift snaps to 1 m');
+  }else if(t==='measure')hint('Click two points to measure between them');
+  else{select(null);hint('Pick something from the catalogue');}
+}
+function makeGhost(d){
+  if(d.kind==='road'||d.kind==='treelight'||d.kind==='lasso'){ghost=null;return;}
+  if(d.kind==='plant'){
+    const sp=SPECIES[d.sp];
+    ghost=new THREE.Mesh(sp.form==='cone'?new THREE.ConeGeometry(sp.r,sp.h*.8,7):new THREE.IcosahedronGeometry(sp.r,0),
+      new THREE.MeshStandardMaterial({color:sp.col,transparent:true,opacity:.55}));
+    scene.add(ghost);return;
+  }
+  ghost=buildMesh(d);
+  ghost.traverse(o=>{if(o.isMesh){o.castShadow=false;o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.55;}});
+  if(d.w){
+    const pad=new THREE.Mesh(new THREE.PlaneGeometry(d.w,d.d),new THREE.MeshBasicMaterial({color:0x6fdc8c,transparent:true,opacity:.3,side:THREE.DoubleSide}));
+    pad.rotation.x=-Math.PI/2;pad.position.y=.12;pad.name='pad';ghost.add(pad);
+  }
+  ghost.rotation.y=ghostRot;
+  if(styleMode==='diorama')styleObject(ghost);
+  scene.add(ghost);
+}
+const clearGhost=()=>{if(ghost){scene.remove(ghost);ghost=null;}};
+const tint=bad=>{const p=ghost&&ghost.getObjectByName('pad');if(p)p.material.color.setHex(bad?0xff4d4d:0x6fdc8c);};
+const cancelRoad=()=>{roadPts=[];if(roadPrev){scene.remove(roadPrev);roadPrev=null;}};
+const clearMeasure=()=>{measurePts=[];if(measureLine){scene.remove(measureLine);measureLine=null;}};
+function cancelTrace(){if(trace&&trace.line)scene.remove(trace.line);trace=null;}
+function drawLasso(close){
+  if(lasso.line)scene.remove(lasso.line);
+  const v=lasso.pts.map(q=>new THREE.Vector3(q[0],terrainH(q[0],q[1])+0.7,q[1]));
+  if(close&&v.length>2)v.push(v[0].clone());
+  if(v.length<2)return;
+  lasso.line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(v),new THREE.LineBasicMaterial({color:0x6fdc8c}));
+  scene.add(lasso.line);
+}
+function endLasso(build){
+  if(!lasso)return;
+  if(lasso.line)scene.remove(lasso.line);
+  const pts=lasso.pts; lasso=null;
+  if(build)placeCustom(pts);
+}
+
+function setLandMode(on){
+  landMode=on; handles.visible=on; $('btnLand').classList.toggle('on',on);
+  if(on){setTool('select');hint('Drag a shoreline handle to reshape · Shift-click removes · click the water edge to add a point',false,true);}
+  else hint('Pick something from the catalogue');
+}
+function startTrace(mode,btn){
+  setLandMode(false); setTool('select');
+  trace={mode,pts:[],line:null};
+  ['btnScale','btnBound'].forEach(b=>$(b).classList.toggle('on',b===btn));
+  hint(mode==='scale'?'Click one end of the 50 m bar on the underlay, then the other'
+    :'Click each corner of the property · Enter closes the lot · Esc cancels',false,true);
+}
+function drawTrace(extra){
+  if(trace.line)scene.remove(trace.line);
+  const pts=trace.pts.concat(extra?[extra]:[]);
+  if(pts.length<2)return;
+  const col=trace.mode==='scale'?0xffd166:0xff7a2f;
+  trace.line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(p[0],terrainH(p[0],p[1])+1.5,p[1]))),
+    new THREE.LineBasicMaterial({color:col}));
+  scene.add(trace.line);
+}
+function finishTrace(){
+  if(!trace)return;
+  if(trace.mode==='boundary'&&trace.pts.length>2)SITE.boundary=trace.pts.slice();
+  cancelTrace();recomputeAreas();buildOverlays();refresh();
+  ['btnScale','btnBound'].forEach(b=>$(b).classList.remove('on'));
+  hint('Lot line set');toast('Lot line updated');
+}
+
+/* ---------------- commit ---------------- */
+function place(d,x,z,rot){
+  if(d.kind==='plant'){
+    const t={x,z,tx:x,tz:z,sp:d.sp,s:.75+Math.random()*.45,rot:Math.random()*6.28,lit:false,dead:false};
+    const i=trees.findIndex(t2=>t2.dead);
+    if(i>=0)trees[i]=t; else if(trees.length<TCAP)trees.push(t); else {toast('Stem limit reached');return;}
+    syncTrees();extra('Planting',d.cad);refresh();return;
+  }
+  const mesh=buildMesh(d);
+  mesh.position.set(x,d.water?0:terrainH(x,z),z);mesh.rotation.y=rot;objGroup.add(mesh);
+  const o={type:'obj',def:d,mesh,x,z,rot};placed.push(o);
+  if(d.w&&d.kind!=='dock')pushTrees(o);
+  if(styleMode==='diorama')styleObject(mesh);
+  syncTrees();refresh();
+}
+function placeRoad(d,pts){
+  const width=d.fixedW||RATES[d.width];
+  const mesh=roadMesh(pts,width,d.col);objGroup.add(mesh);
+  const o={type:'road',def:d,mesh,pts:pts.slice(),width,len:polyLen(pts)};placed.push(o);
+  if(styleMode==='diorama')styleObject(mesh);
+  pushTrees(o);syncTrees();refresh();
+}
+function buildCustomMesh(pts,h){
+  const shape=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
+  const g=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});
+  g.rotateX(-Math.PI/2);
+  const cap=new THREE.MeshStandardMaterial({color:0x4a4034,roughness:.94});
+  const side=new THREE.MeshStandardMaterial({color:0x8d7f68,roughness:.9});
+  const m=new THREE.Mesh(g,[cap,side]);
+  m.castShadow=m.receiveShadow=true;
+  const grp=new THREE.Group(); grp.add(m); return grp;
+}
+function placeCustom(pts){
+  if(pts.length<4){toast('Draw a closed shape');return;}
+  const area=polyArea(pts);
+  if(area<6){toast('That footprint is too small');return;}
+  if(pts.some(q=>isWater(q[0],q[1]))){toast('Blocked — part of the shape is in the water');return;}
+  if(SITE.boundary.length>2&&pts.some(q=>!inLot(q[0],q[1]))){toast('Blocked — crosses the lot line');return;}
+  for(const q of placed){
+    if(q.type==='obj'&&q.def.w&&(pointInPoly(q.x,q.z,pts)||corners(q.def,q.x,q.z,q.rot).some(c=>pointInPoly(c[0],c[1],pts)))){
+      toast(`Blocked — overlaps ${q.def.n}`);return;}
+    if(q.type==='custom'&&q.pts.some(c=>pointInPoly(c[0],c[1],pts))){toast('Blocked — overlaps another custom building');return;}
+  }
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  const h=CUSTOM.h*Math.max(1,CUSTOM.storeys);
+  const mesh=buildCustomMesh(pts,h);
+  mesh.position.y=baseYFor(pts);
+  objGroup.add(mesh);
+  const o={type:'custom',def:CUSTOMDEF,mesh,pts:pts.slice(),area,h,
+    cost:area*Math.max(1,CUSTOM.storeys)*CUSTOM.rate,
+    inr:polyNear(cx,cz,pts).d, x:cx, z:cz, rot:0};
+  placed.push(o);
+  pushTrees(o);
+  if(styleMode==='diorama')styleObject(mesh);
+  syncTrees(); refresh();
+  toast(`${area.toFixed(0)} m² footprint · ${money(o.cost)}`);
+}
+const extras=[];
+function extra(label,amt){const e=extras.find(c=>c.label===label);if(e)e.amt+=amt;else extras.push({label,amt});}
+function removeObj(o){objGroup.remove(o.mesh);placed.splice(placed.indexOf(o),1);select(null);refresh();}
+function select(o){
+  selected=o;
+  if(selBox){scene.remove(selBox);selBox=null;}
+  if(o&&o.type==='obj'&&o.def.w){selBox=new THREE.Box3Helper(new THREE.Box3().setFromObject(o.mesh),0xff7a2f);scene.add(selBox);}
+  if(!o)return;
+  if(o.type==='road')hint(`${o.def.n} · ${o.len.toFixed(1)} m × ${o.width} m · ${money(o.len*RATES[o.def.rate])} — Delete removes`);
+  else if(o.type==='custom')hint(`Custom building · ${o.area.toFixed(0)} m² × ${CUSTOM.storeys} storey · ${o.h.toFixed(1)} m tall · ${money(o.cost)} — Delete removes`);
+  else{
+    const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
+    hint(`${o.def.n}${o.def.w?` · ${o.def.w} × ${o.def.d} m`:''} · ${ds>0?ds.toFixed(0)+' m from water':'over water'} · ${el.toFixed(1)} m elev · ${money(unitCost(o.def))} — R rotates, Delete removes`);
+  }
+}
+
+/* ---------------- pointer ---------------- */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+let dragging=null,dragStart=null,movedPx=0;
+function ndcFrom(e){const r=renderer.domElement.getBoundingClientRect();
+  ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(ndc,camera);}
+function hitGround(e){ndcFrom(e);
+  let h=terrain?ray.intersectObject(terrain,false)[0]:null;
+  if(!h&&waterMesh)h=ray.intersectObject(waterMesh,false)[0];
+  return h?h.point:null;}
+function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
+  let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
+function pickTree(e){ndcFrom(e);const h=ray.intersectObjects([coneIM,roundIM,trunkIM],false);return h.length?h[0].instanceId:-1;}
+function pickHandle(e){ndcFrom(e);const h=ray.intersectObjects(handles.children,false);return h.length?h[0].object:null;}
+
+renderer.domElement.addEventListener('pointerdown',e=>{
+  movedPx=0;
+  if(landMode&&e.button===0){
+    const hd=pickHandle(e);
+    if(hd){
+      if(e.shiftKey){
+        if(SITE.shore.length>6){SITE.shore.splice(hd.userData.i,1);rebuildLand();}
+        return;
+      }
+      dragHandle=hd;renderer.domElement.setPointerCapture(e.pointerId);return;
+    }
+  }
+  if(tool==='place'&&activeId&&DEF[activeId].kind==='lasso'&&e.button===0){
+    const p=hitGround(e);
+    if(p){lasso={pts:[[p.x,p.z]],line:null};renderer.domElement.setPointerCapture(e.pointerId);return;}
+  }
+  dragStart={x:e.clientX,y:e.clientY,theta:ctrl.theta,phi:ctrl.phi,tx:ctrl.target.x,tz:ctrl.target.z};
+  dragging=(e.button===2||viewMode==='plan')?'pan':'orbit';
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(lasso){
+    const p=hitGround(e); if(!p)return;
+    const l=lasso.pts[lasso.pts.length-1];
+    if(Math.hypot(p.x-l[0],p.z-l[1])>1.2){
+      lasso.pts.push([p.x,p.z]); drawLasso();
+      hint(`${lasso.pts.length} points · ${polyArea(lasso.pts).toFixed(0)} m² · release to build`,false,true);
+    }
+    return;
+  }
+  if(dragHandle){
+    const p=hitGround(e); if(!p)return;
+    SITE.shore[dragHandle.userData.i]=[p.x,p.z];
+    dragHandle.position.set(p.x,terrainH(p.x,p.z)+1.2,p.z);
+    if(overlays.children.length){
+      const last=overlays.children[overlays.children.length-1];
+      overlays.remove(last);
+      overlays.add(lineLoop(SITE.shore,0x4ec3c8,0.15));
+    }
+    return;
+  }
+  if(dragStart)movedPx=Math.max(movedPx,Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y));
+  if(dragging&&e.buttons){
+    const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;
+    if(dragging==='orbit'&&viewMode==='3d'){
+      ctrl.theta=dragStart.theta-dx*.005;ctrl.phi=Math.max(.1,Math.min(1.52,dragStart.phi-dy*.004));
+    }else{
+      const sc=viewMode==='plan'?ctrl.orthoSize*2/innerHeight:ctrl.radius*.0016;
+      const c=viewMode==='3d'?Math.cos(ctrl.theta):1,s=viewMode==='3d'?Math.sin(ctrl.theta):0;
+      const mx=-dx*sc,mz=-dy*sc;
+      ctrl.target.x=dragStart.tx+(mx*c+mz*s);ctrl.target.z=dragStart.tz+(-mx*s+mz*c);
+    }
+    applyCam();return;
+  }
+  updateGhost(e);
+},{passive:true});
+addEventListener('pointerup',()=>{
+  if(lasso){endLasso(lasso.pts.length>=4);dragging=null;dragStart=null;return;}
+  if(dragHandle){dragHandle=null;rebuildLand();}
+  dragging=null;dragStart=null;
+});
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('wheel',e=>{
+  e.preventDefault();
+  if(viewMode==='plan'){ctrl.orthoSize=Math.max(8,Math.min(420,ctrl.orthoSize*(1+Math.sign(e.deltaY)*.12)));updateScaleBar();}
+  else ctrl.radius=Math.max(10,Math.min(1200,ctrl.radius*(1+Math.sign(e.deltaY)*.12)));
+  applyCam();
+},{passive:false});
+
+function updateGhost(e){
+  const p=hitGround(e);if(!p)return;
+  let x=p.x,z=p.z;if(snap){x=Math.round(x);z=Math.round(z);}
+  if(trace){drawTrace([x,z]);return;}
+  if(landMode)return;
+  if(tool==='place'&&activeId){
+    const d=DEF[activeId];
+    if(d.kind==='road'){
+      if(roadPts.length){
+        const pts=roadPts.concat([[x,z]]);
+        if(roadPrev)scene.remove(roadPrev);
+        roadPrev=roadMesh(pts,d.fixedW||RATES[d.width],0xff7a2f);
+        roadPrev.material.transparent=true;roadPrev.material.opacity=.6;scene.add(roadPrev);
+        hint(`${polyLen(pts).toFixed(1)} m · ${money(polyLen(pts)*RATES[d.rate])} · Enter to finish`);
+      }
+      return;
+    }
+    if(!ghost)return;
+    const y=terrainH(x,z);
+    if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
+    else ghost.position.set(x,d.water?0:y,z);
+    const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
+    tint(bad.length);
+    if(bad.length)hint('✕ '+bad[0].m,true);
+    else if(iss.length)hint('⚠ '+iss[0].m,false,true);
+    else hint(`${d.n}${d.w?` · ${d.w} × ${d.d} m`:''} · ${money(unitCost(d))} · ${y.toFixed(1)} m elev`);
+  }else if(tool==='measure'&&measurePts.length===1){
+    hint(`${Math.hypot(x-measurePts[0][0],z-measurePts[0][1]).toFixed(2)} m`);
+    drawMeasure([measurePts[0],[x,z]]);
+  }
+}
+function drawMeasure(pts){
+  if(measureLine)scene.remove(measureLine);
+  measureLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(p[0],terrainH(p[0],p[1])+1,p[1]))),
+    new THREE.LineBasicMaterial({color:0xff7a2f}));
+  scene.add(measureLine);
+}
+
+renderer.domElement.addEventListener('click',e=>{
+  if(movedPx>4)return;
+  const p=hitGround(e);if(!p)return;
+  let x=p.x,z=p.z;if(snap){x=Math.round(x);z=Math.round(z);}
+
+  if(trace){
+    trace.pts.push([x,z]);drawTrace();
+    if(trace.mode==='scale'&&trace.pts.length===2){
+      const span=Math.hypot(trace.pts[1][0]-trace.pts[0][0],trace.pts[1][1]-trace.pts[0][1]);
+      const real=parseFloat(prompt(`That span currently reads ${span.toFixed(1)} m.\nHow many metres should it be?`,'50'));
+      if(real>0&&SITE.under){ const f=real/span; SITE.under.scale.multiplyScalar(f); toast(`Underlay rescaled ×${f.toFixed(3)}`); }
+      cancelTrace();$('btnScale').classList.remove('on');hint('Underlay scaled — trace the lot line next');
+    }
+    return;
+  }
+  if(landMode){                                     // insert a new shoreline point
+    let best=-1,bd=1e9;
+    for(let i=0;i<SITE.shore.length;i++){
+      const a=SITE.shore[i],b=SITE.shore[(i+1)%SITE.shore.length];
+      const r=segDist(x,z,a[0],a[1],b[0],b[1]);
+      if(r.d<bd){bd=r.d;best=i;}
+    }
+    if(best>=0&&bd<14){SITE.shore.splice(best+1,0,[x,z]);rebuildLand();toast('Point added');}
+    return;
+  }
+  if(tool==='place'&&activeId){
+    const d=DEF[activeId];
+    if(d.kind==='road'){roadPts.push([x,z]);return;}
+    if(d.kind==='treelight'){
+      const i=pickTree(e);
+      if(i>=0&&trees[i]&&!trees[i].dead){trees[i].lit=!trees[i].lit;syncTrees();extra('Tree lighting',trees[i].lit?d.cad:-d.cad);refresh();}
+      else toast('Click directly on a tree');
+      return;
+    }
+    const bad=validate(d,x,z,ghostRot).filter(i=>!i.soft);
+    if(bad.length){toast('Blocked — '+bad[0].m);return;}
+    place(d,x,z,ghostRot);return;
+  }
+  if(tool==='measure'){
+    if(measurePts.length>=2)measurePts=[];
+    measurePts.push([x,z]);
+    if(measurePts.length===2){drawMeasure(measurePts);
+      hint(`${Math.hypot(measurePts[1][0]-measurePts[0][0],measurePts[1][1]-measurePts[0][1]).toFixed(2)} m — click again to restart`);}
+    return;
+  }
+  select(pickObj(e));
+});
+renderer.domElement.addEventListener('dblclick',()=>{
+  if(tool==='place'&&activeId&&DEF[activeId].kind==='road'&&roadPts.length>1){placeRoad(DEF[activeId],roadPts);cancelRoad();}
+});
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='Shift')snap=true;
+  if(e.key==='r'||e.key==='R'){
+    ghostRot+=(e.shiftKey?-1:1)*Math.PI/12;if(ghost)ghost.rotation.y=ghostRot;
+    if(selected&&selected.type==='obj'){selected.rot+=Math.PI/12;selected.mesh.rotation.y=selected.rot;select(selected);}
+  }
+  if(e.key==='Enter'){
+    if(trace&&trace.pts.length>2)finishTrace();
+    else if(roadPts.length>1){placeRoad(DEF[activeId],roadPts);cancelRoad();}
+  }
+  if(e.key==='Escape'){if(lasso)endLasso(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
+  if((e.key==='Delete'||e.key==='Backspace')&&selected)removeObj(selected);
+  if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
+},{passive:true});
+addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
+
+/* ---------------- rebuild land ---------------- */
+function rebuildLand(){
+  readLand();
+  buildTerrain();
+  // re-seat everything on the new ground
+  placed.forEach(o=>{
+    if(o.type==='road'){objGroup.remove(o.mesh);o.mesh=roadMesh(o.pts,o.width,o.def.col);objGroup.add(o.mesh);
+      if(styleMode==='diorama')styleObject(o.mesh);}
+    else if(o.type==='custom')o.mesh.position.y=baseYFor(o.pts);
+    else o.mesh.position.y=o.def.water?0:terrainH(o.x,o.z);
+  });
+  syncTrees();refresh();
+}
+function readLand(){
+  LAND.depth=+$('lDepth').value;LAND.bank=+$('lBank').value;LAND.beach=+$('lBeach').value;
+  LAND.relief=+$('lRelief').value;LAND.slope=(+$('lSlope').value)/100;LAND.cont=+$('lCont').value;
+}
+
+/* ---------------- day / night ---------------- */
+let minutes=390,playing=false,lightMode='auto';
+const SKY=[[0,0x0d1012],[5,0x212629],[6.5,0x4e565a],[8,0x8b9599],[12,0x99a3a7],[17,0x939da1],[19.5,0x565d61],[21,0x282d31],[24,0x0d1012]];
+function skyAt(h){for(let i=0;i<SKY.length-1;i++)if(h>=SKY[i][0]&&h<=SKY[i+1][0]){
+  const t=(h-SKY[i][0])/(SKY[i+1][0]-SKY[i][0]);return new THREE.Color(SKY[i][1]).lerp(new THREE.Color(SKY[i+1][1]),t);}
+  return new THREE.Color(0x060b14);}
+function updateSun(){
+  const h=minutes/60,t=(h-5)/16,dio=styleMode==='diorama';
+  const el=Math.sin(Math.max(0,Math.min(1,t))*Math.PI)*1.15,az=Math.PI*(0.25+t*1.1);
+  const day=Math.max(0,Math.min(1,(el-0.05)*3));
+  sun.position.set(Math.cos(az)*300,Math.max(-20,el*260),Math.sin(az)*210-20);
+  sun.intensity=(dio?1.06:1.34)*day;sun.visible=day>.01;
+  sun.color.setHSL(0.09,0.09*(1-day),0.64+0.32*day);       // essentially neutral daylight
+  moon.position.set(-140,190,-90);moon.intensity=(1-day)*.3;
+  fill.position.set(-Math.cos(az)*240,Math.max(90,el*120),-Math.sin(az)*180);
+  fill.intensity=dio?0.34*(0.35+day*0.65):0;
+  hemi.intensity=(.16+day*.5)*(dio?1.4:1);
+  hemi.color.set(day>.2?0xe4e7e6:0x30363a);
+  scene.background=skyAt(h);
+  waterMat.color.setHex(day>.35?0x1d6b7d:0x0a1e2b);
+  if(dio){waterMat.color.lerp(new THREE.Color(0x9db4b8),0.3);waterMat.roughness=.34;waterMat.metalness=.3;}
+  else{waterMat.roughness=.15;waterMat.metalness=.55;}
+  const night=lightMode==='off'?0:lightMode==='on'?1:1-day;
+  nightMats.forEach(m=>m.emissiveIntensity=night*1.7);
+  glowMat.emissiveIntensity=night*2.4;
+  $('clock').firstChild.nodeValue=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.round(minutes%60)).padStart(2,'0');
+  $('phase').textContent=h<5?'Night':h<7?'Sunrise':h<11?'Morning':h<15?'Midday':h<19?'Afternoon':h<21.5?'Golden hour':'Night';
+}
+
+/* ---------------- palette ---------------- */
+function buildPalette(){
+  let n=0;
+  $('palList').innerHTML=CAT.map(g=>{
+    const rows=g.items.map(i=>{n++;
+      const dims=i.kind==='road'?(i.fixedW?`${i.fixedW} m wide · per metre`:'width from settings · per metre')
+        :i.area?`${i.area}${i.sleeps?` · sleeps ${i.sleeps}`:''}`
+        :i.w?`${i.w} × ${i.d} m`:'point item';
+      const price=i.kind==='road'?'rate':i.local?(i.cad?'$'+i.cad.toLocaleString():'—'):'$'+i.usd.toLocaleString()+' US';
+      const sw=i.swatch!=null?`<span class="sw" style="background:#${i.swatch.toString(16).padStart(6,'0')}"></span>`:'<span></span>';
+      return `<div class="item${i.archived?' arch':''}" data-id="${i.id}">${sw}
+        <div class="nm">${i.n}${i.archived?'<span class="tag">archived</span>':''}</div>
+        <div class="pr">${price}</div>
+        <div class="dm">${dims}${i.mfr?`<br>${i.mfr}`:''}</div></div>`;
+    }).join('');
+    return `<div class="group"><h3>${g.g}<em>${g.items.length}</em></h3>${rows}</div>`;
+  }).join('')
+  +`<div class="note" style="padding:12px">The <b>Glass Igloo Dome, Steele T9, glulam A-Frame, Batiscan</b> and the two off-grid power kits aren't loaded here yet.</div>`;
+  $('palCount').textContent=n+' items';
+}
+$('palList').addEventListener('click',e=>{
+  const it=e.target.closest('.item');if(!it)return;
+  if(activeId===it.dataset.id)setTool('select');else setTool('place',it.dataset.id);
+});
+function buildPricing(){
+  let h='',n=0;
+  CAT.forEach(g=>g.items.forEach(i=>{
+    if(i.usd!=null){
+      n++;
+      h+=`<div class="field"><label>${i.n} — unit</label><input type="number" data-p="${i.id}" data-f="usd" value="${i.usd}" step="100"></div>`;
+      h+=`<div class="field"><label style="padding-left:12px;color:var(--faint)">↳ freight</label><input type="number" data-p="${i.id}" data-f="freight" value="${i.freight||0}" step="100"></div>`;
+    }else if(i.cad!=null){
+      n++;
+      h+=`<div class="field"><label>${i.n}</label><input type="number" data-p="${i.id}" data-f="cad" value="${i.cad}" step="50"></div>`;
+    }
+  }));
+  $('priceList').innerHTML=h;
+  $('priceCount').textContent=n+' editable';
+}
+$('priceList').addEventListener('input',e=>{
+  const t=e.target; if(!t.dataset.p)return;
+  DEF[t.dataset.p][t.dataset.f]=+t.value;
+  buildPalette(); refresh();
+});
+['cusRate','cusH','cusSt'].forEach(id=>$(id).addEventListener('input',()=>{
+  readInputs();
+  placed.forEach(o=>{if(o.type==='custom')o.cost=o.area*Math.max(1,CUSTOM.storeys)*CUSTOM.rate;});
+  refresh();
+}));
+
+/* ---------------- ledger ---------------- */
+const money=v=>'$'+Math.round(v).toLocaleString();
+function refresh(){
+  readInputs();
+  const byModel={};
+  placed.forEach(p=>{
+    const k=p.def.n;
+    if(p.type==='road'){byModel[k]=byModel[k]||{n:0,amt:0,m:0,road:true};byModel[k].n++;byModel[k].m+=p.len;byModel[k].amt+=p.len*RATES[p.def.rate];}
+    else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=(p.type==='custom'?p.cost:unitCost(p.def));}
+  });
+  let once=0;Object.values(byModel).forEach(l=>{if(l.def&&!l.def.local)once+=modelOnce(l.def);});
+  let sub=0;Object.values(byModel).forEach(l=>sub+=l.amt);
+  extras.forEach(c=>{if(Math.abs(c.amt)>.5)sub+=c.amt;});
+  const cont=(sub+once)*FIN.cont/100;
+  $('mTotal').textContent=money(sub+once+cont);
+  let html='';
+  Object.entries(byModel).forEach(([k,l])=>{
+    html+=`<div class="row sub"><span class="k">${k}${l.n>1?` ×${l.n}`:''}${l.road?` · ${l.m.toFixed(0)} m`:''}</span><span class="v">${money(l.amt)}</span></div>`;});
+  extras.forEach(c=>{if(Math.abs(c.amt)>.5)html+=`<div class="row sub"><span class="k">${c.label}</span><span class="v">${money(c.amt)}</span></div>`;});
+  if(once)html+=`<div class="row sub"><span class="k">One-time compliance (per model)</span><span class="v">${money(once)}</span></div>`;
+  html+=`<div class="row sub"><span class="k">Contingency ${FIN.cont}%</span><span class="v">${money(cont)}</span></div>`;
+  $('costLines').innerHTML=html||'<div class="note">Nothing placed yet.</div>';
+
+  const foot=footprintArea();
+  $('mLand').textContent=LOT_AREA?`${(LOT_AREA/10000).toFixed(2)} ha · ${(LAND_AREA/10000).toFixed(2)} ha dry`:'—';
+  $('mFoot').textContent=foot.toFixed(0)+' m²';
+  const cov=LAND_AREA?foot/LAND_AREA*100:0;
+  $('mCov').textContent=LAND_AREA?cov.toFixed(2)+' %':'—';
+  const bar=$('covBar');bar.style.width=Math.min(100,LAND_AREA?cov/RULES.cov*100:0)+'%';bar.classList.toggle('over',cov>RULES.cov);
+  $('mRoad').textContent=placed.filter(p=>p.type==='road').reduce((a,p)=>a+p.len,0).toFixed(0)+' m';
+  $('mFront').textContent=FRONTAGE?FRONTAGE.toFixed(0)+' m':'—';
+  const beds=placed.reduce((a,p)=>a+(p.def.sleeps||0),0);
+  $('mBeds').textContent=beds;
+  $('mTrees').textContent=trees.filter(t=>!t.dead).length;
+  $('mMoved').textContent=`${treeStats.moved} / ${treeStats.felled}`;
+
+  const iss=[],info=[];
+  placed.forEach(p=>{if(p.type==='obj')validate(p.def,p.x,p.z,p.rot,p).forEach(i=>(i.soft?info:iss).push(`${p.def.n}: ${i.m}`));});
+  const wash=placed.filter(p=>p.def.id==='washhs').length;
+  if(beds>0&&wash*12<beds)iss.push(`${beds} beds and ${wash} washhouse${wash===1?'':'s'} — plan one per 12 beds`);
+  $('issCount').textContent=iss.length?iss.length+' flag'+(iss.length>1?'s':''):'clear';
+  const models=[...new Set(placed.filter(p=>p.def&&!p.def.local&&p.def.usd).map(p=>p.def.id))];
+  if(models.some(id=>['capsule','branson','chunshu','twofloor'].includes(id)))
+    info.push('Snow load is the open item on several of these models — Gore Bay needs 2.0–2.5 kN/m².');
+  if(models.length)info.push(`${models.length} imported model${models.length>1?'s':''} on site — each needs its own P.Eng review and ESA field evaluation.`);
+  $('issues').innerHTML=(iss.map(t=>`<div class="iss">${t}</div>`).join('')||`<div class="iss ok">Layout is within every limit set above</div>`)
+    +info.map(t=>`<div class="iss info">${t}</div>`).join('');
+}
+
+/* ---------------- chrome ---------------- */
+function hint(t,bad,go){const h=$('hint');h.textContent=t;h.classList.toggle('bad',!!bad);h.classList.toggle('go',!!go);}
+function toast(t){const d=document.createElement('div');d.className='tst';d.textContent=t;$('toast').appendChild(d);setTimeout(()=>d.remove(),2600);}
+function switchView(v){
+  viewMode=v;camera=v==='3d'?persp:ortho;
+  document.querySelectorAll('#viewseg button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  $('scalebar').style.display=v==='plan'?'block':'none';
+  if(SITE.under)SITE.under.visible=(v==='plan');
+  applyCam();updateScaleBar();
+}
+document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+document.querySelectorAll('#toolseg button').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
+$('btnOverlay').onclick=()=>{const v=!overlays.visible;overlays.visible=v;if(contours)contours.visible=v;$('btnOverlay').classList.toggle('on',!v);};
+$('btnLand').onclick=()=>setLandMode(!landMode);
+$('btnBound').onclick=()=>startTrace('boundary',$('btnBound'));
+$('btnScale').onclick=()=>{if(!SITE.under){toast('Load an underlay first');return;}startTrace('scale',$('btnScale'));};
+$('btnUnder').onclick=()=>$('fileMap').click();
+$('btnReshape').onclick=()=>{rebuildLand();toast('Land rebuilt');};
+$('btnNewSeed').onclick=()=>{LAND.seed=Math.floor(Math.random()*900);rebuildLand();toast('New relief pattern');};
+$('btnRegrow').onclick=()=>{treeStats={moved:0,felled:0};seedTrees();refresh();toast('Forest cover regrown');};
+$('btnNoTrees').onclick=()=>{trees.length=0;syncTrees();refresh();toast('All stems cleared');};
+$('btnTrees').onclick=()=>{treesVisible=!treesVisible;$('btnTrees').textContent='Trees: '+(treesVisible?'on':'off');syncTrees();};
+$('btnStyle').onclick=()=>{styleMode=styleMode==='survey'?'diorama':'survey';applyStyle();
+  toast(styleMode==='diorama'?'Diorama — soft materials, muted palette':'Survey — literal colours');};
+$('btnLights').onclick=()=>{lightMode=lightMode==='auto'?'on':lightMode==='on'?'off':'auto';$('btnLights').textContent='Lights: '+lightMode;updateSun();};
+$('btnPlay').onclick=()=>{playing=!playing;$('btnPlay').textContent=playing?'Pause day':'Play day';$('btnPlay').classList.toggle('on',playing);};
+$('time').oninput=e=>{minutes=+e.target.value;updateSun();};
+$('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
+
+$('fileMap').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      if(SITE.under)scene.remove(SITE.under);
+      SITE.underUrl=r.result;
+      const tex=new THREE.Texture(img);tex.needsUpdate=true;tex.anisotropy=8;
+      const w=LAND.ex,h=w*img.height/img.width;
+      const g=new THREE.PlaneGeometry(w,h);g.rotateX(-Math.PI/2);
+      SITE.under=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:.62,depthTest:false}));
+      SITE.under.position.y=60;SITE.under.renderOrder=2;SITE.under.visible=(viewMode==='plan');
+      scene.add(SITE.under);
+      toast('Underlay loaded — Set scale, then trace over it');
+      hint('Underlay is a tracing guide only — Shape shoreline to match it',false,true);
+    };
+    img.src=r.result;
+  };
+  r.readAsDataURL(f);
+};
+
+$('btnSave').onclick=()=>{
+  const data={v:3,style:styleMode,land:LAND,shore:SITE.shore,boundary:SITE.boundary,under:SITE.underUrl,
+    fin:FIN,rates:RATES,rules:RULES,
+    custom:CUSTOM,
+    items:placed.map(p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
+      :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost}
+      :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
+    trees:trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]),
+    extras,treeStats};
+  const b=new Blob([JSON.stringify(data)],{type:'application/json'});
+  const a=document.createElement('a');a.download='evergreen-site-plan.json';a.href=URL.createObjectURL(b);a.click();
+};
+$('btnLoad').onclick=()=>$('fileIn').click();
+$('fileIn').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      [...placed].forEach(removeObj);extras.length=0;
+      Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
+      $('lDepth').value=LAND.depth;$('lBank').value=LAND.bank;$('lBeach').value=LAND.beach;
+      $('lRelief').value=LAND.relief;$('lSlope').value=(LAND.slope*100).toFixed(1);$('lCont').value=LAND.cont;
+      $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
+      $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
+      ['cRoadG','cRoadP','cPath','wRoad','wClear','treeCore'].forEach(k=>$(k).value=RATES[k]??50);
+      $('rEdge').value=RULES.edge;$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
+      SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
+      buildTerrain();
+      trees.length=0;
+      (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
+        :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
+      syncTrees();
+      (d.items||[]).forEach(i=>{
+        if(i.t==='road')placeRoad(DEF[i.id],i.pts);
+        else if(i.t==='custom'){
+          const mesh=buildCustomMesh(i.pts,i.h); mesh.position.y=baseYFor(i.pts); objGroup.add(mesh);
+          const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
+          placed.push({type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,cost:i.cost,
+            inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0});
+        }
+        else{const def=DEF[i.id];if(!def)return;
+          const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:terrainH(i.x,i.z),i.z);mesh.rotation.y=i.rot;
+          objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
+      });
+      (d.extras||[]).forEach(c=>extras.push(c));
+      treeStats=d.treeStats||{moved:0,felled:0};
+      styleMode=d.style||'survey';applyStyle();refresh();toast('Plan loaded');
+    }catch(err){toast('That file could not be read');}
+  };
+  r.readAsText(f);
+};
+['fFx','fSurtax','fPeng','fEsa','fPermit','fSite','fCont','cRoadG','cRoadP','cPath','wRoad','wClear','treeCore']
+  .forEach(id=>$(id).addEventListener('input',refresh));
+['rEdge','rCov','rSep','rMax'].forEach(id=>$(id).addEventListener('change',()=>{readInputs();buildOverlays();refresh();}));
+
+function updateScaleBar(){
+  if(viewMode!=='plan')return;
+  const mpx=ctrl.orthoSize*2/innerHeight;
+  const m=[1,2,5,10,20,25,50,100,200,500].find(t=>t/mpx>90)||500;
+  $('scalebar').querySelector('.ln').style.width=(m/mpx)+'px';
+  $('scalebar').querySelector('span').textContent=m+' m';
+}
+
+/* ---------------- loop ---------------- */
+let last=performance.now();
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(playing){minutes=(minutes+dt*140)%1440;$('time').value=minutes;updateSun();}
+  let moving=false;
+  trees.forEach(t=>{if(t.dead)return;
+    if(Math.abs(t.tx-t.x)>.01||Math.abs(t.tz-t.z)>.01){t.x+=(t.tx-t.x)*Math.min(1,dt*5);t.z+=(t.tz-t.z)*Math.min(1,dt*5);moving=true;}});
+  if(moving)syncTrees();
+  if(waterGeo&&wBase){
+    const p=waterGeo.attributes.position.array;
+    for(let i=0;i<p.length;i+=3)p[i+1]=Math.sin(wBase[i]*.09+now*.0011)*.13+Math.cos(wBase[i+2]*.13+now*.0016)*.09;
+    waterGeo.attributes.position.needsUpdate=true;
+  }
+  if(selBox&&selected)selBox.box.setFromObject(selected.mesh);
+  renderer.render(scene,camera);
+  requestAnimationFrame(tick);
+}
+
+/* ---------------- boot ---------------- */
+SITE.shore=defaultShore(); SITE.boundary=defaultBoundary();
+readInputs(); readLand(); buildTerrain(); seedTrees(); buildPalette(); buildPricing();
+resize(); switchView('plan'); applyStyle(); refresh();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
