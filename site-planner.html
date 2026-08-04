@@ -2469,7 +2469,10 @@ function serialize(withUnder){
     shore:JSON.parse(JSON.stringify(SITE.shore)),boundary:JSON.parse(JSON.stringify(SITE.boundary)),
     under:withUnder?SITE.underUrl:null,
     fin:JSON.parse(JSON.stringify(FIN)),rates:JSON.parse(JSON.stringify(RATES)),
-    rules:JSON.parse(JSON.stringify(RULES)),custom:JSON.parse(JSON.stringify(CUSTOM)),
+    /* Zoning limits deliberately do NOT travel with a plan. They describe the
+       by-law, not the layout, so a plan saved under an old limit must not drag
+       that limit back into a session set up correctly. */
+    custom:JSON.parse(JSON.stringify(CUSTOM)),
     /* every figure the Prices panel can edit, so a plan carries its own
        pricing instead of silently falling back to the built-in numbers */
     prices:(()=>{const o={};CAT.forEach(g=>g.items.forEach(i=>{
@@ -2486,7 +2489,7 @@ function applyState(d,keepUnder){
   try{
     [...placed].forEach(removeObj);extras.length=0;
     Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
-    Object.assign(RATES,d.rates||{});Object.assign(RULES,d.rules||{});
+    Object.assign(RATES,d.rates||{});          // rules intentionally not restored
     if(d.prices)for(const id in d.prices){                 // restore edited unit prices
       const def=DEF[id]; if(!def)continue;
       const v=d.prices[id];
@@ -2503,7 +2506,8 @@ function applyState(d,keepUnder){
     $('treeCore').value=RATES.treeCore??50;
     if($('cusRate'))$('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
     lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
-    lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||45;$('rMax').value=RULES.max;
+    lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;   // keep the fields showing the live rules
+    $('rSep').value=RULES.sepFt;$('rMax').value=RULES.max;
     SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
     if(!keepUnder){
       if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
