@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Evergreen — Site Planner</title>
 <style>
 :root{
@@ -15,6 +15,7 @@
 html,body{height:100%;overflow:hidden;background:var(--pine);color:var(--bark);font-family:var(--sans)}
 canvas{display:block}
 #stage{position:fixed;inset:0}
+canvas{touch-action:none}   /* the canvas handles its own gestures */
 .panel{position:fixed;background:rgba(11,21,19,.82);border:1px solid var(--line);
   backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);
   border-radius:14px;box-shadow:0 18px 48px -12px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.03) inset}
@@ -109,6 +110,44 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 .grp.closed>*:not(.hdr){display:none}
 #ledger.setonly .grp[data-grp="other"]{display:none}
 #ledger.setonly .grp[data-grp="set"]>.hdr{border-left:2px solid var(--survey);padding-left:8px}
+@media (max-width:860px){
+  /* Panels become bottom sheets. Side-by-side columns leave nothing for the
+     map on a phone, and the top bar cannot hold fourteen buttons. */
+  #top{top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;height:44px;gap:7px;padding:0 10px;
+       overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #top::-webkit-scrollbar{display:none}
+  #brand{font-size:9.5px;letter-spacing:.12em}
+  #toolpill{top:calc(60px + env(safe-area-inset-top));height:40px;padding:0 7px;gap:6px;
+            max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none}
+  #toolpill::-webkit-scrollbar{display:none}
+  .seg button{padding:8px 9px;font-size:9.5px}
+  .tbtn{padding:8px 10px;font-size:9.5px}
+
+  #palette,#ledger{top:auto;left:8px;right:8px;width:auto;
+    bottom:calc(8px + env(safe-area-inset-bottom));max-height:56vh;border-radius:16px}
+  #palette.tuck,#ledger.tuck{transform:translateY(calc(100% + 20px));opacity:0}
+
+  #timebar{bottom:calc(8px + env(safe-area-inset-bottom));left:8px;right:8px;
+    transform:none;width:auto;max-width:none;height:48px;gap:8px;padding:0 12px;
+    overflow-x:auto;scrollbar-width:none}
+  #timebar::-webkit-scrollbar{display:none}
+  #clock{font-size:15px}
+  /* a panel is up: get the time bar out from under it */
+  body.sheet #timebar,body.sheet #hint,body.sheet #scalebar{opacity:0;pointer-events:none}
+
+  #railL{left:8px}  #railR{right:8px}
+  #railL,#railR{top:auto!important;bottom:calc(64px + env(safe-area-inset-bottom))!important}
+  .rbtn{width:46px;height:46px;font-size:17px}          /* thumb-sized */
+
+  #hint{bottom:calc(64px + env(safe-area-inset-bottom));max-width:88vw;font-size:10px}
+  #scalebar{bottom:calc(64px + env(safe-area-inset-bottom));left:12px}
+  #compass{display:none}
+  .field input[type=number],.field select{width:82px}
+}
+@media (max-width:520px){
+  #toolpill .seg:first-child button{padding:8px 7px}
+  #palette,#ledger{max-height:62vh}
+}
 #setBanner{display:none;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:#140b04;background:var(--survey);padding:7px 12px;font-weight:700}
 #ledger.setonly #setBanner{display:block}
@@ -1909,6 +1948,55 @@ addEventListener('pointerup',()=>{
   dragging=null;dragStart=null;
 });
 renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+/* ---- touch gestures ----------------------------------------------------
+   One finger keeps the existing behaviour (orbit in 3-D, pan in plan). Two
+   fingers pinch to zoom and drag to pan, which is the only way to work the
+   map on a phone since there is no wheel and no right button. */
+const IS_TOUCH=matchMedia('(hover:none)').matches||('ontouchstart' in window);
+const pointers=new Map(); let pinch=null;
+function zoomBy(f){
+  if(viewMode==='plan'){ctrl.orthoSize=Math.max(8,Math.min(420,ctrl.orthoSize*f));updateScaleBar();}
+  else ctrl.radius=Math.max(10,Math.min(1200,ctrl.radius*f));
+  applyCam();
+}
+renderer.domElement.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch')return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){
+    const [a,b]=[...pointers.values()];
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y),
+           mx:(a.x+b.x)/2,my:(a.y+b.y)/2,
+           tx:ctrl.target.x,tz:ctrl.target.z};
+    dragging=null;dragStart=null;                 // a second finger cancels the drag
+    if(moving){                                    // and cancels a move in progress
+      const o=moving.o;o.x=moving.sx;o.z=moving.sz;o.rot=moving.srot;
+      o.mesh.rotation.y=o.rot;
+      o.mesh.position.set(o.x,o.def.water?0:padY(o.def,o.x,o.z,o.rot),o.z);
+      undoStack.pop();updateUndoBtn();moving=null;setHL(null);
+    }
+  }
+},true);
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!pointers.has(e.pointerId))return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2&&pinch){
+    const [a,b]=[...pointers.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(pinch.d>4&&d>4)zoomBy(pinch.d/d);
+    const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+    const sc=viewMode==='plan'?ctrl.orthoSize*2/innerHeight:ctrl.radius*.0016;
+    const dx=-(mx-pinch.mx)*sc, dz=-(my-pinch.my)*sc;
+    const c=viewMode==='3d'?Math.cos(ctrl.theta):1, si=viewMode==='3d'?Math.sin(ctrl.theta):0;
+    ctrl.target.x=pinch.tx+(dx*c+dz*si); ctrl.target.z=pinch.tz+(-dx*si+dz*c);
+    pinch.d=d; pinch.mx=mx; pinch.my=my; pinch.tx=ctrl.target.x; pinch.tz=ctrl.target.z;
+    applyCam(); movedPx=99;                        // suppress the tap that would follow
+    e.preventDefault();
+  }
+},{capture:true,passive:false});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>
+  addEventListener(ev,e=>{ if(e.pointerType!=='touch')return;
+    pointers.delete(e.pointerId); if(pointers.size<2)pinch=null; },true));
+
 renderer.domElement.addEventListener('wheel',e=>{
   e.preventDefault();
   if(viewMode==='plan'){ctrl.orthoSize=Math.max(8,Math.min(420,ctrl.orthoSize*(1+Math.sign(e.deltaY)*.12)));updateScaleBar();}
@@ -2426,8 +2514,14 @@ $('btnAnim').onclick=()=>{
 /* tuck the side panels away for a full-bleed canvas */
 function tuck(which,show){
   const el=$(which==='L'?'palette':'ledger'), rail=$(which==='L'?'railL':'railR');
-  const off=show===undefined?el.classList.toggle('tuck'):!(el.classList.toggle('tuck',!show));
+  const off=show===undefined?el.classList.toggle('tuck'):el.classList.toggle('tuck',!show);
   rail.style.display=off?'block':'none';
+  if(IS_MOBILE&&!off){                              // only one sheet up at a time
+    const other=which==='L'?'ledger':'palette', orail=which==='L'?'railR':'railL';
+    $(other).classList.add('tuck'); $(orail).style.display='block';
+  }
+  document.body.classList.toggle('sheet',
+    !$('palette').classList.contains('tuck')||!$('ledger').classList.contains('tuck'));
   resize();
 }
 $('tuckL').onclick=()=>tuck('L');
@@ -2601,7 +2695,14 @@ SITE.shore=defaultShore(); SITE.boundary=defaultBoundary();
 readInputs(); readLand(); buildTerrain(); seedTrees(); buildPalette(); buildPricing();
 /* open in 3-D on the realistic style — the overhead ortho view at dawn
    showed none of the materials, lighting or sky that style provides */
-ctrl.target.set(-30,0,-25); ctrl.radius=245; ctrl.phi=1.02; ctrl.theta=0.42;
+const IS_MOBILE=matchMedia('(max-width:860px)').matches;
+ctrl.target.set(-30,0,-25); ctrl.radius=IS_MOBILE?300:245; ctrl.phi=1.02; ctrl.theta=0.42;
+if(IS_MOBILE){
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));
+  sun.shadow.mapSize.set(512,512);
+  $('tDens').value=240; seedTrees();                // a lighter forest on a phone
+  tuck('L'); tuck('R');                             // open with the map unobstructed
+}
 resize(); switchView('3d'); applyStyle(); refresh(); updateUndoBtn();
 requestAnimationFrame(tick);
 </script>
