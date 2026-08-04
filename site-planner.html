@@ -257,7 +257,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 <svg id="compass" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="#284039"/><path d="M20 5 L24 21 L20 18 L16 21 Z" fill="#ff7a2f"/><text x="20" y="36" font-size="8" font-family="monospace" fill="#94a49b" text-anchor="middle">N</text></svg>
 <div id="toolpill" class="panel">
   <div class="seg" id="viewseg"><button data-view="plan" class="on">Bird's-eye</button><button data-view="3d">3D</button></div>
-  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="erase">Erase</button></div>
+  <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="move">Move</button><button data-tool="erase">Erase</button></div>
 </div>
 <div id="railL" style="position:fixed;top:124px;left:12px;z-index:16;display:none">
   <button class="rbtn" id="showL" title="Show the catalogue">&#9776;</button></div>
@@ -1474,11 +1474,12 @@ function roadMesh(pts,width,col){
 /* ---------------- interaction state ---------------- */
 let tool='select',activeId=null,ghost=null,ghostRot=0,snap=false;
 let roadPts=[],roadPrev=null,measurePts=[],measureLine=null,selected=null,selBox=null;
-let trace=null,landMode=false,boundMode=false,dragHandle=null,pen=null;
+let trace=null,landMode=false,boundMode=false,dragHandle=null,pen=null,moving=null;
 
 function setTool(t,id){
   tool=t;activeId=id||null;
   if(pen)endPen(false);
+  clearHL();
   clearGhost();cancelRoad();clearMeasure();cancelTrace();
   document.querySelectorAll('#toolseg button').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
   document.querySelectorAll('.item').forEach(el=>el.classList.toggle('on',el.dataset.id===activeId));
@@ -1491,6 +1492,7 @@ function setTool(t,id){
       :'Click to place · R rotates · Shift snaps to 1 m');
   }else if(t==='measure')hint('Click two points to measure between them');
   else if(t==='erase')hint('Click any unit, road, building or tree to remove it \u00b7 Esc leaves erase mode');
+  else if(t==='move')hint('Drag any placed unit to reposition it \u00b7 it snaps and re-checks the rules on drop \u00b7 Esc leaves move mode');
   else{select(null);hint('Pick something from the catalogue');}
 }
 function makeGhost(d){
@@ -1752,6 +1754,34 @@ function hitGround(e){ndcFrom(e);
   let h=terrain?ray.intersectObject(terrain,false)[0]:null;
   if(!h&&waterMesh)h=ray.intersectObject(waterMesh,false)[0];
   return h?h.point:null;}
+/* Erase and Move both need to say which object they are about to act on, so
+   the thing under the cursor gets a coloured cage plus a translucent fill —
+   red for delete, blue for move, deeper blue once it is actually grabbed. */
+const HL={erase:0xff4d4d, move:0x4ea8ff, moving:0x1f63d6};
+let hlBox=null,hlFill=null,hlObj=null,hlCol=null;
+function clearHL(){
+  if(hlBox){scene.remove(hlBox);hlBox=null;}
+  if(hlFill){scene.remove(hlFill);hlFill.geometry.dispose();hlFill.material.dispose();hlFill=null;}
+  hlObj=null;hlCol=null;
+}
+function setHL(o,col){
+  if(hlObj===o&&hlCol===col){                 // just keep it on the object
+    if(o&&hlBox){hlBox.box.setFromObject(o.mesh);
+      const b=new THREE.Box3().setFromObject(o.mesh),c=b.getCenter(new THREE.Vector3()),sz=b.getSize(new THREE.Vector3());
+      if(hlFill){hlFill.position.copy(c);hlFill.scale.set(Math.max(sz.x,.2),Math.max(sz.y,.2),Math.max(sz.z,.2));}}
+    return;
+  }
+  clearHL();
+  if(!o)return;
+  hlObj=o;hlCol=col;
+  const b=new THREE.Box3().setFromObject(o.mesh);
+  hlBox=new THREE.Box3Helper(b,col); hlBox.material.depthTest=false; scene.add(hlBox);
+  const c=b.getCenter(new THREE.Vector3()), sz=b.getSize(new THREE.Vector3());
+  hlFill=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.22,depthWrite:false}));
+  hlFill.position.copy(c); hlFill.scale.set(Math.max(sz.x,.2),Math.max(sz.y,.2),Math.max(sz.z,.2));
+  scene.add(hlFill);
+}
 function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
   let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
 function pickTree(e){
@@ -1780,11 +1810,37 @@ renderer.domElement.addEventListener('pointerdown',e=>{
       dragHandle=hd;draggingHandles=true;renderer.domElement.setPointerCapture(e.pointerId);return;
     }
   }
+  if(tool==='move'&&e.button===0){
+    const o=pickObj(e);
+    if(o&&o.type==='obj'){
+      const p=hitGround(e);
+      if(p){
+        pushUndo('move '+o.def.n);
+        moving={o,ox:o.x-p.x,oz:o.z-p.z,sx:o.x,sz:o.z,srot:o.rot};
+        setHL(o,HL.moving);
+        renderer.domElement.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+  }
   dragStart={x:e.clientX,y:e.clientY,theta:ctrl.theta,phi:ctrl.phi,tx:ctrl.target.x,tz:ctrl.target.z};
   dragging=(e.button===2||viewMode==='plan')?'pan':'orbit';
   renderer.domElement.setPointerCapture(e.pointerId);
 });
 renderer.domElement.addEventListener('pointermove',e=>{
+  if(moving){
+    const p=hitGround(e); if(!p)return;
+    let nx=p.x+moving.ox, nz=p.z+moving.oz;
+    if(snap){nx=Math.round(nx);nz=Math.round(nz);}
+    const d=moving.o.def;
+    if(d.kind==='dock'||d.join){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    moving.o.x=nx; moving.o.z=nz;
+    moving.o.mesh.position.set(nx,d.water?0:padY(d,nx,nz,moving.o.rot),nz);
+    setHL(moving.o,HL.moving);
+    const bad=validate(d,nx,nz,moving.o.rot,moving.o).filter(i=>!i.soft);
+    hint(bad.length?'\u2715 '+bad[0].m:`${d.n} \u00b7 drop to place`,!!bad.length,!bad.length);
+    return;
+  }
   if(dragHandle){
     const p=hitGround(e); if(!p)return;
     if(dragHandle.userData.b){
@@ -1820,6 +1876,18 @@ renderer.domElement.addEventListener('pointermove',e=>{
   updateGhost(e);
 },{passive:true});
 addEventListener('pointerup',()=>{
+  if(moving){
+    const o=moving.o, bad=validate(o.def,o.x,o.z,o.rot,o).filter(i=>!i.soft);
+    if(bad.length){                                   // illegal drop — put it back
+      o.x=moving.sx;o.z=moving.sz;o.rot=moving.srot;
+      o.mesh.rotation.y=o.rot;
+      o.mesh.position.set(o.x,o.def.water?0:padY(o.def,o.x,o.z,o.rot),o.z);
+      undoStack.pop();updateUndoBtn();
+      toast('Blocked — '+bad[0].m);
+    }else{ pushTrees(o); toast('Moved '+o.def.n); }
+    moving=null; setHL(null); syncTrees(); refresh();
+    dragging=null;dragStart=null;return;
+  }
   if(dragHandle){
     const wasB=dragHandle.userData.b; dragHandle=null; draggingHandles=false;
     if(wasB){recomputeAreas();buildOverlays();refresh();}else rebuildLand();
@@ -1865,6 +1933,10 @@ function snapDock(d,x,z,rot){
 function updateGhost(e){
   const p=hitGround(e);if(!p)return;
   let x=p.x,z=p.z;if(snap){x=Math.round(x);z=Math.round(z);}
+  if(tool==='erase'||tool==='move'){
+    if(!moving)setHL(pickObj(e), tool==='erase'?HL.erase:HL.move);
+    return;
+  }
   if(trace){drawTrace([x,z]);return;}
   if(pen){penDraw([x,z]);return;}
   if(landMode)return;
@@ -1996,7 +2068,7 @@ addEventListener('keydown',e=>{
     else if(trace&&trace.pts.length>2)finishTrace();
     else if(roadPts.length>1){placeRoad(DEF[activeId],roadPts);cancelRoad();}
   }
-  if(e.key==='Escape'){if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
+  if(e.key==='Escape'){clearHL();if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
   if((e.key==='Delete'||e.key==='Backspace')&&selected){pushUndo('delete '+(selected.def?selected.def.n:'building'));removeObj(selected);toast('Removed');}
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
