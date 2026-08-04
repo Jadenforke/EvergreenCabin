@@ -232,7 +232,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="hdr t">Zoning &amp; by-law limits <span class="caret">▾</span></div>
   <div class="field"><label>Lot line setback (m)</label><input id="rEdge" type="number" value="7.5" step="0.5"></div>
   <div class="field"><label>Max lot coverage %</label><input id="rCov" type="number" value="15" step="0.5"></div>
-  <div class="field"><label>Min gap between cabins (ft)<br><span style="color:var(--faint);font-size:10px" id="sepM">= 4.57 m</span></label><input id="rSep" type="number" value="15" step="1"></div>
+  <div class="field"><label>Min gap between cabins (ft)<br><span style="color:var(--faint);font-size:10px" id="sepM">= 13.72 m</span></label><input id="rSep" type="number" value="45" step="1"></div>
   <div class="field"><label>Max sleeping units</label><input id="rMax" type="number" value="24" step="1"></div>
   <div class="note">The gap rule applies <b>only between main sleeping cabins</b> — saunas, sheds, pavilions and docks can sit closer, they just can't overlap. No shoreline setback is applied, but nothing can be built in the water. Confirm the real numbers with the <b>Town of Gore Bay / NEMI</b> zoning by-law.</div>
 
@@ -986,7 +986,7 @@ const DEF={}; CAT.forEach(g=>g.items.forEach(i=>DEF[i.id]=i));
 
 const FIN={fx:1.37,surtax:false,peng:4000,esa:2500,permit:2500,site:28000,cont:12};
 const RATES={cRoadG:185,cRoadP:420,cPath:65,wRoad:5,wClear:2,treeCore:50};
-const RULES={edge:7.5,cov:15,sepFt:15,sep:15*FT,max:24};
+const RULES={edge:7.5,cov:15,sepFt:45,sep:45*FT,max:24};
 const CUSTOM={rate:2400,h:4.2,storeys:2};   // two-floor warehouse — deliberately taller than the 1-storey units
 const CUSTOMDEF={id:'custom',n:'Custom building',kind:'custom',local:true};
 function polyNear(x,z,poly){
@@ -1489,7 +1489,7 @@ function setTool(t,id){
       :d.kind==='treelight'?'Click a tree to string lights on it'
       :d.kind==='pen'?'Pen: click each corner · click the first point (or Enter) to close · Backspace undoes · Esc cancels'
       :d.kind==='plant'?`Click to plant ${d.n}`
-      :'Click to place · R rotates · Shift snaps to 1 m');
+      :'Click to place · R rotates 5° (Alt+R 1°, Shift+R back) · Shift snaps to 1 m');
   }else if(t==='measure')hint('Click two points to measure between them');
   else if(t==='erase')hint('Click any unit, road, building or tree to remove it \u00b7 Esc leaves erase mode');
   else if(t==='move')hint('Drag any placed unit to reposition it \u00b7 it snaps and re-checks the rules on drop \u00b7 Esc leaves move mode');
@@ -1741,7 +1741,7 @@ function select(o){
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${money(o.cost)} — Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
-    hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} — R rotates, Delete removes`);
+    hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} — R rotates 5° (Alt+R 1°), Delete removes`);
   }
 }
 
@@ -2060,8 +2060,18 @@ addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='Shift')snap=true;
   if(e.key==='r'||e.key==='R'){
-    ghostRot+=(e.shiftKey?-1:1)*Math.PI/12;if(ghost)ghost.rotation.y=ghostRot;
-    if(selected&&selected.type==='obj'){selected.rot+=Math.PI/12;selected.mesh.rotation.y=selected.rot;select(selected);}
+    /* 5 degrees a press, 1 degree with Alt held, Shift reverses. The old step
+       was 15 degrees, and the reverse only ever applied to the ghost — a
+       placed unit turned forwards no matter which way you asked for. */
+    const step=(e.altKey?Math.PI/180:Math.PI/36)*(e.shiftKey?-1:1);
+    const deg=r=>{const d=Math.round(r*180/Math.PI)%360;return (d<0?d+360:d)+'\u00b0';};
+    if(selected&&selected.type==='obj'){
+      selected.rot+=step; selected.mesh.rotation.y=selected.rot; select(selected);
+      hint(`${selected.def.n} \u00b7 rotated to ${deg(selected.rot)}`,false,true);
+    }else{
+      ghostRot+=step; if(ghost)ghost.rotation.y=ghostRot;
+      hint(`Rotation ${deg(ghostRot)} \u00b7 R turns 5\u00b0, Alt+R 1\u00b0, Shift+R back`,false,true);
+    }
   }
   if(e.key==='Enter'){
     if(pen&&pen.pts.length>2)endPen(true);
@@ -2442,7 +2452,7 @@ function applyState(d,keepUnder){
     $('treeCore').value=RATES.treeCore??50;
     if($('cusRate'))$('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
     lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
-    lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||15;$('rMax').value=RULES.max;
+    lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;$('rSep').value=RULES.sepFt||45;$('rMax').value=RULES.max;
     SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
     if(!keepUnder){
       if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
