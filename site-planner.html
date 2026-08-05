@@ -1026,6 +1026,7 @@ const CAT=[
    note:'EXW Guangzhou. CSA approval $3,000 one-time per model.'},
   {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200,join:true},
   {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
+  {id:'aframe',n:'A-Frame Cabin',mfr:'Qingdao Yidongxiang',kind:'aframe',w:7.2,d:8.6,h:6.8,area:'90 m² · 968.75 ft² over 2 levels · 2 bed / 1 bath',sleeps:4,usd:31500,freight:7500},
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
   {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'chunshu',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
   {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true},
@@ -1376,6 +1377,54 @@ function buildMesh(d){
         p.position.set(sx*SW/2,py+.37,pz); g.add(p);
       });
     }
+  }else if(k==='aframe'){
+    /* Glulam A-frame: the roof IS the wall, so the whole envelope is one
+       triangular prism — a plain rectangle from overhead, an A from the
+       side. Extrude gives two material groups, caps then flanks, which is
+       exactly the gable/roof split we want. */
+    const W=d.w,D=d.d,H=d.h, L=Math.hypot(W/2,H), phi=Math.atan2(H,W/2);
+    const tri=new THREE.Shape();
+    tri.moveTo(-W/2,0); tri.lineTo(W/2,0); tri.lineTo(0,H); tri.closePath();
+    const pr=new THREE.ExtrudeGeometry(tri,{depth:D,bevelEnabled:false});
+    pr.translate(0,0,-D/2);
+    const roofM=new THREE.MeshStandardMaterial({color:0x4d545a,roughness:.5,metalness:.38});
+    const shell=new THREE.Mesh(pr,[body(0x8d6f4c),roofM]);
+    shell.castShadow=shell.receiveShadow=true; g.add(shell);
+    // glazed gable to the front, the big triangular window the spec lists
+    const gz=new THREE.Shape();
+    gz.moveTo(-W/2*.86,.25); gz.lineTo(W/2*.86,.25); gz.lineTo(0,H*.86); gz.closePath();
+    const gw=new THREE.Mesh(new THREE.ShapeGeometry(gz),glass());
+    gw.position.z=D/2+.04; g.add(gw);
+    /* mullions stop at the sloping head of the glazing, so none of them
+       pokes out through the roof plane at the narrow top of the triangle */
+    for(const t of[-.6,-.2,.2,.6]){
+      const px=t*W*.43, top=.25+(H*.86-.25)*(1-Math.abs(t));
+      const mu=new THREE.Mesh(new THREE.BoxGeometry(.08,top-.25,.08),body(0x6f5a44));
+      mu.position.set(px,.25+(top-.25)/2,D/2+.06); g.add(mu);
+    }
+    // standing seams up both roof planes, and a ridge cap over the top
+    for(const sx of[-1,1])for(let i=1;i<=5;i++){
+      const t=i/6, px=sx*(-W/2+t*W/2), py=t*H;
+      const sm=new THREE.Mesh(new THREE.BoxGeometry(.07,.07,D*.98),body(0x6b7278));
+      sm.position.set(px+sx*.05,py+.03,0); g.add(sm);
+    }
+    const ridge=new THREE.Mesh(new THREE.BoxGeometry(.24,.16,D*1.02),body(0x5c6368));
+    ridge.position.y=H-.06; g.add(ridge);
+    // roof skylights, seated on the pitch
+    for(const sx of[-1,1]){
+      const t=.62, px=sx*(-W/2+t*W/2), py=t*H;
+      const sl=new THREE.Mesh(new THREE.BoxGeometry(1.0,.07,1.4),glass());
+      sl.position.set(px+sx*.06,py+.04,-D*.18); sl.rotation.z=-sx*phi; g.add(sl);
+    }
+    // entry deck and steps off the glazed end
+    const dk=new THREE.Mesh(new THREE.BoxGeometry(W*.9,.18,2.2),body(0x9c8465));
+    dk.position.set(0,.09,D/2+1.1); dk.castShadow=dk.receiveShadow=true; g.add(dk);
+    for(const sx of[-1,1]){
+      const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.9,5),body(0x6d5a45));
+      p.position.set(sx*W*.42,.55,D/2+2.1); g.add(p);
+    }
+    lit(g,0,H*.32,0,{base:1.1,dist:24,pool:10,col:0xffd6a6});
+    void L;
   }else if(k==='chunshu'){
     /* Set out from the Beautiful Villa plan (春树-平面图): an 11.26 × 13.10 m
        envelope carrying a shingled dome — 58.03 m² ground plus a 16.32 m²
@@ -2732,7 +2781,7 @@ function buildPalette(){
     }).join('');
     return `<div class="group"><h3>${g.g}<em>${g.items.length}</em></h3>${rows}</div>`;
   }).join('')
-  +`<div class="note" style="padding:12px">The <b>Glass Igloo Dome, Steele T9, glulam A-Frame, Batiscan</b> and the two off-grid power kits aren't loaded here yet.</div>`;
+  +`<div class="note" style="padding:12px">The <b>Steele T9, Batiscan</b> and the two off-grid power kits aren't loaded here yet.</div>`;
   $('palCount').textContent=n+' items';
 }
 $('palList').addEventListener('click',e=>{
