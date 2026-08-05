@@ -262,6 +262,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Gravel road / m</label><input id="cRoadG" type="number" value="185" step="5"></div>
   <div class="field"><label>Paved road / m</label><input id="cRoadP" type="number" value="420" step="5"></div>
   <div class="field"><label>Walking path / m</label><input id="cPath" type="number" value="65" step="5"></div>
+  <div class="field"><label>Pavement — CAD / m² of pad</label><input id="cPave" type="number" value="95" step="5"></div>
   <div class="field"><label>Road width (m)</label><input id="wRoad" type="number" value="5" step="0.5"></div>
   <div class="field"><label>Tree clearance (m)</label><input id="wClear" type="number" value="2" step="0.5"></div>
   <div class="field"><label>Fell trees inside inner % of footprint<br><span style="color:var(--faint);font-size:10px">outside this, they shift aside instead</span></label><input id="treeCore" type="number" value="50" step="5"></div>
@@ -949,7 +950,7 @@ function blockedForTree(x,z){
         const a=o.pts[i],b=o.pts[i+1];
         if(segDist(x,z,a[0],a[1],b[0],b[1]).d<hw)return true;
       }
-    }else if(o.type==='custom'){
+    }else if(o.type==='custom'||o.type==='pave'){
       if(pointInPoly(x,z,o.pts)||polyNear(x,z,o.pts).d<clear)return true;
     }else if(o.def&&o.def.w){
       if(inFootprint(o,x,z,clear))return true;
@@ -1061,6 +1062,8 @@ const CAT=[
     area:'two-storey warehouse shell · measured in feet'},
    {id:'deck',n:'Custom deck',kind:'pen',pen:'deck',local:true,
     area:'ground-level timber deck · priced per ft²'},
+   {id:'pave',n:'Parking pavement',kind:'pen',pen:'pave',local:true,
+    area:'asphalt pad following the ground · any shape · priced per ft²'},
    {id:'shrub',n:'Shrub bed',kind:'pen',pen:'shrub',local:true,
     area:'low bushes filling any shape · no cost carried'}]},
  {g:'Trees — plant individually',items:SPECIES.map(s=>({
@@ -1070,7 +1073,7 @@ const CAT=[
 const DEF={}; CAT.forEach(g=>g.items.forEach(i=>DEF[i.id]=i));
 
 const FIN={fx:1.37,surtax:false,peng:4000,esa:2500,permit:2500,site:28000,cont:12};
-const RATES={cRoadG:185,cRoadP:420,cPath:65,wRoad:5,wClear:2,treeCore:50};
+const RATES={cRoadG:185,cRoadP:420,cPath:65,cPave:95,wRoad:5,wClear:2,treeCore:50};
 const RULES={edge:7.5,cov:15,sepFt:45,sep:45*FT,max:24};
 const CUSTOM={rate:2400,h:4.2,storeys:2};
 const DECK_RATE=320;                  // CAD per m2 of deck
@@ -1101,6 +1104,8 @@ function readInputs(){
   FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;FIN.peng=+$('fPeng').value;FIN.esa=+$('fEsa').value;
   FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;FIN.cont=+$('fCont').value;
   ['cRoadG','cRoadP','cPath'].forEach(k=>RATES[k]=rateVal(k));   // stored per metre
+  /* pavement is a rate per unit AREA, not per length — it converts by FT² */
+  if($('cPave'))RATES.cPave=UNITS==='m'?+$('cPave').value:+$('cPave').value/(FT*FT);
   RATES.treeCore=+$('treeCore').value;
   RATES.wRoad=lenVal('wRoad');RATES.wClear=lenVal('wClear');
   RULES.edge=lenVal('rEdge');RULES.cov=+$('rCov').value;
@@ -1499,7 +1504,7 @@ function pushTrees(obj){
           break;
         }
       }
-    }else if(obj.type==='custom'){
+    }else if(obj.type==='custom'||obj.type==='pave'){
       const inside=pointInPoly(t.x,t.z,obj.pts), near=polyNear(t.x,t.z,obj.pts);
       if(inside||near.d<clear){
         hit=true;
@@ -1685,7 +1690,9 @@ function penDraw(cur){
   if(area>2){
     const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
     const st=Math.max(1,CUSTOM.storeys);
-    const s=makeTag(`${Math.round(area*M2SQFT).toLocaleString()} ft² · ${st} storey`,'#6fdc8c');
+    const suffix=penKind==='building'?` · ${st} storey`
+      :penKind==='pave'?` · ~${Math.max(1,Math.floor(area/28))} cars`:'';
+    const s=makeTag(`${Math.round(area*M2SQFT).toLocaleString()} ft²${suffix}`,'#6fdc8c');
     s.position.set(cx,yOf(cx,cz)+3.4,cz); penTags.add(s);
   }
   hint(`Pen · ${pen.pts.length} point${pen.pts.length===1?'':'s'}`
@@ -1698,6 +1705,7 @@ function endPen(build){
   if(build&&pts.length>=3){
     if(penKind==='deck')placeDeck(pts);
     else if(penKind==='shrub')placeShrubs(pts);
+    else if(penKind==='pave')placePave(pts);
     else placeCustom(pts);
     hint('Pen: click each corner of the next shape · Esc to stop');
   }
@@ -1898,6 +1906,79 @@ function placeDeck(pts){
   refresh();
   toast(`${fmtArea(area)} deck · ${money(o.cost)}`);
 }
+/* Pavement is a parking surface, so unlike a deck it FOLLOWS the ground
+   rather than standing level on the high point — a paved pad that hovered
+   over a dip would read as a platform. The outline is triangulated once,
+   then every vertex is dropped onto the terrain and the interior is
+   subdivided so a pad across rolling ground bends with it instead of
+   spanning corner to corner. */
+function buildPaveMesh(pts){
+  const shape=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
+  const xs=pts.map(q=>q[0]),zs=pts.map(q=>q[1]);
+  const span=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...zs)-Math.min(...zs));
+  /* ShapeGeometry comes back indexed; the subdivider works on raw triangles,
+     so flatten it first or the index and the positions fall out of step. */
+  let g=new THREE.ShapeGeometry(shape);
+  g.rotateX(-Math.PI/2);
+  if(g.index)g=g.toNonIndexed();
+  subdivideToGround(g,Math.max(1.5,Math.min(4,span/14)));
+  const p=g.attributes.position.array;
+  for(let i=0;i<p.length;i+=3)p[i+1]=terrainH(p[i],p[i+2])+0.09;
+  g.computeVertexNormals();
+  const grp=new THREE.Group();
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial(
+    {color:0x33363a,roughness:.97,side:THREE.DoubleSide}));
+  m.receiveShadow=true; grp.add(m);
+  // a painted edge line so the pad reads as a formed surface, not a stain
+  const loop=pts.concat([pts[0]]);
+  grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    loop.map(q=>new THREE.Vector3(q[0],terrainH(q[0],q[1])+0.13,q[1]))),
+    new THREE.LineBasicMaterial({color:0xb9b3a4})));
+  return grp;
+}
+/* Split any triangle longer than `max` across its longest edge, so a flat
+   fan from ShapeGeometry gains enough interior vertices to be draped. */
+function subdivideToGround(g,max){
+  let pos=Array.from(g.attributes.position.array);
+  /* each pass halves only the longest edge, so a triangle needs several
+     passes to break down — run until nothing is over length, capped so a
+     huge pad can't run away into tens of thousands of triangles */
+  for(let pass=0;pass<12&&pos.length<9*4000;pass++){
+    const out=[]; let split=false;
+    for(let t=0;t<pos.length;t+=9){
+      const v=[[pos[t],pos[t+1],pos[t+2]],[pos[t+3],pos[t+4],pos[t+5]],[pos[t+6],pos[t+7],pos[t+8]]];
+      const d=[0,1,2].map(i=>{
+        const a=v[i],b=v[(i+1)%3];return Math.hypot(b[0]-a[0],b[2]-a[2]);});
+      const k=d.indexOf(Math.max(...d));
+      if(d[k]<=max){out.push(...v[0],...v[1],...v[2]);continue;}
+      split=true;
+      const a=v[k],b=v[(k+1)%3],c=v[(k+2)%3];
+      const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2];
+      out.push(...a,...mid,...c, ...mid,...b,...c);
+    }
+    pos=out; if(!split)break;
+  }
+  g.setIndex(null);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');   // stale vertex counts
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+}
+function placePave(pts){
+  if(pts.length<3){toast('Need at least three corners');return;}
+  const area=polyArea(pts);
+  if(area<4){toast('That pad is too small');return;}
+  if(pts.some(q=>isWater(q[0],q[1]))){toast('Blocked — part of the pad is in the water');return;}
+  if(SITE.boundary.length>2&&pts.some(q=>!inLot(q[0],q[1]))){toast('Blocked — crosses the lot line');return;}
+  pushUndo('pave parking');
+  const mesh=buildPaveMesh(pts); objGroup.add(mesh);
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  const o={type:'pave',def:DEF['pave'],mesh,pts:pts.slice(),area,
+           cost:area*(RATES.cPave||0),inr:polyNear(cx,cz,pts).d,x:cx,z:cz,rot:0};
+  placed.push(o);
+  pushTrees(o);                       // nothing stands in the middle of a car park
+  if(styleMode!=='survey')styleObject(mesh);
+  syncTrees(); refresh();
+  toast(`${fmtArea(area)} of pavement · ${money(o.cost)} · about ${Math.max(1,Math.floor(area/28))} cars`);
+}
 /* Shrubs fill the outline with low instanced bushes — one draw call for the
    whole bed however many it holds. */
 const BUSH_GEO=(()=>{
@@ -1967,6 +2048,7 @@ function select(o){
     showRoadBar(o);
   }
   else if(o.type==='deck')hint(`Custom deck · ${fmtArea(o.area)} · ${money(o.cost)} — Delete removes`);
+  else if(o.type==='pave')hint(`Parking pavement · ${fmtArea(o.area)} · about ${Math.max(1,Math.floor(o.area/28))} cars · ${money(o.cost)} — Delete removes`);
   else if(o.type==='shrub')hint(`Shrub bed · ${o.n} bushes over ${fmtArea(o.area)} — Delete removes`);
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} — Delete removes`);
   else{
@@ -2552,7 +2634,7 @@ function refresh(){
     if(p.type==='shrub')return;            // landscaping — never a line on the estimate
     const k=p.def.n;
     if(p.type==='road'){byModel[k]=byModel[k]||{n:0,amt:0,m:0,road:true};byModel[k].n++;byModel[k].m+=p.len;byModel[k].amt+=p.len*RATES[p.def.rate];}
-    else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=((p.type==='custom'||p.type==='deck')?p.cost:unitCost(p.def));}
+    else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=((p.type==='custom'||p.type==='deck'||p.type==='pave')?p.cost:unitCost(p.def));}
   });
   let once=0;Object.values(byModel).forEach(l=>{if(l.def&&!l.def.local)once+=modelOnce(l.def);});
   let sub=0;Object.values(byModel).forEach(l=>sub+=l.amt);
@@ -2683,6 +2765,11 @@ function setUnits(u){
     rateSet(id,RATES[id]);
     const lab=$(id).parentElement.querySelector('label'); if(lab)lab.textContent=`${base} / ${LBL()}`;
   });
+  if($('cPave')){                                   // per AREA, so it converts by FT²
+    $('cPave').value=Math.round(UNITS==='m'?RATES.cPave:RATES.cPave*FT*FT);
+    const pl=$('cPave').parentElement.querySelector('label');
+    if(pl)pl.textContent=`Pavement — CAD / ${ALBL()} of pad`;
+  }
   if($('cusRate')){
     $('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
     const cl=$('cusRate').parentElement.querySelector('label');
@@ -2797,6 +2884,7 @@ function serialize(withUnder){
     items:placed.map(p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
       :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0}
       :p.type==='deck'?{t:'deck',pts:p.pts}
+      :p.type==='pave'?{t:'pave',pts:p.pts}
       :p.type==='shrub'?{t:'shrub',pts:p.pts}
       :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
     trees:trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]),
@@ -2822,6 +2910,8 @@ function applyState(d,keepUnder){
     $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
     $('cusRate').value=CUSTOM.rate;lenSet('cusH',CUSTOM.h);$('cusSt').value=CUSTOM.storeys;
     ['cRoadG','cRoadP','cPath'].forEach(k=>rateSet(k,RATES[k]??50));
+    if($('cPave')){RATES.cPave=RATES.cPave??95;
+      $('cPave').value=Math.round(UNITS==='m'?RATES.cPave:RATES.cPave*FT*FT);}
     $('treeCore').value=RATES.treeCore??50;
     if($('cusRate'))$('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
     lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
@@ -2841,6 +2931,7 @@ function applyState(d,keepUnder){
     (d.items||[]).forEach(i=>{
       if(i.t==='road')placeRoad(DEF[i.id],i.pts);
       else if(i.t==='deck')placeDeck(i.pts);
+      else if(i.t==='pave')placePave(i.pts);
       else if(i.t==='shrub')placeShrubs(i.pts);
       else if(i.t==='custom'){
         const mesh=buildCustomMesh(i.pts,i.h); mesh.position.y=baseYFor(i.pts); objGroup.add(mesh);
@@ -2876,6 +2967,13 @@ $('fileIn').onchange=e=>{
 };
 ['fFx','fSurtax','fPeng','fEsa','fPermit','fSite','fCont','cRoadG','cRoadP','cPath','wRoad','wClear','treeCore']
   .forEach(id=>$(id).addEventListener('input',refresh));
+/* pavement carries its cost on the object, so re-rating has to reprice the
+   pads already down — same as the custom-building rate does */
+if($('cPave'))$('cPave').addEventListener('input',()=>{
+  readInputs();
+  placed.forEach(o=>{if(o.type==='pave')o.cost=o.area*(RATES.cPave||0);});
+  refresh();
+});
 ['rEdge','rCov','rSep','rMax'].forEach(id=>$(id).addEventListener('change',()=>{readInputs();buildOverlays();refresh();}));
 
 function updateScaleBar(){
