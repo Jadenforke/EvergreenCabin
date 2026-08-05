@@ -1796,7 +1796,18 @@ function makeGhost(d){
     scene.add(ghost);return;
   }
   ATTACH_LIGHTS=false; ghost=buildMesh(d); ATTACH_LIGHTS=true;
-  ghost.traverse(o=>{if(o.isMesh){o.castShadow=false;o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.55;}});
+  /* A mesh can carry an ARRAY of materials — the A-frame splits gable from
+     roof that way, and the deck does the same. Calling .clone() straight on
+     the array throws, which used to abort the whole ghost so nothing
+     previewed at all. Normalise before touching it. */
+  ghost.traverse(o=>{
+    if(!o.isMesh||!o.material)return;
+    o.castShadow=false;
+    o.material=Array.isArray(o.material)?o.material.map(m=>m.clone()):o.material.clone();
+    (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+      m.transparent=true; m.opacity=.55;
+    });
+  });
   if(d.w){
     const pad=new THREE.Mesh(new THREE.PlaneGeometry(d.w,d.d),new THREE.MeshBasicMaterial({color:0x6fdc8c,transparent:true,opacity:.3,side:THREE.DoubleSide}));
     pad.rotation.x=-Math.PI/2;pad.position.y=.12;pad.name='pad';ghost.add(pad);
