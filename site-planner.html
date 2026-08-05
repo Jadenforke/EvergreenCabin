@@ -302,6 +302,8 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="rbtn" id="showL" title="Show the catalogue">&#9776;</button></div>
 <div id="railR" style="position:fixed;top:124px;right:12px;z-index:16;display:none">
   <button class="rbtn" id="showR" title="Show the cost panel">&#8942;</button></div>
+<div id="selbar" class="panel" style="display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+  z-index:18;padding:8px 10px;display:none;align-items:center;gap:8px"></div>
 <div id="toast"></div>
 
 <input id="fileMap" type="file" accept="image/*" style="display:none">
@@ -920,7 +922,10 @@ function blockedForTree(x,z){
 }
 function seedTrees(){
   trees.length=0;
-  const n=Math.max(0,+$('tDens').value||400), mix=$('tMix').value;
+  /* 0 is a legitimate answer here. The old `+value||400` treated it as blank
+     and regrew a 400-stem forest instead of clearing the lot. */
+  const raw=$('tDens').value.trim();
+  const n=raw===''?400:Math.max(0,Math.floor(+raw)||0), mix=$('tMix').value;
   growTreePool(n);
   if(SITE.boundary.length<3){syncTrees();return;}
   const xs=SITE.boundary.map(p=>p[0]),zs=SITE.boundary.map(p=>p[1]);
@@ -1708,14 +1713,14 @@ function place(d,x,z,rot){
       t2.s=merged;
       if(SPECIES[t2.sp].h*t2.s < sp.h*s0) t2.sp=d.sp;   // the taller species wins the crown
       t2.x=t2.tx=(t2.x+x)/2; t2.z=t2.tz=(t2.z+z)/2;
-      syncTrees(); extra('Planting',d.cad); refresh();
+      syncTrees(); tallyPlant(d.sp); refresh();
       toast(grew?`Merged into one larger ${SPECIES[t2.sp].n.toLowerCase()}`:'Merged into the neighbouring tree');
       return;
     }
     const t={x,z,tx:x,tz:z,sp:d.sp,s:s0,rot:Math.random()*6.28,lit:false,dead:false};
     const i=trees.findIndex(t2=>t2.dead);
     if(i>=0)trees[i]=t; else {growTreePool(trees.length+1);trees.push(t);}
-    syncTrees();extra('Planting',d.cad);refresh();return;
+    syncTrees();tallyPlant(d.sp);refresh();return;
   }
   const mesh=buildMesh(d);
   mesh.position.set(x,d.water?0:padY(d,x,z,rot),z);mesh.rotation.y=rot;objGroup.add(mesh);
@@ -1784,13 +1789,30 @@ function placeCustom(pts){
 }
 const extras=[];
 function extra(label,amt){const e=extras.find(c=>c.label===label);if(e)e.amt+=amt;else extras.push({label,amt});}
+/* Planting used to be a running cash total, so changing a species price
+   afterwards left the old figure standing. Count what was planted per species
+   instead and price it at refresh, the way placed units already work. */
+const plantTally={};
+function tallyPlant(sp){plantTally[sp]=(plantTally[sp]||0)+1;}
+function plantingCost(){
+  let t=0;
+  for(const sp in plantTally){
+    const d=DEF['t_'+(SPECIES[sp]||{}).id];
+    if(d)t+=plantTally[sp]*(d.cad||0);
+  }
+  return t;
+}
 function removeObj(o){dropLights(o.mesh);objGroup.remove(o.mesh);placed.splice(placed.indexOf(o),1);select(null);refresh();}
 function select(o){
   selected=o;
+  hideSelBar();
   if(selBox){scene.remove(selBox);selBox=null;}
   if(o&&o.type==='obj'&&o.def.w){selBox=new THREE.Box3Helper(new THREE.Box3().setFromObject(o.mesh),0xff7a2f);scene.add(selBox);}
   if(!o)return;
-  if(o.type==='road')hint(`${o.def.n} · ${fmtLen(o.len,1)} × ${fmtLen(o.width,1)} · ${money(o.len*RATES[o.def.rate])} — Delete removes`);
+  if(o.type==='road'){
+    hint(`${o.def.n} · ${fmtLen(o.len,1)} × ${fmtLen(o.width,1)} · ${money(o.len*RATES[o.def.rate])} — pick a surface below, Delete removes`);
+    showRoadBar(o);
+  }
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${money(o.cost)} — Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
@@ -1813,27 +1835,38 @@ function hitGround(e){ndcFrom(e);
 const HL={erase:0xff4d4d, move:0x4ea8ff, moving:0x1f63d6};
 let hlBox=null,hlFill=null,hlObj=null,hlCol=null;
 function clearHL(){
-  if(hlBox){scene.remove(hlBox);hlBox=null;}
-  if(hlFill){scene.remove(hlFill);hlFill.geometry.dispose();hlFill.material.dispose();hlFill=null;}
+  if(hlBox){
+    hlBox.children.forEach(m=>m.material.dispose());   // geometry is shared — leave it
+    scene.remove(hlBox); hlBox=null;
+  }
   hlObj=null;hlCol=null;
 }
 function setHL(o,col){
-  if(hlObj===o&&hlCol===col){                 // just keep it on the object
-    if(o&&hlBox){hlBox.box.setFromObject(o.mesh);
-      const b=new THREE.Box3().setFromObject(o.mesh),c=b.getCenter(new THREE.Vector3()),sz=b.getSize(new THREE.Vector3());
-      if(hlFill){hlFill.position.copy(c);hlFill.scale.set(Math.max(sz.x,.2),Math.max(sz.y,.2),Math.max(sz.z,.2));}}
+  if(hlObj===o&&hlCol===col){                       // already lit — just re-seat it
+    if(o&&hlBox)syncHL(o);
     return;
   }
   clearHL();
   if(!o)return;
   hlObj=o;hlCol=col;
-  const b=new THREE.Box3().setFromObject(o.mesh);
-  hlBox=new THREE.Box3Helper(b,col); hlBox.material.depthTest=false; scene.add(hlBox);
-  const c=b.getCenter(new THREE.Vector3()), sz=b.getSize(new THREE.Vector3());
-  hlFill=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),
-    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.22,depthWrite:false}));
-  hlFill.position.copy(c); hlFill.scale.set(Math.max(sz.x,.2),Math.max(sz.y,.2),Math.max(sz.z,.2));
-  scene.add(hlFill);
+  /* Skin the object's own meshes rather than caging its bounding box: a box
+     around a dock or a road covers a lot of ground that is not the thing. */
+  hlBox=new THREE.Group();
+  o.mesh.updateMatrixWorld(true);
+  o.mesh.traverse(n=>{
+    if(!n.isMesh||!n.geometry)return;
+    const m=new THREE.Mesh(n.geometry,new THREE.MeshBasicMaterial({
+      color:col,transparent:true,opacity:.42,depthTest:false,depthWrite:false}));
+    m.matrixAutoUpdate=false; m.matrix.copy(n.matrixWorld);
+    m.renderOrder=999;
+    hlBox.add(m);
+  });
+  scene.add(hlBox);
+}
+function syncHL(o){
+  o.mesh.updateMatrixWorld(true);
+  const src=[]; o.mesh.traverse(n=>{if(n.isMesh&&n.geometry)src.push(n);});
+  hlBox.children.forEach((m,i)=>{ if(src[i])m.matrix.copy(src[i].matrixWorld); });
 }
 function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
   let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
@@ -2305,7 +2338,7 @@ function buildPalette(){
       const dims=i.kind==='road'?(i.fixedW?`${fmtLen(i.fixedW,1)} wide · ${per}`:`width from settings · ${per}`)
         :i.area?`${UNITS==='m'?i.area:i.area.replace(/([\d.]+)\s*m²/g,(x,n)=>Math.round(+n/(FT*FT)).toLocaleString()+' ft²').replace(/([\d.]+)\s*m\s*⌀/g,(x,n)=>(+n/FT).toFixed(1)+'′ ⌀')}${i.sleeps?` · sleeps ${i.sleeps}`:''}`
         :i.w?dimOf(i):'point item';
-      const price=i.kind==='road'?'rate':i.local?(i.cad?'$'+i.cad.toLocaleString():'—'):'$'+i.usd.toLocaleString()+' US';
+      const price=i.kind==='road'?'rate':i.local?(i.cad!=null?'$'+i.cad.toLocaleString():'—'):'$'+i.usd.toLocaleString()+' US';
       const sw=i.swatch!=null?`<span class="sw" style="background:#${i.swatch.toString(16).padStart(6,'0')}"></span>`:'<span></span>';
       return `<div class="item${i.archived?' arch':''}" data-id="${i.id}">${sw}
         <div class="nm">${i.n}${i.archived?'<span class="tag">archived</span>':''}</div>
@@ -2351,6 +2384,11 @@ $('priceList').addEventListener('input',e=>{
 const money=v=>'$'+Math.round(v).toLocaleString();
 function refresh(){
   readInputs();
+  {                                        // reprice planting from live prices
+    const pc=plantingCost(), e=extras.find(c=>c.label==='Planting');
+    if(pc>0){ if(e)e.amt=pc; else extras.push({label:'Planting',amt:pc}); }
+    else if(e)extras.splice(extras.indexOf(e),1);
+  }
   const byModel={};
   placed.forEach(p=>{
     const k=p.def.n;
@@ -2528,6 +2566,31 @@ $('tuckL').onclick=()=>tuck('L');
 $('tuckR').onclick=()=>tuck('R');
 $('showL').onclick=()=>tuck('L',true);
 $('showR').onclick=()=>tuck('R',true);
+/* a placed road can be re-surfaced without redrawing it */
+function hideSelBar(){const b=$('selbar');if(b)b.style.display='none';}
+function showRoadBar(o){
+  const b=$('selbar'); if(!b)return;
+  b.innerHTML='<span style="font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;'+
+    'text-transform:uppercase;color:var(--dim);padding-right:2px">Surface</span>'+
+    ['road_g','road_p','path'].map(id=>
+      `<button class="tbtn${o.def.id===id?' on':''}" data-road="${id}">${({road_g:'Gravel',road_p:'Paved',path:'Path'})[id]}</button>`).join('');
+  b.style.display='flex';
+  b.querySelectorAll('[data-road]').forEach(btn=>btn.onclick=()=>setRoadType(o,btn.dataset.road));
+}
+function setRoadType(o,id){
+  const d=DEF[id];
+  if(o.def.id===id)return;
+  pushUndo('resurface '+o.def.n);
+  objGroup.remove(o.mesh);
+  o.def=d;
+  o.width=d.fixedW||RATES[d.width];
+  o.mesh=roadMesh(o.pts,o.width,d.col);
+  objGroup.add(o.mesh);
+  if(styleMode!=='survey')styleObject(o.mesh);
+  pushTrees(o); syncTrees();
+  select(o); refresh();
+  toast('Resurfaced as '+d.n.toLowerCase());
+}
 $('btnUndo').onclick=undo;
 $('btnRedo').onclick=redo;
 $('btnShot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='evergreen-site-plan.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
@@ -2576,12 +2639,13 @@ function serialize(withUnder){
       :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost}
       :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
     trees:trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]),
-    extras:JSON.parse(JSON.stringify(extras)),treeStats:JSON.parse(JSON.stringify(treeStats))};
+    extras:JSON.parse(JSON.stringify(extras)),plantTally:JSON.parse(JSON.stringify(plantTally)),
+    treeStats:JSON.parse(JSON.stringify(treeStats))};
 }
 function applyState(d,keepUnder){
   restoring=true;
   try{
-    [...placed].forEach(removeObj);extras.length=0;
+    [...placed].forEach(removeObj);extras.length=0;for(const k in plantTally)delete plantTally[k];
     Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
     Object.assign(RATES,d.rates||{});          // rules intentionally not restored
     if(d.prices)for(const id in d.prices){                 // restore edited unit prices
@@ -2625,7 +2689,9 @@ function applyState(d,keepUnder){
         const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:padY(def,i.x,i.z,i.rot),i.z);mesh.rotation.y=i.rot;
         objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
     });
-    (d.extras||[]).forEach(c=>extras.push(c));
+    for(const k in plantTally)delete plantTally[k];
+    Object.assign(plantTally,d.plantTally||{});
+    (d.extras||[]).forEach(c=>{if(c.label!=='Planting')extras.push(c);});
     treeStats=d.treeStats||{moved:0,felled:0};
     styleMode=d.style||'survey';applyStyle();buildOverlays();buildPalette();buildPricing();refresh();
   } finally { restoring=false; }
