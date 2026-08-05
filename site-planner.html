@@ -1027,7 +1027,7 @@ const CAT=[
   {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200,join:true},
   {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
-  {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'twostorey',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
+  {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'chunshu',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
   {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true},
   {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015,join:true},
   {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015,join:true},
@@ -1349,7 +1349,155 @@ function buildMesh(d){
     const core=new THREE.Mesh(new THREE.SphereGeometry(d.w/2*.55,10,8),glass());core.position.y=3+d.w/2*.6;g.add(core);
     for(let i=0;i<3;i++){const a=i/3*6.283;const leg=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,3,6),body(0x4a4d4f));
       leg.position.set(Math.cos(a)*d.w*.3,1.5,Math.sin(a)*d.w*.3);leg.castShadow=true;g.add(leg);}
-    const st=new THREE.Mesh(new THREE.BoxGeometry(1,.15,3.4),body(0x5b4a38));st.position.set(0,1.6,d.w*.42);st.rotation.x=-.42;g.add(st);
+    /* Floor deck on top of the legs, then a flight climbing UP to it. The
+       old ramp was tilted the wrong way — it rose as it ran away from the
+       dome, so it started off the ground and finished in mid-air short of
+       the entrance. Treads now step up towards the dome and land on the
+       deck, with the bottom one at grade. */
+    const FL=3, flr=new THREE.Mesh(new THREE.CylinderGeometry(d.w/2*.98,d.w/2*.98,.18,20),body(0x6d5a45));
+    flr.position.y=FL-.09; flr.castShadow=flr.receiveShadow=true; g.add(flr);
+    const N=14, RUN=.27, SW=1.15, z0=d.w/2*.94;
+    for(let i=0;i<N;i++){
+      const y=(i+1)*(FL/N), z=z0+(N-1-i)*RUN;      // last tread sits at deck level
+      const t=new THREE.Mesh(new THREE.BoxGeometry(SW,.08,RUN*1.3),body(0x5b4a38));
+      t.position.set(0,y-.04,z); t.castShadow=t.receiveShadow=true; g.add(t);
+      const r=new THREE.Mesh(new THREE.BoxGeometry(SW,FL/N-.08,.06),body(0x4a3b2c));
+      r.position.set(0,y-(FL/N)/2,z+RUN*.62); g.add(r);          // riser face
+    }
+    for(const sx of[-1,1]){                                       // stringer + handrail
+      const L=Math.hypot(FL,(N-1)*RUN), a=Math.atan2(FL,(N-1)*RUN);
+      const st=new THREE.Mesh(new THREE.BoxGeometry(.09,.16,L),body(0x4a3b2c));
+      st.position.set(sx*SW/2,FL/2-.12,z0+(N-1)*RUN/2); st.rotation.x=a; g.add(st);
+      const hr=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,L),body(0x6d5a45));
+      hr.position.set(sx*SW/2,FL/2+.86,z0+(N-1)*RUN/2); hr.rotation.x=a; g.add(hr);
+      [0.15,0.5,0.85].forEach(t=>{
+        const py=FL*t, pz=z0+(N-1)*RUN*(1-t);
+        const p=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.98,5),body(0x6d5a45));
+        p.position.set(sx*SW/2,py+.37,pz); g.add(p);
+      });
+    }
+  }else if(k==='chunshu'){
+    /* Set out from the Beautiful Villa plan (春树-平面图): an 11.26 × 13.10 m
+       envelope carrying a shingled dome — 58.03 m² ground plus a 16.32 m²
+       loft — a glazed sunroom wing of 34.37 m², and a small glass pod off
+       the south side, all standing on a raised timber deck. Plan
+       coordinates are converted to metres about the centre of that box. */
+    const timber=body(0xb08a55), deckM=body(0x8a6f4c);
+    const shingle=new THREE.MeshStandardMaterial({color:0x33455c,roughness:.86});
+    const DK=0.62;                                     // deck top above grade
+    const DOME={x:-2.25,z:-2.30,rx:3.60,rz:4.25};
+    const POD ={x:-1.50,z: 4.55,r:1.95};
+    const SX0=1.10,SX1=5.55;                           // sunroom join → outer face
+
+    /* ---- raised deck: a platter under the dome, another under the pod, a
+       waist joining the two and a slab out under the sunroom */
+    const platter=(cx,cz,rx,rz)=>{
+      const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.22,26),deckM);
+      m.scale.set(rx,1,rz); m.position.set(cx,DK-.11,cz);
+      m.castShadow=m.receiveShadow=true; return m;
+    };
+    g.add(platter(DOME.x,DOME.z,DOME.rx+1.05,DOME.rz+.95));
+    g.add(platter(POD.x,POD.z,POD.r+1.0,POD.r+1.0));
+    const waist=new THREE.Mesh(new THREE.BoxGeometry(2.7,.22,3.4),deckM);
+    waist.position.set((DOME.x+POD.x)/2,DK-.11,(DOME.z+POD.z)/2); waist.receiveShadow=true; g.add(waist);
+    const sunDeck=new THREE.Mesh(new THREE.BoxGeometry(SX1-SX0+1.4,.22,5.8),deckM);
+    sunDeck.position.set((SX0+SX1)/2,DK-.11,-1.0); sunDeck.receiveShadow=true; g.add(sunDeck);
+    [[DOME.x-2.9,DOME.z+2.4],[DOME.x+2.6,DOME.z-3.0],[DOME.x-3.0,DOME.z-2.6],
+     [POD.x,POD.z+1.5],[POD.x-1.8,POD.z-.6],[SX1-.5,-3.2],[SX1-.5,1.3],
+     [SX0+.3,-3.2],[SX0+.3,1.3]].forEach(p=>{
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,DK,6),body(0x4a4f55));
+      c.position.set(p[0],DK/2-.11,p[1]); c.castShadow=true; g.add(c);
+    });
+    /* a rail round the open deck edges, which is most of what reads as
+       "cabin on a platform" from any distance */
+    const railRing=(cx,cz,rx,rz)=>{
+      const r=new THREE.Mesh(new THREE.TorusGeometry(1,.035,4,40),timber);
+      r.rotation.x=Math.PI/2; r.scale.set(rx,rz,1); r.position.set(cx,DK+.92,cz); g.add(r);
+      for(let i=0;i<22;i++){
+        const a=i/22*Math.PI*2;
+        const px=cx+Math.cos(a)*rx, pz=cz+Math.sin(a)*rz;
+        const b2=new THREE.Mesh(new THREE.CylinderGeometry(.028,.028,.92,4),timber);
+        b2.position.set(px,DK+.46,pz); g.add(b2);
+      }
+    };
+    railRing(DOME.x,DOME.z,DOME.rx+1.03,DOME.rz+.93);
+    railRing(POD.x,POD.z,POD.r+.98,POD.r+.98);
+
+    /* ---- main dome: a sphere carried a little past its equator so it tucks
+       back into the deck the way the render does, clad in slate scales */
+    const H=(d.h-DK)/1.368;                            // rim sits 0.368H below centre
+    const dm=new THREE.Mesh(new THREE.SphereGeometry(1,28,18,0,Math.PI*2,0,Math.PI*.62),shingle);
+    dm.scale.set(DOME.rx,H,DOME.rz); dm.position.set(DOME.x,DK+.368*H,DOME.z);
+    dm.castShadow=dm.receiveShadow=true; g.add(dm);
+    const ocR=DOME.rx*.30;                             // crown oculus
+    const oc=new THREE.Mesh(new THREE.CircleGeometry(ocR,20),glass());
+    oc.rotation.x=-Math.PI/2; oc.position.set(DOME.x,DK+1.368*H-.06,DOME.z); g.add(oc);
+    const ocRing=new THREE.Mesh(new THREE.TorusGeometry(ocR,.06,5,22),timber);
+    ocRing.rotation.x=Math.PI/2; ocRing.position.copy(oc.position); g.add(ocRing);
+    // the glazed slot facing the sunroom, and the entrance off the waist
+    const slot=new THREE.Mesh(new THREE.PlaneGeometry(2.5,1.9),glass());
+    slot.position.set(DOME.x+DOME.rx*.86,DK+1.25,DOME.z+.4); slot.rotation.y=-Math.PI/2; g.add(slot);
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(1.1,2.05),glass());
+    door.position.set(DOME.x+.1,DK+1.02,DOME.z+DOME.rz*.90); g.add(door);
+    lit(g,DOME.x,DK+1.6,DOME.z,{base:1.25,dist:26,pool:11,col:0xffd2a2});
+
+    /* ---- sunroom: a fan of timber arches springing off the dome, tallest
+       at the outer face and dying away as it meets the shell. The glass is
+       one swept surface through the same profile, so the ribs sit on it
+       instead of floating beside it. */
+    const RB=9, NA=14, prof=(u,t)=>{
+      const x=SX0+(SX1-SX0)*u;
+      const hw=2.05+.72*u;                             // half width across z
+      const hg=2.30+2.35*u;                            // arch height over the deck
+      const cz=-1.0+.10*u, a=t*Math.PI;
+      return [x, DK+hg*Math.sin(a), cz+hw*Math.cos(a)];
+    };
+    const pos=[],idx=[];
+    for(let i=0;i<=RB;i++)for(let j=0;j<=NA;j++)pos.push(...prof(i/RB,j/NA));
+    for(let i=0;i<RB;i++)for(let j=0;j<NA;j++){
+      const a=i*(NA+1)+j,b2=a+NA+1;
+      idx.push(a,b2,a+1, a+1,b2,b2+1);
+    }
+    const sg=new THREE.BufferGeometry();
+    sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+    sg.setIndex(idx); sg.computeVertexNormals();
+    const shell=new THREE.Mesh(sg,glass()); shell.castShadow=true; g.add(shell);
+    for(let i=0;i<=RB;i++){                            // the ribs themselves
+      const u=i/RB, v=[];
+      for(let j=0;j<=NA;j++){const p=prof(u,j/NA);v.push(new THREE.Vector3(p[0],p[1],p[2]));}
+      const rib=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(v),16,.055,5,false),timber);
+      rib.castShadow=true; g.add(rib);
+    }
+    {                                                  // glazed end wall on the tall outer face
+      const cap=[],ci=[];
+      for(let j=0;j<=NA;j++){
+        const p=prof(1,j/NA);
+        cap.push(p[0],p[1],p[2], p[0],DK,p[2]);        // arch point + its foot
+      }
+      for(let j=0;j<NA;j++){const a=j*2;ci.push(a,a+1,a+2, a+1,a+3,a+2);}
+      const cg=new THREE.BufferGeometry();
+      cg.setAttribute('position',new THREE.Float32BufferAttribute(cap,3));
+      cg.setIndex(ci); cg.computeVertexNormals();
+      g.add(new THREE.Mesh(cg,glass()));
+    }
+    for(const t of[0.2,0.5,0.8]){                      // purlins running the length
+      const v=[];
+      for(let i=0;i<=RB;i++){const p=prof(i/RB,t);v.push(new THREE.Vector3(p[0],p[1],p[2]));}
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(v),14,.038,5,false),timber));
+    }
+    lit(g,(SX0+SX1)/2,DK+1.5,-1.0,{base:.95,dist:22,pool:9,col:0xffe0b4});
+
+    /* ---- the small glass pod off the south side */
+    const pod=new THREE.Mesh(new THREE.SphereGeometry(POD.r,20,12,0,Math.PI*2,0,Math.PI*.5),glass());
+    pod.scale.y=2.85/POD.r; pod.position.set(POD.x,DK,POD.z); pod.castShadow=true; g.add(pod);
+    for(let i=0;i<8;i++){
+      const rib=new THREE.Mesh(new THREE.TorusGeometry(POD.r,.05,4,16,Math.PI),timber);
+      rib.rotation.y=i/8*Math.PI*2; rib.scale.y=2.85/POD.r;
+      rib.position.set(POD.x,DK,POD.z); g.add(rib);
+    }
+    const pr=new THREE.Mesh(new THREE.TorusGeometry(POD.r,.07,5,24),timber);
+    pr.rotation.x=Math.PI/2; pr.position.set(POD.x,DK+.06,POD.z); g.add(pr);
+    lit(g,POD.x,DK+1.1,POD.z,{base:.8,dist:16,pool:7,col:0xffd9a8});
   }else if(k==='stack'){
     const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,9),body(0x35393c));b.position.y=1.5;b.castShadow=true;g.add(b);
     const u=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,6),body(0x44484b));u.position.set(0,4.5,-1);u.castShadow=true;g.add(u);
