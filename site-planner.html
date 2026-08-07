@@ -1029,6 +1029,7 @@ const CAT=[
   {id:'aframe',n:'A-Frame Cabin',mfr:'Qingdao Yidongxiang',kind:'aframe',w:7.2,d:8.6,h:6.8,area:'90 m² · 968.75 ft² over 2 levels · 2 bed / 1 bath',sleeps:4,usd:31500,freight:7500},
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
   {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'chunshu',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
+  {id:'warehouse',n:'Steel Warehouse',mfr:'Hebei Weizhengheng',kind:'warehouse',w:60.96,d:30.48,h:6.096,area:'1,858 m² · 200×100×20 ft · shell only, no interior',usd:82753,freight:29600},
   {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true},
   {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015,join:true},
   {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015,join:true},
@@ -1297,6 +1298,19 @@ function habLight(g,d){
 function glass(){const m=new THREE.MeshStandardMaterial({color:0x2a3037,emissive:0xffd39b,emissiveIntensity:0,roughness:.22,metalness:.15});nightMats.push(m);return m;}
 function pyramid(w,d,h,col){const g=new THREE.ConeGeometry(.72,h,4);g.rotateY(Math.PI/4);g.scale(w/1.02,1,d/1.02);
   const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.92,flatShading:true}));m.castShadow=true;return m;}
+/* A thin repeating canvas strip standing in for corrugated colour-steel
+   cladding — one small texture tiled across a wall the size of a warehouse,
+   instead of hundreds of individual rib meshes. */
+function corrugatedTex(base,stripe,reps){
+  const S=64,c=document.createElement('canvas');c.width=S;c.height=8;
+  const g=c.getContext('2d');
+  g.fillStyle='#'+base.toString(16).padStart(6,'0');g.fillRect(0,0,S,8);
+  g.strokeStyle='#'+stripe.toString(16).padStart(6,'0');g.lineWidth=1;
+  for(let x=4;x<S;x+=8){g.beginPath();g.moveTo(x+.5,0);g.lineTo(x+.5,8);g.stroke();}
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(reps,1);
+  return t;
+}
 function bandWindows(w,d,y,h,g){const n=Math.max(1,Math.round(w/3));
   for(let i=0;i<n;i++){const px=-w/2+(i+.5)*(w/n);
     [-1,1].forEach(s=>{const q=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(1.3,w/n*.55),h),glass());
@@ -1547,6 +1561,58 @@ function buildMesh(d){
     const pr=new THREE.Mesh(new THREE.TorusGeometry(POD.r,.07,5,24),timber);
     pr.rotation.x=Math.PI/2; pr.position.set(POD.x,DK+.06,POD.z); g.add(pr);
     lit(g,POD.x,DK+1.1,POD.z,{base:.8,dist:16,pool:7,col:0xffd9a8});
+  }else if(k==='warehouse'){
+    /* A real pre-engineered steel shed: a shallow two-slope gable running
+       the LENGTH (d.w), spanning the SHORT dimension (d.d) — not the steep
+       hip roof the small cabins use, which would look wrong stretched over
+       60 m. Cladding is a tiled canvas strip, not literal rib geometry —
+       the only way a wall this size stays cheap. No interior light: the
+       quote has no electrical in it, so it wouldn't be honest to glow. */
+    const W=d.w, D=d.d, EH=d.h;
+    const RISE=Math.min(2.6, D*0.09);
+    const wallMat=new THREE.MeshStandardMaterial({map:corrugatedTex(0xe4e1d6,0xc7c3b4,Math.round(W/1.8)),color:0xffffff,roughness:.85});
+    const roofMat=new THREE.MeshStandardMaterial({map:corrugatedTex(0x3a5670,0x2c4457,Math.round(W/1.7)),color:0xffffff,roughness:.6});
+
+    const wall=new THREE.Mesh(new THREE.BoxGeometry(W,EH,D),wallMat);
+    wall.position.y=EH/2; wall.castShadow=wall.receiveShadow=true; g.add(wall);
+
+    // gable-end triangles, wall-clad like the lower wall below them
+    const gable=new THREE.Shape();
+    gable.moveTo(-D/2,0); gable.lineTo(D/2,0); gable.lineTo(0,RISE); gable.closePath();
+    const gableGeo=new THREE.ShapeGeometry(gable);
+    for(const sx of[-1,1]){
+      const m=new THREE.Mesh(gableGeo,wallMat);
+      m.position.set(sx*W/2,EH,0); m.rotation.y=Math.PI/2*sx; m.castShadow=true; g.add(m);
+    }
+
+    // roof: the same triangular cross-section, extruded the full length
+    const roofProf=new THREE.Shape();
+    const halfD=D/2*1.03;
+    roofProf.moveTo(-halfD,0); roofProf.lineTo(halfD,0); roofProf.lineTo(0,RISE); roofProf.closePath();
+    let roofGeo=new THREE.ExtrudeGeometry(roofProf,{depth:W*1.02,bevelEnabled:false});
+    roofGeo.rotateY(Math.PI/2); roofGeo.translate(-W*1.02/2,EH,0);
+    const roof=new THREE.Mesh(roofGeo,roofMat); roof.castShadow=roof.receiveShadow=true; g.add(roof);
+    const ridge=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.16,W*1.03),body(0x2c4457));
+    ridge.position.y=EH+RISE-0.04; g.add(ridge);
+
+    // 10 sliding windows (2.0 x 1.0 m) along the back wall
+    for(let i=0;i<10;i++){
+      const px=-W/2+(i+.5)*(W/10);
+      const win=new THREE.Mesh(new THREE.PlaneGeometry(2,1),glass());
+      win.position.set(px,EH*.62,-D/2-.03); win.rotation.y=Math.PI; g.add(win);
+    }
+    // 2 roller shutter doors (4 x 4.5 m) + 2 single doors (0.9 x 2.1 m) on the front wall
+    const doorMat=body(0xd7d4c8), frameMat=body(0x9a968a);
+    [-18,18].forEach(px=>{
+      const d2=new THREE.Mesh(new THREE.PlaneGeometry(4,4.5),doorMat);
+      d2.position.set(px,2.25,D/2+.03); g.add(d2);
+      for(let s=1;s<=3;s++){const slat=new THREE.Mesh(new THREE.BoxGeometry(4,.05,.03),frameMat);
+        slat.position.set(px,s*1.05,D/2+.05); g.add(slat);}
+    });
+    [-4,4].forEach(px=>{
+      const d2=new THREE.Mesh(new THREE.PlaneGeometry(.9,2.1),frameMat);
+      d2.position.set(px,1.05,D/2+.03); g.add(d2);
+    });
   }else if(k==='stack'){
     const b=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,9),body(0x35393c));b.position.y=1.5;b.castShadow=true;g.add(b);
     const u=new THREE.Mesh(new THREE.BoxGeometry(d.w,3,6),body(0x44484b));u.position.set(0,4.5,-1);u.castShadow=true;g.add(u);
