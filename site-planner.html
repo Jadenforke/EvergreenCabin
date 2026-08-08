@@ -270,8 +270,7 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Lot line setback (m)</label><input id="rEdge" type="number" value="7.5" step="0.5"></div>
   <div class="field"><label>Max lot coverage %</label><input id="rCov" type="number" value="15" step="0.5"></div>
   <div class="field"><label>Lot per building (ft square)<br><span style="color:var(--faint);font-size:10px" id="sepM">= 15.24 m</span></label><input id="rLot" type="number" value="50" step="1"></div>
-  <div class="field"><label>Max sleeping units</label><input id="rMax" type="number" value="24" step="1"></div>
-  <div class="note">Every building gets its own <b>50 × 50 ft lot</b> centred on it, <b>whatever the building's own size</b> — and lots may not overlap. A building bigger than the lot simply takes the space it needs. Dashed squares on the plan show each lot. <b>Joinable units</b> (square cabins, saunas, sheds, pavilions, domes) take no lot so they can still be built shoulder to shoulder — nor do fire pits, docks or parking pads. Nothing may overlap regardless. No shoreline setback is applied, but nothing can be built in the water. Confirm the real numbers with the <b>Town of Gore Bay / NEMI</b> zoning by-law.</div>
+  <div class="note">Every building gets its own <b>50 × 50 ft lot</b> centred on it, <b>whatever the building's own size</b> — and lots may not overlap. A building bigger than the lot simply takes the space it needs. Dashed squares on the plan show each lot. <b>Joinable units</b> (square cabins, saunas, sheds, pavilions, domes) take no lot so they can still be built shoulder to shoulder — nor do fire pits, docks or parking pads. Nothing may overlap regardless. There is <b>no cap on the number of units</b> — place as many as the land and the lots allow. No shoreline setback is applied, but nothing can be built in the water. Confirm the real numbers with the <b>Town of Gore Bay / NEMI</b> zoning by-law.</div>
 
  </section>
  <section class="grp" data-grp="other">
@@ -1102,7 +1101,7 @@ const DEF={}; CAT.forEach(g=>g.items.forEach(i=>DEF[i.id]=i));
 
 const FIN={fx:1.37,surtax:false,permit:2500,site:28000};
 const RATES={cRoadG:185,cRoadP:420,cPath:65,cPave:95,wRoad:5,wClear:2,treeCore:50};
-const RULES={edge:7.5,cov:15,lotFt:50,lot:50*FT,max:24};
+const RULES={edge:7.5,cov:15,lotFt:50,lot:50*FT};
 const CUSTOM={rate:2400,h:4.2,storeys:2};
 const DECK_RATE=320;                  // CAD per m2 of deck
 /* Shrub beds are drawn as landscaping, not as a line on the estimate — they
@@ -1137,7 +1136,7 @@ function readInputs(){
   RATES.treeCore=+$('treeCore').value;
   RATES.wRoad=lenVal('wRoad');RATES.wClear=lenVal('wClear');
   RULES.edge=lenVal('rEdge');RULES.cov=+$('rCov').value;
-  RULES.lotFt=+$('rLot').value;RULES.lot=RULES.lotFt*FT;RULES.max=+$('rMax').value;
+  RULES.lotFt=+$('rLot').value;RULES.lot=RULES.lotFt*FT;
   const sm=$('sepM'); if(sm)sm.textContent='= '+RULES.lot.toFixed(2)+' m square';
   if($('cusRate')){CUSTOM.rate=UNITS==='m'?+$('cusRate').value:+$('cusRate').value/(FT*FT);CUSTOM.h=lenVal('cusH');CUSTOM.storeys=+$('cusSt').value;}
 }
@@ -1789,10 +1788,6 @@ function validate(def,x,z,rot,ignore){
   if(isStructure(def)&&LAND_AREA>0){
     const cov=(footprintArea()-(ignore&&isStructure(ignore.def)?ignore.def.w*ignore.def.d:0)+def.w*def.d)/LAND_AREA*100;
     if(cov>RULES.cov)hard(`Lot coverage would reach ${cov.toFixed(1)} % — cap is ${RULES.cov} %`);
-  }
-  if(def.sleeps){
-    const n=placed.filter(p=>p.def.sleeps).length+(ignore?0:1);
-    if(n>RULES.max)hard(`Over the ${RULES.max}-unit site limit`);
   }
   return iss;
 }
@@ -3322,7 +3317,7 @@ function applyState(d,keepUnder){
     if($('cusRate'))$('cusRate').value=Math.round(UNITS==='m'?CUSTOM.rate:CUSTOM.rate*FT*FT);
     lenSet('wRoad',RATES.wRoad);lenSet('wClear',RATES.wClear);
     lenSet('rEdge',RULES.edge);$('rCov').value=RULES.cov;   // keep the fields showing the live rules
-    $('rLot').value=RULES.lotFt;$('rMax').value=RULES.max;
+    $('rLot').value=RULES.lotFt;
     SITE.shore=d.shore||defaultShore();SITE.boundary=d.boundary||defaultBoundary();
     if(!keepUnder){
       if(SITE.under){scene.remove(SITE.under);SITE.under=null;}
@@ -3380,7 +3375,7 @@ if($('cPave'))$('cPave').addEventListener('input',()=>{
   placed.forEach(o=>{if(o.type==='pave')o.cost=o.area*(RATES.cPave||0);});
   refresh();
 });
-['rEdge','rCov','rLot','rMax'].forEach(id=>$(id).addEventListener('change',()=>{readInputs();buildOverlays();refresh();}));
+['rEdge','rCov','rLot'].forEach(id=>$(id).addEventListener('change',()=>{readInputs();buildOverlays();refresh();}));
 
 function updateScaleBar(){
   if(viewMode!=='plan')return;
