@@ -240,12 +240,9 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="hdr t">Import &amp; compliance rates <span class="caret">▾</span></div>
   <div class="field"><label>USD → CAD</label><input id="fFx" type="number" value="1.37" step="0.01"></div>
   <div class="field"><label>Apply 25% steel/alu surtax<br><span style="color:var(--faint);font-size:10px">worst case: classed as parts, not 9406</span></label><input id="fSurtax" type="checkbox"></div>
-  <div class="field"><label>P.Eng review — per model</label><input id="fPeng" type="number" value="4000" step="500"></div>
-  <div class="field"><label>ESA field evaluation — per model</label><input id="fEsa" type="number" value="2500" step="500"></div>
   <div class="field"><label>Building permit — per unit</label><input id="fPermit" type="number" value="2500" step="250"></div>
   <div class="field"><label>Foundation + MEP — per unit</label><input id="fSite" type="number" value="28000" step="1000"></div>
-  <div class="field"><label>Contingency %</label><input id="fCont" type="number" value="12" step="1"></div>
-  <div class="note">Unit prices and freight are the quoted USD figures from the sourcing catalogue. <b>P.Eng and ESA are charged once per model</b>, not per unit. 5% GST at import is recoverable and excluded.</div>
+  <div class="note">Unit prices and freight are the quoted USD figures from the sourcing catalogue. 5% GST at import is recoverable and excluded. <b>P.Eng review, ESA evaluation and a contingency allowance are not costed here</b> &mdash; budget them separately.</div>
 
  </section>
  <section class="grp" data-grp="set">
@@ -1083,7 +1080,7 @@ const CAT=[
 ];
 const DEF={}; CAT.forEach(g=>g.items.forEach(i=>DEF[i.id]=i));
 
-const FIN={fx:1.37,surtax:false,peng:4000,esa:2500,permit:2500,site:28000,cont:12};
+const FIN={fx:1.37,surtax:false,permit:2500,site:28000};
 const RATES={cRoadG:185,cRoadP:420,cPath:65,cPave:95,wRoad:5,wClear:2,treeCore:50};
 const RULES={edge:7.5,cov:15,sepFt:45,sep:45*FT,max:24};
 const CUSTOM={rate:2400,h:4.2,storeys:2};
@@ -1112,8 +1109,8 @@ function padY(def,x,z,rot){
   return y;
 }
 function readInputs(){
-  FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;FIN.peng=+$('fPeng').value;FIN.esa=+$('fEsa').value;
-  FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;FIN.cont=+$('fCont').value;
+  FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;
+  FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;
   ['cRoadG','cRoadP','cPath'].forEach(k=>RATES[k]=rateVal(k));   // stored per metre
   /* pavement is a rate per unit AREA, not per length — it converts by FT² */
   if($('cPave'))RATES.cPave=UNITS==='m'?+$('cPave').value:+$('cPave').value/(FT*FT);
@@ -1128,7 +1125,6 @@ function unitCost(d){
   if(d.local)return d.cad||0;
   return (d.usd+(d.freight||0)+(FIN.surtax?d.usd*0.25:0))*FIN.fx+FIN.permit+FIN.site;
 }
-const modelOnce=d=>d.local?0:FIN.peng+FIN.esa+(d.csa||0)*FIN.fx;
 
 /* ---------------- style ---------------- */
 const MUTE=new THREE.Color(0xb6ad9c),hsl={};
@@ -2926,17 +2922,16 @@ function refresh(){
     if(p.type==='road'){byModel[k]=byModel[k]||{n:0,amt:0,m:0,road:true};byModel[k].n++;byModel[k].m+=p.len;byModel[k].amt+=p.len*RATES[p.def.rate];}
     else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=((p.type==='custom'||p.type==='deck'||p.type==='pave')?p.cost:unitCost(p.def));}
   });
-  let once=0;Object.values(byModel).forEach(l=>{if(l.def&&!l.def.local)once+=modelOnce(l.def);});
+  /* The total is now just what is actually on the plan. The per-model
+     compliance line and the blanket contingency % both used to ride on top
+     of it; neither is tied to anything you place, so they are gone. */
   let sub=0;Object.values(byModel).forEach(l=>sub+=l.amt);
   extras.forEach(c=>{if(Math.abs(c.amt)>.5)sub+=c.amt;});
-  const cont=(sub+once)*FIN.cont/100;
-  $('mTotal').textContent=money(sub+once+cont);
+  $('mTotal').textContent=money(sub);
   let html='';
   Object.entries(byModel).forEach(([k,l])=>{
     html+=`<div class="row sub"><span class="k">${k}${l.n>1?` ×${l.n}`:''}${l.road?` · ${l.m.toFixed(0)} m`:''}</span><span class="v">${money(l.amt)}</span></div>`;});
   extras.forEach(c=>{if(Math.abs(c.amt)>.5)html+=`<div class="row sub"><span class="k">${c.label}</span><span class="v">${money(c.amt)}</span></div>`;});
-  if(once)html+=`<div class="row sub"><span class="k">One-time compliance (per model)</span><span class="v">${money(once)}</span></div>`;
-  html+=`<div class="row sub"><span class="k">Contingency ${FIN.cont}%</span><span class="v">${money(cont)}</span></div>`;
   $('costLines').innerHTML=html||'<div class="note">Nothing placed yet.</div>';
 
   const foot=footprintArea();
@@ -3196,8 +3191,8 @@ function applyState(d,keepUnder){
     }
     lenSet('lDepth',LAND.depth);lenSet('lBank',LAND.bank);lenSet('lBeach',LAND.beach);
     lenSet('lRelief',LAND.relief);$('lSlope').value=(LAND.slope*100).toFixed(1);lenSet('lCont',LAND.cont);
-    $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;$('fPeng').value=FIN.peng;$('fEsa').value=FIN.esa;
-    $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;$('fCont').value=FIN.cont;
+    $('fFx').value=FIN.fx;$('fSurtax').checked=!!FIN.surtax;
+    $('fPermit').value=FIN.permit;$('fSite').value=FIN.site;
     $('cusRate').value=CUSTOM.rate;lenSet('cusH',CUSTOM.h);$('cusSt').value=CUSTOM.storeys;
     ['cRoadG','cRoadP','cPath'].forEach(k=>rateSet(k,RATES[k]??50));
     if($('cPave')){RATES.cPave=RATES.cPave??95;
@@ -3255,7 +3250,7 @@ $('fileIn').onchange=e=>{
   };
   r.readAsText(f);
 };
-['fFx','fSurtax','fPeng','fEsa','fPermit','fSite','fCont','cRoadG','cRoadP','cPath','wRoad','wClear','treeCore']
+['fFx','fSurtax','fPermit','fSite','cRoadG','cRoadP','cPath','wRoad','wClear','treeCore']
   .forEach(id=>$(id).addEventListener('input',refresh));
 /* pavement carries its cost on the object, so re-rating has to reprice the
    pads already down — same as the custom-building rate does */
