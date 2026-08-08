@@ -337,7 +337,11 @@ function fmtFtIn(m){                                        // 12\u2032 6\u2033 
   const f=m/FT, w=Math.floor(f), i=Math.round((f-w)*12);
   return i===12?`${w+1}\u2032 0\u2033`:`${w}\u2032 ${i}\u2033`;
 }
-const fmtSpan = m => UNITS==='m' ? m.toFixed(1)+' m' : fmtFtIn(m);
+/* The measure tool always shows both units on every leg and the running
+   total — regardless of the global m/ft toggle — since the whole point of
+   a tape measure is not having to guess which system the other person
+   used, or flip the site's units just to read one span. */
+const fmtSpan = m => UNITS==='m' ? `${m.toFixed(1)} m · ${fmtFtIn(m)}` : `${fmtFtIn(m)} · ${m.toFixed(1)} m`;
 
 /* ---------------- land parameters ---------------- */
 const LAND={ex:640,ez:560,res:2.5,depth:4.5,bank:1.6,beach:9,relief:2.6,slope:0.018,cont:1,seed:7};
