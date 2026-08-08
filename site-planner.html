@@ -1753,6 +1753,78 @@ function validate(def,x,z,rot,ignore){
 }
 
 /* ---------------- tree displacement ---------------- */
+/* Where a point sits relative to a just-placed obstacle: null when it is
+   already clear, otherwise the nearest spot just outside it. Same geometry
+   pushTrees works from, factored out so bushes get displaced consistently
+   with trees instead of being ignored and left sitting under the tarmac. */
+function clearOf(obj,x,z,clear){
+  if(obj.type==='road'){
+    const hw=obj.width/2+clear;
+    for(let i=0;i<obj.pts.length-1;i++){
+      const a=obj.pts[i],b=obj.pts[i+1],r=segDist(x,z,a[0],a[1],b[0],b[1]);
+      if(r.d<hw){
+        let vx=x-r.cx,vz=z-r.cz,L=Math.hypot(vx,vz);
+        if(L<.01){const an=Math.atan2(b[1]-a[1],b[0]-a[0])+Math.PI/2;vx=Math.cos(an);vz=Math.sin(an);L=1;}
+        return {nx:r.cx+vx/L*hw, nz:r.cz+vz/L*hw};
+      }
+    }
+    return null;
+  }
+  if(obj.type==='custom'||obj.type==='pave'||obj.type==='deck'){
+    const inside=pointInPoly(x,z,obj.pts), near=polyNear(x,z,obj.pts);
+    if(!inside&&near.d>=clear)return null;
+    let vx=x-near.cx,vz=z-near.cz,L=Math.hypot(vx,vz);
+    if(inside){vx=-vx;vz=-vz;}
+    if(L<.01){vx=1;vz=0;L=1;}
+    return {nx:near.cx+vx/L*clear, nz:near.cz+vz/L*clear};
+  }
+  if(!obj.def||!obj.def.w)return null;
+  const c=Math.cos(-obj.rot),s=Math.sin(-obj.rot),dx=x-obj.x,dz=z-obj.z;
+  const lx=dx*c-dz*s, lz=dx*s+dz*c;
+  const hw=obj.def.w/2+clear, hd=obj.def.d/2+clear;
+  if(Math.abs(lx)>hw||Math.abs(lz)>hd)return null;
+  let nlx=lx,nlz=lz;                                  // out the nearest wall
+  if(hw-Math.abs(lx) < hd-Math.abs(lz)) nlx=(lx<0?-hw:hw); else nlz=(lz<0?-hd:hd);
+  const cc=Math.cos(obj.rot),ss=Math.sin(obj.rot);
+  return {nx:obj.x+nlx*cc-nlz*ss, nz:obj.z+nlx*ss+nlz*cc};
+}
+/* Re-write a bed's instanced matrices from its stored bush list. */
+function layBushes(o){
+  const dm=new THREE.Object3D();
+  o.bushes.forEach((q,i)=>{
+    dm.position.set(q[0],terrainH(q[0],q[1]),q[1]);
+    dm.rotation.set(0,q[3],0); dm.scale.set(q[2]*1.1,q[2],q[2]*1.1); dm.updateMatrix();
+    o.mesh.setMatrixAt(i,dm.matrix);
+  });
+  o.mesh.count=o.bushes.length;
+  o.mesh.instanceMatrix.needsUpdate=true;
+  o.n=o.bushes.length;
+}
+/* Build something over a shrub bed and the bushes shift aside rather than
+   staying buried in it. A bush that cannot be re-sited inside its own bed —
+   pushed into water, off the lot, or out of the planting area — is grubbed
+   out instead, and a bed left with nothing in it is removed. */
+function pushShrubs(obj){
+  const clear=Math.max(0.4,RATES.wClear*0.5);   // bushes need less room than trees
+  let moved=0,cleared=0; const empty=[];
+  placed.forEach(o=>{
+    if(o.type!=='shrub'||o===obj||!o.bushes||!o.bushes.length)return;
+    const keep=[]; let touched=false;
+    o.bushes.forEach(q=>{
+      const t=clearOf(obj,q[0],q[1],clear);
+      if(!t){keep.push(q);return;}
+      touched=true;
+      if(!isWater(t.nx,t.nz)&&inLot(t.nx,t.nz)&&pointInPoly(t.nx,t.nz,o.pts)&&!clearOf(obj,t.nx,t.nz,clear*0.95)){
+        keep.push([t.nx,t.nz,q[2],q[3]]); moved++;
+      } else cleared++;
+    });
+    if(!touched)return;
+    o.bushes=keep; layBushes(o);
+    if(!keep.length)empty.push(o);
+  });
+  empty.forEach(o=>{objGroup.remove(o.mesh);placed.splice(placed.indexOf(o),1);});
+  if(moved||cleared)toast(`${moved} bushes shifted · ${cleared} cleared`);
+}
 function pushTrees(obj){
   const clear=RATES.wClear,core=Math.max(0,Math.min(1,RATES.treeCore/100));
   let moved=0,felled=0;
@@ -2069,7 +2141,7 @@ function place(d,x,z,rot){
   const mesh=buildMesh(d);
   mesh.position.set(x,d.water?0:padY(d,x,z,rot),z);mesh.rotation.y=rot;objGroup.add(mesh);
   const o={type:'obj',def:d,mesh,x,z,rot};placed.push(o);
-  if(d.w&&d.kind!=='dock')pushTrees(o);
+  if(d.w&&d.kind!=='dock'){pushTrees(o);pushShrubs(o);}
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees();refresh();
 }
@@ -2079,7 +2151,7 @@ function placeRoad(d,pts){
   const mesh=roadMesh(pts,width,d.col);objGroup.add(mesh);
   const o={type:'road',def:d,mesh,pts:pts.slice(),width,len:polyLen(pts)};placed.push(o);
   if(styleMode==='diorama')styleObject(mesh);
-  pushTrees(o);syncTrees();refresh();
+  pushTrees(o);pushShrubs(o);syncTrees();refresh();
 }
 function buildCustomMesh(pts,h){
   const shape=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
@@ -2126,7 +2198,7 @@ function placeCustom(pts){
     cost:area*Math.max(1,CUSTOM.storeys)*CUSTOM.rate,
     inr:polyNear(cx,cz,pts).d, x:cx, z:cz, rot:0};
   placed.push(o);
-  pushTrees(o);
+  pushTrees(o); pushShrubs(o);
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees(); refresh();
   toast(`${fmtArea(area)} footprint · ${Math.max(1,CUSTOM.storeys)} storey · ${fmtLen(h,1)} tall · ${money(o.cost)}`);
@@ -2187,6 +2259,7 @@ function placeDeck(pts){
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const o={type:'deck',def:DEF['deck'],mesh,pts:pts.slice(),area,cost:area*DECK_RATE,x:cx,z:cz,rot:0};
   placed.push(o);
+  pushShrubs(o);              // a deck laid over a bed clears the bushes under it
   if(styleMode!=='survey')styleObject(mesh);
   refresh();
   toast(`${fmtArea(area)} deck · ${money(o.cost)}`);
@@ -2259,7 +2332,7 @@ function placePave(pts){
   const o={type:'pave',def:DEF['pave'],mesh,pts:pts.slice(),area,
            cost:area*(RATES.cPave||0),inr:polyNear(cx,cz,pts).d,x:cx,z:cz,rot:0};
   placed.push(o);
-  pushTrees(o);                       // nothing stands in the middle of a car park
+  pushTrees(o);pushShrubs(o);         // nothing stands in the middle of a car park
   if(styleMode!=='survey')styleObject(mesh);
   syncTrees(); refresh();
   toast(`${fmtArea(area)} of pavement · ${money(o.cost)} · about ${Math.max(1,Math.floor(area/28))} cars`);
@@ -2285,24 +2358,26 @@ function placeShrubs(pts){
   const list=[];
   for(let a=0;a<want*14&&list.length<want;a++){
     const x=x0+Math.random()*(x1-x0), z=z0+Math.random()*(z1-z0);
-    if(!pointInPoly(x,z,pts)||isWater(x,z))continue;
+    /* don't seed onto a road or into a building that is already there —
+       the same test regrowing trees use */
+    if(!pointInPoly(x,z,pts)||isWater(x,z)||blockedForTree(x,z))continue;
     list.push([x,z,0.55+Math.random()*0.6,Math.random()*6.283]);
   }
   const im=new THREE.InstancedMesh(BUSH_GEO,treeMat(),Math.max(1,list.length));
   im.castShadow=true;
-  const dm=new THREE.Object3D(), col=new THREE.Color();
+  const col=new THREE.Color();
   list.forEach((q,i)=>{
-    dm.position.set(q[0],terrainH(q[0],q[1]),q[1]);
-    dm.rotation.set(0,q[3],0); dm.scale.set(q[2]*1.1,q[2],q[2]*1.1); dm.updateMatrix();
-    im.setMatrixAt(i,dm.matrix);
     col.setHSL(0.26+Math.random()*0.05,0.34,0.20+Math.random()*0.10);
     im.setColorAt(i,col);
   });
-  im.count=list.length;
   objGroup.add(im);
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
-  placed.push({type:'shrub',def:DEF['shrub'],mesh:im,pts:pts.slice(),area,n:list.length,
-               cost:0,x:cx,z:cz,rot:0});
+  /* bushes is the source of truth for the bed — the matrices are written
+     from it, so anything built over the bed can re-site them later */
+  const o={type:'shrub',def:DEF['shrub'],mesh:im,pts:pts.slice(),area,bushes:list,n:list.length,
+           cost:0,x:cx,z:cz,rot:0};
+  layBushes(o);
+  placed.push(o);
   refresh();
   toast(`${list.length} shrubs over ${fmtArea(area)}`);
 }
@@ -2492,7 +2567,7 @@ addEventListener('pointerup',()=>{
       o.mesh.position.set(o.x,o.def.water?0:padY(o.def,o.x,o.z,o.rot),o.z);
       undoStack.pop();updateUndoBtn();
       toast('Blocked — '+bad[0].m);
-    }else{ pushTrees(o); toast('Moved '+o.def.n); }
+    }else{ pushTrees(o); pushShrubs(o); toast('Moved '+o.def.n); }
     moving=null; setHL(null); syncTrees(); refresh();
     dragging=null;dragStart=null;return;
   }
@@ -3118,7 +3193,7 @@ function setRoadType(o,id){
   o.mesh=roadMesh(o.pts,o.width,d.col);
   objGroup.add(o.mesh);
   if(styleMode!=='survey')styleObject(o.mesh);
-  pushTrees(o); syncTrees();
+  pushTrees(o); pushShrubs(o); syncTrees();
   select(o); refresh();
   toast('Resurfaced as '+d.n.toLowerCase());
 }
