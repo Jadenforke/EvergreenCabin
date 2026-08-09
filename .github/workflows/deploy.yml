@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Investor page must not carry sourcing detail (presentation spec §7.3).
+      # Any blocked term fails the build before anything ships.
+      - name: Pre-publish content check
+        run: bash scripts/check-public-content.sh
+
       - name: Install Wrangler
         run: npm install -g wrangler
 
