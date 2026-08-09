@@ -1113,20 +1113,124 @@ function polyNear(x,z,poly){
     const r=segDist(x,z,a[0],a[1],b[0],b[1]); if(r.d<best.d)best=r;}
   return best;
 }
-const baseYFor=pts=>Math.max(...pts.map(q=>terrainH(q[0],q[1])));
+/* The highest ground anywhere under an outline. Corners alone aren't enough
+   — on broken ground a rise mid-edge or mid-footprint sits above every
+   corner and swallows whatever is standing on it — so this walks the edges
+   and rakes the interior as well. Sample counts are bounded so it stays
+   cheap enough to run on every mouse move while a unit is being dragged. */
+function groundMaxUnder(pts){
+  const xs=pts.map(q=>q[0]),zs=pts.map(q=>q[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
+  let m=-1e9;
+  const at=(x,z)=>{const h=terrainH(x,z); if(h>m)m=h;};
+  pts.forEach(q=>at(q[0],q[1]));
+  const loop=pts.concat([pts[0]]);
+  for(let i=0;i<loop.length-1;i++){                    // along every edge
+    const a=loop[i],b=loop[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    const n=Math.min(64,Math.max(1,Math.ceil(L/1.2)));
+    for(let k=1;k<n;k++)at(a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n);
+  }
+  const st=Math.max(0.8,Math.max(x1-x0,z1-z0)/24);     // and across the inside
+  for(let x=x0;x<=x1;x+=st)for(let z=z0;z<=z1;z+=st)
+    if(pointInPoly(x,z,pts))at(x,z);
+  return m;
+}
+const baseYFor=pts=>groundMaxUnder(pts);
+/* Anything seated on its high point stands proud of the ground everywhere
+   else, and on broken terrain that gap reads as a floating slab. This fills
+   it: a solid band following the outline, from the base down into the
+   terrain. Emitted in the mesh's own local space so it rides along when the
+   unit is moved or rotated. */
+function skirtGeom(worldPts,yTop,org){
+  const ox=org?org.x:0, oz=org?org.z:0, rot=org?(org.rot||0):0;
+  const c=Math.cos(-rot), s=Math.sin(-rot);
+  const local=(x,z)=>{const dx=x-ox,dz=z-oz;return [dx*c-dz*s,dx*s+dz*c];};
+  const loop=worldPts.concat([worldPts[0]]);
+  const pos=[]; let deepest=0;
+  for(let i=0;i<loop.length-1;i++){
+    const a=loop[i],b=loop[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    const n=Math.min(80,Math.max(1,Math.ceil(L/1.2)));
+    for(let k=0;k<n;k++){
+      const wa=[a[0]+(b[0]-a[0])*k/n, a[1]+(b[1]-a[1])*k/n];
+      const wb=[a[0]+(b[0]-a[0])*(k+1)/n, a[1]+(b[1]-a[1])*(k+1)/n];
+      /* 0.3 m below grade so the foot is buried, never hovering a hair
+         above the terrain it is meant to meet */
+      const ga=Math.min(0,terrainH(wa[0],wa[1])-yTop-0.3);
+      const gb=Math.min(0,terrainH(wb[0],wb[1])-yTop-0.3);
+      deepest=Math.min(deepest,ga,gb);
+      const la=local(wa[0],wa[1]), lb=local(wb[0],wb[1]);
+      pos.push(la[0],ga,la[1], lb[0],gb,lb[1], la[0],0,la[1]);
+      pos.push(lb[0],gb,lb[1], lb[0],0,lb[1],  la[0],0,la[1]);
+    }
+  }
+  if(!pos.length||deepest>-0.05)return null;      // flat ground needs no fill
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.computeVertexNormals();
+  return g;
+}
+function setSkirt(mesh,worldPts,yTop,org,col){
+  const old=mesh.getObjectByName('__skirt');
+  if(old){mesh.remove(old);old.geometry.dispose();old.material.dispose();}
+  const g=skirtGeom(worldPts,yTop,org); if(!g)return;
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial(
+    {color:col,roughness:.95,side:THREE.DoubleSide}));
+  m.name='__skirt'; m.castShadow=m.receiveShadow=true; mesh.add(m);
+}
+/* Seat one placed thing on the ground and refresh its fill. Every type sits
+   differently — roads and pavement drape, shrub matrices are already in
+   world space, decks and buildings stand on their high point — and getting
+   that wrong is what used to bury a deck after the land was rebuilt. One
+   function owns it so placement, moving and a rebuild can't disagree. */
+function fitGround(o){
+  if(o.type==='road'){
+    objGroup.remove(o.mesh); o.mesh=roadMesh(o.pts,o.width,o.def.col);
+    objGroup.add(o.mesh); if(styleMode==='diorama')styleObject(o.mesh); return;
+  }
+  if(o.type==='pave'){                       // vertices are draped in world space
+    objGroup.remove(o.mesh); o.mesh=buildPaveMesh(o.pts);
+    objGroup.add(o.mesh); if(styleMode!=='survey')styleObject(o.mesh); return;
+  }
+  if(o.type==='shrub'){ layBushes(o); return; }        // matrices are world space
+  if(o.type==='deck'){
+    const y=groundMaxUnder(o.pts)+0.15;
+    o.mesh.position.y=y; setSkirt(o.mesh,o.pts,y,null,0x6d5a45); return;
+  }
+  if(o.type==='custom'){
+    const y=groundMaxUnder(o.pts);
+    o.mesh.position.y=y; setSkirt(o.mesh,o.pts,y,null,0x8d7f68); return;
+  }
+  if(o.def.water){ o.mesh.position.y=0; return; }
+  const y=seatY(o.def,o.x,o.z,o.rot);
+  o.mesh.position.y=y;
+  /* Standing on a deck it already has a flat floor under it, so the fill is
+     only for units sitting straight on the ground. */
+  const onDeck=deckTopUnder(o.def,o.x,o.z)>padY(o.def,o.x,o.z,o.rot);
+  if(o.def.w&&o.def.kind!=='pad'&&!onDeck)
+    setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459);
+  else if(onDeck)setSkirt(o.mesh,[],y,null,0);      // clears any stale fill
+}
 /* On a slope, sampling only the centre buries the uphill corner. Sit the
    unit on the highest ground under its footprint so it never sinks in. */
 function padY(def,x,z,rot){
   if(!def||!def.w)return terrainH(x,z);
-  const c=Math.cos(rot||0),si=Math.sin(rot||0),hw=def.w/2,hd=def.d/2;
-  let y=terrainH(x,z);
-  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){
-    const lx=a*hw,lz=b*hd;
-    const h=terrainH(x+lx*c-lz*si, z+lx*si+lz*c);
-    if(h>y)y=h;
+  return groundMaxUnder(corners(def,x,z,rot||0));
+}
+/* A deck is a platform, so anything standing on one belongs on its surface
+   rather than on the ground underneath. Returns -Infinity when the unit
+   isn't over a deck at all, so it drops out of the Math.max below. */
+function deckTopUnder(def,x,z,rot){
+  const cs=(def&&def.w)?corners(def,x,z,rot||0):[];
+  let y=-Infinity;
+  for(const p of placed){
+    if(p.type!=='deck')continue;
+    if(pointInPoly(x,z,p.pts)||cs.some(c=>pointInPoly(c[0],c[1],p.pts)))
+      y=Math.max(y,p.mesh.position.y+0.22);          // 0.22 = deck plank thickness
   }
   return y;
 }
+const seatY=(def,x,z,rot)=>
+  (def&&def.water)?0:Math.max(padY(def,x,z,rot),deckTopUnder(def,x,z,rot));
 function readInputs(){
   FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;
   FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;
@@ -2179,8 +2283,9 @@ function place(d,x,z,rot){
     syncTrees();tallyPlant(d.sp);refresh();return;
   }
   const mesh=buildMesh(d);
-  mesh.position.set(x,d.water?0:padY(d,x,z,rot),z);mesh.rotation.y=rot;objGroup.add(mesh);
+  mesh.position.set(x,0,z);mesh.rotation.y=rot;objGroup.add(mesh);
   const o={type:'obj',def:d,mesh,x,z,rot};placed.push(o);
+  fitGround(o);
   if(d.w&&d.kind!=='dock'){pushTrees(o);pushShrubs(o);}
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees();refresh();
@@ -2232,12 +2337,12 @@ function placeCustom(pts){
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const h=CUSTOM.h*Math.max(1,CUSTOM.storeys);
   const mesh=buildCustomMesh(pts,h);
-  mesh.position.y=baseYFor(pts);
   objGroup.add(mesh);
   const o={type:'custom',def:CUSTOMDEF,mesh,pts:pts.slice(),area,h,
     cost:area*Math.max(1,CUSTOM.storeys)*CUSTOM.rate,
     inr:polyNear(cx,cz,pts).d, x:cx, z:cz, rot:0};
   placed.push(o);
+  fitGround(o);
   pushTrees(o); pushShrubs(o);
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees(); refresh();
@@ -2257,36 +2362,7 @@ function buildDeckMesh(pts,y){
   grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
     loop.map(q=>new THREE.Vector3(q[0],0.235,q[1]))),
     new THREE.LineBasicMaterial({color:0x5b4a38})));
-  /* short posts down to grade around the edge, so a deck standing proud of
-     uneven ground reads as built rather than hovering */
-  const post=new THREE.MeshStandardMaterial({color:0x4a3b2c,roughness:.95});
-  for(let i=0;i<loop.length-1;i++){
-    const a=loop[i],b2=loop[i+1], seg=Math.hypot(b2[0]-a[0],b2[1]-a[1]);
-    const n=Math.max(1,Math.round(seg/2.6));
-    for(let k=0;k<n;k++){
-      const t=(k+0.5)/n, px=a[0]+(b2[0]-a[0])*t, pz=a[1]+(b2[1]-a[1])*t;
-      const drop=y-terrainH(px,pz)+0.1;
-      if(drop<=0.12)continue;
-      const c=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,drop,6),post);
-      c.position.set(px,-drop/2,pz); c.castShadow=true; grp.add(c);
-    }
-  }
   return grp;
-}
-/* The corners are not the high point. On broken ground the middle of a
-   footprint can sit above every corner, which buried the deck in the terrain,
-   so sample right across the outline and then stand clear of it. */
-function groundMaxUnder(pts){
-  const xs=pts.map(q=>q[0]),zs=pts.map(q=>q[1]);
-  const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
-  const st=Math.max(0.6,Math.min(x1-x0,z1-z0)/12);
-  let m=-1e9;
-  pts.forEach(q=>{const h=terrainH(q[0],q[1]); if(h>m)m=h;});
-  for(let x=x0;x<=x1;x+=st)for(let z=z0;z<=z1;z+=st){
-    if(!pointInPoly(x,z,pts))continue;
-    const h=terrainH(x,z); if(h>m)m=h;
-  }
-  return m;
 }
 function placeDeck(pts){
   if(pts.length<3){toast('Need at least three corners');return;}
@@ -2294,11 +2370,11 @@ function placeDeck(pts){
   if(area<2){toast('That deck is too small');return;}
   if(pts.some(q=>isWater(q[0],q[1]))){toast('Blocked — part of the deck is in the water');return;}
   pushUndo('draw deck');
-  const y=groundMaxUnder(pts)+0.15;               // stand clear of the high point
-  const mesh=buildDeckMesh(pts,y); mesh.position.y=y; objGroup.add(mesh);
+  const mesh=buildDeckMesh(pts,groundMaxUnder(pts)+0.15); objGroup.add(mesh);
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const o={type:'deck',def:DEF['deck'],mesh,pts:pts.slice(),area,cost:area*DECK_RATE,x:cx,z:cz,rot:0};
   placed.push(o);
+  fitGround(o);                // seats it on the high point and fills underneath
   pushShrubs(o);              // a deck laid over a bed clears the bushes under it
   if(styleMode!=='survey')styleObject(mesh);
   refresh();
@@ -2558,7 +2634,7 @@ renderer.domElement.addEventListener('pointermove',e=>{
     const d=moving.o.def;
     if(d.kind==='dock'||d.join){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
-    moving.o.mesh.position.set(nx,d.water?0:padY(d,nx,nz,moving.o.rot),nz);
+    moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot),nz);
     setHL(moving.o,HL.moving);
     const bad=validate(d,nx,nz,moving.o.rot,moving.o).filter(i=>!i.soft);
     hint(bad.length?'\u2715 '+bad[0].m:`${d.n} \u00b7 drop to place`,!!bad.length,!bad.length);
@@ -2604,10 +2680,10 @@ addEventListener('pointerup',()=>{
     if(bad.length){                                   // illegal drop — put it back
       o.x=moving.sx;o.z=moving.sz;o.rot=moving.srot;
       o.mesh.rotation.y=o.rot;
-      o.mesh.position.set(o.x,o.def.water?0:padY(o.def,o.x,o.z,o.rot),o.z);
+      o.mesh.position.set(o.x,0,o.z); fitGround(o);
       undoStack.pop();updateUndoBtn();
       toast('Blocked — '+bad[0].m);
-    }else{ pushTrees(o); pushShrubs(o); toast('Moved '+o.def.n); }
+    }else{ fitGround(o); pushTrees(o); pushShrubs(o); toast('Moved '+o.def.n); }
     moving=null; setHL(null); syncTrees(); refresh();
     dragging=null;dragStart=null;return;
   }
@@ -2641,7 +2717,7 @@ renderer.domElement.addEventListener('pointerdown',e=>{
     if(moving){                                    // and cancels a move in progress
       const o=moving.o;o.x=moving.sx;o.z=moving.sz;o.rot=moving.srot;
       o.mesh.rotation.y=o.rot;
-      o.mesh.position.set(o.x,o.def.water?0:padY(o.def,o.x,o.z,o.rot),o.z);
+      o.mesh.position.set(o.x,0,o.z); fitGround(o);
       undoStack.pop();updateUndoBtn();moving=null;setHL(null);
     }
   }
@@ -2728,7 +2804,7 @@ function updateGhost(e){
     const y=terrainH(x,z);
     if(d.kind==='dock'||d.join){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
-    else ghost.position.set(x,d.water?0:padY(d,x,z,ghostRot),z);
+    else ghost.position.set(x,seatY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
     tint(bad.length);
     if(bad.length)hint('✕ '+bad[0].m,true);
@@ -2902,13 +2978,10 @@ addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
 function rebuildLand(){
   readLand();
   buildTerrain();
-  // re-seat everything on the new ground
-  placed.forEach(o=>{
-    if(o.type==='road'){objGroup.remove(o.mesh);o.mesh=roadMesh(o.pts,o.width,o.def.col);objGroup.add(o.mesh);
-      if(styleMode==='diorama')styleObject(o.mesh);}
-    else if(o.type==='custom')o.mesh.position.y=baseYFor(o.pts);
-    else o.mesh.position.y=o.def.water?0:padY(o.def,o.x,o.z,o.rot);
-  });
+  /* decks first: a unit standing on one is seated off the deck surface, so
+     the deck has to know its own height before the unit asks for it */
+  placed.forEach(o=>{if(o.type!=='obj')fitGround(o);});
+  placed.forEach(o=>{if(o.type==='obj')fitGround(o);});
   syncTrees();refresh();
 }
 /* every number input that holds a LENGTH, with its base label text.
@@ -3335,16 +3408,22 @@ function applyState(d,keepUnder){
       else if(i.t==='pave')placePave(i.pts);
       else if(i.t==='shrub')placeShrubs(i.pts);
       else if(i.t==='custom'){
-        const mesh=buildCustomMesh(i.pts,i.h); mesh.position.y=baseYFor(i.pts); objGroup.add(mesh);
+        const mesh=buildCustomMesh(i.pts,i.h); objGroup.add(mesh);
         const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
-        placed.push({type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,
+        const co={type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,
           cost:i.free?0:i.cost,free:!!i.free,
-          inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0});
+          inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0};
+        placed.push(co); fitGround(co);
       }
       else{const def=DEF[i.id];if(!def)return;
-        const mesh=buildMesh(def);mesh.position.set(i.x,def.water?0:padY(def,i.x,i.z,i.rot),i.z);mesh.rotation.y=i.rot;
-        objGroup.add(mesh);placed.push({type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot});}
+        const mesh=buildMesh(def);mesh.position.set(i.x,0,i.z);mesh.rotation.y=i.rot;
+        objGroup.add(mesh);
+        const io={type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot};
+        placed.push(io); fitGround(io);}
     });
+    /* Re-seat the units once everything is down: a unit listed before the
+       deck it stands on had no deck to sit on the first time round. */
+    placed.forEach(o=>{if(o.type==='obj')fitGround(o);});
     for(const k in plantTally)delete plantTally[k];
     Object.assign(plantTally,d.plantTally||{});
     (d.extras||[]).forEach(c=>{if(c.label!=='Planting')extras.push(c);});
