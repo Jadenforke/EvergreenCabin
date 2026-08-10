@@ -343,6 +343,52 @@ const fmtSpan = m => UNITS==='m' ? `${m.toFixed(1)} m · ${fmtFtIn(m)}` : `${fmt
    lines are about a third the width. Text-only contexts (hint, toast) keep
    the single-line form above. */
 const spanLines = m => UNITS==='m' ? [`${m.toFixed(1)} m`, fmtFtIn(m)] : [fmtFtIn(m), `${m.toFixed(1)} m`];
+/* Enclosed area, both systems, stacked like the leg labels. Square feet stop
+   being readable somewhere around a quarter acre — nobody pictures 40,000 ft²
+   — so past that each system swaps to its big unit. */
+const ACRE=4046.8564;
+function areaLines(m2){
+  const big = m2 >= ACRE/4;
+  const imp = big ? `${(m2/ACRE).toFixed(2)} ac`
+                  : `${Math.round(m2*M2SQFT).toLocaleString()} ft\u00b2`;
+  const met = big ? `${(m2/1e4).toFixed(2)} ha`
+                  : `${Math.round(m2).toLocaleString()} m\u00b2`;
+  return UNITS==='m' ? [met,imp] : [imp,met];
+}
+const fmtAreaBoth = m2 => areaLines(m2).join(' \u00b7 ');
+/* Where to hang the area label. The area-weighted centroid is the natural
+   middle, but on an L or a crescent it lands outside the shape — so when it
+   does, fall back to the interior sample furthest from any edge. */
+function polyMid(pts){
+  let a=0,cx=0,cz=0;
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i],q=pts[(i+1)%pts.length], f=p[0]*q[1]-q[0]*p[1];
+    a+=f; cx+=(p[0]+q[0])*f; cz+=(p[1]+q[1])*f;
+  }
+  if(Math.abs(a)>1e-6){
+    cx/=(3*a); cz/=(3*a);
+    if(pointInPoly(cx,cz,pts))return [cx,cz];
+  }
+  const xs=pts.map(q=>q[0]), zs=pts.map(q=>q[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
+  const st=Math.max(0.5,Math.max(x1-x0,z1-z0)/40);
+  const edgeDist=(x,z)=>{
+    let d=1e9;
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i],q=pts[(i+1)%pts.length];
+      const dx=q[0]-p[0],dz=q[1]-p[1], L2=dx*dx+dz*dz;
+      let t=L2?((x-p[0])*dx+(z-p[1])*dz)/L2:0; t=Math.max(0,Math.min(1,t));
+      d=Math.min(d,Math.hypot(x-(p[0]+t*dx), z-(p[1]+t*dz)));
+    }
+    return d;
+  };
+  let best=[(x0+x1)/2,(z0+z1)/2], bd=-1;
+  for(let x=x0;x<=x1;x+=st)for(let z=z0;z<=z1;z+=st){
+    if(!pointInPoly(x,z,pts))continue;
+    const d=edgeDist(x,z); if(d>bd){bd=d;best=[x,z];}
+  }
+  return best;
+}
 
 /* ---------------- land parameters ---------------- */
 const LAND={ex:640,ez:560,res:2.5,depth:4.5,bank:1.6,beach:9,relief:2.6,slope:0.018,cont:1,seed:7};
@@ -2069,7 +2115,7 @@ function setTool(t,id){
       :d.kind==='pen'?`Pen &mdash; ${d.n}: click each corner · click the first point (or Enter) to close · Backspace undoes · Esc cancels`.replace(/&mdash;/,'\u2014')
       :d.kind==='plant'?`Click to plant ${d.n}`
       :'Click to place · R rotates 5° (Alt+R 1°, Shift+R back) · Shift snaps to 1 m');
-  }else if(t==='measure')hint('Click point to point to measure · every leg is labelled and the total runs as you go · Enter finishes · Esc clears');
+  }else if(t==='measure')hint('Click point to point to measure · every leg is labelled and the total runs as you go · click the first point to close a loop and read its area · Enter finishes · Esc clears');
   else if(t==='erase')hint('Click any unit, road, building or tree to remove it \u00b7 Esc leaves erase mode');
   else if(t==='move')hint('Drag any placed unit to reposition it \u00b7 it snaps and re-checks the rules on drop \u00b7 Esc leaves move mode');
   else{select(null);hint('Pick something from the catalogue');}
@@ -2108,7 +2154,7 @@ const tint=bad=>{const p=ghost&&ghost.getObjectByName('pad');if(p)p.material.col
 const cancelRoad=()=>{roadPts=[];if(roadPrev){scene.remove(roadPrev);roadPrev=null;}};
 const measTags=new THREE.Group(); scene.add(measTags);
 const measGroup=new THREE.Group(); scene.add(measGroup);
-let measDone=false;
+let measDone=false, measClosed=false;
 function clearMeasTags(){
   for(let i=measTags.children.length-1;i>=0;i--){
     const t=measTags.children[i]; measTags.remove(t);
@@ -2119,7 +2165,7 @@ function clearMeasTags(){
     if(m.geometry)m.geometry.dispose(); if(m.material)m.material.dispose();
   }
 }
-const clearMeasure=()=>{measurePts=[];measDone=false;clearMeasTags();
+const clearMeasure=()=>{measurePts=[];measDone=false;measClosed=false;clearMeasTags();
   if(measureLine){scene.remove(measureLine);measureLine=null;}};
 function cancelTrace(){if(trace&&trace.line)scene.remove(trace.line);trace=null;}
 /* ---------------- pen tool (custom footprint, measured in feet) ---------------- */
@@ -2810,7 +2856,7 @@ function updateGhost(e){
     if(bad.length)hint('✕ '+bad[0].m,true);
     else if(iss.length)hint('⚠ '+iss[0].m,false,true);
     else hint(`${d.n}${d.w?` · ${dimOf(d)}`:''} · ${money(unitCost(d))} · ${fmtLen(y,1)} elev`);
-  }else if(tool==='measure'&&measurePts.length&&!measDone){
+  }else if(tool==='measure'&&measurePts.length&&!measDone&&!measClosed){
     const live=measurePts.concat([[x,z]]);
     drawMeasure(live);
     hint(`${fmtSpan(measureTotal(live))} total · click to add a point · Enter finishes · Esc clears`,false,true);
@@ -2827,23 +2873,50 @@ function drawMeasure(pts){
     m.position.set(q[0],yOf(q[0],q[1]),q[1]); measGroup.add(m);
   });
   if(pts.length<2)return;
-  measureLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(
-    pts.map(p=>new THREE.Vector3(p[0],yOf(p[0],p[1]),p[1]))),
+  const closed = measClosed && pts.length>=3;
+  const v=pts.map(p=>new THREE.Vector3(p[0],yOf(p[0],p[1]),p[1]));
+  if(closed)v.push(v[0].clone());
+  measureLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(v),
     new THREE.LineBasicMaterial({color:0xff7a2f}));
   scene.add(measureLine);
+
+  if(closed){                                           // shade what was enclosed
+    /* Draped, not floated: a flat plate would hang in the air over the low
+       side of any slope. Same path the pavement pads take. */
+    const sh=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
+    let g=new THREE.ShapeGeometry(sh);
+    g.rotateX(-Math.PI/2);
+    if(g.index)g=g.toNonIndexed();
+    const xs=pts.map(q=>q[0]),zs=pts.map(q=>q[1]);
+    const span=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...zs)-Math.min(...zs));
+    subdivideToGround(g,Math.max(2,Math.min(6,span/12)));
+    const pa=g.attributes.position.array;
+    for(let i=0;i<pa.length;i+=3)pa[i+1]=terrainH(pa[i],pa[i+2])+0.12;
+    measGroup.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({
+      color:0xff7a2f,transparent:true,opacity:0.16,depthWrite:false,side:THREE.DoubleSide})));
+  }
+
   let total=0;
-  for(let i=0;i<pts.length-1;i++){
-    const a=pts[i],b=pts[i+1], L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  const legs = closed?pts.length:pts.length-1;
+  for(let i=0;i<legs;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length], L=Math.hypot(b[0]-a[0],b[1]-a[1]);
     total+=L;
     if(L<0.6)continue;
     const mx=(a[0]+b[0])/2,mz=(a[1]+b[1])/2;
     const t=makeTag(spanLines(L)); t.position.set(mx,yOf(mx,mz)+2.2,mz); measTags.add(t);
   }
-  if(pts.length>2){                                     // running total at the far end
+  if(pts.length>2){                    // running total, or the perimeter once closed
     const e=pts[pts.length-1];
     const tl=spanLines(total);
-    const t=makeTag(['total '+tl[0],tl[1]],'#ffd166');
+    const t=makeTag([(closed?'perimeter ':'total ')+tl[0],tl[1]],'#ffd166');
     t.position.set(e[0],yOf(e[0],e[1])+5.4,e[1]); measTags.add(t);
+  }
+  if(closed){                                           // the answer, in the middle
+    const area=polyArea(pts);
+    const [cx,cz]=polyMid(pts);
+    const al=areaLines(area);
+    const t=makeTag(['area '+al[0],al[1]],'#6fdc8c');
+    t.position.set(cx,yOf(cx,cz)+4.6,cz); measTags.add(t);
   }
   return total;
 }
@@ -2920,11 +2993,22 @@ renderer.domElement.addEventListener('click',e=>{
   }
   if(tool==='measure'){
     if(measDone){clearMeasure();}                        // a finished run: start a new one
+    if(measurePts.length>=3){                            // click the first pip to close
+      const f=measurePts[0];
+      const grab=viewMode==='plan'?Math.max(1.5,ctrl.orthoSize*0.022):Math.max(1.5,ctrl.radius*0.016);
+      if(Math.hypot(x-f[0],z-f[1])<grab){
+        measClosed=true; measDone=true; drawMeasure(measurePts);
+        toast(`Enclosed ${fmtAreaBoth(polyArea(measurePts))}`);
+        hint('Area held · click anywhere to start a new measurement · Esc clears');
+        return;
+      }
+    }
     measurePts.push([x,z]);
     drawMeasure(measurePts);
     const n=measurePts.length;
     hint(n<2?'Click the next point'
-      :`${n-1} leg${n>2?'s':''} · total ${fmtSpan(measureTotal(measurePts))} · Enter finishes · Esc clears`,false,true);
+      :n<3?`1 leg · ${fmtSpan(measureTotal(measurePts))} · Enter finishes · Esc clears`
+      :`${n-1} legs · total ${fmtSpan(measureTotal(measurePts))} · click the first point to close and read the area · Enter finishes · Esc clears`,false,true);
     return;
   }
   select(pickObj(e));
@@ -3254,6 +3338,7 @@ function setUnits(u){
   $('btnUnits').textContent='Units: '+(UNITS==='m'?'m':'ft');
   buildPalette(); buildPricing(); updateScaleBar(); buildOverlays(); refresh();
   if(pen)penDraw();
+  if(measurePts.length)drawMeasure(measurePts);   // leg, perimeter and area labels
   toast('Units: '+(UNITS==='m'?'metres':'feet'));
 }
 $('btnUnits').onclick=()=>setUnits(UNITS==='m'?'ft':'m');
