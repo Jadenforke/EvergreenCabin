@@ -13,26 +13,26 @@
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 /* ── tokens ─────────────────────────────────────────────────────────────
-   Layout, type and spacing follow the reference development site: white
-   and cream bands, a book serif for headings, Inter for everything else,
-   one red accent reserved for actions. */
+   Layout follows the client mockup: warm off-white ground, a light serif
+   for display, tiny letter-spaced eyebrows, and the logo green as the one
+   accent. Data stays real — the mockup's placeholder numbers do not ship. */
 :root{
-  --paper:#FFFFFF;
-  --cream:#F7F3EB;
-  --ink:#1C1C1C;
-  --body:#414141;
-  --muted:#767676;
-  --rule:#E3DFD8;
-  --rule-lt:#EFECE6;
-  --accent:#0A3D05;   /* the logo green */
-  --black:#000000;
-  --grey:#F2F1EE;
-  --dark:#1A1A1A;
-  --rule-dk:rgba(255,255,255,.18);
+  --paper:#FBFAF6;
+  --card:#FFFFFF;
+  --cream:#F3EFE7;
+  --ink:#22201B;
+  --body:#4A463F;
+  --muted:#8A857A;
+  --rule:#E7E2D8;
+  --rule-lt:#EFEBE2;
+  --accent:#0A3D05;
+  --accent-dk:#062A03;
+  --dark:#101B10;
+  --rule-dk:rgba(255,255,255,.16);
   --gutter:clamp(1.15rem,3.6vw,4rem);
   --maxw:1400px;
-  --pad:clamp(2.8rem,5.5vw,4.8rem);
-  --hdr:114px;            /* utility bar 44 + project bar 70 */
+  --pad:clamp(3rem,6vw,5.2rem);
+  --hdr:78px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -45,168 +45,153 @@ button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 /* type roles */
-.disp{font-family:'Source Serif 4',Georgia,serif;font-weight:400;color:var(--ink);
-  letter-spacing:-.005em;line-height:1.18}
-h1.disp{font-size:clamp(1.95rem,3.4vw,2.62rem)}
-h2.disp{font-size:clamp(1.6rem,2.5vw,1.95rem);line-height:1.22}
+.disp{font-family:'Source Serif 4',Georgia,serif;font-weight:300;color:var(--ink);
+  letter-spacing:.002em;line-height:1.22}
+h1.disp{font-size:clamp(1.95rem,3.4vw,2.7rem)}
+h2.disp{font-size:clamp(1.55rem,2.5vw,2.05rem)}
 h3.disp{font-size:1.2rem;line-height:1.3}
-.eye{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+.eye{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);
   font-weight:500}
-.lead{font-size:15px;line-height:1.7;max-width:52ch;color:var(--body)}
+.lead{font-size:15px;line-height:1.75;max-width:52ch;color:var(--body)}
 .prose{max-width:60ch}
 .prose p+p{margin-top:1.1em}
-.smallprint{font-size:11.5px;letter-spacing:.02em;color:var(--muted);line-height:1.6}
+.smallprint{font-size:11.5px;letter-spacing:.02em;color:var(--muted);line-height:1.65}
 .num{font-variant-numeric:tabular-nums}
+.center{text-align:center}
+.center .lead{margin-inline:auto}
 
 .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
 .sect{padding-block:var(--pad)}
 .on-cream{background:var(--cream)}
-.on-dark{background:var(--black);color:#EDEDED}
+.on-dark{background:var(--dark);color:#EDEBE4}
 .on-dark .disp,.on-dark h1,.on-dark h2,.on-dark h3{color:#fff}
 .on-dark .eye{color:rgba(255,255,255,.6)}
 .on-dark .lead,.on-dark p{color:rgba(255,255,255,.78)}
-.on-dark .smallprint,.on-dark .crumbs,.on-dark .crumbs a,
-.on-dark form.req label{color:rgba(255,255,255,.65)}
-.on-dark table.data th{color:rgba(255,255,255,.6);border-color:var(--rule-dk)}
-.on-dark table.data td{color:rgba(255,255,255,.8);border-color:var(--rule-dk)}
-.on-dark table.data td a{color:#fff}
-.on-dark dl.spec dt{color:rgba(255,255,255,.6);border-color:var(--rule-dk)}
-.on-dark dl.spec dd{color:rgba(255,255,255,.82);border-color:var(--rule-dk)}
-.on-dark .btn{border-color:#fff;color:#fff}
-.on-dark .btn:hover{background:#fff;color:var(--ink)}
-.on-dark .btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
-.on-dark .btn.solid:hover{background:#fff;border-color:#fff;color:var(--ink)}
 hr.rule{border:0;border-top:1px solid var(--rule);margin:0}
 
-/* buttons and links */
-.btn{display:inline-flex;align-items:center;gap:.6em;font-size:10.5px;font-weight:600;
-  letter-spacing:.13em;text-transform:uppercase;text-decoration:none;
-  padding:11px 17px;border:1px solid var(--accent);background:transparent;
-  color:var(--accent);cursor:pointer;transition:background .18s,color .18s}
-.btn::after{content:"";width:0;height:0;border-left:5px solid currentColor;
-  border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
-.btn:hover{background:var(--accent);color:#fff}
+/* buttons + text links */
+.btn{display:inline-flex;align-items:center;gap:.7em;font-size:10.5px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;text-decoration:none;
+  padding:13px 22px;border:1px solid var(--accent);background:var(--accent);
+  color:#fff;cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.btn:hover{background:var(--accent-dk);border-color:var(--accent-dk)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent);color:#fff}
 .btn.solid{background:var(--accent);color:#fff}
-.btn.solid:hover{background:#061F03;border-color:#061F03}
+.btn.solid:hover{background:var(--accent-dk);border-color:var(--accent-dk)}
+.alink{display:inline-flex;align-items:center;gap:.6em;font-size:10.5px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+.alink::after{content:"\2192";font-size:13px;transition:transform .2s}
+.alink:hover{color:var(--accent)}
+.alink:hover::after{transform:translateX(4px)}
 .tlink{display:inline-block;font-weight:600;color:var(--ink);text-decoration:none;
   border-bottom:1.5px solid var(--ink);padding-bottom:2px;font-size:13.5px}
 .tlink:hover{color:var(--accent);border-color:var(--accent)}
 .on-dark .tlink{color:#fff;border-color:#fff}
+.on-dark .btn{border-color:#fff;background:transparent;color:#fff}
+.on-dark .btn:hover{background:#fff;color:var(--ink)}
+.on-dark .btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
+.on-dark .btn.solid:hover{background:#fff;border-color:#fff;color:var(--ink)}
 
-/* ── header: utility bar over a sticky project bar ───────────────────── */
-.util{background:var(--black);color:#EDEDED}
-.util .wrap{display:flex;align-items:center;justify-content:space-between;height:44px;gap:1rem}
-.util .owner{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(255,255,255,.72);text-decoration:none}
-.utilr{display:flex;align-items:center;gap:1.4rem}
-.utilr a{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
-  text-decoration:none;color:rgba(255,255,255,.78)}
-.utilr a:hover{color:#fff}
-.utilr a.boxed{border:1px solid rgba(255,255,255,.55);padding:7px 13px}
-.utilr a.boxed:hover{background:#fff;color:var(--black)}
-@media(max-width:820px){.utilr .hideS{display:none}}
-
+/* ── header ──────────────────────────────────────────────────────────── */
 header{position:sticky;top:0;z-index:60;background:var(--paper);
   border-bottom:1px solid var(--rule)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:70px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  height:var(--hdr)}
 .brand{display:flex;align-items:center;text-decoration:none;color:var(--ink);flex:0 0 auto}
-.brand img{height:clamp(27px,3.5vw,38px);width:auto}
-@media(max-width:420px){.brand img{height:25px}}
-.navlinks{display:flex;align-items:center;gap:clamp(1rem,2.6vw,2.3rem)}
-.navlinks a{font-size:13px;text-decoration:none;color:var(--ink);padding:6px 0;
-  border-bottom:2px solid transparent}
+.brand img{height:clamp(26px,3.2vw,36px);width:auto}
+@media(max-width:420px){.brand img{height:24px}}
+.navlinks{display:flex;align-items:center;gap:clamp(1rem,2.3vw,2.1rem)}
+.navlinks a{font-size:10.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink);padding:6px 0;border-bottom:2px solid transparent}
 .navlinks a:hover{color:var(--accent)}
-.navlinks a.on{border-bottom-color:var(--accent)}
+.navlinks a.on{border-bottom-color:var(--accent);color:var(--accent)}
+.navlinks a.btn{padding:11px 18px;border-bottom:1px solid var(--accent);color:#fff}
+.navlinks a.btn:hover{color:#fff}
 .navtoggle{display:none;background:none;border:0;padding:8px;cursor:pointer;color:var(--ink)}
-@media(max-width:940px){
+@media(max-width:960px){
   .navtoggle{display:block}
   .navlinks{position:absolute;top:100%;left:0;right:0;background:var(--paper);
     border-bottom:1px solid var(--rule);flex-direction:column;align-items:stretch;gap:0;
-    padding-bottom:.7rem;z-index:59;opacity:0;visibility:hidden;transform:translateY(-8px);
+    padding-bottom:1rem;z-index:59;opacity:0;visibility:hidden;transform:translateY(-8px);
     transition:opacity .22s,transform .22s,visibility .22s;
     box-shadow:0 14px 26px rgba(0,0,0,.07)}
   .navlinks.open{opacity:1;visibility:visible;transform:none}
-  .navlinks a{font-size:15px;padding:.85rem var(--gutter);border-bottom:0;
+  .navlinks a{font-size:12px;padding:.95rem var(--gutter);border-bottom:0;
     border-top:1px solid var(--rule-lt)}
   .navlinks a.on{color:var(--accent)}
+  .navlinks a.btn{margin:1rem var(--gutter) 0;padding:12px 18px;text-align:center;
+    justify-content:center;display:inline-flex}
 }
 
-/* ── hero: full-bleed media, copy overlaid ───────────────────────────── */
-.hero{position:relative;min-height:calc(100dvh - var(--hdr));display:flex;
-  flex-direction:column;justify-content:flex-end;background:#0A0D0B;overflow:hidden}
+/* ── hero: full-bleed media, copy lower-left ─────────────────────────── */
+.hero{position:relative;min-height:calc(100svh - var(--hdr));display:flex;
+  flex-direction:column;justify-content:flex-end;background:#101510;overflow:hidden}
 .hero-media{position:absolute;inset:0}
 .hero-media img,.hero-media video{width:100%;height:100%;object-fit:cover;display:block}
-.hero-media .ph{height:100%;aspect-ratio:auto;border:0;background:#12160f;
+.hero-media .ph{height:100%;aspect-ratio:auto;border:0;background:#141a13;
   color:rgba(255,255,255,.6);justify-content:flex-start;padding-top:22vh}
 .hero-media .ph b{color:#fff}
 .hero-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(
-  to top,rgba(8,12,10,.88) 0%,rgba(8,12,10,.58) 30%,rgba(8,12,10,.14) 62%,rgba(8,12,10,.38) 100%)}
-.hero-inner{position:relative;padding-block:clamp(2rem,7vh,4.5rem) clamp(1.4rem,4vh,2.6rem)}
-.hero .eye{color:rgba(255,255,255,.8)}
-.hero h1{color:#fff;margin:1rem 0 1.2rem;max-width:16ch;
-  font-size:clamp(2.35rem,4.9vw,4.15rem);text-wrap:balance}
-.hero .sub{color:rgba(255,255,255,.87);max-width:46ch;font-size:15.5px;margin:0 0 2rem}
-.hero-cta{display:flex;flex-wrap:wrap;gap:1.1rem 1.6rem;align-items:center}
-.hero-cta .btn.solid{background:#fff;border-color:#fff;color:var(--accent)}
-.hero-cta .btn.solid:hover{background:transparent;border-color:#fff;color:#fff}
-.hero-cta .tlink{color:#fff;border-color:rgba(255,255,255,.7)}
-.hero-cta .tlink:hover{color:#fff;border-color:#fff}
-.playbtn{position:absolute;right:var(--gutter);bottom:calc(100% + 1.4rem);
-  width:58px;height:58px;border-radius:50%;
+  to top,rgba(10,14,10,.82) 0%,rgba(10,14,10,.42) 34%,rgba(10,14,10,.08) 62%,rgba(10,14,10,.30) 100%)}
+.hero-inner{position:relative;padding-block:0 clamp(3rem,9vh,5.5rem)}
+.hero .eye{color:rgba(255,255,255,.85)}
+.hero h1{color:#fff;margin:1rem 0 1rem;max-width:15ch;font-weight:300;
+  font-size:clamp(2.3rem,4.6vw,3.9rem);text-wrap:balance}
+.hero .sub{color:rgba(255,255,255,.88);max-width:44ch;font-size:15px;margin:0 0 2rem}
+.playbtn{position:absolute;right:var(--gutter);bottom:clamp(3rem,9vh,5.5rem);
+  width:56px;height:56px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.8);background:rgba(0,0,0,.3);cursor:pointer;
   display:flex;align-items:center;justify-content:center;color:#fff;
-  backdrop-filter:blur(2px);transition:background .2s,transform .2s}
+  backdrop-filter:blur(2px);transition:background .2s,transform .2s;z-index:2}
 .playbtn:hover{background:rgba(0,0,0,.55);transform:scale(1.06)}
 .playbtn svg{margin-left:3px}
 .playbtn .i-pause{margin-left:0}
 .playbtn.playing .i-play{display:none}
 .playbtn:not(.playing) .i-pause{display:none}
-@media(max-width:700px){
-  .hero{min-height:calc(100dvh - var(--hdr) - 10px)}
-  .playbtn{width:48px;height:48px;bottom:calc(100% + 1rem)}
-}
 
-/* stat band, sitting on the foot of the hero */
-.statband{position:relative;border-top:1px solid rgba(255,255,255,.24);color:#fff}
+/* stat band: white, centered cells, hairline dividers */
+.statband{background:var(--card);border-bottom:1px solid var(--rule)}
 .statband .row{display:grid;grid-template-columns:repeat(4,1fr)}
-.statband .cell{padding:1.3rem 0 1.5rem;border-left:1px solid rgba(255,255,255,.16)}
-.statband .cell:first-child{border-left:0;padding-left:0}
-.statband .cell:not(:first-child){padding-left:clamp(1rem,3vw,2.2rem)}
-.statband .v{font-family:'Source Serif 4',Georgia,serif;font-size:clamp(1.5rem,2.2vw,1.95rem);
-  color:#fff;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
-.statband .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.7)}
+.statband .cell{padding:clamp(1.8rem,4vw,2.8rem) 1rem;text-align:center;
+  border-left:1px solid var(--rule-lt)}
+.statband .cell:first-child{border-left:0}
+.statband .v{font-family:'Source Serif 4',Georgia,serif;font-weight:300;
+  font-size:clamp(1.7rem,2.8vw,2.5rem);color:var(--ink);display:block;line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.statband .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-top:.6rem}
 @media(max-width:700px){
   .statband .row{grid-template-columns:repeat(2,1fr)}
-  .statband .cell:nth-child(3){border-left:0;padding-left:0}
-  .statband .cell:nth-child(n+3){border-top:1px solid rgba(255,255,255,.16)}
+  .statband .cell:nth-child(3){border-left:0}
+  .statband .cell:nth-child(n+3){border-top:1px solid var(--rule-lt)}
 }
 
-/* ── image placeholder ───────────────────────────────────────────────── */
-.ph{display:flex;flex-direction:column;justify-content:center;gap:.3rem;padding:1.3rem;
-  background:var(--grey);border:1px solid var(--rule);
-  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-  aspect-ratio:16/10;width:100%}
-.ph b{font-weight:600;display:block;color:var(--ink)}
-.on-dark .ph{background:#141414;border-color:var(--rule-dk);color:rgba(255,255,255,.55)}
-.on-dark .ph b{color:#fff}
-figure{margin:0}
-figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  margin-top:.65rem}
+/* ── section head, centered ──────────────────────────────────────────── */
+.shead{text-align:center;max-width:56ch;margin:0 auto clamp(2.2rem,4.5vw,3.4rem)}
+.shead h2{margin:.9rem 0 0}
+.shead p{margin:.9rem auto 0;max-width:52ch}
 
-/* ── site plan: aerial left, controls + locator right ───────────────── */
-.planwrap{display:grid;grid-template-columns:1.4fr .85fr;
-  gap:clamp(1.5rem,3.5vw,3.2rem);align-items:start}
-.plancol .phaserail{margin-top:0}
-.plancol .counters{gap:clamp(1.2rem,2.4vw,2.2rem)}
-@media(max-width:900px){
-  .planwrap{grid-template-columns:1fr}
-  .plancol{order:-1}                      /* heading and phase buttons lead on mobile */
-  .plancol .mapshot{max-width:420px}
-}
+/* ── stay cards ──────────────────────────────────────────────────────── */
+.stays{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.2rem,2.4vw,2rem)}
+.stay{display:block;text-decoration:none;color:inherit}
+.stay .shot{overflow:hidden;aspect-ratio:1/1;background:var(--cream)}
+.stay .shot img{width:100%;height:100%;object-fit:cover;
+  transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.stay .shot .ph{height:100%;aspect-ratio:auto}
+.stay:hover .shot img{transform:scale(1.04)}
+.stay h3{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);margin:1.2rem 0 .4rem}
+.stay p{margin:0 0 .9rem;font-size:13.5px;color:var(--body)}
+@media(max-width:820px){.stays{grid-template-columns:1fr}
+  .stay .shot{aspect-ratio:4/3}}
 
-/* ── site plan ───────────────────────────────────────────────────────── */
-.plan-frame{position:relative;background:var(--paper);padding:clamp(.8rem,2vw,1.5rem);
+/* ── master plan: copy left, aerial right ────────────────────────────── */
+.planwrap{display:grid;grid-template-columns:.8fr 1.35fr;
+  gap:clamp(1.6rem,3.5vw,3.4rem);align-items:start}
+.plancol h2{margin:.9rem 0 1rem}
+.plancol p{margin:0 0 1.6rem;max-width:40ch}
+.plan-frame{position:relative;background:var(--card);padding:clamp(.7rem,1.6vw,1.2rem);
   border:1px solid var(--rule)}
 .plan-stage{position:relative;line-height:0}
 .plan-stage img{width:100%}
@@ -215,7 +200,7 @@ figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var
   width:clamp(20px,2.1vw,27px);height:clamp(20px,2.1vw,27px);border-radius:50%;padding:0;
   display:flex;align-items:center;justify-content:center;line-height:1;
   font-size:clamp(9px,.9vw,11px);font-weight:600;font-variant-numeric:tabular-nums;
-  background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.55);cursor:pointer;
+  background:#fff;color:var(--ink);border:1px solid rgba(0,0,0,.5);cursor:pointer;
   box-shadow:0 1px 5px rgba(0,0,0,.35);
   transition:opacity .4s ease,background .2s,color .2s,transform .2s}
 .pin.ph3{background:var(--ink);color:#fff}
@@ -226,64 +211,49 @@ figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var
   padding:.5rem .7rem;font-size:11.5px;white-space:nowrap;opacity:0;line-height:1.5;
   transition:opacity .15s;transform:translate(-50%,-135%);z-index:5}
 .plan-tip.show{opacity:1}
-.phaserail{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.4rem}
-.phasebtn{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;
-  padding:9px 15px;border:1px solid var(--rule);background:transparent;color:var(--ink);
+.phaserail{display:flex;flex-wrap:wrap;gap:.45rem}
+.phasebtn{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  padding:10px 15px;border:1px solid var(--rule);background:transparent;color:var(--ink);
   cursor:pointer;transition:.18s}
 .phasebtn:hover{border-color:var(--ink)}
 .phasebtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.counters{display:flex;flex-wrap:wrap;gap:clamp(1.5rem,5vw,3.4rem);margin-top:1.5rem}
-.counters .c .v{font-family:'Source Serif 4',Georgia,serif;font-size:1.55rem;color:var(--ink);
-  display:block;line-height:1.1;font-variant-numeric:tabular-nums}
-.counters .c .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-
-/* ── cards ───────────────────────────────────────────────────────────── */
-.grid{display:grid;gap:clamp(1.2rem,2.6vw,2rem)}
-.g2{grid-template-columns:repeat(2,1fr)}
-.g3{grid-template-columns:repeat(3,1fr)}
-.g4{grid-template-columns:repeat(4,1fr)}
-@media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:820px){.g3{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
-.card{display:block;text-decoration:none;color:inherit;background:var(--paper)}
-.card .imgwrap{overflow:hidden;aspect-ratio:3/2}
-.g2 .card .imgwrap{aspect-ratio:16/10}
-.card .imgwrap img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.22,1,.36,1)}
-.card .imgwrap .ph{height:100%;aspect-ratio:auto}
-.card:hover .imgwrap img{transform:scale(1.03)}
-.card .body{padding:1.1rem 0 0}
-.card h3{font-family:'Source Serif 4',Georgia,serif;font-weight:400;color:var(--ink);
-  font-size:1.24rem;margin:.45rem 0 .5rem;line-height:1.25}
-.card p{margin:0;font-size:13.5px;color:var(--body)}
-.card .strip{margin-top:.85rem;padding-top:.7rem;border-top:1px solid var(--rule-lt);
-  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+.counters{display:flex;flex-wrap:wrap;gap:clamp(1.2rem,2.4vw,2.2rem);margin-top:1.6rem}
+.counters .c .v{font-family:'Source Serif 4',Georgia,serif;font-weight:300;
+  font-size:1.55rem;color:var(--ink);display:block;line-height:1.1;
   font-variant-numeric:tabular-nums}
-.on-dark .card,.on-dark .card h3{background:transparent;color:#fff}
-.on-dark .card p{color:rgba(255,255,255,.75)}
-.on-dark .card .strip{border-color:var(--rule-dk);color:rgba(255,255,255,.55)}
+.counters .c .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted)}
+@media(max-width:900px){.planwrap{grid-template-columns:1fr}}
 
-/* ── contact band ────────────────────────────────────────────────────── */
-.cband{text-align:center}
-.cband h2{margin:0 0 .7rem}
-.cband p{margin:0 auto 2.4rem;max-width:34ch;font-size:13.5px}
-.cways{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(1.8rem,7vw,5rem)}
-.cway{display:flex;flex-direction:column;align-items:center;gap:.9rem;
-  text-decoration:none;color:#fff}
-.cway .ring{width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.5);
-  display:flex;align-items:center;justify-content:center;transition:.2s}
-.cway:hover .ring{background:#fff;color:var(--black)}
-.cway span{font-size:12.5px;font-weight:500;border-bottom:1px solid rgba(255,255,255,.6);
-  padding-bottom:2px}
+/* ── amenity icons row ───────────────────────────────────────────────── */
+.amen5{display:grid;grid-template-columns:repeat(5,1fr);
+  gap:clamp(1rem,2.5vw,2rem);text-align:center;max-width:1050px;margin:0 auto}
+.am{display:flex;flex-direction:column;align-items:center;gap:1rem;
+  text-decoration:none;color:inherit}
+.am svg{color:#7A7259}
+.am span{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink);line-height:1.7}
+@media(max-width:820px){.amen5{grid-template-columns:repeat(2,1fr);row-gap:2rem}
+  .amen5 .am:last-child{grid-column:1/-1}}
 
-/* ── visit block: map left, details right ────────────────────────────── */
-.visit-head{text-align:center;max-width:60ch;margin:0 auto clamp(2rem,4vw,3.2rem)}
-.visit-head h2{margin:.8rem 0 1rem}
-.visit-head p{margin:0;color:var(--body)}
+/* ── alternating split rows ──────────────────────────────────────────── */
+.splitrow{display:grid;grid-template-columns:1fr 1.15fr;
+  gap:clamp(1.8rem,4.5vw,4rem);align-items:center}
+.splitrow .copy h2{margin:.9rem 0 1rem;max-width:16ch}
+.splitrow .copy p{margin:0 0 1.7rem;max-width:42ch}
+.splitrow .shot img,.splitrow .shot .ph{width:100%;aspect-ratio:4/3;object-fit:cover}
+.splitrow.rev .shot{order:-1}
+@media(max-width:820px){
+  .splitrow{grid-template-columns:1fr;gap:1.5rem}
+  .splitrow.rev .shot{order:0}
+}
+
+/* ── location + visit blocks ─────────────────────────────────────────── */
+.mapshot{border:1px solid var(--rule);background:var(--card)}
+.mapshot img{width:100%;height:auto;display:block}
 .visit{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);
   align-items:center}
-.mapshot{border:1px solid var(--rule);background:var(--cream)}
-.mapshot img{width:100%;height:auto;display:block}
-.visit h3{font-family:'Source Serif 4',Georgia,serif;font-weight:400;color:var(--ink);
+.visit h3{font-family:'Source Serif 4',Georgia,serif;font-weight:300;color:var(--ink);
   font-size:clamp(1.35rem,2.1vw,1.7rem);line-height:1.25;margin:0 0 1.6rem}
 .vrows{display:grid;gap:1.15rem;margin-bottom:1.9rem}
 .vrow{display:grid;grid-template-columns:26px 1fr;gap:.9rem;align-items:start}
@@ -292,69 +262,106 @@ figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var
 .vrow a{color:var(--ink);font-weight:500}
 @media(max-width:820px){.visit{grid-template-columns:1fr;gap:1.8rem}}
 
-/* ── mosaic ──────────────────────────────────────────────────────────── */
-.mosaic{display:grid;grid-template-columns:1fr 1.35fr 1fr;
-  grid-auto-rows:clamp(105px,11vw,150px);gap:4px}
-.mosaic>*{overflow:hidden}
-.mosaic img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.04)}
-.mosaic .tall{grid-row:span 2}
-.mosaic .ph{height:100%;aspect-ratio:auto;font-size:9px}
-@media(max-width:820px){.mosaic{grid-template-columns:1fr 1fr}.mosaic .tall{grid-row:span 1}}
+/* ── CTA band + photo strip ──────────────────────────────────────────── */
+.ctaband{background:var(--cream)}
+.ctaband .ctain{display:grid;grid-template-columns:1fr 1fr;align-items:center;
+  gap:clamp(1.8rem,4.5vw,4rem)}
+.ctaband h2{font-size:clamp(1.7rem,3vw,2.4rem);letter-spacing:.08em;margin:0 0 .8rem;
+  text-transform:uppercase;font-weight:300}
+.ctaband p{margin:0 0 1.8rem}
+.ctaband form{display:flex;gap:.7rem;flex-wrap:wrap;max-width:460px}
+.ctaband input{flex:1 1 200px;background:var(--card);border:1px solid var(--rule);
+  padding:.85rem 1rem;font:inherit;color:var(--ink)}
+.ctaband input:focus{outline:none;border-color:var(--accent)}
+.ctaband .shot img{width:100%;aspect-ratio:16/10;object-fit:cover}
+@media(max-width:820px){.ctaband .ctain{grid-template-columns:1fr}}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.strip img,.strip .ph{width:100%;aspect-ratio:1/1;object-fit:cover}
+@media(max-width:700px){.strip{grid-template-columns:repeat(2,1fr)}}
+
+/* ── cards (interior pages) ──────────────────────────────────────────── */
+.grid{display:grid;gap:clamp(1.2rem,2.6vw,2rem)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:820px){.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;color:inherit;background:transparent}
+.card .imgwrap{overflow:hidden;aspect-ratio:3/2;background:var(--cream)}
+.g2 .card .imgwrap{aspect-ratio:16/10}
+.card .imgwrap img{width:100%;height:100%;object-fit:cover;
+  transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.card .imgwrap .ph{height:100%;aspect-ratio:auto}
+.card:hover .imgwrap img{transform:scale(1.03)}
+.card .body{padding:1.1rem 0 0}
+.card h3{font-family:'Source Serif 4',Georgia,serif;font-weight:300;color:var(--ink);
+  font-size:1.24rem;margin:.45rem 0 .5rem;line-height:1.25}
+.card p{margin:0;font-size:13.5px;color:var(--body)}
+.card .strip2{margin-top:.85rem;padding-top:.7rem;border-top:1px solid var(--rule-lt);
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.on-dark .card h3{color:#fff}
+.on-dark .card p{color:rgba(255,255,255,.75)}
+.on-dark .card .strip2{border-color:var(--rule-dk);color:rgba(255,255,255,.55)}
 
 /* ── data tables, specs, lists ───────────────────────────────────────── */
 .tw{overflow-x:auto;margin-top:1rem}
 table.data{border-collapse:collapse;width:100%;font-size:12.5px;
   font-variant-numeric:tabular-nums}
-table.data th{text-align:left;font-weight:600;font-size:10px;letter-spacing:.13em;
+table.data th{text-align:left;font-weight:600;font-size:9.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--muted);padding:.7rem 1.2rem .7rem 0;
   border-bottom:1px solid var(--rule);white-space:nowrap}
 table.data td{padding:.8rem 1.2rem .8rem 0;border-bottom:1px solid var(--rule-lt);
   white-space:nowrap;color:var(--body)}
 table.data td a{color:var(--ink);font-weight:500}
+.on-dark table.data th{color:rgba(255,255,255,.6);border-color:var(--rule-dk)}
+.on-dark table.data td{color:rgba(255,255,255,.8);border-color:var(--rule-dk)}
+.on-dark table.data td a{color:#fff}
 .specband{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);
-  margin-top:1.8rem}
+  margin-top:1.8rem;background:var(--card)}
 .specband .cell{padding:1.2rem 1.1rem;border-left:1px solid var(--rule-lt)}
 .specband .cell:first-child{border-left:0}
-.specband .v{font-family:'Source Serif 4',Georgia,serif;font-size:1.5rem;color:var(--ink);
-  display:block;line-height:1.1;font-variant-numeric:tabular-nums}
-.specband .k{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.specband .v{font-family:'Source Serif 4',Georgia,serif;font-weight:300;font-size:1.5rem;
+  color:var(--ink);display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+.specband .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 @media(max-width:700px){.specband{grid-template-columns:repeat(2,1fr)}
   .specband .cell:nth-child(3){border-left:0}
   .specband .cell:nth-child(n+3){border-top:1px solid var(--rule-lt)}}
 dl.spec{display:grid;grid-template-columns:minmax(140px,190px) 1fr;gap:0;margin:0}
-dl.spec dt{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+dl.spec dt{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
   padding:.8rem 1rem .8rem 0;border-top:1px solid var(--rule-lt)}
 dl.spec dd{margin:0;padding:.8rem 0;border-top:1px solid var(--rule-lt);color:var(--body)}
 @media(max-width:620px){dl.spec{grid-template-columns:1fr}
   dl.spec dd{padding-top:0;border-top:0}}
+.on-dark dl.spec dt{color:rgba(255,255,255,.6);border-color:var(--rule-dk)}
+.on-dark dl.spec dd{color:rgba(255,255,255,.82);border-color:var(--rule-dk)}
 ul.ticks{list-style:none;margin:0;padding:0;font-size:13.5px}
 ul.ticks li{padding:.42rem 0 .42rem 1.5rem;position:relative}
-ul.ticks.yes li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:600}
-ul.ticks.no li::before{content:"—";position:absolute;left:0;color:var(--muted)}
+ul.ticks.yes li::before{content:"\2713";position:absolute;left:0;color:var(--accent);font-weight:600}
+ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--muted)}
 
 /* ── location ladder ─────────────────────────────────────────────────── */
 .ladder{border-top:1px solid var(--rule)}
 .ladder .r{display:grid;grid-template-columns:1.1fr .55fr 1.6fr;gap:1rem;
   padding:1rem 0;border-bottom:1px solid var(--rule-lt);align-items:baseline}
-.ladder .a{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+.ladder .a{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);
   font-weight:600}
-.ladder .b{font-family:'Source Serif 4',Georgia,serif;font-size:1.12rem;color:var(--accent);
-  font-variant-numeric:tabular-nums}
+.ladder .b{font-family:'Source Serif 4',Georgia,serif;font-weight:300;font-size:1.12rem;
+  color:var(--accent);font-variant-numeric:tabular-nums}
 .ladder .c{font-size:13px;color:var(--muted)}
-.on-dark .ladder{border-color:var(--rule-dk)}
-.on-dark .ladder .r{border-color:var(--rule-dk)}
+.on-dark .ladder,.on-dark .ladder .r{border-color:var(--rule-dk)}
 .on-dark .ladder .a{color:#fff}
 .on-dark .ladder .c{color:rgba(255,255,255,.65)}
 @media(max-width:620px){.ladder .r{grid-template-columns:1fr auto}
   .ladder .c{grid-column:1/-1;margin-top:-.5rem}}
 
 /* ── sport barn split diagram ────────────────────────────────────────── */
-.splitwrap{margin-top:2.4rem}
-.splitwrap.bare{margin-top:0}
-.split{width:100%;height:auto;border:1px solid var(--rule);background:var(--paper);
+.splitwrap{margin:0}
+.split{width:100%;height:auto;border:1px solid var(--rule);background:var(--card);
   color:var(--ink)}
 .on-dark .split{background:transparent;border-color:var(--rule-dk);color:#fff}
-.split .t-hd{font-family:Inter,sans-serif;font-size:16px;font-weight:600;letter-spacing:2.4px;
+.split .t-hd{font-family:Inter,sans-serif;font-size:15px;font-weight:600;letter-spacing:2.6px;
   fill:currentColor}
 .split .t-sub{font-family:'Source Serif 4',Georgia,serif;font-size:19px;fill:currentColor;
   opacity:.75}
@@ -368,20 +375,22 @@ ul.ticks.no li::before{content:"—";position:absolute;left:0;color:var(--muted)
 .splitwrap.in .split .sh.r{transition-delay:.12s}
 
 /* ── crumbs, form, lightbox ──────────────────────────────────────────── */
-.crumbs{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+.crumbs{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
   padding-top:1.6rem}
 .crumbs a{text-decoration:none;color:var(--muted)}
 .crumbs a:hover{color:var(--accent)}
 form.req{display:grid;gap:1.05rem}
-form.req label{display:block;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+form.req label{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);font-weight:500}
 form.req input,form.req select,form.req textarea{width:100%;margin-top:.5rem;
-  background:var(--paper);border:1px solid var(--rule);color:var(--ink);
+  background:var(--card);border:1px solid var(--rule);color:var(--ink);
   padding:.72rem .8rem;font:inherit;font-size:14px;letter-spacing:0;text-transform:none}
 form.req input:focus,form.req select:focus,form.req textarea:focus{
   outline:none;border-color:var(--accent)}
 form.req .hp{position:absolute;left:-9999px}
 form.req button{justify-self:start}
+.on-dark form.req label{color:rgba(255,255,255,.65)}
+.on-dark .smallprint,.on-dark .crumbs,.on-dark .crumbs a{color:rgba(255,255,255,.65)}
 #lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;
   justify-content:center;z-index:200;padding:3rem}
 #lb.on{display:flex}
@@ -390,27 +399,21 @@ form.req button{justify-self:start}
   font-size:2rem;cursor:pointer;line-height:1}
 
 /* ── footer ──────────────────────────────────────────────────────────── */
-footer{background:var(--grey);color:var(--body)}
-.fcols{display:grid;grid-template-columns:1.1fr repeat(4,1fr);gap:clamp(1.4rem,3vw,2.4rem);
-  padding-block:clamp(2.6rem,5vw,3.8rem)}
-.fcols h4{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
-  margin:0 0 1rem;font-weight:600}
-.fcols ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem;font-size:12.5px}
-.fcols a{text-decoration:none;color:var(--body)}
-.fcols a:hover{color:var(--accent)}
-.fmark .flogo{height:38px;width:auto;max-width:100%}
-.fmark p{font-size:12.5px;margin:1rem 0 0;color:var(--muted);line-height:1.7}
-@media(max-width:900px){.fcols{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.fcols{grid-template-columns:1fr}}
-.legal{background:var(--dark);color:rgba(255,255,255,.62)}
-.legal .wrap{display:grid;grid-template-columns:1fr minmax(240px,300px);
-  gap:clamp(1.5rem,4vw,3rem);padding-block:2.2rem;align-items:start}
-.legal .fine{font-size:10.5px;line-height:1.75;margin:0 0 .9rem;color:rgba(255,255,255,.55)}
-.legal .fine:last-child{margin-bottom:0}
-.legal .ctabox{background:#262626;padding:1.4rem}
-.legal .ctabox p{font-family:'Source Serif 4',Georgia,serif;font-size:1.05rem;color:#fff;
-  margin:0 0 1rem;line-height:1.35}
-@media(max-width:820px){.legal .wrap{grid-template-columns:1fr}}
+footer{background:var(--paper);border-top:1px solid var(--rule)}
+.frow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:1.4rem 2rem;padding-block:clamp(1.8rem,3.5vw,2.6rem)}
+.frow .flogo{height:30px;width:auto}
+.flinks{display:flex;flex-wrap:wrap;gap:clamp(.9rem,2vw,1.8rem)}
+.flinks a{font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink)}
+.flinks a:hover{color:var(--accent)}
+.fmail{font-size:12.5px;color:var(--muted);text-decoration:none}
+.fmail:hover{color:var(--accent)}
+.flegal{border-top:1px solid var(--rule-lt);padding-block:1.5rem 2rem}
+.flegal p{font-size:10.5px;line-height:1.7;color:var(--muted);margin:0 0 .7rem;
+  max-width:110ch}
+.flegal p:last-child{margin-bottom:0}
+@media(max-width:820px){.frow{flex-direction:column;align-items:flex-start}}
 
 /* ── pages + motion ──────────────────────────────────────────────────── */
 .page{display:none}
@@ -427,18 +430,17 @@ footer{background:var(--grey);color:var(--body)}
 
 /* ── print ───────────────────────────────────────────────────────────── */
 @media print{
-  header,.util,.navtoggle,#lb,.btn,form.req,video,.playbtn,.legal .ctabox{display:none !important}
+  header,.navtoggle,#lb,.btn,form.req,video,.playbtn,.ctaband form{display:none !important}
   body{background:#fff;color:#000;font-size:10.5pt}
   .page{display:block !important}
-  .on-dark,.on-cream,footer,.legal{background:#fff !important;color:#000 !important}
-  .on-dark .disp,.on-dark p,.on-dark .eye,.legal .fine{color:#000 !important}
+  .on-dark,.on-cream,.ctaband,footer{background:#fff !important;color:#000 !important}
+  .on-dark .disp,.on-dark p,.on-dark .eye,.flegal p{color:#000 !important}
   .hero{min-height:auto;background:#fff !important}
   .hero-scrim,.hero-media{display:none !important}
-  .hero h1,.hero .sub,.hero .eye,.statband,.statband .v,.statband .k{color:#000 !important}
+  .hero h1,.hero .sub,.hero .eye,.statband .v,.statband .k{color:#000 !important}
   .statband,.statband .cell{border-color:#999 !important}
   .sect{padding-block:1rem}
   .card,.ph,.specband,.plan-frame{border-color:#999 !important;background:#fff !important}
-  .mosaic img{filter:none}
   a[href^="#"]::after{content:""}
   .rv{opacity:1 !important;transform:none !important}
   .split{color:#000 !important;border-color:#999 !important}
@@ -449,17 +451,6 @@ footer{background:var(--grey);color:var(--body)}
 </head>
 <body>
 
-<div class="util">
-  <div class="wrap">
-    <a class="owner" href="#/">Trinh Family Holdings</a>
-    <div class="utilr">
-      <a class="hideS" href="#/location">Gore Bay, Manitoulin Island</a>
-      <a class="hideS" href="mailto:admin@forkestudio.com">admin@forkestudio.com</a>
-      <a class="boxed" href="#/contact">Contact Us</a>
-    </div>
-  </div>
-</div>
-
 <header>
   <div class="wrap nav">
     <a class="brand" href="#/" aria-label="Evergreen Resort — home">
@@ -467,12 +458,11 @@ footer{background:var(--grey);color:var(--body)}
     </a>
     <nav class="navlinks" id="navlinks" aria-label="Primary">
       <a href="#/" data-nav="home">Overview</a>
-      <a href="#/phases" data-nav="phases">Phases</a>
-      <a href="#/units" data-nav="units">Units &amp; Plans</a>
+      <a href="#/units" data-nav="units">Stays</a>
       <a href="#/amenities" data-nav="amenities">Amenities</a>
-      <a href="#/location" data-nav="location">Neighbourhood</a>
-      <a href="#site-plan" data-nav="plan">Site Plan</a>
-      <a href="#/contact" data-nav="contact">Visit Us</a>
+      <a href="#site-plan">Site Plan</a>
+      <a href="#/location" data-nav="location">Location</a>
+      <a class="btn" href="#/contact">Register</a>
     </nav>
     <button class="navtoggle" id="navtoggle" aria-label="Open menu" aria-expanded="false" aria-controls="navlinks">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -487,66 +477,47 @@ footer{background:var(--grey);color:var(--body)}
     <div class="hero-media" id="hero-media"></div>
     <div class="hero-scrim"></div>
     <div class="wrap hero-inner">
-      <div class="eye">Evergreen Resort &middot; Lake Wolsey &middot; Manitoulin Island</div>
       <h1 class="disp">A four-season retreat on 7.5 hectares of shoreline.</h1>
-      <p class="sub" id="hero-sub"></p>
-      <div class="hero-cta">
-        <a class="btn solid" href="#site-plan">See the site plan</a>
-        <a class="tlink" href="#/units">Explore the units</a>
-      </div>
+      <p class="sub">Luxury stays. Modern design. Unrivalled experience.</p>
+      <a class="btn solid" href="#/contact">Register now</a>
     </div>
-    <div class="statband"><div class="wrap" style="position:relative">
-      <div class="row" id="hero-stats"></div></div></div>
   </section>
 
-  <!-- thesis, as two alternating rows -->
-  <section class="sect" style="padding-bottom:0">
+  <div class="statband"><div class="wrap"><div class="row" id="hero-stats"></div></div></div>
+
+  <!-- stays -->
+  <section class="sect">
     <div class="wrap">
-      <div class="row2 rv">
-        <div class="shot" id="thesis-shot"></div>
-        <div class="copy">
-          <div class="eye">The opportunity</div>
-          <h2 class="disp">Manitoulin has the shoreline. It doesn&rsquo;t have the rooms.</h2>
-          <p>The largest freshwater island in the world sits roughly four hours from the GTA,
-             and its accommodation stock is motels, cottages and campgrounds. Evergreen is a
-             family-owned parcel on Lake Wolsey with 259 metres of frontage and a road already in.</p>
-          <a class="btn" href="#/phases">See the phases</a>
-        </div>
+      <div class="shead rv">
+        <div class="eye">Stays designed for nature</div>
+        <h2 class="disp">Three unique stay experiences.</h2>
       </div>
-
-      <div class="row2 rev rv">
-        <div class="shot" id="thesis-shot2"></div>
-        <div class="copy">
-          <div class="eye">Sequenced, not speculative</div>
-          <h2 class="disp">A build that earns while the next phase is engineered.</h2>
-          <p>Three phases, each with its own scope and its own moment. Every structure on this
-             page is quoted, spec&rsquo;d, and reviewed against the Ontario Building Code before
-             it is drawn on the plan.</p>
-          <a class="btn" href="#/units">Explore the units</a>
-        </div>
-      </div>
+      <div class="stays" id="stays-cards"></div>
     </div>
   </section>
 
-  <!-- living site plan — aerial left, controls and locator right -->
+  <!-- master plan -->
   <section class="sect on-cream" id="site-plan">
     <div class="wrap">
       <div class="planwrap">
-        <div class="plan-frame">
+        <div class="plancol rv">
+          <div class="eye">Master plan</div>
+          <h2 class="disp">A community carefully planned to preserve nature.</h2>
+          <p>Three phases across 7.5 hectares — sleeping units, the arrival complex and the
+             sport barn — sequenced so the first units earn while the next are engineered.
+             Every structure is reviewed against the Ontario Building Code before it is
+             drawn on the plan.</p>
+          <div class="phaserail" id="phaserail" role="group" aria-label="Filter the site plan by phase"></div>
+          <div class="counters" id="counters"></div>
+          <p class="smallprint" style="margin-top:1.4rem">Parcel lines shown indicative &middot;
+             subject to survey, site plan control and building permit</p>
+        </div>
+        <div class="plan-frame rv">
           <div class="plan-stage" id="plan-stage">
             <img src="/assets/site/sitemap.webp" alt="Aerial photograph of the Evergreen parcel on Lake Wolsey, showing the unit positions across all three phases." width="1598" height="1404" loading="lazy" decoding="async">
             <div class="plan-pins" id="plan-pins" role="group" aria-label="Unit positions on the parcel"></div>
             <div class="plan-tip" id="plan-tip"></div>
           </div>
-        </div>
-        <div class="plancol">
-          <div class="eye">The site plan</div>
-          <h2 class="disp" style="margin:.8rem 0 1.6rem">Every structure, placed.</h2>
-          <div class="phaserail" id="phaserail" role="group" aria-label="Filter the site plan by phase"></div>
-          <div class="counters" id="counters"></div>
-          <div class="mapshot" id="plan-map" style="margin-top:clamp(1.6rem,3vw,2.4rem)"></div>
-          <p class="smallprint" style="margin-top:1.1rem">Parcel lines shown indicative &middot; subject to survey,
-            site plan control and building permit</p>
         </div>
       </div>
       <h3 class="eye" style="margin:clamp(2rem,4vw,3rem) 0 0">Unit schedule</h3>
@@ -554,121 +525,95 @@ footer{background:var(--grey);color:var(--body)}
     </div>
   </section>
 
-  <!-- phases -->
+  <!-- amenities icons -->
   <section class="sect">
     <div class="wrap">
-      <div class="eye">Delivery</div>
-      <h2 class="disp" style="margin:.8rem 0 2.2rem;max-width:20ch">Three phases.</h2>
-      <div class="grid g3" id="phase-cards"></div>
+      <div class="shead rv">
+        <div class="eye">Amenities</div>
+        <h2 class="disp">Everything you need. All in nature.</h2>
+      </div>
+      <div class="amen5 rv" id="amen5"></div>
+      <p class="center" style="margin-top:2.6rem"><a class="alink" href="#/amenities">View all amenities</a></p>
     </div>
   </section>
 
-  <!-- unit teaser -->
-  <section class="sect" style="padding-top:0">
-    <div class="wrap">
-      <div class="eye">The units</div>
-      <h2 class="disp" style="margin:.8rem 0 2.2rem;max-width:20ch">What you sleep in.</h2>
-      <div class="grid g4" id="unit-teaser"></div>
-      <p style="margin-top:2rem"><a class="btn" href="#/units">View all units</a></p>
-    </div>
-  </section>
-
-  <!-- the sport barn — its own moment -->
-  <section class="sect on-cream" id="sport-barn-section">
-    <div class="wrap">
-      <div class="eye">Phase 02 &middot; Amenity</div>
-      <h2 class="disp" style="margin:.8rem 0 1.2rem;max-width:18ch">
-        The reason you can book this place in January.</h2>
-      <p class="lead">20,000 square feet under one roof, split down the middle.
-        Pickleball and golf simulators on one side. Everything it takes to run the property on the other.</p>
-      <div id="sport-split" style="margin-top:2.4rem"></div>
-      <p style="margin-top:2rem"><a class="btn" href="#/unit/sport-barn">See the Sport Barn</a></p>
-    </div>
-  </section>
-
-  <!-- amenities teaser (the sport barn is deliberately not repeated here) -->
-  <section class="sect">
-    <div class="wrap">
-      <div class="eye">Amenities</div>
-      <h2 class="disp" style="margin:.8rem 0 2.2rem;max-width:22ch">
-        The reasons to stay a third night.</h2>
-      <div class="grid g2" id="amen-teaser"></div>
-      <p style="margin-top:2rem"><a class="btn" href="#/amenities">All amenities</a></p>
-    </div>
-  </section>
-
-  <!-- getting here -->
+  <!-- split: modern cabins -->
   <section class="sect on-cream">
-    <div class="wrap">
-      <div class="visit-head rv">
-        <div class="eye">Getting here</div>
-        <h2 class="disp">Four hours from the GTA, and then a different country.</h2>
-        <p>Manitoulin is reached year-round over the Little Current swing bridge from the
-           north, or seasonally by the Chi&#8209;Cheemaun ferry out of Tobermory. Evergreen sits
-           on Highway&nbsp;540 west of Gore&nbsp;Bay, on the Lake Wolsey shoreline.</p>
+    <div class="wrap splitrow rv">
+      <div class="copy">
+        <div class="eye">Architecture in nature</div>
+        <h2 class="disp">Modern cabins. Timeless design.</h2>
+        <p>Steel-framed cabins with rooftop terraces, glazed gables and glass sunrooms —
+           warm, natural finishes that blend into the landscape, and every unit quoted and
+           spec&rsquo;d before it appears on the plan.</p>
+        <a class="alink" href="#/units">Explore the cabins</a>
       </div>
-      <div class="visit rv" id="visit"></div>
-      <div class="ladder" id="ladder" style="margin-top:clamp(2.4rem,5vw,3.6rem)"></div>
-      <p class="smallprint" style="margin-top:1.2rem">Distances and drive times are indicative and pending verification.</p>
+      <div class="shot" id="split-cabins"></div>
     </div>
   </section>
 
-  <!-- contact band -->
-  <section class="sect on-dark cband">
-    <div class="wrap">
-      <h2 class="disp">Contact Us</h2>
-      <p>From answering quick questions to walking the parcel in person, we&rsquo;re here to help.</p>
-      <div class="cways">
-        <a class="cway" href="#/contact">
-          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="16" stroke="currentColor" stroke-width="1.4"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.4"/></svg></span>
-          <span>Book a Site Visit</span></a>
-        <a class="cway" href="mailto:admin@forkestudio.com">
-          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" stroke="currentColor" stroke-width="1.4"/><path d="m3 6 9 7 9-7" stroke="currentColor" stroke-width="1.4"/></svg></span>
-          <span>Email Us</span></a>
-        <a class="cway" href="#/contact">
-          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></span>
-          <span>Request the Package</span></a>
-        <a class="cway" href="#/location">
-          <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></span>
-          <span>Plan Your Visit</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- who is building it -->
+  <!-- split: iconic stays -->
   <section class="sect">
-    <div class="wrap">
-      <div class="row2 rv">
-        <div class="copy">
-          <div class="eye">Who is building it</div>
-          <h2 class="disp">One family. One parcel. Ninety minutes of shoreline road.</h2>
-          <p>Evergreen is owned and operated by Trinh Family Holdings. The land is held outright,
-             the internal road is in, and every structure in the programme has been sourced,
-             quoted and engineered before it appears on the plan.</p>
-          <a class="btn" href="#/contact">Request the development package</a>
-        </div>
-        <div class="mosaic" id="mosaic"></div>
+    <div class="wrap splitrow rev rv">
+      <div class="copy">
+        <div class="eye">Iconic stays</div>
+        <h2 class="disp">Unforgettable experiences.</h2>
+        <p>From A-frame cabins to glass domes standing three metres above the ground, the
+           stays are designed for relaxation, adventure and reconnection — in every season.</p>
+        <a class="alink" href="#/units">View all stays</a>
       </div>
+      <div class="shot" id="split-domes"></div>
     </div>
   </section>
 
-  <!-- compliance line -->
-  <div class="wrap" style="text-align:center;padding-bottom:var(--pad)">
-    <p class="smallprint" style="max-width:62ch;margin:0 auto">
-      All structures are reviewed against the Ontario Building Code (O.&nbsp;Reg.&nbsp;163/24) and sealed by
-      an Ontario-licensed professional engineer prior to permit. Building permits are issued by the
-      Town of Gore&nbsp;Bay.
-    </p>
-  </div>
-
-  <!-- closing CTA -->
-  <section class="sect on-dark" style="text-align:center">
-    <div class="wrap">
-      <h2 class="disp" style="margin:0 auto 1.8rem;max-width:26ch">
-        Site plans, unit specifications and the phased delivery schedule are available on request.</h2>
-      <a class="btn solid" href="#/contact">Request the development package</a>
+  <!-- split: the sport barn -->
+  <section class="sect on-cream" id="sport-barn-section">
+    <div class="wrap splitrow rv">
+      <div class="copy">
+        <div class="eye">Four seasons</div>
+        <h2 class="disp">The reason you can book this place in January.</h2>
+        <p>20,000 square feet under one roof, split down the middle — pickleball and golf
+           simulators on one side, everything it takes to run the property on the other.</p>
+        <a class="alink" href="#/unit/sport-barn">See the sport barn</a>
+      </div>
+      <div class="shot" id="sport-split"></div>
     </div>
   </section>
+
+  <!-- location -->
+  <section class="sect">
+    <div class="wrap splitrow rv">
+      <div class="copy">
+        <div class="eye">Location</div>
+        <h2 class="disp">Gore Bay, Manitoulin Island, Ontario.</h2>
+        <p>A hidden paradise with year-round beauty and endless adventure — reached over
+           the Little Current swing bridge, or by the Chi&#8209;Cheemaun ferry out of Tobermory.</p>
+        <a class="alink" href="#/location">View location</a>
+      </div>
+      <div class="shot mapshot" id="loc-map" style="aspect-ratio:auto"></div>
+    </div>
+  </section>
+
+  <!-- CTA band -->
+  <section class="sect ctaband">
+    <div class="wrap ctain">
+      <div class="rv">
+        <h2 class="disp">Nature. Design. Experience.</h2>
+        <p>Be part of something extraordinary.</p>
+        <form id="ctaform">
+          <input type="email" name="email" placeholder="Enter your email" required
+                 aria-label="Your email address">
+          <button class="btn solid" type="submit">Register now</button>
+        </form>
+        <p class="smallprint" style="margin-top:1.1rem">Registering interest sends you the
+           development package. It is not an offer of securities.</p>
+      </div>
+      <div class="shot rv" id="cta-shot"></div>
+    </div>
+  </section>
+
+  <!-- photo strip -->
+  <div class="strip" id="strip"></div>
 </div>
 
 <!-- ══ PHASES ════════════════════════════════════════════════════════ -->
@@ -758,62 +703,31 @@ footer{background:var(--grey);color:var(--body)}
 </div>
 
 <footer>
-  <div class="wrap fcols">
-    <div class="fmark">
+  <div class="wrap frow">
+    <a href="#/" aria-label="Evergreen Resort — home">
       <img class="flogo" src="/assets/brand/evergreen-resort.png" alt="Evergreen Resort" width="760" height="154">
-      <p>Hwy&nbsp;540, Gore&nbsp;Bay<br>Manitoulin Island, Ontario<br>
-         <a href="mailto:admin@forkestudio.com">admin@forkestudio.com</a></p>
-    </div>
-    <div>
-      <h4>The Development</h4>
-      <ul>
-        <li><a href="#/">Overview</a></li>
-        <li><a href="#site-plan">Site Plan</a></li>
-        <li><a href="#/phases">Phases</a></li>
-        <li><a href="#/amenities">Amenities</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>The Units</h4>
-      <ul id="f-units"></ul>
-    </div>
-    <div>
-      <h4>Phases</h4>
-      <ul id="f-phases"></ul>
-    </div>
-    <div>
-      <h4>Enquiries</h4>
-      <ul>
-        <li><a href="#/contact">Request the package</a></li>
-        <li><a href="#/contact">Book a site visit</a></li>
-        <li><a href="#/location">Getting here</a></li>
-        <li><a href="mailto:admin@forkestudio.com">Email us</a></li>
-      </ul>
-    </div>
+    </a>
+    <nav class="flinks" aria-label="Footer">
+      <a href="#/">Overview</a>
+      <a href="#/units">Stays</a>
+      <a href="#/amenities">Amenities</a>
+      <a href="#site-plan">Site Plan</a>
+      <a href="#/phases">Phases</a>
+      <a href="#/location">Location</a>
+      <a href="#/contact">Register</a>
+    </nav>
+    <a class="fmail" href="mailto:admin@forkestudio.com">admin@forkestudio.com</a>
   </div>
-
-  <div class="legal">
-    <div class="wrap">
-      <div>
-        <p class="fine">
-          This website describes a proposed development and is provided for information only. It is not
-          an offer to sell or a solicitation of an offer to buy any security, and nothing on this site
-          should be relied upon as financial, legal or investment advice. All plans, phasing, dimensions
-          and timelines are indicative and subject to survey, site plan control, building permit and
-          change without notice.
-        </p>
-        <p class="fine">
-          All structures are reviewed against the Ontario Building Code (O.&nbsp;Reg.&nbsp;163/24) and sealed
-          by an Ontario-licensed professional engineer prior to permit. Building permits are issued by the
-          Town of Gore&nbsp;Bay.
-        </p>
-        <p class="fine">&copy; <span id="yr"></span> Trinh Family Holdings. All rights reserved.</p>
-      </div>
-      <div class="ctabox">
-        <p>Site plans and specifications, sent by hand.</p>
-        <a class="btn solid" href="#/contact">Request the package</a>
-      </div>
-    </div>
+  <div class="wrap flegal">
+    <p>This website describes a proposed development and is provided for information only.
+       It is not an offer to sell or a solicitation of an offer to buy any security, and
+       nothing on this site should be relied upon as financial, legal or investment advice.
+       All plans, phasing, dimensions and timelines are indicative and subject to survey,
+       site plan control, building permit and change without notice.</p>
+    <p>All structures are reviewed against the Ontario Building Code (O.&nbsp;Reg.&nbsp;163/24)
+       and sealed by an Ontario-licensed professional engineer prior to permit. Building
+       permits are issued by the Town of Gore&nbsp;Bay. &copy; <span id="yr"></span>
+       Trinh Family Holdings &middot; Hwy&nbsp;540, Gore&nbsp;Bay, Manitoulin Island, Ontario.</p>
   </div>
 </footer>
 
@@ -1093,11 +1007,12 @@ const HERO={ video:null, poster:'/assets/site/sitemap.webp',
   const hm=document.getElementById('hero-media');
   if(HERO.video){
     hm.innerHTML=`<video id="herovid" muted loop playsinline preload="metadata"
-        poster="${HERO.poster||''}" aria-label="${esc(HERO.alt)}"><source src="${HERO.video}"></video>
-      <button class="playbtn" id="playbtn" aria-label="Play the site film">
+        poster="${HERO.poster||''}" aria-label="${esc(HERO.alt)}"><source src="${HERO.video}"></video>`;
+    document.querySelector('.hero').insertAdjacentHTML('beforeend',
+      `<button class="playbtn" id="playbtn" aria-label="Play the site film">
         <svg class="i-play" width="18" height="20" viewBox="0 0 18 20" aria-hidden="true"><path d="M0 0v20l18-10L0 0Z" fill="currentColor"/></svg>
         <svg class="i-pause" width="16" height="18" viewBox="0 0 16 18" aria-hidden="true"><rect width="5" height="18" fill="currentColor"/><rect x="11" width="5" height="18" fill="currentColor"/></svg>
-      </button>`;
+      </button>`);
     const v=document.getElementById('herovid'), pb=document.getElementById('playbtn');
     const sync=()=>{pb.classList.toggle('playing',!v.paused);
       pb.setAttribute('aria-label',v.paused?'Play the site film':'Pause the site film');};
@@ -1111,15 +1026,16 @@ const HERO={ video:null, poster:'/assets/site/sitemap.webp',
     const hi=hm.querySelector('img');
     if(hi){hi.loading='eager';hi.setAttribute('fetchpriority','high');hi.removeAttribute('width');hi.removeAttribute('height');}
   }
+  /* Real figures only — the mockup's 25 ha / 600 m / 50+ stays are placeholders
+     and an investor page cannot carry invented numbers. Keys stay TBD until the
+     unit mix is locked, then this cell fills itself from the data model. */
   const keys=keysUpTo(3);
-  document.getElementById('hero-sub').textContent =
-    `Three phases. ${keys==null?'Unit mix being finalised':keys+' keys'}. One family.`;
   document.getElementById('hero-stats').innerHTML=[
-    {v:SITE.meta.parcelHa+' ha',k:'Parcel'},
-    {v:SITE.meta.frontageM+' m',k:'Waterfront'},
-    {v:SITE.phases.length,k:'Phases'},
-    {v:keys==null?'TBD':keys,k:'Keys'}
-  ].map(s=>`<div class="cell"><span class="v">${s.v}</span><span class="k">${s.k}</span></div>`).join('');
+    {v:SITE.meta.parcelHa, k:'Hectares of land'},
+    {v:SITE.meta.frontageM+'\u00a0m', k:'Shoreline frontage'},
+    {v:keys==null?'TBD':keys, k:'Luxury stays'},
+    {v:4, k:'Seasons of adventure'}
+  ].map(x=>`<div class="cell"><span class="v">${x.v}</span><span class="k">${x.k}</span></div>`).join('');
 })();
 
 const locatorMap = () =>
@@ -1160,7 +1076,7 @@ function buildPlan(){
     setPhase(b.dataset.ph);
   });
 
-  document.getElementById('plan-map').innerHTML=locatorMap();
+  const pm=document.getElementById('plan-map'); if(pm)pm.innerHTML=locatorMap();
   setPhase('all');
 }
 /* The schedule answers the same question as the pins, so it follows the
@@ -1207,90 +1123,67 @@ function highlightUnit(slug,on){
 
 /* ══ HOME SECTIONS ═════════════════════════════════════════════════ */
 function buildHome(){
-  document.getElementById('phase-cards').innerHTML=SITE.phases.map(p=>{
-    const k=keysUpTo(p.id), sleeping=unitsInPhase(p.id).filter(u=>u.kind==='sleeping');
-    return `<a class="card rv" href="#/phase/${p.id}">
-      <div class="imgwrap">${img(p.hero,p.heroAlt,'Phase 0'+p.id+' · hero','2400 × 1350')}</div>
-      <div class="body">
-        <div class="eye">Phase 0${p.id} · ${esc(p.status)}</div>
-        <h3>${esc(p.name)}</h3>
-        <p>${esc(p.summary)}</p>
-        <div class="strip">${k==null?'Keys TBD':k+' keys'} · ${sleeping.length} unit type${sleeping.length===1?'':'s'}
-          ${p.window?' · '+esc(p.window):''}</div>
-      </div></a>`;
-  }).join('');
+  /* Three stay experiences, grouped the way the mockup groups them; every
+     card maps to real listed units rather than a category invented for it. */
+  const stays=[
+    {img:U('a-frame').hero,      t:'A-frame cabins', d:'Warm, timeless and cosy.',            href:'#/unit/a-frame'},
+    {img:U('branson').hero,      t:'Modern cabins',  d:'Sleek, spacious and refined.',        href:'#/unit/branson'},
+    {img:U('standing-dome').hero,t:'Glass domes',    d:'Iconic, immersive and unforgettable.',href:'#/unit/standing-dome'}
+  ];
+  document.getElementById('stays-cards').innerHTML=stays.map(c=>`
+    <a class="stay rv" href="${c.href}">
+      <div class="shot">${img(c.img,c.t,c.t+' · exterior','1600 × 1600')}</div>
+      <h3>${esc(c.t)}</h3><p>${esc(c.d)}</p>
+      <span class="alink">Explore</span></a>`).join('');
 
-  const teaser=['branson','a-frame','standing-dome','chun-shu'].map(U);
-  document.getElementById('unit-teaser').innerHTML=teaser.map(unitCard).join('');
-
-  /* Main Complex and the waterfront only — the sport barn has had its own
-     section immediately above and is deliberately not repeated here (§5.7). */
-  const mc=U('main-complex');
-  document.getElementById('amen-teaser').innerHTML=`
-    <a class="card rv" href="#/unit/main-complex">
-      <div class="imgwrap">${img(mc.hero,mc.name,'Main Complex · exterior','2000 × 1250')}</div>
-      <div class="body"><div class="eye">Amenity</div><h3>${esc(mc.name)}</h3>
-      <p>${esc(mc.tagline)}</p></div></a>
-    <a class="card rv" href="#/amenities">
-      <div class="imgwrap">${img(null,'','The Waterfront · 259 m of frontage','2000 × 1250')}</div>
-      <div class="body"><div class="eye">Amenity</div><h3>The Waterfront</h3>
-      <p>259 metres of Lake Wolsey frontage — dock, swimming, and a launch for small craft.</p></div></a>`;
-
-  document.getElementById('sport-split').innerHTML=sportSplitSVG(true);
-
-  /* the two alternating rows on the landing page */
-  const bran=U('branson'), dome=U('standing-dome');
-  document.getElementById('thesis-shot').innerHTML=
-    img(bran.hero,'A Branson unit on the shoreline','Shoreline · the arrival cluster','1600 × 1200');
-  document.getElementById('thesis-shot2').innerHTML=
-    img(dome.hero,'A Standing Glass Dome raised on its legs','Phase 02 · glazed domes','1600 × 1200');
-
-  /* brand mosaic — five clean frames, desaturated so the block reads as one image */
-  const tiles=[U('branson').hero,U('a-frame').hero,U('standing-dome').hero,
-               U('glass-igloo').gallery[0],U('sport-barn').hero];
-  document.getElementById('mosaic').innerHTML=tiles.map((src,i)=>
-    `<div class="${i===1?'tall':''}">${img(src,'','Evergreen','800 × 600')}</div>`).join('');
-
-  document.getElementById('f-units').innerHTML=SITE.units.map(u=>
-    `<li><a href="#/unit/${u.slug}">${esc(u.name)}</a></li>`).join('');
-  document.getElementById('f-phases').innerHTML=SITE.phases.map(ph=>
-    `<li><a href="#/phase/${ph.id}">Phase 0${ph.id} — ${esc(ph.name)}</a></li>`).join('');
-  document.getElementById('yr').textContent=new Date().getFullYear();
-
-  /* Visit block — map beside the practical detail. Only facts we actually
-     have: no phone line and no opening hours have been set for the site. */
+  /* Amenity icons — the real programme only. The mockup shows a wellness spa;
+     none exists here, so none is shown. */
   const ic={
-    pin:'<path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5" fill="none"/>',
-    car:'<path d="M4 16v3h3v-3m10 0v3h3v-3M3 16v-4l2-5h14l2 5v4H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/><circle cx="7.5" cy="13" r="1.2" fill="currentColor"/><circle cx="16.5" cy="13" r="1.2" fill="currentColor"/>',
-    cal:'<rect x="3" y="5" width="18" height="16" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5"/>',
-    mail:'<rect x="3" y="5" width="18" height="14" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m3 6 9 7 9-7" stroke="currentColor" stroke-width="1.5" fill="none"/>'
+    wave:'<path d="M4 20c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6M4 27c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6M4 13c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+    court:'<rect x="5" y="8" width="22" height="20" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M5 18h22M16 8v20" stroke="currentColor" stroke-width="1.4"/>',
+    people:'<circle cx="11" cy="12" r="3.4" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="21" cy="12" r="3.4" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M4.5 26c.8-4 3.4-6 6.5-6s5.7 2 6.5 6M14.5 26c.8-4 3.4-6 6.5-6s5.7 2 6.5 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+    trail:'<path d="M10 27 16 6l6 21M12.5 19h7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M5 27h22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    seasons:'<circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M24.5 7.5l-2.8 2.8M10.3 21.7l-2.8 2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
   };
-  const vrow=(k,html)=>`<div class="vrow">
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">${ic[k]}</svg>
-      <div>${html}</div></div>`;
-  const visitHTML=`
-    <div class="mapshot">${locatorMap()}</div>
-    <div>
-      <h3>Evergreen Resort<br>Lake Wolsey, Manitoulin Island</h3>
-      <div class="vrows">
-        ${vrow('pin','Highway 540, Gore Bay<br>Manitoulin Island, Ontario')}
-        ${vrow('car','Little Current swing bridge, year-round<br>Chi&#8209;Cheemaun ferry from Tobermory, May–October')}
-        ${vrow('cal','Site visits by appointment')}
-        ${vrow('mail','<a href="mailto:admin@forkestudio.com">admin@forkestudio.com</a>')}
-      </div>
-      <a class="btn solid" href="#/contact">Book a site visit</a>
-    </div>`;
-  document.querySelectorAll('#visit,#visit2').forEach(el=>el.innerHTML=visitHTML);
+  const amen=[
+    {i:'wave',   t:'Waterfront access',     href:'#/amenities'},
+    {i:'court',  t:'Sport courts',          href:'#/unit/sport-barn'},
+    {i:'people', t:'Gathering spaces',      href:'#/unit/main-complex'},
+    {i:'trail',  t:'Trails &amp; bush',     href:'#/amenities'},
+    {i:'seasons',t:'Four-season stays',     href:'#/units'}
+  ];
+  document.getElementById('amen5').innerHTML=amen.map(x=>`
+    <a class="am" href="${x.href}">
+      <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">${ic[x.i]}</svg>
+      <span>${x.t}</span></a>`).join('');
+
+  document.getElementById('split-cabins').innerHTML=
+    img(U('branson').hero,'A Branson cabin with its rooftop terrace','Modern cabins','1600 × 1200');
+  document.getElementById('split-domes').innerHTML=
+    img(U('standing-dome').hero,'A Standing Glass Dome raised on its legs','Glass domes','1600 × 1200');
+  document.getElementById('sport-split').innerHTML=sportSplitSVG(true);
+  document.getElementById('loc-map').innerHTML=locatorMap();
+  document.getElementById('cta-shot').innerHTML=
+    img(U('a-frame').hero,'An A-frame cabin at dusk','Lakeside cabin','1600 × 1000');
+  document.getElementById('strip').innerHTML=[
+    ['/assets/units/branson/03.webp','Branson lounge'],
+    ['/assets/units/glass-igloo/01.webp','Inside a glazed dome in winter'],
+    ['/assets/units/a-frame/01.webp','A-frame living space'],
+    ['/assets/units/standing-dome/01.webp','Inside the standing dome']
+  ].map(x=>img(x[0],x[1],x[1],'1200 × 1200')).join('');
+
+  const yr=document.getElementById('yr'); if(yr)yr.textContent=new Date().getFullYear();
 
   const lad=SITE.location.map(l=>
     `<div class="r"><span class="a">${esc(l.a)}</span><span class="b">${esc(l.b)}</span><span class="c">${esc(l.c)}</span></div>`).join('');
-  document.getElementById('ladder').innerHTML=lad;
-  document.getElementById('ladder2').innerHTML=lad;
+  const l1=document.getElementById('ladder'); if(l1)l1.innerHTML=lad;
+  const l2=document.getElementById('ladder2'); if(l2)l2.innerHTML=lad;
 
-  document.getElementById('season-table').innerHTML=
+  const st=document.getElementById('season-table');
+  if(st)st.innerHTML=
     `<tr><th>Season</th><th>Open</th><th>The draw</th><th>Access</th></tr>`+
-    SITE.seasons.map(s=>`<tr><td>${esc(s.s)}</td><td>${esc(s.open)}</td>
-      <td style="white-space:normal">${esc(s.draw)}</td><td style="white-space:normal">${esc(s.note)}</td></tr>`).join('');
+    SITE.seasons.map(x=>`<tr><td>${esc(x.s)}</td><td>${esc(x.open)}</td>
+      <td style="white-space:normal">${esc(x.draw)}</td><td style="white-space:normal">${esc(x.note)}</td></tr>`).join('');
 }
 function unitCard(u){
   return `<a class="card rv" href="#/unit/${u.slug}"
@@ -1480,6 +1373,16 @@ function buildAmenities(){
 /* ══ FORM ══════════════════════════════════════════════════════════ */
 /* No backend exists yet, so this composes an email rather than pretending
    to POST somewhere. Swap for a Worker endpoint when one is stood up. */
+/* The landing CTA collects an email and hands it to the request form —
+   no backend exists, so nothing is stored or sent from here. */
+document.getElementById('ctaform').addEventListener('submit',e=>{
+  e.preventDefault();
+  const v=e.target.email.value;
+  location.hash='#/contact';
+  setTimeout(()=>{const f=document.getElementById('reqform');
+    if(f){f.email.value=v; f.name.focus();}},80);
+});
+
 document.getElementById('reqform').addEventListener('submit',e=>{
   e.preventDefault();
   const f=e.target;
@@ -1537,10 +1440,11 @@ document.getElementById('navtoggle').addEventListener('click',()=>{
   const n=document.getElementById('navlinks'), open=n.classList.toggle('open');
   document.getElementById('navtoggle').setAttribute('aria-expanded',String(open));
 });
-document.querySelector('[href="#site-plan"]').addEventListener('click',e=>{
+document.querySelectorAll('[href="#site-plan"]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault();
-  document.getElementById('site-plan').scrollIntoView({behavior:'smooth'});
-});
+  if(location.hash&&location.hash!=='#/'&&!location.hash.includes('site-plan'))location.hash='#/';
+  setTimeout(()=>document.getElementById('site-plan').scrollIntoView({behavior:'smooth'}),60);
+}));
 const lb=document.getElementById('lb');
 document.getElementById('lbclose').addEventListener('click',()=>lb.classList.remove('on'));
 lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('on');});
