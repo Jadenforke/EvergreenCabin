@@ -23,7 +23,7 @@ SIZE = 1000                       # square viewBox
 # Land is a warm near-white so the plate reads as a distinct object on both
 # the cream and the white sections it sits in.
 WATER, LAND, COAST = '#D3E0E5', '#FCFAF6', '#AFC4CB'
-ACCENT, INK = '#D8232A', '#1C1C1C'
+ACCENT, INK = '#0A3D05', '#1C1C1C'
 
 merc = lambda lat: math.log(math.tan(math.pi / 4 + math.radians(lat) / 2))
 

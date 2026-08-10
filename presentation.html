@@ -24,21 +24,22 @@
   --muted:#767676;
   --rule:#E3DFD8;
   --rule-lt:#EFECE6;
-  --accent:#D8232A;
+  --accent:#0A3D05;   /* the logo green */
   --black:#000000;
   --grey:#F2F1EE;
   --dark:#1A1A1A;
   --rule-dk:rgba(255,255,255,.18);
-  --gutter:clamp(1.15rem,4vw,3.5rem);
-  --maxw:1180px;
-  --pad:clamp(2.8rem,5.5vw,4.4rem);
+  --gutter:clamp(1.15rem,3.6vw,4rem);
+  --maxw:1400px;
+  --pad:clamp(2.8rem,5.5vw,4.8rem);
+  --hdr:114px;            /* utility bar 44 + project bar 70 */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--body);
   font-family:Inter,system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.75;
   -webkit-font-smoothing:antialiased;overflow-x:hidden}
-img{display:block;max-width:100%}
+img{display:block;max-width:100%;height:auto}
 a{color:inherit}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -86,7 +87,7 @@ hr.rule{border:0;border-top:1px solid var(--rule);margin:0}
   border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
 .btn:hover{background:var(--accent);color:#fff}
 .btn.solid{background:var(--accent);color:#fff}
-.btn.solid:hover{background:#b71c22;border-color:#b71c22}
+.btn.solid:hover{background:#061F03;border-color:#061F03}
 .tlink{display:inline-block;font-weight:600;color:var(--ink);text-decoration:none;
   border-bottom:1.5px solid var(--ink);padding-bottom:2px;font-size:13.5px}
 .tlink:hover{color:var(--accent);border-color:var(--accent)}
@@ -130,53 +131,55 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
   .navlinks a.on{color:var(--accent)}
 }
 
-/* ── hero: copy left, video right, on cream ──────────────────────────── */
-.hero{background:var(--cream);padding-block:clamp(2.2rem,5vw,3.6rem)}
-.hero .grid2{display:grid;grid-template-columns:.85fr 1.25fr;
-  gap:clamp(1.8rem,4.5vw,3.6rem);align-items:center}
-.hero h1{margin:.85rem 0 1.1rem;max-width:14ch}
-.hero .sub{margin:0 0 1.6rem;max-width:42ch;font-size:14px;color:var(--body)}
-.vwrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#111}
-.vwrap video,.vwrap img{width:100%;height:100%;object-fit:cover}
-.vwrap .ph{height:100%;aspect-ratio:auto}
-.playbtn{position:absolute;inset:0;margin:auto;width:60px;height:60px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.85);background:rgba(0,0,0,.22);cursor:pointer;
+/* ── hero: full-bleed media, copy overlaid ───────────────────────────── */
+.hero{position:relative;min-height:calc(100dvh - var(--hdr));display:flex;
+  flex-direction:column;justify-content:flex-end;background:#0A0D0B;overflow:hidden}
+.hero-media{position:absolute;inset:0}
+.hero-media img,.hero-media video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-media .ph{height:100%;aspect-ratio:auto;border:0;background:#12160f;
+  color:rgba(255,255,255,.6);justify-content:flex-start;padding-top:22vh}
+.hero-media .ph b{color:#fff}
+.hero-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(
+  to top,rgba(8,12,10,.88) 0%,rgba(8,12,10,.58) 30%,rgba(8,12,10,.14) 62%,rgba(8,12,10,.38) 100%)}
+.hero-inner{position:relative;padding-block:clamp(2rem,7vh,4.5rem) clamp(1.4rem,4vh,2.6rem)}
+.hero .eye{color:rgba(255,255,255,.8)}
+.hero h1{color:#fff;margin:1rem 0 1.2rem;max-width:16ch;
+  font-size:clamp(2.35rem,4.9vw,4.15rem);text-wrap:balance}
+.hero .sub{color:rgba(255,255,255,.87);max-width:46ch;font-size:15.5px;margin:0 0 2rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:1.1rem 1.6rem;align-items:center}
+.hero-cta .btn.solid{background:#fff;border-color:#fff;color:var(--accent)}
+.hero-cta .btn.solid:hover{background:transparent;border-color:#fff;color:#fff}
+.hero-cta .tlink{color:#fff;border-color:rgba(255,255,255,.7)}
+.hero-cta .tlink:hover{color:#fff;border-color:#fff}
+.playbtn{position:absolute;right:var(--gutter);bottom:calc(100% + 1.4rem);
+  width:58px;height:58px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.8);background:rgba(0,0,0,.3);cursor:pointer;
   display:flex;align-items:center;justify-content:center;color:#fff;
   backdrop-filter:blur(2px);transition:background .2s,transform .2s}
-.playbtn:hover{background:rgba(0,0,0,.42);transform:scale(1.06)}
+.playbtn:hover{background:rgba(0,0,0,.55);transform:scale(1.06)}
 .playbtn svg{margin-left:3px}
-.playbtn.playing svg.i-play{display:none}
-.playbtn:not(.playing) svg.i-pause{display:none}
-@media(max-width:860px){.hero .grid2{grid-template-columns:1fr}}
+.playbtn .i-pause{margin-left:0}
+.playbtn.playing .i-play{display:none}
+.playbtn:not(.playing) .i-pause{display:none}
+@media(max-width:700px){
+  .hero{min-height:calc(100dvh - var(--hdr) - 10px)}
+  .playbtn{width:48px;height:48px;bottom:calc(100% + 1rem)}
+}
 
-/* stat row under the hero */
-.statband{border-bottom:1px solid var(--rule);background:var(--paper)}
+/* stat band, sitting on the foot of the hero */
+.statband{position:relative;border-top:1px solid rgba(255,255,255,.24);color:#fff}
 .statband .row{display:grid;grid-template-columns:repeat(4,1fr)}
-.statband .cell{padding:1.5rem 0 1.4rem;border-left:1px solid var(--rule-lt)}
+.statband .cell{padding:1.3rem 0 1.5rem;border-left:1px solid rgba(255,255,255,.16)}
 .statband .cell:first-child{border-left:0;padding-left:0}
 .statband .cell:not(:first-child){padding-left:clamp(1rem,3vw,2.2rem)}
-.statband .v{font-family:'Source Serif 4',Georgia,serif;font-size:1.75rem;color:var(--ink);
-  display:block;line-height:1.1;font-variant-numeric:tabular-nums}
-.statband .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.statband .v{font-family:'Source Serif 4',Georgia,serif;font-size:clamp(1.5rem,2.2vw,1.95rem);
+  color:#fff;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+.statband .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.7)}
 @media(max-width:700px){
   .statband .row{grid-template-columns:repeat(2,1fr)}
   .statband .cell:nth-child(3){border-left:0;padding-left:0}
-  .statband .cell:nth-child(n+3){border-top:1px solid var(--rule-lt)}
-}
-
-/* ── alternating image / copy rows ───────────────────────────────────── */
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.8rem,5vw,4rem);
-  align-items:center;padding-block:clamp(1.8rem,3.5vw,2.8rem)}
-.row2 .copy{max-width:44ch}
-.row2 h2{margin:0 0 .9rem}
-.row2 p{margin:0 0 1.5rem;color:var(--body)}
-.row2 .shot img,.row2 .shot .ph{width:100%;aspect-ratio:auto;
-  height:clamp(240px,29vw,400px);object-fit:cover}
-.row2.rev .shot{order:2}
-.row2.rev .copy{order:1}
-@media(max-width:820px){
-  .row2{grid-template-columns:1fr;gap:1.6rem}
-  .row2.rev .shot,.row2.rev .copy{order:initial}
+  .statband .cell:nth-child(n+3){border-top:1px solid rgba(255,255,255,.16)}
 }
 
 /* ── image placeholder ───────────────────────────────────────────────── */
@@ -190,6 +193,17 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 figure{margin:0}
 figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
   margin-top:.65rem}
+
+/* ── site plan: aerial left, controls + locator right ───────────────── */
+.planwrap{display:grid;grid-template-columns:1.4fr .85fr;
+  gap:clamp(1.5rem,3.5vw,3.2rem);align-items:start}
+.plancol .phaserail{margin-top:0}
+.plancol .counters{gap:clamp(1.2rem,2.4vw,2.2rem)}
+@media(max-width:900px){
+  .planwrap{grid-template-columns:1fr}
+  .plancol{order:-1}                      /* heading and phase buttons lead on mobile */
+  .plancol .mapshot{max-width:420px}
+}
 
 /* ── site plan ───────────────────────────────────────────────────────── */
 .plan-frame{position:relative;background:var(--paper);padding:clamp(.8rem,2vw,1.5rem);
@@ -267,8 +281,8 @@ figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var
 .visit-head p{margin:0;color:var(--body)}
 .visit{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);
   align-items:center}
-.visit .mapshot{border:1px solid var(--rule);background:var(--cream)}
-.visit .mapshot img{width:100%;height:auto;display:block}
+.mapshot{border:1px solid var(--rule);background:var(--cream)}
+.mapshot img{width:100%;height:auto;display:block}
 .visit h3{font-family:'Source Serif 4',Georgia,serif;font-weight:400;color:var(--ink);
   font-size:clamp(1.35rem,2.1vw,1.7rem);line-height:1.25;margin:0 0 1.6rem}
 .vrows{display:grid;gap:1.15rem;margin-bottom:1.9rem}
@@ -418,7 +432,10 @@ footer{background:var(--grey);color:var(--body)}
   .page{display:block !important}
   .on-dark,.on-cream,footer,.legal{background:#fff !important;color:#000 !important}
   .on-dark .disp,.on-dark p,.on-dark .eye,.legal .fine{color:#000 !important}
-  .hero{padding-block:0}
+  .hero{min-height:auto;background:#fff !important}
+  .hero-scrim,.hero-media{display:none !important}
+  .hero h1,.hero .sub,.hero .eye,.statband,.statband .v,.statband .k{color:#000 !important}
+  .statband,.statband .cell{border-color:#999 !important}
   .sect{padding-block:1rem}
   .card,.ph,.specband,.plan-frame{border-color:#999 !important;background:#fff !important}
   .mosaic img{filter:none}
@@ -467,18 +484,20 @@ footer{background:var(--grey);color:var(--body)}
 <div class="page on" id="page-home">
 
   <section class="hero">
-    <div class="wrap grid2">
-      <div>
-        <div class="eye">Evergreen Resort &middot; Lake Wolsey</div>
-        <h1 class="disp">A four-season retreat on 7.5 hectares of shoreline.</h1>
-        <p class="sub" id="hero-sub"></p>
-        <a class="tlink" href="#site-plan">See the Site Plan</a>
+    <div class="hero-media" id="hero-media"></div>
+    <div class="hero-scrim"></div>
+    <div class="wrap hero-inner">
+      <div class="eye">Evergreen Resort &middot; Lake Wolsey &middot; Manitoulin Island</div>
+      <h1 class="disp">A four-season retreat on 7.5 hectares of shoreline.</h1>
+      <p class="sub" id="hero-sub"></p>
+      <div class="hero-cta">
+        <a class="btn solid" href="#site-plan">See the site plan</a>
+        <a class="tlink" href="#/units">Explore the units</a>
       </div>
-      <div class="vwrap" id="hero-media"></div>
     </div>
+    <div class="statband"><div class="wrap" style="position:relative">
+      <div class="row" id="hero-stats"></div></div></div>
   </section>
-
-  <div class="statband"><div class="wrap"><div class="row" id="hero-stats"></div></div></div>
 
   <!-- thesis, as two alternating rows -->
   <section class="sect" style="padding-bottom:0">
@@ -509,22 +528,28 @@ footer{background:var(--grey);color:var(--body)}
     </div>
   </section>
 
-  <!-- living site plan -->
+  <!-- living site plan — aerial left, controls and locator right -->
   <section class="sect on-cream" id="site-plan">
     <div class="wrap">
-      <div class="eye">The site plan</div>
-      <h2 class="disp" style="margin:.8rem 0 2rem;max-width:20ch">Every structure, placed.</h2>
-      <div class="plan-frame">
-        <div class="plan-stage" id="plan-stage">
-          <img src="/assets/site/sitemap.webp" alt="Aerial photograph of the Evergreen parcel on Lake Wolsey, showing the unit positions across all three phases." width="1598" height="1404" loading="lazy" decoding="async">
-          <div class="plan-pins" id="plan-pins" role="group" aria-label="Unit positions on the parcel"></div>
-          <div class="plan-tip" id="plan-tip"></div>
+      <div class="planwrap">
+        <div class="plan-frame">
+          <div class="plan-stage" id="plan-stage">
+            <img src="/assets/site/sitemap.webp" alt="Aerial photograph of the Evergreen parcel on Lake Wolsey, showing the unit positions across all three phases." width="1598" height="1404" loading="lazy" decoding="async">
+            <div class="plan-pins" id="plan-pins" role="group" aria-label="Unit positions on the parcel"></div>
+            <div class="plan-tip" id="plan-tip"></div>
+          </div>
+        </div>
+        <div class="plancol">
+          <div class="eye">The site plan</div>
+          <h2 class="disp" style="margin:.8rem 0 1.6rem">Every structure, placed.</h2>
+          <div class="phaserail" id="phaserail" role="group" aria-label="Filter the site plan by phase"></div>
+          <div class="counters" id="counters"></div>
+          <div class="mapshot" id="plan-map" style="margin-top:clamp(1.6rem,3vw,2.4rem)"></div>
+          <p class="smallprint" style="margin-top:1.1rem">Parcel lines shown indicative &middot; subject to survey,
+            site plan control and building permit</p>
         </div>
       </div>
-      <div class="phaserail" id="phaserail" role="group" aria-label="Filter site plan by phase"></div>
-      <div class="counters" id="counters"></div>
-      <p class="smallprint" style="margin-top:1.4rem">Parcel lines shown indicative &middot; subject to survey, site plan control and building permit</p>
-      <h3 class="eye" style="margin:2.6rem 0 0">Unit schedule</h3>
+      <h3 class="eye" style="margin:clamp(2rem,4vw,3rem) 0 0">Unit schedule</h3>
       <div class="tw"><table class="data" id="plan-table"></table></div>
     </div>
   </section>
@@ -1097,6 +1122,10 @@ const HERO={ video:null, poster:'/assets/site/sitemap.webp',
   ].map(s=>`<div class="cell"><span class="v">${s.v}</span><span class="k">${s.k}</span></div>`).join('');
 })();
 
+const locatorMap = () =>
+  `<img src="/assets/site/locator-map.svg" width="1000" height="1000" loading="lazy"
+        alt="Regional map: Evergreen Resort on Manitoulin Island, with Gore Bay and Little Current alongside, Sudbury to the north-east, and the Chi-Cheemaun ferry route south-east to Tobermory.">`;
+
 /* ══ LIVING SITE PLAN ══════════════════════════════════════════════ */
 let planPhase='all';
 function buildPlan(){
@@ -1131,16 +1160,23 @@ function buildPlan(){
     setPhase(b.dataset.ph);
   });
 
+  document.getElementById('plan-map').innerHTML=locatorMap();
+  setPhase('all');
+}
+/* The schedule answers the same question as the pins, so it follows the
+   same filter — pick Phase 02 and the table lists what Phase 02 builds. */
+function renderPlanTable(ph){
+  const list = ph==='all' ? SITE.units
+    : SITE.units.filter(u=>u.phases.includes(Number(ph)));
   document.getElementById('plan-table').innerHTML=
     `<tr><th>Unit</th><th>Phase</th><th>Type</th><th>Area</th><th>Count</th><th>Status</th></tr>`+
-    SITE.units.map(u=>`<tr>
+    (list.length?list:[]).map(u=>`<tr>
       <td><a href="#/unit/${u.slug}" >${esc(u.name)}</a></td>
       <td>${u.phases.map(p=>'0'+p).join(', ')}</td>
       <td>${u.kind}</td>
       <td>${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'—')}</td>
       <td>${u.count==null?'TBD':u.count}</td>
       <td>${esc(SITE.phases.find(p=>p.id===u.phases[0]).status)}</td></tr>`).join('');
-  setPhase('all');
 }
 function setPhase(ph){
   planPhase=ph;
@@ -1155,6 +1191,7 @@ function setPhase(ph){
   });
   const upto = ph==='all' ? 3 : Number(ph);
   renderCounters(upto);
+  renderPlanTable(ph);
 }
 function renderCounters(upto){
   const k=keysUpTo(upto), a=areaUpTo(upto);
@@ -1232,10 +1269,7 @@ function buildHome(){
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">${ic[k]}</svg>
       <div>${html}</div></div>`;
   const visitHTML=`
-    <div class="mapshot">
-      <img src="/assets/site/locator-map.svg" width="1000" height="1000" loading="lazy"
-           alt="Regional map: Evergreen Resort on Manitoulin Island, with Gore Bay and Little Current alongside, Sudbury to the north-east, and the Chi-Cheemaun ferry route south-east to Tobermory.">
-    </div>
+    <div class="mapshot">${locatorMap()}</div>
     <div>
       <h3>Evergreen Resort<br>Lake Wolsey, Manitoulin Island</h3>
       <div class="vrows">
