@@ -2114,7 +2114,7 @@ function setTool(t,id){
       :d.kind==='treelight'?'Click a tree to string lights on it'
       :d.kind==='pen'?`Pen &mdash; ${d.n}: click each corner · click the first point (or Enter) to close · Backspace undoes · Esc cancels`.replace(/&mdash;/,'\u2014')
       :d.kind==='plant'?`Click to plant ${d.n}`
-      :'Click to place · R rotates 5° (Alt+R 1°, Shift+R back) · Shift snaps to 1 m');
+      :'Click to place · R and E rotate 5° either way (Alt for 1°) · Shift snaps to 1 m');
   }else if(t==='measure')hint('Click point to point to measure · every leg is labelled and the total runs as you go · click the first point to close a loop and read its area · Enter finishes · Esc clears');
   else if(t==='erase')hint('Click any unit, road, building or tree to remove it \u00b7 Esc leaves erase mode');
   else if(t==='move')hint('Drag any placed unit to reposition it \u00b7 it snaps and re-checks the rules on drop \u00b7 Esc leaves move mode');
@@ -2575,7 +2575,7 @@ function select(o){
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} — Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
-    hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} — R rotates 5° (Alt+R 1°), Delete removes`);
+    hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} — R and E rotate 5° either way (Alt for 1°), Delete removes`);
   }
 }
 
@@ -3022,18 +3022,25 @@ renderer.domElement.addEventListener('dblclick',()=>{
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='Shift')snap=true;
-  if(e.key==='r'||e.key==='R'){
-    /* 5 degrees a press, 1 degree with Alt held, Shift reverses. The old step
-       was 15 degrees, and the reverse only ever applied to the ghost — a
-       placed unit turned forwards no matter which way you asked for. */
-    const step=(e.altKey?Math.PI/180:Math.PI/36)*(e.shiftKey?-1:1);
+  /* R turns one way, E the other. Keyed off e.code rather than e.key: with
+     Alt held, macOS rewrites the character (Alt+R gives '\u00ae', Alt+E a dead
+     acute), so the fine-rotate step never fired there. e.key is kept as a
+     fallback for anything that does not report a code. */
+  const turn = (e.code==='KeyR'||(!e.code&&/^r$/i.test(e.key))) ? 1
+             : (e.code==='KeyE'||(!e.code&&/^e$/i.test(e.key))) ? -1 : 0;
+  if(turn&&!e.ctrlKey&&!e.metaKey){
+    /* 5 degrees a press, 1 degree with Alt held, Shift reverses whichever key
+       was used. The old step was 15 degrees, and the reverse only ever applied
+       to the ghost — a placed unit turned forwards no matter which way you
+       asked for. */
+    const step=(e.altKey?Math.PI/180:Math.PI/36)*turn*(e.shiftKey?-1:1);
     const deg=r=>{const d=Math.round(r*180/Math.PI)%360;return (d<0?d+360:d)+'\u00b0';};
     if(selected&&selected.type==='obj'){
       selected.rot+=step; selected.mesh.rotation.y=selected.rot; select(selected);
       hint(`${selected.def.n} \u00b7 rotated to ${deg(selected.rot)}`,false,true);
     }else{
       ghostRot+=step; if(ghost)ghost.rotation.y=ghostRot;
-      hint(`Rotation ${deg(ghostRot)} \u00b7 R turns 5\u00b0, Alt+R 1\u00b0, Shift+R back`,false,true);
+      hint(`Rotation ${deg(ghostRot)} \u00b7 R and E turn 5\u00b0 either way \u00b7 Alt for 1\u00b0`,false,true);
     }
   }
   if(e.key==='Enter'){
