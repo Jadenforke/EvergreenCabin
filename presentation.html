@@ -7,6 +7,7 @@
 <title>Evergreen Resort — Lake Wolsey, Manitoulin Island</title>
 <meta name="description" content="A four-season retreat on 7.5 hectares of Lake Wolsey shoreline. Built in three phases.">
 <!-- Self-hosted (§2.4) — no third-party request from a page shown to investors. -->
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/source-serif-4-300-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
@@ -107,10 +108,9 @@ hr.rule{border:0;border-top:1px solid var(--rule);margin:0}
 header{position:sticky;top:0;z-index:60;background:var(--paper);
   border-bottom:1px solid var(--rule)}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:70px}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink)}
-.brand .bt{line-height:1.15}
-.brand .b1{font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:600}
-.brand .b2{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand{display:flex;align-items:center;text-decoration:none;color:var(--ink);flex:0 0 auto}
+.brand img{width:clamp(160px,19vw,248px);height:auto}
+@media(max-width:420px){.brand img{width:132px}}
 .navlinks{display:flex;align-items:center;gap:clamp(1rem,2.6vw,2.3rem)}
 .navlinks a{font-size:13px;text-decoration:none;color:var(--ink);padding:6px 0;
   border-bottom:2px solid transparent}
@@ -367,9 +367,8 @@ footer{background:var(--grey);color:var(--body)}
 .fcols ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem;font-size:12.5px}
 .fcols a{text-decoration:none;color:var(--body)}
 .fcols a:hover{color:var(--accent)}
-.fmark .b1{font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;
-  color:var(--ink)}
-.fmark p{font-size:12.5px;margin:.9rem 0 0;color:var(--muted);line-height:1.7}
+.fmark .flogo{width:min(190px,100%);height:auto}
+.fmark p{font-size:12.5px;margin:1rem 0 0;color:var(--muted);line-height:1.7}
 @media(max-width:900px){.fcols{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.fcols{grid-template-columns:1fr}}
 .legal{background:var(--dark);color:rgba(255,255,255,.62)}
@@ -429,9 +428,8 @@ footer{background:var(--grey);color:var(--body)}
 
 <header>
   <div class="wrap nav">
-    <a class="brand" href="#/">
-      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3 29 26H3L16 3Z" stroke="#1C1C1C" stroke-width="2.2" stroke-linejoin="round"/><path d="M16 3v23M8.5 16.5h15M6 21h20" stroke="#1C1C1C" stroke-width="1.3"/></svg>
-      <span class="bt"><span class="b1">Evergreen</span><br><span class="b2">Lake Wolsey</span></span>
+    <a class="brand" href="#/" aria-label="Evergreen Resort — home">
+      <img src="/assets/brand/evergreen-resort.svg" alt="Evergreen Resort" width="18098" height="2218">
     </a>
     <nav class="navlinks" id="navlinks" aria-label="Primary">
       <a href="#/" data-nav="home">Overview</a>
@@ -714,7 +712,7 @@ footer{background:var(--grey);color:var(--body)}
 <footer>
   <div class="wrap fcols">
     <div class="fmark">
-      <div class="b1">Evergreen</div>
+      <img class="flogo" src="/assets/brand/evergreen-resort.svg" alt="Evergreen Resort" width="18098" height="2218">
       <p>Hwy&nbsp;540, Gore&nbsp;Bay<br>Manitoulin Island, Ontario<br>
          <a href="mailto:admin@forkestudio.com">admin@forkestudio.com</a></p>
     </div>
