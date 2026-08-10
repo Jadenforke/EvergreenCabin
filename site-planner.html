@@ -1093,7 +1093,7 @@ function syncTrees(){
 /* ---------------- catalogue ---------------- */
 const CAT=[
  {g:'Quoted cabins & structures',items:[
-  {id:'glassdome',n:'Standing Glass Dome',mfr:'Meihua (Guangzhou)',kind:'dome',w:6,d:6,h:6.5,area:'6.0 m ⌀ · 43 m² insulated',sleeps:2,usd:16800,freight:4200,csa:3000,join:true,
+  {id:'glassdome',n:'Standing Glass Dome',mfr:'Meihua (Guangzhou)',kind:'dome',w:6,d:6,h:6.5,area:'6.0 m ⌀ · 43 m² insulated',sleeps:2,usd:16800,freight:4200,csa:3000,join:true,magnet:false,
    note:'EXW Guangzhou. CSA approval $3,000 one-time per model.'},
   {id:'capsule',n:'Steele Capsule (T5)',mfr:'Zhongjun Teng',kind:'capsule',w:3.3,d:8.5,h:3.2,area:'28 m²',sleeps:2,usd:34000,freight:5200,join:true},
   {id:'branson',n:'Branson Project',mfr:'Qingdao Yidongxiang',kind:'flatroof',w:5.91,d:12.19,h:3.4,area:'72 m² · 2 bed / 2 bath',sleeps:4,usd:25200,freight:19000},
@@ -1101,9 +1101,9 @@ const CAT=[
   {id:'steel',n:'Steel Frame Modular',mfr:'Platinum Building Tech.',kind:'glassbox',w:7,d:12,h:3.6,area:'48 m² · 1 bed / 1 bath',sleeps:2,usd:45292,freight:7570},
   {id:'chunshu',n:'Chun Shu',mfr:'Beautiful Villa',kind:'chunshu',w:11.3,d:13.0,h:5.4,area:'108.7 m² · 2 storey',sleeps:2,usd:50655,freight:7600},
   {id:'warehouse',n:'Steel Warehouse',mfr:'Hebei Weizhengheng',kind:'warehouse',w:60.96,d:30.48,h:6.096,area:'1,858 m² · 200×100×20 ft · shell only, no interior',usd:82753,freight:29600},
-  {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true},
-  {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015,join:true},
-  {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015,join:true},
+  {id:'igloo6',n:'Glass Igloo Dome — 6 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:6,d:6,h:3.4,area:'6 m ⌀ · 28 m²',sleeps:2,usd:5847,freight:9015,join:true,magnet:false},
+  {id:'igloo7',n:'Glass Igloo Dome — 7 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:7,d:7,h:3.9,area:'7 m ⌀ · 38 m²',sleeps:2,usd:8000,freight:9015,join:true,magnet:false},
+  {id:'igloo8',n:'Glass Igloo Dome — 8 m',mfr:'Guangzhou Yuntu',kind:'igloo',w:8,d:8,h:4.4,area:'8 m ⌀ · 50 m²',sleeps:2,usd:11231,freight:9015,join:true,magnet:false},
   {id:'one',n:'ONE Living Capsule',mfr:'Hebei Qianyan',kind:'glassbox',archived:true,w:7.7,d:7.8,h:3.4,area:'60 m²',sleeps:2,usd:35463,freight:5600},
   {id:'twofloor',n:'Two Floor Capsule',mfr:'Hunan Pawa',kind:'stack',archived:true,w:3,d:9,h:6.2,area:'45 m² over 2 floors',sleeps:2,usd:31579,freight:6800},
  ]},
@@ -1187,7 +1187,7 @@ const baseYFor=pts=>groundMaxUnder(pts);
    the surface, which is why an over-water deck looked like it had never been
    built. Once any of it is wet it stands at a fixed freeboard above the water
    instead, and the skirt fills down to the bed as a crib. */
-const DECK_FREEBOARD=0.5;
+const DECK_FREEBOARD=0.28;   // just clear of the lake, not standing off it
 function overWater(pts){
   if(pts.some(q=>isWater(q[0],q[1])))return true;
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
@@ -1199,8 +1199,11 @@ function overWater(pts){
   }
   return false;
 }
+/* One height for the whole deck — a platform is level by definition, and the
+   skirt fills whatever gap the ground leaves under it. Sits just proud of the
+   high point so it reads as laid on the ground rather than hovering. */
 const deckY=pts=>{
-  const g=groundMaxUnder(pts)+0.15;
+  const g=groundMaxUnder(pts)+0.06;
   return overWater(pts)?Math.max(g,DECK_FREEBOARD):g;
 };
 /* Anything seated on its high point stands proud of the ground everywhere
@@ -1295,6 +1298,18 @@ function deckTopUnder(def,x,z,rot){
       y=Math.max(y,p.mesh.position.y+0.22);          // 0.22 = deck plank thickness
   }
   return y;
+}
+/* Fully supported by a deck? Then the deck is the ground: the water and
+   slope rules underneath stop applying, because the platform is what the
+   unit stands on. Centre and every corner must be over the same decking. */
+function onDeckFully(def,x,z,rot){
+  const cs=(def&&def.w)?corners(def,x,z,rot||0):[];
+  for(const p of placed){
+    if(p.type!=='deck')continue;
+    if(!pointInPoly(x,z,p.pts))continue;
+    if(cs.every(c=>pointInPoly(c[0],c[1],p.pts)))return true;
+  }
+  return false;
 }
 const seatY=(def,x,z,rot)=>
   (def&&def.water)?0:Math.max(padY(def,x,z,rot),deckTopUnder(def,x,z,rot));
@@ -1917,19 +1932,25 @@ function validate(def,x,z,rot,ignore){
   const iss=[],hard=m=>iss.push({m,soft:false}),soft=m=>iss.push({m,soft:true});
   if(def.kind==='road'||def.kind==='plant'||def.kind==='treelight')return iss;
   if(def.water){ if(!isWater(x,z))soft('Dock is on dry land'); return iss; }
-  if(isWater(x,z))hard('Can\u2019t build in the water');
-  if(!def.w){ if(!inLot(x,z))hard('Outside the lot line'); return iss; }
+  /* Standing wholly on a deck, the deck is the ground. The water rules stop
+     applying outright. The lot line still matters for a permit, but the deck
+     under it was never validated against the lot line either, so re-blocking
+     the unit would be inconsistent — it drops to a warning instead. */
+  const onDeck=onDeckFully(def,x,z,rot);
+  const bound=m=>onDeck?soft(m+' \u2014 on a deck'):hard(m);
+  if(!onDeck&&isWater(x,z))hard('Can\u2019t build in the water');
+  if(!def.w){ if(!inLot(x,z))bound('Outside the lot line'); return iss; }
   const cs=corners(def,x,z,rot);
-  if(cs.some(c=>isWater(c[0],c[1])))hard('Part of the footprint is in the water');
+  if(!onDeck&&cs.some(c=>isWater(c[0],c[1])))hard('Part of the footprint is in the water');
   if(SITE.boundary.length>2){
     const dl=Math.min(...cs.map(c=>distLot(c[0],c[1])));
-    if(dl<0)hard('Crosses the lot line');
-    else if(dl<RULES.edge)hard(`${dl.toFixed(1)} m to the lot line — by-law wants ${RULES.edge} m`);
+    if(dl<0)bound('Crosses the lot line');
+    else if(dl<RULES.edge)bound(`${dl.toFixed(1)} m to the lot line — by-law wants ${RULES.edge} m`);
   }
   // ground slope under the footprint
   let lo=1e9,hi=-1e9;
   cs.concat([[x,z]]).forEach(c=>{const h=terrainH(c[0],c[1]);if(h<lo)lo=h;if(h>hi)hi=h;});
-  if(hi-lo>2.2) soft(`${(hi-lo).toFixed(1)} m of fall across the pad — expect stepped piers or fill`);
+  if(!onDeck&&hi-lo>2.2) soft(`${(hi-lo).toFixed(1)} m of fall across the pad — expect stepped piers or fill`);
   // nothing may overlap, and no two lots may overlap either
   const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
   const r1=Math.hypot(def.w,def.d)/2, myLot=lotHalf(def,rot);
@@ -2699,7 +2720,7 @@ renderer.domElement.addEventListener('pointermove',e=>{
     let nx=p.x+moving.ox, nz=p.z+moving.oz;
     if(snap){nx=Math.round(nx);nz=Math.round(nz);}
     const d=moving.o.def;
-    if(d.kind==='dock'||d.join){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
     moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot),nz);
     setHL(moving.o,HL.moving);
@@ -2823,12 +2844,15 @@ let dockSnap=null;
 function snapDock(d,x,z,rot){
   dockSnap=null;
   if(!d)return {x,z,rot};
-  const wantDock=d.kind==='dock', wantJoin=!!d.join;
+  /* magnet:false keeps a unit's shoulder-to-shoulder allowance — no private
+     lot, no overlap flag against another joinable — while opting it out of
+     the snapping itself, so the domes place exactly where the cursor is. */
+  const wantDock=d.kind==='dock', wantJoin=!!d.join&&d.magnet!==false;
   if(!wantDock&&!wantJoin)return {x,z,rot};
   let best=null;
   placed.forEach(o=>{
     if(o.type!=='obj')return;
-    if(wantDock?o.def.kind!=='dock':!o.def.join)return;
+    if(wantDock?o.def.kind!=='dock':(!o.def.join||o.def.magnet===false))return;
     const c=Math.cos(o.rot),si=Math.sin(o.rot);
     const cand=[
       {x:o.x+(-si)*0,           z:o.z+0,           lx:0, lz:(o.def.d/2+d.d/2)},   // end to end
@@ -2869,7 +2893,7 @@ function updateGhost(e){
     }
     if(!ghost)return;
     const y=terrainH(x,z);
-    if(d.kind==='dock'||d.join){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
+    if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
     else ghost.position.set(x,seatY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
@@ -2997,7 +3021,7 @@ renderer.domElement.addEventListener('click',e=>{
       return;
     }
     let px=x,pz=z,prot=ghostRot;
-    if(d.kind==='dock'||d.join){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+    if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
       if(dockSnap)toast(d.kind==='dock'?'Snapped to the neighbouring dock':'Joined to the neighbouring unit'); }
     const bad=validate(d,px,pz,prot).filter(i=>!i.soft);
     if(bad.length){toast('Blocked — '+bad[0].m);return;}
