@@ -1182,6 +1182,27 @@ function groundMaxUnder(pts){
   return m;
 }
 const baseYFor=pts=>groundMaxUnder(pts);
+/* A deck is allowed out over the lake — that is what a dock is. Seating it on
+   the ground high point would drop it to the lake bed, several metres under
+   the surface, which is why an over-water deck looked like it had never been
+   built. Once any of it is wet it stands at a fixed freeboard above the water
+   instead, and the skirt fills down to the bed as a crib. */
+const DECK_FREEBOARD=0.5;
+function overWater(pts){
+  if(pts.some(q=>isWater(q[0],q[1])))return true;
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  if(isWater(cx,cz))return true;
+  for(let i=0;i<pts.length;i++){          // a deck can bridge a narrow inlet
+    const a=pts[i],b=pts[(i+1)%pts.length];
+    for(let t=0.2;t<1;t+=0.2)
+      if(isWater(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return true;
+  }
+  return false;
+}
+const deckY=pts=>{
+  const g=groundMaxUnder(pts)+0.15;
+  return overWater(pts)?Math.max(g,DECK_FREEBOARD):g;
+};
 /* Anything seated on its high point stands proud of the ground everywhere
    else, and on broken terrain that gap reads as a floating slab. This fills
    it: a solid band following the outline, from the base down into the
@@ -1239,7 +1260,7 @@ function fitGround(o){
   }
   if(o.type==='shrub'){ layBushes(o); return; }        // matrices are world space
   if(o.type==='deck'){
-    const y=groundMaxUnder(o.pts)+0.15;
+    const y=deckY(o.pts);
     o.mesh.position.y=y; setSkirt(o.mesh,o.pts,y,null,0x6d5a45); return;
   }
   if(o.type==='custom'){
@@ -2414,9 +2435,9 @@ function placeDeck(pts){
   if(pts.length<3){toast('Need at least three corners');return;}
   const area=polyArea(pts);
   if(area<2){toast('That deck is too small');return;}
-  if(pts.some(q=>isWater(q[0],q[1]))){toast('Blocked — part of the deck is in the water');return;}
   pushUndo('draw deck');
-  const mesh=buildDeckMesh(pts,groundMaxUnder(pts)+0.15); objGroup.add(mesh);
+  const wet=overWater(pts);
+  const mesh=buildDeckMesh(pts,deckY(pts)); objGroup.add(mesh);
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const o={type:'deck',def:DEF['deck'],mesh,pts:pts.slice(),area,cost:area*DECK_RATE,x:cx,z:cz,rot:0};
   placed.push(o);
@@ -2424,7 +2445,7 @@ function placeDeck(pts){
   pushShrubs(o);              // a deck laid over a bed clears the bushes under it
   if(styleMode!=='survey')styleObject(mesh);
   refresh();
-  toast(`${fmtArea(area)} deck · ${money(o.cost)}`);
+  toast(`${fmtArea(area)} deck${wet?' over the water':''} · ${money(o.cost)}`);
 }
 /* Pavement is a parking surface, so unlike a deck it FOLLOWS the ground
    rather than standing level on the high point — a paved pad that hovered
@@ -2569,7 +2590,7 @@ function select(o){
     hint(`${o.def.n} · ${fmtLen(o.len,1)} × ${fmtLen(o.width,1)} · ${money(o.len*RATES[o.def.rate])} — pick a surface below, Delete removes`);
     showRoadBar(o);
   }
-  else if(o.type==='deck')hint(`Custom deck · ${fmtArea(o.area)} · ${money(o.cost)} — Delete removes`);
+  else if(o.type==='deck')hint(`Custom deck${overWater(o.pts)?' over the water':''} · ${fmtArea(o.area)} · ${money(o.cost)} — Delete removes`);
   else if(o.type==='pave')hint(`Parking pavement · ${fmtArea(o.area)} · about ${Math.max(1,Math.floor(o.area/28))} cars · ${money(o.cost)} — Delete removes`);
   else if(o.type==='shrub')hint(`Shrub bed · ${o.n} bushes over ${fmtArea(o.area)} — Delete removes`);
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} — Delete removes`);
