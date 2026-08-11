@@ -1129,8 +1129,8 @@ const CAT=[
   {id:'bollard',n:'Path bollard',kind:'bollard',cad:420,local:true},
   {id:'uplight',n:'Tree uplight',kind:'treelight',cad:380,local:true},
   {id:'car',n:'Parked car',kind:'car',cad:0,local:true},
-  {id:'adiron',n:'Adirondack chairs',kind:'adiron',cad:0,local:true,
-   area:'a pair, angled to the view · prop only, not costed'},
+  {id:'adiron',n:'Adirondack chair',kind:'adiron',cad:0,local:true,
+   area:'single chair · prop only, not costed'},
  ]},
  {g:'Draw with the pen',items:[
    {id:'custom',n:'Custom building',kind:'pen',pen:'building',local:true,
@@ -1867,8 +1867,8 @@ function buildMesh(d){
     lit(g,0,Hh,0,k==='lamp'?{base:1.7,dist:26,pool:12,col:0xffc27a}
                             :{base:.5,dist:8,pool:3.6,col:0xffcf8a});
   }else if(k==='adiron'){
-    /* A pair, turned slightly toward each other. Cedar slats, fanned back,
-       the wide flat arm the chair is known for. */
+    /* One chair. Cedar slats, fanned back, the wide flat arm the chair is
+       known for. Place a second alongside if you want a pair. */
     const wood=c=>new THREE.MeshStandardMaterial({color:c,roughness:.92});
     const chair=()=>{
       const c=new THREE.Group(), W=.66, SEAT=.34, tilt=-.20;
@@ -1896,9 +1896,7 @@ function buildMesh(d){
       }
       return c;
     };
-    for(const [px,ry] of [[-.62,.34],[.62,-.34]]){
-      const c=chair(); c.position.x=px; c.rotation.y=ry; g.add(c);
-    }
+    g.add(chair());
   }else if(k==='car'){
     const c=[0xb03a2e,0x2e4a7d,0xd8d8d8,0x2b2b2b,0x3f6b4a][Math.floor(Math.random()*5)];
     const b=new THREE.Mesh(new THREE.BoxGeometry(1.85,.72,4.4),new THREE.MeshStandardMaterial({color:c,roughness:.35,metalness:.4}));
