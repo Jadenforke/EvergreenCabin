@@ -1116,7 +1116,7 @@ const CAT=[
   {id:'shed',n:'Utility shed',kind:'gable',w:4,d:6,h:3,cad:22000,local:true,join:true},
   {id:'boatho',n:'Boathouse',kind:'gable',w:7,d:9,h:4,cad:142000,local:true,shore:true},
   {id:'dock',n:'Floating dock',kind:'dock',w:3,d:14,h:.5,cad:19000,local:true,water:true},
-  {id:'firepit',n:'Fire pit',kind:'firepit',w:3,d:3,h:.5,cad:4200,local:true},
+  {id:'firepit',n:'Fire pit',kind:'firepit',w:1.4,d:1.4,h:.4,cad:4200,local:true},
   {id:'park',n:'Parking pad',kind:'pad',w:6,d:6,h:.12,area:'6 × 6 m · one vehicle',cad:4900,local:true},
  ]},
  {g:'Roads & paths',items:[
@@ -1855,10 +1855,11 @@ function buildMesh(d){
   }else if(k==='pad'){
     const p=new THREE.Mesh(new THREE.BoxGeometry(d.w,d.h,d.d),body(0x4a4c4e));p.position.y=d.h/2;p.receiveShadow=true;g.add(p);
   }else if(k==='firepit'){
-    const r=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.5,16),body(0x5a5550));r.position.y=.25;r.castShadow=true;g.add(r);
-    const f=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,0),new THREE.MeshStandardMaterial({color:0x2a1a0c,emissive:0xff6a1a,emissiveIntensity:0,roughness:.8}));
-    f.position.y=.5;nightMats.push(f.material);g.add(f);
-    lit(g,0,.95,0,{base:2.2,dist:17,pool:8.5,col:0xff7f2e,flicker:true});
+    /* A masonry ring about 1.2 m across — a fire you sit around, not a bonfire. */
+    const r=new THREE.Mesh(new THREE.CylinderGeometry(.55,.62,.4,16),body(0x5a5550));r.position.y=.2;r.castShadow=true;g.add(r);
+    const f=new THREE.Mesh(new THREE.IcosahedronGeometry(.32,0),new THREE.MeshStandardMaterial({color:0x2a1a0c,emissive:0xff6a1a,emissiveIntensity:0,roughness:.8}));
+    f.position.y=.42;nightMats.push(f.material);g.add(f);
+    lit(g,0,.7,0,{base:1.7,dist:13,pool:6,col:0xff7f2e,flicker:true});
   }else if(k==='lamp'||k==='bollard'){
     const Hh=k==='lamp'?4.2:1;
     const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.1,Hh,7),body(0x24282a));p.position.y=Hh/2;p.castShadow=true;g.add(p);
