@@ -191,7 +191,8 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .plan-stage{position:relative;line-height:0}
 /* The three phase renders share a camera, so a short cross-dissolve reads as
    the site filling in rather than as three separate pictures. */
-.plan-stage img{width:100%;transition:opacity .18s ease}
+.plan-stage img{width:100%;transition:opacity .18s ease;cursor:zoom-in}
+.plan-stage img:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .plan-stage img.swapping{opacity:0}
 @media(prefers-reduced-motion:reduce){.plan-stage img{transition:none}}
 .phaserail{display:flex;flex-wrap:wrap;gap:.45rem}
@@ -526,8 +527,10 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="hero-media" id="hero-media"></div>
     <div class="hero-scrim"></div>
     <div class="wrap hero-inner">
-      <h1 class="disp">A four-season retreat on 7.5 hectares of shoreline.</h1>
-      <p class="sub">Luxury stays. Modern design. Unrivalled experience.</p>
+      <div class="eye">Gore Bay &middot; Manitoulin Island &middot; Ontario</div>
+      <h1 class="disp">Establishing a landmark on Ontario&rsquo;s northern shore.</h1>
+      <p class="sub">Seven and a half hectares on Lake Wolsey, taking shape as a
+         four-season resort across three phases.</p>
       <a class="btn solid" href="#/contact">Register now</a>
     </div>
   </section>
@@ -562,7 +565,8 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         </div>
         <div class="plan-frame rv">
           <div class="plan-stage" id="plan-stage">
-            <img id="plan-img" src="/assets/site/plan-3.webp" alt="Master plan render of the whole parcel, all three phases built out." width="1443" height="1164" loading="lazy" decoding="async">
+            <img id="plan-img" tabindex="0" role="button"
+                 aria-label="Expand the master plan render" src="/assets/site/plan-3.webp" alt="Master plan render of the whole parcel, all three phases built out." width="1443" height="1164" loading="lazy" decoding="async">
           </div>
         </div>
       </div>
@@ -646,14 +650,14 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="wrap ctain">
       <div class="rv">
         <h2 class="disp">Nature. Design. Experience.</h2>
-        <p>Be part of something extraordinary.</p>
+        <p>Join us in building it.</p>
         <form id="ctaform">
           <input type="email" name="email" placeholder="Enter your email" required
                  aria-label="Your email address">
           <button class="btn solid" type="submit">Register now</button>
         </form>
-        <p class="smallprint" style="margin-top:1.1rem">Registering interest sends you the
-           development package. It is not an offer of securities.</p>
+        <p class="smallprint" style="margin-top:1.1rem">Registering opens a conversation about
+           taking part in the resort. It is not an offer of securities.</p>
       </div>
       <div class="shot rv" id="cta-shot"></div>
     </div>
@@ -704,6 +708,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 7.5 hectares with about 259 metres of water frontage, and the internal road is already in.</p>
         <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
       </div>
+      <div class="mapshot rv" id="loc-map2" style="margin-top:2.4rem"></div>
       <div class="visit rv" id="visit2" style="margin-top:2.6rem"></div>
       <div class="ladder" id="ladder2" style="margin-top:2.6rem;border-color:var(--rule)"></div>
       <p class="smallprint" style="color:var(--muted)">Distances and drive times are indicative and pending verification.</p>
@@ -716,29 +721,32 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 
 <!-- ══ CONTACT ═══════════════════════════════════════════════════════ -->
 <div class="page" id="page-contact">
-  <div class="wrap crumbs"><a href="#/">Evergreen</a> / Request the development package</div>
+  <div class="wrap crumbs"><a href="#/">Evergreen</a> / Register your interest</div>
   <section class="sect on-dark" style="min-height:70vh">
     <div class="wrap grid g2" style="gap:clamp(2rem,6vw,5rem);align-items:start">
       <div>
-        <div class="eye">Register interest</div>
+        <div class="eye">Investor interest</div>
         <h2 class="disp" style="margin:.8rem 0 1.2rem;max-width:18ch">
-          Request the development package.</h2>
-        <p class="lead" style="opacity:.86">Site plans, unit specifications, phase scope and the delivery schedule are sent directly, to a named person. Tell us who you are and what you&rsquo;re looking at.</p>
-        <p class="smallprint">This page describes a development. It is not an offer of securities and contains no projections or returns.</p>
+          Join us in building Evergreen.</h2>
+        <p class="lead" style="opacity:.86">Tell us who you are and how you would like to take
+           part. We will come back to you directly with the site plans, the unit specifications,
+           the phase scope and the delivery schedule, and arrange a conversation.</p>
+        <p class="smallprint">This page describes a development. It is not an offer of securities and contains no projections or returns. Any participation would be documented separately and is subject to eligibility.</p>
       </div>
       <form class="req" id="reqform">
         <label>Name <input name="name" required autocomplete="name"></label>
         <label>Organisation <input name="org" autocomplete="organization"></label>
         <label>Email <input name="email" type="email" required autocomplete="email"></label>
-        <label>Interest
+        <label>How you would like to take part
           <select name="interest">
-            <option>Capital partner</option><option>Joint venture</option>
-            <option>Lender</option><option>Operating partner</option><option>Other</option>
+            <option>Equity investor</option><option>Capital partner</option>
+            <option>Joint venture</option><option>Lender</option>
+            <option>Operating partner</option><option>Still deciding</option>
           </select>
         </label>
         <label>Message <textarea name="message" rows="4"></textarea></label>
         <input class="hp" tabindex="-1" autocomplete="off" name="company_website" aria-hidden="true">
-        <button class="btn" type="submit">Request the development package</button>
+        <button class="btn" type="submit">Register my interest</button>
         <p class="smallprint" id="formnote" style="opacity:.55"></p>
       </form>
     </div>
@@ -970,9 +978,10 @@ const SITE = {
         "Solid wood flooring","Foundation drawings"],
       excluded:["Foundation & site prep","Appliances","Fixtures","Furniture",
         "Cabinets","Utility hookups"],
-      pending:"Interiors only. The exterior renders and the floor plan carry the maker's branding, so they are held back until clean copies arrive.",
+      pending:"The floor plan carries the maker's branding, so it is held back until a clean copy arrives.",
       hero:"/assets/units/chun-shu/hero.webp", plan:null,
-      gallery:[{src:"/assets/units/chun-shu/01.webp",cap:"The bedroom under the dome"}] }
+      gallery:[{src:"/assets/units/chun-shu/02.webp",cap:"Living space under the dome"},
+               {src:"/assets/units/chun-shu/01.webp",cap:"The bedroom under the dome"}] }
   ],
 
   /* Pin coordinates are % of the aerial, origin top-left. These are indicative
@@ -1041,7 +1050,9 @@ const DIM={
   "/assets/site/arrival.webp":[1448,1086],
   "/assets/site/card-aframe.webp":[900,900],
   "/assets/site/card-cabins.webp":[900,900],
+  "/assets/site/card-complex.webp":[900,900],
   "/assets/site/card-domes.webp":[900,900],
+  "/assets/site/firepit.webp":[1200,900],
   "/assets/site/hero-end.webp":[1537,1023],
   "/assets/site/hero-poster.webp":[1920,1080],
   "/assets/site/land.webp":[1400,1129],
@@ -1068,7 +1079,8 @@ const DIM={
   "/assets/units/branson/hero.webp":[1448,1086],
   "/assets/units/branson/plan.webp":[1600,1005],
   "/assets/units/chun-shu/01.webp":[1400,1190],
-  "/assets/units/chun-shu/hero.webp":[1440,1219],
+  "/assets/units/chun-shu/02.webp":[1400,1185],
+  "/assets/units/chun-shu/hero.webp":[1537,1023],
   "/assets/units/glass-igloo/01.webp":[1200,1591],
   "/assets/units/glass-igloo/02.webp":[1000,1784],
   "/assets/units/glass-igloo/hero.webp":[1536,1024],
@@ -1160,6 +1172,7 @@ function buildPlan(){
   });
 
   const pm=document.getElementById('plan-map'); if(pm)pm.innerHTML=locatorMap();
+  const lm2=document.getElementById('loc-map2'); if(lm2)lm2.innerHTML=locatorMap();
   setPhase('all');
 }
 /* The schedule answers the same question as the pins, so it follows the
@@ -1204,9 +1217,9 @@ function buildHome(){
   /* Three stay experiences, grouped the way the mockup groups them; every
      card maps to real listed units rather than a category invented for it. */
   const stays=[
-    {img:'/assets/site/card-aframe.webp', t:'A-frame cabins', d:'Warm, timeless and cosy.',            href:'#/unit/a-frame'},
-    {img:'/assets/site/card-cabins.webp', t:'Modern cabins',  d:'Sleek, spacious and refined.',        href:'#/unit/branson'},
-    {img:'/assets/site/card-domes.webp',  t:'Glass domes',    d:'Iconic, immersive and unforgettable.',href:'#/unit/standing-dome'}
+    {img:'/assets/site/card-complex.webp',t:'The main complex',d:'Eighteen rooms over the pool, restaurant and sauna.',href:'#/unit/main-complex'},
+    {img:'/assets/site/card-aframe.webp', t:'A-frame cabins',  d:'Warm, timeless and cosy.',            href:'#/unit/a-frame'},
+    {img:'/assets/site/card-domes.webp',  t:'Glass domes',     d:'Iconic, immersive and unforgettable.',href:'#/unit/standing-dome'}
   ];
   document.getElementById('stays-cards').innerHTML=stays.map(c=>`
     <a class="stay rv" href="${c.href}">
@@ -1401,12 +1414,14 @@ function buildUnit(slug){
   host.querySelectorAll('img').forEach(i=>{
     if(i.closest('.plan-stage'))return;
     i.style.cursor='zoom-in';
-    i.addEventListener('click',()=>{
-      document.getElementById('lbimg').src=i.src;
-      document.getElementById('lbimg').alt=i.alt;
-      document.getElementById('lb').classList.add('on');
-    });
+    i.addEventListener('click',()=>openLightbox(i.currentSrc||i.src,i.alt));
   });
+}
+
+function openLightbox(src,alt){
+  const im=document.getElementById('lbimg');
+  im.src=src; im.alt=alt||'';
+  document.getElementById('lb').classList.add('on');
 }
 
 /* ══ GALLERY PACKING ═══════════════════════════════════════════════ */
@@ -1468,6 +1483,8 @@ function buildAmenities(){
      b:"Indoor courts under a 20 ft clear roof, open in any weather."},
     {t:"Golf simulators",  img:"/assets/units/sport-barn/01.webp", href:"#/unit/sport-barn",
      b:"Simulator bays alongside the courts in the sport barn."},
+    {t:"Fire pits",        img:"/assets/site/firepit.webp", href:"#/units",
+     b:"Lit pits and seating set out between the domes, in use through the shoulder seasons."},
     {t:"The waterfront",   img:"/assets/site/waterfront.webp", href:"#/location",
      b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: dock, swimming, and a launch for small craft.`},
     {t:"The land",         img:"/assets/site/land.webp", href:"#/",
@@ -1518,9 +1535,9 @@ document.getElementById('reqform').addEventListener('submit',e=>{
   const body=[`Name: ${f.name.value}`,`Organisation: ${f.org.value}`,
     `Email: ${f.email.value}`,`Interest: ${f.interest.value}`,'',f.message.value].join('\n');
   location.href='mailto:admin@forkestudio.com?subject='+
-    encodeURIComponent('Evergreen Resort: package request')+'&body='+encodeURIComponent(body);
+    encodeURIComponent('Evergreen Resort: investor interest')+'&body='+encodeURIComponent(body);
   document.getElementById('formnote').textContent=
-    'Received. We\u2019ll send the development package within two business days. '+
+    'Received. We\u2019ll come back to you within two business days. '+
     'If your email client did not open, write to admin@forkestudio.com.';
 });
 
@@ -1574,6 +1591,15 @@ document.querySelectorAll('[href="#site-plan"]').forEach(a=>a.addEventListener('
   setTimeout(()=>document.getElementById('site-plan').scrollIntoView({behavior:'smooth'}),60);
 }));
 const lb=document.getElementById('lb');
+/* The phase renders swap in place, so bind the handler to the element rather
+   than to a src: whichever phase is showing is the one that expands. */
+(function planZoom(){
+  const pi=document.getElementById('plan-img'); if(!pi)return;
+  const open=()=>openLightbox(pi.currentSrc||pi.src, pi.alt);
+  pi.addEventListener('click',open);
+  pi.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+})();
 document.getElementById('lbclose').addEventListener('click',()=>lb.classList.remove('on'));
 lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('on');});
 addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on');});
