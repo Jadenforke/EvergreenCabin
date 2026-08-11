@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Evergreen Resort — Lake Wolsey, Manitoulin Island</title>
+<title>Evergreen Resort: Lake Wolsey, Manitoulin Island</title>
 <meta name="description" content="A four-season retreat on 7.5 hectares of Lake Wolsey shoreline. Built in three phases.">
-<!-- Self-hosted (§2.4) — no third-party request from a page shown to investors. -->
+<!-- Self-hosted (§2.4): no third-party request from a page shown to investors. -->
 <link rel="icon" href="/assets/brand/favicon.png" type="image/png">
 <link rel="preload" href="/assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/source-serif-4-300-600-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -15,7 +15,7 @@
 /* ── tokens ─────────────────────────────────────────────────────────────
    Layout follows the client mockup: warm off-white ground, a light serif
    for display, tiny letter-spaced eyebrows, and the logo green as the one
-   accent. Data stays real — the mockup's placeholder numbers do not ship. */
+   accent. Data stays real; the mockup's placeholder numbers do not ship. */
 :root{
   --paper:#FBFAF6;
   --card:#FFFFFF;
@@ -99,8 +99,8 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;
   height:var(--hdr)}
 .brand{display:flex;align-items:center;text-decoration:none;color:var(--ink);flex:0 0 auto}
-.brand img{height:clamp(26px,3.2vw,36px);width:auto}
-@media(max-width:420px){.brand img{height:24px}}
+.brand img{height:clamp(34px,4.6vw,52px);width:auto}
+@media(max-width:420px){.brand img{height:30px}}
 .navlinks{display:flex;align-items:center;gap:clamp(1rem,2.3vw,2.1rem)}
 .navlinks a{font-size:10.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
   text-decoration:none;color:var(--ink);padding:6px 0;border-bottom:2px solid transparent}
@@ -135,7 +135,7 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .hero-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(
   to top,rgba(10,14,10,.82) 0%,rgba(10,14,10,.42) 34%,rgba(10,14,10,.08) 62%,rgba(10,14,10,.30) 100%)}
 /* The copy sits against the page's left edge rather than inside the centred
-   container — on a wide screen a 1400 px container reads as "middle". */
+   container: on a wide screen a 1400 px container reads as "middle". */
 .hero-inner{position:relative;padding-block:0 clamp(3rem,9vh,5.5rem);
   max-width:none;margin:0;padding-inline:var(--gutter)}
 .hero .eye{color:rgba(255,255,255,.85)}
@@ -244,8 +244,8 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .splitrow .shot img,.splitrow .shot .ph{width:100%;aspect-ratio:4/3;object-fit:cover}
 .splitrow.rev .shot{order:-1}
 
-/* Full-bleed variant: the photo owns its entire half — viewport edge to the
-   centre line, top of the section to the bottom — while the copy half keeps
+/* Full-bleed variant: the photo owns its entire half, viewport edge to the
+   centre line, top of the section to the bottom, while the copy half keeps
    the container's left/right alignment so text still lines up with every
    other section. */
 .splitrow.bleed{gap:0;align-items:stretch;grid-template-columns:1fr 1fr}
@@ -473,7 +473,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 
 <header>
   <div class="wrap nav">
-    <a class="brand" href="#/" aria-label="Evergreen Resort — home">
+    <a class="brand" href="#/" aria-label="Evergreen Resort, home">
       <img src="/assets/brand/evergreen-resort.png" alt="Evergreen Resort" width="760" height="154">
     </a>
     <nav class="navlinks" id="navlinks" aria-label="Primary">
@@ -523,8 +523,8 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <div class="plancol rv">
           <div class="eye">Master plan</div>
           <h2 class="disp">A community carefully planned to preserve nature.</h2>
-          <p>Three phases across 7.5 hectares — sleeping units, the arrival complex and the
-             sport barn — sequenced so the first units earn while the next are engineered.
+          <p>Three phases across 7.5 hectares: sleeping units, the arrival complex and the
+             sport barn, sequenced so the first units earn while the next are engineered.
              Every structure is reviewed against the Ontario Building Code before it is
              drawn on the plan.</p>
           <div class="phaserail" id="phaserail" role="group" aria-label="Filter the site plan by phase"></div>
@@ -561,8 +561,8 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
       <div class="copy">
         <div class="eye">Architecture in nature</div>
         <h2 class="disp">Modern cabins. Timeless design.</h2>
-        <p>Steel-framed cabins with rooftop terraces, glazed gables and glass sunrooms —
-           warm, natural finishes that blend into the landscape, and every unit quoted and
+        <p>Steel-framed cabins with rooftop terraces, glazed gables and glass sunrooms.
+           Warm, natural finishes blend into the landscape, and every unit is quoted and
            spec&rsquo;d before it appears on the plan.</p>
         <a class="alink" href="#/units">Explore the cabins</a>
       </div>
@@ -577,7 +577,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <div class="eye">Iconic stays</div>
         <h2 class="disp">Unforgettable experiences.</h2>
         <p>From A-frame cabins to glass domes standing three metres above the ground, the
-           stays are designed for relaxation, adventure and reconnection — in every season.</p>
+           stays are designed for relaxation, adventure and reconnection, in every season.</p>
         <a class="alink" href="#/units">View all stays</a>
       </div>
       <div class="shot" id="split-domes"></div>
@@ -590,7 +590,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
       <div class="copy">
         <div class="eye">Four seasons</div>
         <h2 class="disp">The reason you can book this place in January.</h2>
-        <p>20,000 square feet under one roof, split down the middle — pickleball and golf
+        <p>20,000 square feet under one roof, split down the middle: pickleball and golf
            simulators on one side, everything it takes to run the property on the other.</p>
         <a class="alink" href="#/unit/sport-barn">See the sport barn</a>
       </div>
@@ -604,7 +604,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
       <div class="copy">
         <div class="eye">Location</div>
         <h2 class="disp">Gore Bay, Manitoulin Island, Ontario.</h2>
-        <p>A hidden paradise with year-round beauty and endless adventure — reached over
+        <p>A hidden paradise with year-round beauty and endless adventure, reached over
            the Little Current swing bridge, or by the Chi&#8209;Cheemaun ferry out of Tobermory.</p>
         <a class="alink" href="#/location">View location</a>
       </div>
@@ -722,7 +722,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 
 <footer>
   <div class="wrap frow">
-    <a href="#/" aria-label="Evergreen Resort — home">
+    <a href="#/" aria-label="Evergreen Resort, home">
       <img class="flogo" src="/assets/brand/evergreen-resort.png" alt="Evergreen Resort" width="760" height="154">
     </a>
     <nav class="flinks" aria-label="Footer">
@@ -751,9 +751,9 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
-   DATA MODEL — everything on the page renders from here (§10).
+   DATA MODEL: everything on the page renders from here (§10).
    Unit specs are transcribed from the sourcing catalogue; nothing invented.
-   Anything genuinely unknown is null and renders as "—" rather than a guess.
+   Anything genuinely unknown is null and renders as "n/a" rather than a guess.
    ═══════════════════════════════════════════════════════════════════ */
 const SITE = {
   meta:{ name:"Evergreen Resort", owner:"Trinh Family Holdings",
@@ -764,18 +764,18 @@ const SITE = {
     { id:1, name:"The Arrival", status:"In engineering", window:null,
       summary:"The first sleeping units and the building everyone passes through.",
       unlocks:"You can arrive, check in, eat and sleep. Everything after this is expansion.",
-      hero:null, heroAlt:"Phase 1 — the arrival cluster",
+      hero:null, heroAlt:"Phase 1: the arrival cluster",
       units:["branson","a-frame","main-complex"] },
     { id:2, name:"The Season", status:"Planned", window:null,
-      summary:"Winter-proofing the offer — glazed domes, the road spine, and the sport barn.",
+      summary:"Winter-proofing the offer: glazed domes, the road spine, and the sport barn.",
       unlocks:"Evergreen stops being a summer property.",
-      hero:null, heroAlt:"Phase 2 — the glazed domes and sport barn",
+      hero:null, heroAlt:"Phase 2: the glazed domes and sport barn",
       units:["glass-igloo","standing-dome","sport-barn"],
       infrastructure:["Timber decks","Gravel road network"] },
     { id:3, name:"The Village", status:"Planned", window:null,
       summary:"The largest and most private units, furthest from arrival.",
       unlocks:"Density, and the top of the rate card.",
-      hero:null, heroAlt:"Phase 3 — the villa cluster",
+      hero:null, heroAlt:"Phase 3: the villa cluster",
       units:["chun-shu","a-frame"] }
   ],
 
@@ -813,11 +813,11 @@ const SITE = {
         "Interior walls":"Stick-frame",
         "Attic sub-floor":"Timber joist",
         "Design code":"IBC / ASCE 7-22, Risk Category II",
-        "Snow load":"4.97 kPa (~104 psf) — exceeds the Gore Bay ground load",
+        "Snow load":"4.97 kPa (~104 psf), exceeds the Gore Bay ground load",
         "Wind load":"1.62 kPa",
         "Cladding":"Standing-seam metal roof with timber gable cladding",
         "Glazing":"Large glazed gable plus roof skylights",
-        "Insulation":"SIP core built to specified R-value — no fixed default",
+        "Insulation":"SIP core built to specified R-value: no fixed default",
         "Interior":"Engineered flooring, interior doors included" },
       included:["Glulam frame & SIP envelope","Standing-seam metal roof",
         "Glazed gable & skylights","Engineered flooring","Interior doors"],
@@ -830,10 +830,10 @@ const SITE = {
       tagline:"Arrival, reception, dining, and the room everyone ends up in.",
       areaSqft:null, areaM2:null, footprintFt:null, footprintM:null,
       storeys:null, beds:null, baths:null,
-      specBand:[{value:"—",label:"sq ft"},{value:"—",label:"footprint"},
-                {value:"—",label:"storeys"},{value:"TBD",label:"programme"}],
+      specBand:[{value:"n/a",label:"sq ft"},{value:"n/a",label:"footprint"},
+                {value:"n/a",label:"storeys"},{value:"TBD",label:"programme"}],
       specs:{ "Programme":"Arrival, reception, dining, gathering",
-        "Status":"Design brief pending — client-supplied",
+        "Status":"Design brief pending: client-supplied",
         "Footprint":"To be confirmed",
         "Structure":"To be confirmed" },
       included:[], excluded:[],
@@ -852,7 +852,7 @@ const SITE = {
       specs:{ "Sizes":"6 m (Ø20 ft, 304 sq ft) · 7 m (Ø23 ft, 414 sq ft) · 8 m (Ø26 ft, 541 sq ft)",
         "Frame":"6063-T5 aluminium geodesic",
         "Glazing":"5 mm tempered glass",
-        "Envelope":"3-layer 55 mm build — carbon-crystal board, polyurethane, outer glass",
+        "Envelope":"3-layer 55 mm build: carbon-crystal board, polyurethane, outer glass",
         "Design life":"20–30 years",
         "Cold weather":"Built for cold-weather occupancy, with a certified R-value calculation",
         "Structure":"Structural calculations completed",
@@ -892,10 +892,10 @@ const SITE = {
         "Area":"1,858 m² / ~20,000 sq ft",
         "Primary frame":"Welded hot-rolled H-steel, Q355B",
         "Secondary steel":"Q235B bracing, tie bars and galvanized purlins",
-        "Cladding":"0.4 mm colour steel — white walls, blue roof",
+        "Cladding":"0.4 mm colour steel: white walls, blue roof",
         "Openings":"2 roller shutter doors, 2 single doors, 10 sliding windows",
-        "Sport half":"~10,000 sq ft — pickleball courts and golf simulator bays",
-        "Operations half":"~10,000 sq ft — grounds equipment, seasonal furniture, maintenance",
+        "Sport half":"~10,000 sq ft: pickleball courts and golf simulator bays",
+        "Operations half":"~10,000 sq ft: grounds equipment, seasonal furniture, maintenance",
         "Finish":"Shotblast to Sa 2.5, two-coat paint 60–80 µm" },
       included:["Primary steel frame","Secondary structure & purlins",
         "Roof & wall cladding","All bolts and fixings","Doors and windows"],
@@ -930,7 +930,7 @@ const SITE = {
   ],
 
   /* Pin coordinates are % of the aerial, origin top-left. These are indicative
-     placements pending the surveyed plan — flagged in the small print. */
+     placements pending the surveyed plan: flagged in the small print. */
   /* One render per phase, all from the same camera, so stepping through the
      phase buttons dissolves between them. The numbered pin overlay that used
      to sit here was calibrated to a satellite capture of the parcel; these
@@ -939,7 +939,7 @@ const SITE = {
     images:{ all:"/assets/site/plan-3.webp", 1:"/assets/site/plan-1.webp",
              2:"/assets/site/plan-2.webp",   3:"/assets/site/plan-3.webp" },
     alt:{ all:"Master plan render of the whole parcel, all three phases built out.",
-          1:"Master plan render showing phase one only \u2014 the arrival cluster.",
+          1:"Master plan render showing phase one only: the arrival cluster.",
           2:"Master plan render showing phases one and two.",
           3:"Master plan render showing the parcel with all three phases built out." } },
 
@@ -978,7 +978,7 @@ const areaUpTo = p => {
   }));
   return known?n:null;
 };
-const fmt = n => n==null?'—':n.toLocaleString('en-CA');
+const fmt = n => n==null?'n/a':n.toLocaleString('en-CA');
 
 /* ══ image with graceful placeholder (§11.3) ═══════════════════════ */
 /* Real pixel dimensions, so every <img> reserves its box (§3). */
@@ -1037,7 +1037,7 @@ function img(src,alt,label,dims,cls){
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ══ HERO ══════════════════════════════════════════════════════════ */
-/* The site film plays once and dissolves into HERO.endImage — it does not
+/* The site film plays once and dissolves into HERO.endImage; it does not
    loop, so the hero settles on a still rather than restarting under the copy.
    Pressing play again rewinds and fades the still back out. With no video set,
    the poster carries the slot on its own and no play control is offered. */
@@ -1078,7 +1078,7 @@ const HERO={ video:'/assets/site/hero.webm', videoMp4:'/assets/site/hero.mp4',
     const hi=hm.querySelector('img');
     if(hi){hi.loading='eager';hi.setAttribute('fetchpriority','high');hi.removeAttribute('width');hi.removeAttribute('height');}
   }
-  /* Real figures only — the mockup's 25 ha / 600 m / 50+ stays are placeholders
+  /* Real figures only: the mockup's 25 ha / 600 m / 50+ stays are placeholders
      and an investor page cannot carry invented numbers. Keys stay TBD until the
      unit mix is locked, then this cell fills itself from the data model. */
   const keys=keysUpTo(3);
@@ -1113,7 +1113,7 @@ function buildPlan(){
   setPhase('all');
 }
 /* The schedule answers the same question as the pins, so it follows the
-   same filter — pick Phase 02 and the table lists what Phase 02 builds. */
+   same filter: pick Phase 02 and the table lists what Phase 02 builds. */
 function renderPlanTable(ph){
   const list = ph==='all' ? SITE.units
     : SITE.units.filter(u=>u.phases.includes(Number(ph)));
@@ -1123,7 +1123,7 @@ function renderPlanTable(ph){
       <td><a href="#/unit/${u.slug}" >${esc(u.name)}</a></td>
       <td>${u.phases.map(p=>'0'+p).join(', ')}</td>
       <td>${u.kind}</td>
-      <td>${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'—')}</td>
+      <td>${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'n/a')}</td>
       <td>${u.count==null?'TBD':u.count}</td>
       <td>${esc(SITE.phases.find(p=>p.id===u.phases[0]).status)}</td></tr>`).join('');
 }
@@ -1164,7 +1164,7 @@ function buildHome(){
       <h3>${esc(c.t)}</h3><p>${esc(c.d)}</p>
       <span class="alink">Explore</span></a>`).join('');
 
-  /* Amenity icons — the real programme only. The mockup shows a wellness spa;
+  /* Amenity icons: the real programme only. The mockup shows a wellness spa;
      none exists here, so none is shown. */
   const ic={
     wave:'<path d="M4 20c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6M4 27c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6M4 13c3 0 3-2.6 6-2.6s3 2.6 6 2.6 3-2.6 6-2.6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
@@ -1261,7 +1261,7 @@ function sportSplitSVG(bare){
       <text x="${x}" y="130" class="t-li">${a}</text>
       <text x="${x}" y="154" class="t-li">${b}</text>`;
   return `<div class="splitwrap rv${bare?' bare':''}">
-    ${bare?'':'<div class="eye" style="margin-bottom:1rem">The sport barn — 200 × 100 ft, split down the middle</div>'}
+    ${bare?'':'<div class="eye" style="margin-bottom:1rem">The sport barn: 200 × 100 ft, split down the middle</div>'}
     <svg class="split" viewBox="0 0 800 232" role="img"
          aria-label="The sport barn is split into a 10,000 square foot sport half with pickleball courts and golf simulator bays, and a 10,000 square foot operations half for grounds equipment and maintenance. 20 foot clear wall height, 200 by 100 foot footprint.">
       <rect x="1" y="1" width="798" height="230" fill="none" stroke="currentColor" stroke-width="2" opacity=".55"/>
@@ -1321,7 +1321,7 @@ function buildUnit(slug){
       <h2 class="eye" style="margin:3rem 0 1rem">The plan</h2>
       <figure style="max-width:900px">
         ${img(u.plan,u.name+' floor plan',u.name+' · floor plan','1600 × 1200')}
-        <figcaption>Preliminary drawing — to be redrawn as a clean line plan for the final package.</figcaption>
+        <figcaption>Preliminary drawing: to be redrawn as a clean line plan for the final package.</figcaption>
       </figure>
 
       <h2 class="eye" style="margin:3rem 0 1rem">Specification</h2>
@@ -1367,9 +1367,9 @@ function buildAmenities(){
     {t:"The Main Complex",u:"main-complex",
      b:"Arrival, reception, dining and gathering. The building everyone passes through on the way in and ends up in at night."},
     {t:"The Sport Barn",u:"sport-barn",
-     b:"Twenty thousand square feet split between pickleball courts with golf simulator bays, and the operations space that keeps the site running. This is the four-season argument — it is what makes a January booking possible."},
+     b:"Twenty thousand square feet split between pickleball courts with golf simulator bays, and the operations space that keeps the site running. This is the four-season argument; it is what makes a January booking possible."},
     {t:"The Waterfront",u:null,img:null,
-     b:"259 metres of Lake Wolsey frontage — dock, swimming, and a launch for small craft."},
+     b:"259 metres of Lake Wolsey frontage: dock, swimming, and a launch for small craft."},
     {t:"The Land",u:null,img:null,
      b:"Trails through the bush and open field to the east, on 7.5 hectares."}
   ];
@@ -1401,7 +1401,7 @@ function buildAmenities(){
 /* ══ FORM ══════════════════════════════════════════════════════════ */
 /* No backend exists yet, so this composes an email rather than pretending
    to POST somewhere. Swap for a Worker endpoint when one is stood up. */
-/* The landing CTA collects an email and hands it to the request form —
+/* The landing CTA collects an email and hands it to the request form,
    no backend exists, so nothing is stored or sent from here. */
 document.getElementById('ctaform').addEventListener('submit',e=>{
   e.preventDefault();
@@ -1418,7 +1418,7 @@ document.getElementById('reqform').addEventListener('submit',e=>{
   const body=[`Name: ${f.name.value}`,`Organisation: ${f.org.value}`,
     `Email: ${f.email.value}`,`Interest: ${f.interest.value}`,'',f.message.value].join('\n');
   location.href='mailto:admin@forkestudio.com?subject='+
-    encodeURIComponent('Evergreen Resort — package request')+'&body='+encodeURIComponent(body);
+    encodeURIComponent('Evergreen Resort: package request')+'&body='+encodeURIComponent(body);
   document.getElementById('formnote').textContent=
     'Received. We\u2019ll send the development package within two business days. '+
     'If your email client did not open, write to admin@forkestudio.com.';
