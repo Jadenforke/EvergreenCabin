@@ -158,23 +158,6 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .playbtn.playing .i-play{display:none}
 .playbtn:not(.playing) .i-pause{display:none}
 
-/* stat band: white, centered cells, hairline dividers */
-.statband{background:var(--card);border-bottom:1px solid var(--rule)}
-.statband .row{display:grid;grid-template-columns:repeat(4,1fr)}
-.statband .cell{padding:clamp(1.8rem,4vw,2.8rem) 1rem;text-align:center;
-  border-left:1px solid var(--rule-lt)}
-.statband .cell:first-child{border-left:0}
-.statband .v{font-family:'Source Serif 4',Georgia,serif;font-weight:300;
-  font-size:clamp(1.7rem,2.8vw,2.5rem);color:var(--ink);display:block;line-height:1.1;
-  font-variant-numeric:tabular-nums}
-.statband .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted);display:block;margin-top:.6rem}
-@media(max-width:700px){
-  .statband .row{grid-template-columns:repeat(2,1fr)}
-  .statband .cell:nth-child(3){border-left:0}
-  .statband .cell:nth-child(n+3){border-top:1px solid var(--rule-lt)}
-}
-
 /* ── section head, centered ──────────────────────────────────────────── */
 .shead{text-align:center;max-width:56ch;margin:0 auto clamp(2.2rem,4.5vw,3.4rem)}
 .shead h2{margin:.9rem 0 0}
@@ -405,16 +388,34 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
   .ladder .c{grid-column:1/-1;margin-top:-.5rem}}
 
 /* ── sport barn split diagram ────────────────────────────────────────── */
-.splitwrap{margin:0}
+/* ── amenity cards ───────────────────────────────────────────────────
+   One card per thing to do, photograph first. Three across, two on a
+   tablet, one on a phone. */
+.amcards{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(1.2rem,2.6vw,2.1rem) clamp(1.1rem,2.4vw,1.8rem)}
+.amc{display:block;text-decoration:none;color:inherit}
+.amc figure{margin:0;overflow:hidden;background:var(--cream)}
+.amc img,.amc .ph{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+  transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.amc:hover img{transform:scale(1.04)}
+.amc h3{font-family:'Source Serif 4',Georgia,serif;font-weight:400;
+  font-size:clamp(1.05rem,1.5vw,1.25rem);margin:.9rem 0 .35rem;color:var(--ink)}
+.amc p{font-size:13.5px;color:var(--body);margin:0;max-width:34ch}
+@media(max-width:900px){.amcards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.amcards{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.amc img{transition:none}
+  .amc:hover img{transform:none}}
+
+.splitwrap{margin:0;max-width:560px}
 .split{width:100%;height:auto;border:1px solid var(--rule);background:var(--card);
   color:var(--ink)}
 .on-dark .split{background:transparent;border-color:var(--rule-dk);color:#fff}
-.split .t-hd{font-family:Inter,sans-serif;font-size:15px;font-weight:600;letter-spacing:2.6px;
+.split .t-hd{font-family:Inter,sans-serif;font-size:19px;font-weight:600;letter-spacing:3px;
   fill:currentColor}
-.split .t-sub{font-family:'Source Serif 4',Georgia,serif;font-size:19px;fill:currentColor;
+.split .t-sub{font-family:'Source Serif 4',Georgia,serif;font-size:24px;fill:currentColor;
   opacity:.75}
-.split .t-li{font-family:Inter,sans-serif;font-size:13px;fill:currentColor;opacity:.85}
-.split .t-ft{font-family:Inter,sans-serif;font-size:11px;letter-spacing:1.5px;
+.split .t-li{font-family:Inter,sans-serif;font-size:17px;fill:currentColor;opacity:.85}
+.split .t-ft{font-family:Inter,sans-serif;font-size:14px;letter-spacing:1.6px;
   fill:currentColor;opacity:.6}
 .split .sh{transform-box:view-box;transform:scaleX(.02);opacity:0;
   transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s ease;
@@ -485,8 +486,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
   .on-dark .disp,.on-dark p,.on-dark .eye,.flegal p{color:#000 !important}
   .hero{min-height:auto;background:#fff !important}
   .hero-scrim,.hero-media{display:none !important}
-  .hero h1,.hero .sub,.hero .eye,.statband .v,.statband .k{color:#000 !important}
-  .statband,.statband .cell{border-color:#999 !important}
+  .hero h1,.hero .sub,.hero .eye{color:#000 !important}
   .sect{padding-block:1rem}
   .card,.ph,.specband,.plan-frame{border-color:#999 !important;background:#fff !important}
   a[href^="#"]::after{content:""}
@@ -532,7 +532,6 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     </div>
   </section>
 
-  <div class="statband"><div class="wrap"><div class="row" id="hero-stats"></div></div></div>
 
   <!-- stays -->
   <section class="sect">
@@ -886,13 +885,14 @@ const SITE = {
                {src:"/assets/units/main-complex/05.webp",cap:"The gym"},
                {src:"/assets/units/main-complex/06.webp",cap:"A guest room"}] },
 
-    { slug:"glass-igloo", name:"Glass Igloo Dome", kind:"sleeping", phases:[2], count:null, keys:1,
+    { slug:"glass-igloo", name:"Glass Igloo Dome", kind:"sleeping", phases:[2], count:60, keys:1,
       tagline:"A panoramic glazed dome built for the months nobody else is open.",
       areaSqft:null, areaM2:null, areaLabel:"304 – 541 sq ft", footprintFt:null, footprintM:null,
       storeys:1, beds:null, baths:null,
-      specBand:[{value:"304–541",label:"sq ft"},{value:"6 / 7 / 8 m",label:"diameters"},
+      specBand:[{value:"60",label:"domes"},{value:"7 / 8 m",label:"diameters"},
                 {value:"55 mm",label:"insulation"},{value:"20–30 yr",label:"design life"}],
-      specs:{ "Sizes":"6 m (Ø20 ft, 304 sq ft) · 7 m (Ø23 ft, 414 sq ft) · 8 m (Ø26 ft, 541 sq ft)",
+      specs:{ "Mix":"57 at 7 m and 3 at 8 m",
+        "Sizes":"6 m (Ø20 ft, 304 sq ft) · 7 m (Ø23 ft, 414 sq ft) · 8 m (Ø26 ft, 541 sq ft)",
         "Frame":"6063-T5 aluminium geodesic",
         "Glazing":"5 mm tempered glass",
         "Envelope":"3-layer 55 mm build: carbon-crystal board, polyurethane, outer glass",
@@ -907,7 +907,7 @@ const SITE = {
       gallery:[{src:"/assets/units/glass-igloo/01.webp",cap:"Inside a glazed dome in winter"},
                {src:"/assets/units/glass-igloo/02.webp",cap:"The fitted kitchenette"}] },
 
-    { slug:"standing-dome", name:"Standing Glass Dome", kind:"sleeping", phases:[2], count:null, keys:1,
+    { slug:"standing-dome", name:"Standing Glass Dome", kind:"sleeping", phases:[2], count:33, keys:1,
       tagline:"A glass dome lifted three metres off the ground, with a loft under the apex.",
       areaSqft:463, areaM2:43, footprintFt:"19.7 ⌀", footprintM:"6.0 ⌀",
       storeys:1, beds:null, baths:1,
@@ -1042,8 +1042,9 @@ const DIM={
   "/assets/site/card-aframe.webp":[900,900],
   "/assets/site/card-cabins.webp":[900,900],
   "/assets/site/card-domes.webp":[900,900],
-  "/assets/site/hero-end.webp":[1536,1024],
+  "/assets/site/hero-end.webp":[1537,1023],
   "/assets/site/hero-poster.webp":[1920,1080],
+  "/assets/site/land.webp":[1400,1129],
   "/assets/site/locator-map.svg":[1000,1000],
   "/assets/site/plan-1.webp":[1443,1164],
   "/assets/site/plan-2.webp":[1443,1164],
@@ -1055,6 +1056,7 @@ const DIM={
   "/assets/site/strip-2.webp":[800,800],
   "/assets/site/strip-3.webp":[800,800],
   "/assets/site/strip-4.webp":[800,800],
+  "/assets/site/waterfront.webp":[1300,1453],
   "/assets/units/a-frame/01.webp":[1400,933],
   "/assets/units/a-frame/02.webp":[1400,1050],
   "/assets/units/a-frame/03.webp":[1400,933],
@@ -1102,7 +1104,7 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const HERO={ video:'/assets/site/hero.webm', videoMp4:'/assets/site/hero.mp4',
              poster:'/assets/site/hero-poster.webp',
              endImage:'/assets/site/hero-end.webp',
-             endAlt:'A-frame cabins along the resort road',
+             endAlt:'Shoreline domes along the Lake Wolsey frontage',
              alt:'A film of the Evergreen Resort grounds' };
 
 (function heroInit(){
@@ -1136,16 +1138,6 @@ const HERO={ video:'/assets/site/hero.webm', videoMp4:'/assets/site/hero.mp4',
     const hi=hm.querySelector('img');
     if(hi){hi.loading='eager';hi.setAttribute('fetchpriority','high');hi.removeAttribute('width');hi.removeAttribute('height');}
   }
-  /* Real figures only: the mockup's 25 ha / 600 m / 50+ stays are placeholders
-     and an investor page cannot carry invented numbers. Keys stay TBD until the
-     unit mix is locked, then this cell fills itself from the data model. */
-  const keys=keysUpTo(3);
-  document.getElementById('hero-stats').innerHTML=[
-    {v:SITE.meta.parcelHa, k:'Hectares of land'},
-    {v:SITE.meta.frontageM+'\u00a0m', k:'Shoreline frontage'},
-    {v:keys==null?'TBD':keys, k:'Luxury stays'},
-    {v:4, k:'Seasons of adventure'}
-  ].map(x=>`<div class="cell"><span class="v">${x.v}</span><span class="k">${x.k}</span></div>`).join('');
 })();
 
 const locatorMap = () =>
@@ -1302,7 +1294,6 @@ function buildPhases(only){
           <p style="margin-top:0">${p.infrastructure.map(esc).join(' · ')}</p>`:''}
         <h3 class="eye" style="margin:2.4rem 0 1.2rem">Units in this phase</h3>
         <div class="grid g3">${unitsInPhase(p.id).map(unitCard).join('')}</div>
-        ${p.id===2?sportSplitSVG():''}
         <div style="margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid ${i%2?'var(--rule-dk)':'var(--rule)'}">
           <div class="eye">What this phase unlocks</div>
           <p class="lead" style="margin-top:.6rem">${esc(p.unlocks)}</p>
@@ -1392,14 +1383,6 @@ function buildUnit(slug){
       <dl class="spec">${Object.entries(u.specs).map(([k,v])=>
         `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
 
-      ${(u.included.length||u.excluded.length)?`
-      <h2 class="eye" style="margin:3rem 0 1rem">What&rsquo;s included</h2>
-      <div class="grid g2">
-        <div><div class="eye" style="margin-bottom:.6rem">Included</div>
-          <ul class="ticks yes">${u.included.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>
-        <div><div class="eye" style="margin-bottom:.6rem">Not included</div>
-          <ul class="ticks no">${u.excluded.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>
-      </div>`:''}
 
       <h2 class="eye" style="margin:3rem 0 1rem">Placement</h2>
       <p style="margin-top:0;max-width:62ch">${esc(u.name)} is drawn into ${
@@ -1464,34 +1447,50 @@ addEventListener('resize',()=>{clearTimeout(packTimer);packTimer=setTimeout(pack
 
 /* ══ AMENITIES ═════════════════════════════════════════════════════ */
 function buildAmenities(){
-  const blocks=[
-    {t:"The Main Complex",u:"main-complex",
-     b:"Eighteen guest rooms over the shared programme: an indoor pool, a cold plunge, a sauna, the restaurant and the patio. The building everyone passes through on the way in and ends up in at night."},
-    {t:"The Sport Barn",u:"sport-barn",
-     b:"Twenty thousand square feet split down the middle: pickleball and basketball courts with golf simulator bays on one side, and the warehouse that stores everything the site runs on. This is the four-season argument; it is what makes a January booking possible."},
-    {t:"The Waterfront",u:null,img:null,
-     b:"259 metres of Lake Wolsey frontage: dock, swimming, and a launch for small craft."},
-    {t:"The Land",u:null,img:null,
-     b:"Trails through the bush and open field to the east, on 7.5 hectares."}
+  /* One card per thing a guest can actually do, each with the photograph of
+     that space. Figures are the ones already in the data model: the frontage
+     and the parcel size come from SITE.meta, the room count from the unit. */
+  const mc=U('main-complex'), sb=U('sport-barn');
+  const cards=[
+    {t:"The patio",        img:"/assets/units/main-complex/01.webp", href:"#/unit/main-complex",
+     b:"Outdoor dining and lounge seating along the pool terrace."},
+    {t:"Restaurant and bar",img:"/assets/units/main-complex/02.webp", href:"#/unit/main-complex",
+     b:"The dining room and bar, opening onto the water side of the complex."},
+    {t:"Indoor pool and cold plunge", img:"/assets/units/main-complex/04.webp", href:"#/unit/main-complex",
+     b:"A glazed pool hall with a cold plunge off the end of it."},
+    {t:"The sauna",        img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
+     b:"Cedar-lined, and the other half of the plunge."},
+    {t:"The gym",          img:"/assets/units/main-complex/05.webp", href:"#/unit/main-complex",
+     b:"Cardio and weights alongside the pool."},
+    {t:"Guest rooms",      img:"/assets/units/main-complex/06.webp", href:"#/unit/main-complex",
+     b:`${mc&&mc.keys?mc.keys:''} rooms in the main complex, each looking into the pines.`},
+    {t:"Pickleball and basketball", img:"/assets/units/sport-barn/hero.webp", href:"#/unit/sport-barn",
+     b:"Indoor courts under a 20 ft clear roof, open in any weather."},
+    {t:"Golf simulators",  img:"/assets/units/sport-barn/01.webp", href:"#/unit/sport-barn",
+     b:"Simulator bays alongside the courts in the sport barn."},
+    {t:"The waterfront",   img:"/assets/site/waterfront.webp", href:"#/location",
+     b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: dock, swimming, and a launch for small craft.`},
+    {t:"The land",         img:"/assets/site/land.webp", href:"#/",
+     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelHa} hectares.`}
   ];
   document.getElementById('amen-body').innerHTML=`
     <section class="sect" style="padding-top:1rem"><div class="wrap">
       <div class="eye">Amenities</div>
-      <h1 class="disp" style="margin:.8rem 0 2.4rem;max-width:20ch">
+      <h1 class="disp" style="margin:.8rem 0 1rem;max-width:20ch">
         What there is to do.</h1>
-      ${blocks.map((bl,i)=>{
-        const u=bl.u?U(bl.u):null;
-        return `<div class="rv" style="margin-bottom:3.5rem">
-          <figure>${img(u?u.hero:null,bl.t,bl.t,'2000 × 1250')}
-            <figcaption>${esc(bl.t)}</figcaption></figure>
-          <div class="prose" style="margin-top:1.2rem">
-            <h2 class="disp" style="margin:0 0 .6rem">${esc(bl.t)}</h2>
-            <p style="margin:0">${esc(bl.b)}</p>
-            ${u?`<p style="margin-top:.8rem"><a href="#/unit/${u.slug}" style="color:var(--muted)">Detail →</a></p>`:''}
-          </div>
-          ${bl.u==='sport-barn'?sportSplitSVG():''}
-        </div>`;
-      }).join('')}
+      <p class="lead" style="max-width:58ch;margin:0 0 2.6rem">Everything shared sits in two
+         buildings and the ground between them: the main complex on the water, the sport barn
+         behind it, and ${SITE.meta.parcelHa} hectares of shoreline and bush around both.</p>
+      <div class="amcards rv">${cards.map(c=>`
+        <a class="amc" href="${c.href}">
+          <figure>${img(c.img,c.t,c.t,'1400 × 1050')}</figure>
+          <h3>${esc(c.t)}</h3>
+          <p>${esc(c.b)}</p>
+        </a>`).join('')}</div>
+
+      <h2 class="eye" style="margin:3.4rem 0 1rem">How the sport barn splits</h2>
+      ${sportSplitSVG(true)}
+
       <h2 class="eye" style="margin:3rem 0 0">Seasonality</h2>
       <div class="tw"><table class="data" id="season-table2"></table></div>
     </div></section>`;
