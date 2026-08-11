@@ -1415,7 +1415,7 @@ function undo(){
   const e=undoStack.pop();
   redoStack.push({label:e.label,state:JSON.stringify(serialize(false))});
   if(redoStack.length>UNDO_MAX)redoStack.shift();
-  applyState(JSON.parse(e.state),true);
+  applyState(JSON.parse(e.state),true,true);
   updateUndoBtn();
   toast('Undid '+e.label);
 }
@@ -1424,7 +1424,7 @@ function redo(){
   const e=redoStack.pop();
   undoStack.push({label:e.label,state:JSON.stringify(serialize(false))});
   if(undoStack.length>UNDO_MAX)undoStack.shift();
-  applyState(JSON.parse(e.state),true);
+  applyState(JSON.parse(e.state),true,true);
   updateUndoBtn();
   toast('Redid '+e.label);
 }
@@ -3511,6 +3511,14 @@ $('fileMap').onchange=e=>{
   r.readAsDataURL(f);
 };
 
+/* One placed thing, reduced to the handful of numbers a plan file carries.
+   Undo compares these strings to work out what actually moved. */
+const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
+  :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0}
+  :p.type==='deck'?{t:'deck',pts:p.pts}
+  :p.type==='pave'?{t:'pave',pts:p.pts}
+  :p.type==='shrub'?{t:'shrub',pts:p.pts}
+  :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot};
 function serialize(withUnder){
   return {v:3,style:styleMode,land:JSON.parse(JSON.stringify(LAND)),
     shore:JSON.parse(JSON.stringify(SITE.shore)),boundary:JSON.parse(JSON.stringify(SITE.boundary)),
@@ -3525,20 +3533,49 @@ function serialize(withUnder){
     prices:(()=>{const o={};CAT.forEach(g=>g.items.forEach(i=>{
       if(i.usd!=null)o[i.id]={usd:i.usd,freight:i.freight||0};
       else if(i.cad!=null)o[i.id]={cad:i.cad};}));return o;})(),
-    items:placed.map(p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
-      :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0}
-      :p.type==='deck'?{t:'deck',pts:p.pts}
-      :p.type==='pave'?{t:'pave',pts:p.pts}
-      :p.type==='shrub'?{t:'shrub',pts:p.pts}
-      :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot}),
+    items:placed.map(itemOf),
     trees:trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]),
     extras:JSON.parse(JSON.stringify(extras)),plantTally:JSON.parse(JSON.stringify(plantTally)),
     treeStats:JSON.parse(JSON.stringify(treeStats))};
 }
-function applyState(d,keepUnder){
+/* Tearing an object down without the per-object refresh(): a full restore
+   removes every item, and refreshing after each one made that quadratic. */
+function dropObj(o){dropLights(o.mesh);objGroup.remove(o.mesh);
+  const i=placed.indexOf(o);if(i>=0)placed.splice(i,1);}
+
+function applyState(d,keepUnder,incremental){
   restoring=true;
   try{
-    [...placed].forEach(removeObj);extras.length=0;for(const k in plantTally)delete plantTally[k];
+    /* Undo and redo re-apply a snapshot that is normally one item away from
+       what is on screen. Rebuilding every shrub bed and custom deck to get
+       there is what made undo crawl — and, because bushes are seeded at
+       random, it also reshuffled beds that had not been touched. So when the
+       ground underneath is unchanged, keep everything that matches and only
+       build the difference. */
+    const groundSame = !!incremental && !!d.land && !!d.shore && !!d.boundary
+      && JSON.stringify(d.land)===JSON.stringify(LAND)
+      && JSON.stringify(d.shore)===JSON.stringify(SITE.shore)
+      && JSON.stringify(d.boundary)===JSON.stringify(SITE.boundary);
+    const treesSame = groundSame && JSON.stringify(d.trees||[])===JSON.stringify(
+      trees.map(t=>t.dead?0:[+t.x.toFixed(2),+t.z.toFixed(2),t.sp,+t.s.toFixed(2),+t.rot.toFixed(2),t.lit?1:0]));
+
+    let build=d.items||[];
+    if(groundSame){
+      const bucket=new Map();                       // what is on screen, by shape
+      placed.forEach(p=>{const k=JSON.stringify(itemOf(p));
+        if(!bucket.has(k))bucket.set(k,[]);
+        bucket.get(k).push(p);});
+      const keep=new Set(); build=[];
+      for(const it of (d.items||[])){
+        const b=bucket.get(JSON.stringify(it));
+        if(b&&b.length)keep.add(b.pop()); else build.push(it);
+      }
+      placed.filter(p=>!keep.has(p)).forEach(dropObj);
+      select(null);
+    }else{
+      [...placed].forEach(dropObj); select(null);
+    }
+    extras.length=0;for(const k in plantTally)delete plantTally[k];
     Object.assign(LAND,d.land||{});Object.assign(CUSTOM,d.custom||{});Object.assign(FIN,d.fin||{});
     Object.assign(RATES,d.rates||{});          // rules intentionally not restored
     if(d.prices)for(const id in d.prices){                 // restore edited unit prices
@@ -3567,12 +3604,14 @@ function applyState(d,keepUnder){
       SITE.underUrl=d.under||null;SITE.underOn=false;   // imported plans open with the underlay off
       underLabel();
     }
-    buildTerrain();
-    trees.length=0;
-    (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
-      :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
-    syncTrees();
-    (d.items||[]).forEach(i=>{
+    if(!groundSame)buildTerrain();
+    if(!treesSame){
+      trees.length=0;
+      (d.trees||[]).forEach(t=>trees.push(t===0?{dead:true,x:0,z:0,tx:0,tz:0,sp:0,s:1,lit:false}
+        :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
+      syncTrees();
+    }
+    build.forEach(i=>{
       if(i.t==='road')placeRoad(DEF[i.id],i.pts);
       else if(i.t==='deck')placeDeck(i.pts);
       else if(i.t==='pave')placePave(i.pts);
