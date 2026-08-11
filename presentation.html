@@ -324,6 +324,8 @@ header{position:sticky;top:0;z-index:60;background:var(--paper);
 .masonry.packed .mcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;
   gap:var(--mgap)}
 .masonry.packed figure{margin:0}
+.masonry figcaption{font-size:11px;letter-spacing:.02em;color:var(--muted);
+  padding:.6rem .1rem 0;line-height:1.5;background:var(--paper)}
 .masonry img{width:100%;height:auto;display:block;
   transition:transform .5s cubic-bezier(.2,.7,.3,1)}
 .masonry figure:hover img{transform:scale(1.03)}
@@ -828,7 +830,9 @@ const SITE = {
       excluded:["Foundation & site prep","Appliances","Furniture",
         "Utility hookups","Air conditioning / heating"],
       hero:"/assets/units/branson/hero.webp", plan:"/assets/units/branson/plan.webp",
-      gallery:["/assets/units/branson/01.webp","/assets/units/branson/02.webp","/assets/units/branson/03.webp"] },
+      gallery:[{src:"/assets/units/branson/01.webp",cap:"The rooftop terrace and spiral stair"},
+               {src:"/assets/units/branson/02.webp",cap:"Cabins along the road"},
+               {src:"/assets/units/branson/03.webp",cap:"Open-plan living and dining"}] },
 
     { slug:"a-frame", name:"A-Frame", kind:"sleeping", phases:[1], count:4, keys:1,
       tagline:"A glulam A-frame with the strongest snow rating in the programme.",
@@ -852,7 +856,9 @@ const SITE = {
       excluded:["Foundation & site prep","Appliances","Furniture",
         "Utility hookups","Air conditioning / heating"],
       hero:"/assets/units/a-frame/hero.webp", plan:"/assets/units/a-frame/plan.webp",
-      gallery:["/assets/units/a-frame/01.webp","/assets/units/a-frame/02.webp","/assets/units/a-frame/03.webp"] },
+      gallery:[{src:"/assets/units/a-frame/01.webp",cap:"The loft and spiral stair"},
+               {src:"/assets/units/a-frame/02.webp",cap:"Living space under the gable"},
+               {src:"/assets/units/a-frame/03.webp",cap:"A-frames on a grey morning"}] },
 
     /* The one building that both sleeps guests and holds the shared
        programme. count is the building; keys is the 18 rooms inside it. */
@@ -873,9 +879,12 @@ const SITE = {
       included:[], excluded:[],
       pending:"Footprint, storeys and structure are still to be confirmed. The programme below is settled.",
       hero:"/assets/units/main-complex/hero.webp", plan:null,
-      gallery:["/assets/units/main-complex/01.webp","/assets/units/main-complex/02.webp",
-               "/assets/units/main-complex/03.webp","/assets/units/main-complex/04.webp",
-               "/assets/units/main-complex/05.webp"] },
+      gallery:[{src:"/assets/units/main-complex/01.webp",cap:"The patio"},
+               {src:"/assets/units/main-complex/02.webp",cap:"Restaurant and bar"},
+               {src:"/assets/units/main-complex/03.webp",cap:"The sauna"},
+               {src:"/assets/units/main-complex/04.webp",cap:"Indoor pool and cold plunge"},
+               {src:"/assets/units/main-complex/05.webp",cap:"The gym"},
+               {src:"/assets/units/main-complex/06.webp",cap:"A guest room"}] },
 
     { slug:"glass-igloo", name:"Glass Igloo Dome", kind:"sleeping", phases:[2], count:null, keys:1,
       tagline:"A panoramic glazed dome built for the months nobody else is open.",
@@ -895,7 +904,8 @@ const SITE = {
       included:["Aluminium geodesic frame","Tempered glass glazing","3-layer insulated envelope"],
       excluded:["Timber deck base","Bathroom module","Kitchen unit","Foundation & site prep","Utility hookups"],
       hero:"/assets/units/glass-igloo/hero.webp", plan:"/assets/units/glass-igloo/plan.webp",
-      gallery:["/assets/units/glass-igloo/01.webp","/assets/units/glass-igloo/02.webp"] },
+      gallery:[{src:"/assets/units/glass-igloo/01.webp",cap:"Inside a glazed dome in winter"},
+               {src:"/assets/units/glass-igloo/02.webp",cap:"The fitted kitchenette"}] },
 
     { slug:"standing-dome", name:"Standing Glass Dome", kind:"sleeping", phases:[2], count:null, keys:1,
       tagline:"A glass dome lifted three metres off the ground, with a loft under the apex.",
@@ -914,7 +924,8 @@ const SITE = {
         "Insulated glazing","Bathroom pod","Kitchen","Mezzanine loft"],
       excluded:["Foundation & site prep","Water tank & heater","Utility hookups","Furniture"],
       hero:"/assets/units/standing-dome/hero.webp", plan:"/assets/units/standing-dome/plan.webp",
-      gallery:["/assets/units/standing-dome/01.webp","/assets/units/standing-dome/02.webp"] },
+      gallery:[{src:"/assets/units/standing-dome/01.webp",cap:"Domes on their deck at dusk"},
+               {src:"/assets/units/standing-dome/02.webp",cap:"Inside the dome"}] },
 
     { slug:"sport-barn", name:"The Sport Barn", kind:"amenity", phases:[2], count:1, keys:0,
       tagline:"Twenty thousand square feet that makes a January booking possible.",
@@ -936,7 +947,7 @@ const SITE = {
       excluded:["Concrete foundation","Insulation","Interior fit-out",
         "Plumbing & electrical","Court surfaces & simulator equipment","Racking & storage fit-out","On-site erection"],
       hero:"/assets/units/sport-barn/hero.webp", plan:null,
-      gallery:["/assets/units/sport-barn/01.webp"] },
+      gallery:[{src:"/assets/units/sport-barn/01.webp",cap:"Golf simulator bays"}] },
 
     { slug:"chun-shu", name:"Chun Shu", kind:"sleeping", phases:[3], count:19, keys:1,
       tagline:"Two storeys, a glass sunroom, and the most private position on the site.",
@@ -959,8 +970,9 @@ const SITE = {
         "Solid wood flooring","Foundation drawings"],
       excluded:["Foundation & site prep","Appliances","Fixtures","Furniture",
         "Cabinets","Utility hookups"],
-      pending:"Photography pending. The available drawings and renders carry third-party branding, so they are held back rather than shown here.",
-      hero:null, plan:null, gallery:[] }
+      pending:"Interiors only. The exterior renders and the floor plan carry the maker's branding, so they are held back until clean copies arrive.",
+      hero:"/assets/units/chun-shu/hero.webp", plan:null,
+      gallery:[{src:"/assets/units/chun-shu/01.webp",cap:"The bedroom under the dome"}] }
   ],
 
   /* Pin coordinates are % of the aerial, origin top-left. These are indicative
@@ -1023,6 +1035,8 @@ const fmt = n => n==null?'n/a':n.toLocaleString('en-CA');
 /* ══ image with graceful placeholder (§11.3) ═══════════════════════ */
 /* Real pixel dimensions, so every <img> reserves its box (§3). */
 const DIM={
+  "/assets/brand/evergreen-resort.png":[760,154],
+  "/assets/brand/favicon.png":[256,256],
   "/assets/site/arrival-day.webp":[1500,1001],
   "/assets/site/arrival.webp":[1448,1086],
   "/assets/site/card-aframe.webp":[900,900],
@@ -1030,12 +1044,13 @@ const DIM={
   "/assets/site/card-domes.webp":[900,900],
   "/assets/site/hero-end.webp":[1536,1024],
   "/assets/site/hero-poster.webp":[1920,1080],
+  "/assets/site/locator-map.svg":[1000,1000],
   "/assets/site/plan-1.webp":[1443,1164],
   "/assets/site/plan-2.webp":[1443,1164],
   "/assets/site/plan-3.webp":[1443,1164],
   "/assets/site/split-cabins.webp":[1448,1086],
   "/assets/site/split-domes.webp":[1500,1000],
-  "/assets/site/split-sport.webp":[401,498],
+  "/assets/site/split-sport.webp":[1400,1050],
   "/assets/site/strip-1.webp":[800,800],
   "/assets/site/strip-2.webp":[800,800],
   "/assets/site/strip-3.webp":[800,800],
@@ -1050,20 +1065,23 @@ const DIM={
   "/assets/units/branson/03.webp":[1400,1050],
   "/assets/units/branson/hero.webp":[1448,1086],
   "/assets/units/branson/plan.webp":[1600,1005],
-  "/assets/units/glass-igloo/01.webp":[1400,933],
-  "/assets/units/glass-igloo/02.webp":[1400,933],
+  "/assets/units/chun-shu/01.webp":[1400,1190],
+  "/assets/units/chun-shu/hero.webp":[1440,1219],
+  "/assets/units/glass-igloo/01.webp":[1200,1591],
+  "/assets/units/glass-igloo/02.webp":[1000,1784],
   "/assets/units/glass-igloo/hero.webp":[1536,1024],
   "/assets/units/glass-igloo/plan.webp":[1500,957],
-  "/assets/units/main-complex/01.webp":[1400,933],
-  "/assets/units/main-complex/02.webp":[1400,1120],
-  "/assets/units/main-complex/03.webp":[1400,788],
-  "/assets/units/main-complex/04.webp":[1400,1050],
-  "/assets/units/main-complex/05.webp":[1400,1050],
+  "/assets/units/main-complex/01.webp":[1400,1120],
+  "/assets/units/main-complex/02.webp":[1400,933],
+  "/assets/units/main-complex/03.webp":[1086,1448],
+  "/assets/units/main-complex/04.webp":[1500,803],
+  "/assets/units/main-complex/05.webp":[1400,788],
+  "/assets/units/main-complex/06.webp":[1400,1050],
   "/assets/units/main-complex/hero.webp":[1448,1086],
-  "/assets/units/sport-barn/01.webp":[596,335],
-  "/assets/units/sport-barn/hero.webp":[401,498],
+  "/assets/units/sport-barn/01.webp":[1500,927],
+  "/assets/units/sport-barn/hero.webp":[1173,1341],
   "/assets/units/standing-dome/01.webp":[1400,933],
-  "/assets/units/standing-dome/02.webp":[1400,933],
+  "/assets/units/standing-dome/02.webp":[1280,1280],
   "/assets/units/standing-dome/hero.webp":[1536,1024],
   "/assets/units/standing-dome/plan.webp":[1500,1374]
 };
@@ -1084,7 +1102,7 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const HERO={ video:'/assets/site/hero.webm', videoMp4:'/assets/site/hero.mp4',
              poster:'/assets/site/hero-poster.webp',
              endImage:'/assets/site/hero-end.webp',
-             endAlt:'Glazed domes above the shoreline at dusk',
+             endAlt:'A-frame cabins along the resort road',
              alt:'A film of the Evergreen Resort grounds' };
 
 (function heroInit(){
@@ -1355,8 +1373,11 @@ function buildUnit(slug){
         `<div class="cell"><span class="v">${esc(s.value)}</span><span class="k">${esc(s.label)}</span></div>`).join('')}</div>
 
       ${u.gallery.length?`<h2 class="eye" style="margin:3rem 0 1rem">Gallery</h2>
-        <div class="masonry">${u.gallery.map(src=>
-          `<figure>${img(src,u.name,u.name+' · interior','1600 × 1200')}</figure>`).join('')}</div>`:
+        <div class="masonry">${u.gallery.map(g=>{
+          const src=typeof g==='string'?g:g.src, cap=typeof g==='string'?'':g.cap;
+          const alt=cap?`${u.name}: ${cap.toLowerCase()}`:u.name;
+          return `<figure>${img(src,alt,cap||u.name+' · interior','1600 × 1200')}${
+            cap?`<figcaption>${esc(cap)}</figcaption>`:''}</figure>`;}).join('')}</div>`:
         `<h2 class="eye" style="margin:3rem 0 1rem">Gallery</h2>
          <div class="masonry">${[1,2,3].map(n=>
           `<figure>${img(null,'',u.name+' · view 0'+n,'1600 × 1200')}</figure>`).join('')}</div>`}
