@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Evergreen Resort: Lake Wolsey, Manitoulin Island</title>
-<meta name="description" content="A four-season retreat on 7.5 hectares of Lake Wolsey shoreline. Built in three phases.">
+<meta name="description" content="A four-season retreat on 33 acres of Lake Wolsey shoreline. Built in three phases.">
 <!-- Self-hosted (§2.4): no third-party request from a page shown to investors. -->
 <link rel="icon" href="/assets/brand/favicon.png" type="image/png">
 <link rel="preload" href="/assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -529,7 +529,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="wrap hero-inner">
       <div class="eye">Gore Bay &middot; Manitoulin Island &middot; Ontario</div>
       <h1 class="disp">Establishing a landmark on Ontario&rsquo;s northern shore.</h1>
-      <p class="sub">Seven and a half hectares on Lake Wolsey, taking shape as a
+      <p class="sub">Thirty-three acres on Lake Wolsey, taking shape as a
          four-season resort across three phases.</p>
       <a class="btn solid" href="#/contact">Register now</a>
     </div>
@@ -554,7 +554,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <div class="plancol rv">
           <div class="eye">Master plan</div>
           <h2 class="disp">A community carefully planned to preserve nature.</h2>
-          <p>Three phases across 7.5 hectares: sleeping units, the arrival complex and the
+          <p>Three phases across 33 acres: sleeping units, the arrival complex and the
              sport barn, sequenced so the first units earn while the next are engineered.
              Every structure is reviewed against the Ontario Building Code before it is
              drawn on the plan.</p>
@@ -705,7 +705,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
       <h2 class="disp" style="margin:.8rem 0 1.4rem;max-width:20ch">
         The largest freshwater island in the world.</h2>
       <div class="prose">
-        <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 7.5 hectares with about 259 metres of water frontage, and the internal road is already in.</p>
+        <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
         <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
       </div>
       <div class="mapshot rv" id="loc-map2" style="margin-top:2.4rem"></div>
@@ -795,7 +795,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 const SITE = {
   meta:{ name:"Evergreen Resort", owner:"Trinh Family Holdings",
     location:"Hwy 540, Gore Bay, Manitoulin Island, Ontario",
-    water:"Lake Wolsey", parcelHa:7.5, frontageM:259, lat:45.9 },
+    water:"Lake Wolsey", parcelAcres:33, parcelHa:13.35, frontageM:259, lat:45.9 },
 
   phases:[
     { id:1, name:"The Arrival", status:"In engineering", window:null,
@@ -1488,7 +1488,7 @@ function buildAmenities(){
     {t:"The waterfront",   img:"/assets/site/waterfront.webp", href:"#/location",
      b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: dock, swimming, and a launch for small craft.`},
     {t:"The land",         img:"/assets/site/land.webp", href:"#/",
-     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelHa} hectares.`}
+     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelAcres} acres.`}
   ];
   document.getElementById('amen-body').innerHTML=`
     <section class="sect" style="padding-top:1rem"><div class="wrap">
@@ -1497,7 +1497,7 @@ function buildAmenities(){
         What there is to do.</h1>
       <p class="lead" style="max-width:58ch;margin:0 0 2.6rem">Everything shared sits in two
          buildings and the ground between them: the main complex on the water, the sport barn
-         behind it, and ${SITE.meta.parcelHa} hectares of shoreline and bush around both.</p>
+         behind it, and ${SITE.meta.parcelAcres} acres of shoreline and bush around both.</p>
       <div class="amcards rv">${cards.map(c=>`
         <a class="amc" href="${c.href}">
           <figure>${img(c.img,c.t,c.t,'1400 × 1050')}</figure>
