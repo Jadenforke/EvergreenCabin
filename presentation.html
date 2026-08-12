@@ -350,7 +350,7 @@ table.data td a{color:var(--ink);font-weight:500}
 .on-dark table.data th{color:rgba(255,255,255,.6);border-color:var(--rule-dk)}
 .on-dark table.data td{color:rgba(255,255,255,.8);border-color:var(--rule-dk)}
 .on-dark table.data td a{color:#fff}
-.specband{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);
+.specband{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--rule);
   margin-top:1.8rem;background:var(--card)}
 .specband .cell{padding:1.2rem 1.1rem;border-left:1px solid var(--rule-lt)}
 .specband .cell:first-child{border-left:0}
@@ -882,8 +882,7 @@ const SITE = {
       tagline:"Eighteen rooms, the pool, the restaurant, and the room everyone ends up in.",
       areaSqft:null, areaM2:null, footprintFt:null, footprintM:null,
       storeys:null, beds:null, baths:null,
-      specBand:[{value:"18",label:"rooms"},{value:"n/a",label:"sq ft"},
-                {value:"n/a",label:"storeys"},{value:"6",label:"shared spaces"}],
+      specBand:[{value:"18",label:"rooms"},{value:"6",label:"shared spaces"}],
       specs:{ "Rooms":"18 guest rooms",
         "Water":"Indoor pool and cold plunge",
         "Wellness":"Sauna",
@@ -1076,7 +1075,7 @@ const DIM={
   "/assets/site/strip-2.webp":[800,800],
   "/assets/site/strip-3.webp":[800,800],
   "/assets/site/strip-4.webp":[800,800],
-  "/assets/site/waterfront.webp":[1300,1453],
+  "/assets/site/waterfront.webp":[1537,1023],
   "/assets/units/a-frame/01.webp":[1400,933],
   "/assets/units/a-frame/02.webp":[1400,1050],
   "/assets/units/a-frame/03.webp":[1400,933],
@@ -1190,13 +1189,14 @@ function renderPlanTable(ph){
   const list = ph==='all' ? SITE.units
     : SITE.units.filter(u=>u.phases.includes(Number(ph)));
   document.getElementById('plan-table').innerHTML=
-    `<tr><th>Unit</th><th>Phase</th><th>Type</th><th>Area</th><th>Count</th><th>Status</th></tr>`+
+    `<tr><th>Unit</th><th>Phase</th><th>Type</th><th>Area</th><th>Count</th><th>Keys</th><th>Status</th></tr>`+
     (list.length?list:[]).map(u=>`<tr>
       <td><a href="#/unit/${u.slug}" >${esc(u.name)}</a></td>
       <td>${u.phases.map(p=>'0'+p).join(', ')}</td>
       <td>${u.kind==='amenity'&&u.keys?'rooms + amenity':u.kind}</td>
       <td>${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'n/a')}</td>
       <td>${u.count==null?'TBD':u.count}</td>
+      <td>${!u.keys?'n/a':u.count==null?'TBD':fmt(u.count*u.keys)}</td>
       <td>${esc(SITE.phases.find(p=>p.id===u.phases[0]).status)}</td></tr>`).join('');
 }
 function setPhase(ph){
@@ -1288,6 +1288,18 @@ function buildHome(){
     SITE.seasons.map(x=>`<tr><td>${esc(x.s)}</td><td>${esc(x.open)}</td>
       <td style="white-space:normal">${esc(x.draw)}</td><td style="white-space:normal">${esc(x.note)}</td></tr>`).join('');
 }
+/* A cabin is described by its floor area; a building full of rooms is
+   described by its rooms. Build the line from what the unit has rather
+   than assuming every unit is a cabin. */
+function unitStrip(u){
+  const bits=[];
+  if(u.areaLabel) bits.push(u.areaLabel);
+  else if(u.areaSqft) bits.push(fmt(u.areaSqft)+' sq ft');
+  if(u.keys>1) bits.push(u.keys+' rooms');
+  if(u.beds) bits.push(u.beds+' bed'+(u.baths?' / '+u.baths+' bath':''));
+  else if(u.baths) bits.push(u.baths+' bath');
+  return bits.length?bits.join(' \u00b7 '):'Area TBD';
+}
 function unitCard(u){
   return `<a class="card rv" href="#/unit/${u.slug}">
     <div class="imgwrap">${img(u.hero,u.name,u.name+' · exterior','2000 × 1250')}</div>
@@ -1295,8 +1307,7 @@ function unitCard(u){
       <div class="eye">${u.phases.map(p=>'Phase 0'+p).join(' & ')}</div>
       <h3>${esc(u.name)}</h3>
       <div class="reveal"><p>${esc(u.tagline)}</p></div>
-      <div class="strip">${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'Area TBD')}${
-        u.beds?' · '+u.beds+' bed':''}${u.baths?' / '+u.baths+' bath':''}</div>
+      <div class="strip">${unitStrip(u)}</div>
     </div></a>`;
 }
 
@@ -1382,7 +1393,7 @@ function buildUnit(slug){
       <p class="lead">${esc(u.tagline)}</p>
       ${u.pending?`<p class="smallprint" style="color:var(--muted)">${esc(u.pending)}</p>`:''}
 
-      <div class="specband">${u.specBand.map(s=>
+      <div class="specband">${u.specBand.filter(b=>String(b.value).toLowerCase()!=='n/a').map(s=>
         `<div class="cell"><span class="v">${esc(s.value)}</span><span class="k">${esc(s.label)}</span></div>`).join('')}</div>
 
       ${u.gallery.length?`<h2 class="eye" style="margin:3rem 0 1rem">Gallery</h2>
