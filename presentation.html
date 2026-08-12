@@ -389,6 +389,13 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
   .ladder .c{grid-column:1/-1;margin-top:-.5rem}}
 
 /* ── sport barn split diagram ────────────────────────────────────────── */
+/* Location: the words on the left, the map alongside them on the right,
+   stacking under each other once there is no room for two columns. */
+.locsplit{display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(1.6rem,4vw,3.2rem);align-items:start}
+.locsplit .prose{margin:0}
+@media(max-width:860px){.locsplit{grid-template-columns:1fr}}
+
 /* ── amenity cards ───────────────────────────────────────────────────
    One card per thing to do, photograph first. Three across, two on a
    tablet, one on a phone. */
@@ -528,7 +535,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="hero-scrim"></div>
     <div class="wrap hero-inner">
       <div class="eye">Gore Bay &middot; Manitoulin Island &middot; Ontario</div>
-      <h1 class="disp">Establishing a landmark on Ontario&rsquo;s northern shore.</h1>
+      <h1 class="disp">An escape into northern Ontario.</h1>
       <p class="sub">Thirty-three acres on Lake Wolsey, taking shape as a
          four-season resort across three phases.</p>
       <a class="btn solid" href="#/contact">Register now</a>
@@ -704,11 +711,13 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
       <div class="eye">Manitoulin Island</div>
       <h2 class="disp" style="margin:.8rem 0 1.4rem;max-width:20ch">
         The largest freshwater island in the world.</h2>
-      <div class="prose">
-        <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
-        <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
+      <div class="locsplit">
+        <div class="prose">
+          <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
+          <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
+        </div>
+        <div class="mapshot rv" id="loc-map2"></div>
       </div>
-      <div class="mapshot rv" id="loc-map2" style="margin-top:2.4rem"></div>
       <div class="visit rv" id="visit2" style="margin-top:2.6rem"></div>
       <div class="ladder" id="ladder2" style="margin-top:2.6rem;border-color:var(--rule)"></div>
       <p class="smallprint" style="color:var(--muted)">Distances and drive times are indicative and pending verification.</p>
@@ -895,16 +904,16 @@ const SITE = {
 
     { slug:"glass-igloo", name:"Glass Igloo Dome", kind:"sleeping", phases:[2], count:60, keys:1,
       tagline:"A panoramic glazed dome built for the months nobody else is open.",
-      areaSqft:null, areaM2:null, areaLabel:"304 – 541 sq ft", footprintFt:null, footprintM:null,
+      areaSqft:null, areaM2:null, areaLabel:"304 to 541 sq ft", footprintFt:null, footprintM:null,
       storeys:1, beds:null, baths:null,
       specBand:[{value:"60",label:"domes"},{value:"7 / 8 m",label:"diameters"},
-                {value:"55 mm",label:"insulation"},{value:"20–30 yr",label:"design life"}],
+                {value:"55 mm",label:"insulation"},{value:"20 to 30 yr",label:"design life"}],
       specs:{ "Mix":"57 at 7 m and 3 at 8 m",
         "Sizes":"6 m (Ø20 ft, 304 sq ft) · 7 m (Ø23 ft, 414 sq ft) · 8 m (Ø26 ft, 541 sq ft)",
         "Frame":"6063-T5 aluminium geodesic",
         "Glazing":"5 mm tempered glass",
         "Envelope":"3-layer 55 mm build: carbon-crystal board, polyurethane, outer glass",
-        "Design life":"20–30 years",
+        "Design life":"20 to 30 years",
         "Cold weather":"Built for cold-weather occupancy, with a certified R-value calculation",
         "Structure":"Structural calculations completed",
         "Base":"Sits on a timber deck",
@@ -932,8 +941,8 @@ const SITE = {
         "Insulated glazing","Bathroom pod","Kitchen","Mezzanine loft"],
       excluded:["Foundation & site prep","Water tank & heater","Utility hookups","Furniture"],
       hero:"/assets/units/standing-dome/hero.webp", plan:"/assets/units/standing-dome/plan.webp",
-      gallery:[{src:"/assets/units/standing-dome/01.webp",cap:"Domes on their deck at dusk"},
-               {src:"/assets/units/standing-dome/02.webp",cap:"Inside the dome"}] },
+      gallery:[{src:"/assets/units/standing-dome/02.webp",cap:"Inside the dome"},
+               {src:"/assets/units/standing-dome/01.webp",cap:"Domes on their deck at dusk"}] },
 
     { slug:"sport-barn", name:"The Sport Barn", kind:"amenity", phases:[2], count:1, keys:0,
       tagline:"Twenty thousand square feet that makes a January booking possible.",
@@ -949,7 +958,7 @@ const SITE = {
         "Openings":"2 roller shutter doors, 2 single doors, 10 sliding windows",
         "Sport half":"~10,000 sq ft: pickleball, basketball and golf simulator bays",
         "Warehouse half":"~10,000 sq ft: storage, grounds equipment, seasonal furniture, maintenance",
-        "Finish":"Shotblast to Sa 2.5, two-coat paint 60–80 µm" },
+        "Finish":"Shotblast to Sa 2.5, two-coat paint 60 to 80 µm" },
       included:["Primary steel frame","Secondary structure & purlins",
         "Roof & wall cladding","All bolts and fixings","Doors and windows"],
       excluded:["Concrete foundation","Insulation","Interior fit-out",
@@ -1003,7 +1012,7 @@ const SITE = {
     {a:"Sudbury",         b:"160 km", c:"2 h 05 m"},
     {a:"Sudbury Airport", b:"YSB",    c:"2 h 10 m"},
     {a:"Little Current",  b:"55 km",  c:"Swing bridge, seasonal timing"},
-    {a:"South Baymouth",  b:"Ferry",  c:"Chi-Cheemaun from Tobermory, May–Oct"}
+    {a:"South Baymouth",  b:"Ferry",  c:"Chi-Cheemaun from Tobermory, May to Oct"}
   ],
 
   seasons:[
@@ -1096,7 +1105,7 @@ const DIM={
   "/assets/units/sport-barn/hero.webp":[1173,1341],
   "/assets/units/standing-dome/01.webp":[1400,933],
   "/assets/units/standing-dome/02.webp":[1280,1280],
-  "/assets/units/standing-dome/hero.webp":[1536,1024],
+  "/assets/units/standing-dome/hero.webp":[1537,1023],
   "/assets/units/standing-dome/plan.webp":[1500,1374]
 };
 function img(src,alt,label,dims,cls){
