@@ -110,44 +110,6 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 .grp.closed>*:not(.hdr){display:none}
 #ledger.setonly .grp[data-grp="other"]{display:none}
 #ledger.setonly .grp[data-grp="set"]>.hdr{border-left:2px solid var(--survey);padding-left:8px}
-@media (max-width:860px){
-  /* Panels become bottom sheets. Side-by-side columns leave nothing for the
-     map on a phone, and the top bar cannot hold fourteen buttons. */
-  #top{top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;height:44px;gap:7px;padding:0 10px;
-       overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  #top::-webkit-scrollbar{display:none}
-  #brand{font-size:9.5px;letter-spacing:.12em}
-  #toolpill{top:calc(60px + env(safe-area-inset-top));height:40px;padding:0 7px;gap:6px;
-            max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none}
-  #toolpill::-webkit-scrollbar{display:none}
-  .seg button{padding:8px 9px;font-size:9.5px}
-  .tbtn{padding:8px 10px;font-size:9.5px}
-
-  #palette,#ledger{top:auto;left:8px;right:8px;width:auto;
-    bottom:calc(8px + env(safe-area-inset-bottom));max-height:56vh;border-radius:16px}
-  #palette.tuck,#ledger.tuck{transform:translateY(calc(100% + 20px));opacity:0}
-
-  #timebar{bottom:calc(8px + env(safe-area-inset-bottom));left:8px;right:8px;
-    transform:none;width:auto;max-width:none;height:48px;gap:8px;padding:0 12px;
-    overflow-x:auto;scrollbar-width:none}
-  #timebar::-webkit-scrollbar{display:none}
-  #clock{font-size:15px}
-  /* a panel is up: get the time bar out from under it */
-  body.sheet #timebar,body.sheet #hint,body.sheet #scalebar{opacity:0;pointer-events:none}
-
-  #railL{left:8px}  #railR{right:8px}
-  #railL,#railR{top:auto!important;bottom:calc(64px + env(safe-area-inset-bottom))!important}
-  .rbtn{width:46px;height:46px;font-size:17px}          /* thumb-sized */
-
-  #hint{bottom:calc(64px + env(safe-area-inset-bottom));max-width:88vw;font-size:10px}
-  #scalebar{bottom:calc(64px + env(safe-area-inset-bottom));left:12px}
-  #compass{display:none}
-  .field input[type=number],.field select{width:82px}
-}
-@media (max-width:520px){
-  #toolpill .seg:first-child button{padding:8px 7px}
-  #palette,#ledger{max-height:62vh}
-}
 #setBanner{display:none;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   color:#140b04;background:var(--survey);padding:7px 12px;font-weight:700}
 #ledger.setonly #setBanner{display:block}
@@ -164,6 +126,109 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
 .xbtn{background:transparent;border:0;color:var(--faint);font-size:15px;line-height:1;cursor:pointer;
   padding:0 2px;margin-left:8px;transition:.15s}
 .xbtn:hover{color:var(--survey)}
+.xbtn .m{display:none}
+.rbtn .lbl{display:none}
+#dockTab{display:none;position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(var(--dock,116px) - 6px);z-index:17;
+  width:54px;height:24px;border-radius:12px 12px 0 0;border:1px solid var(--line);
+  border-bottom:0;background:rgba(11,21,19,.9);backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);color:var(--dim);font-size:10px;line-height:1;
+  cursor:pointer;align-items:center;justify-content:center;
+  transition:bottom .24s ease,color .15s}
+#dockTab:hover{color:var(--survey)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE LAYOUT
+   These rules sit at the end of the sheet on purpose. Several base rules
+   below the old position (#top{overflow:hidden}, #toolpill{top:72px})
+   share their specificity and were winning on source order, which is why
+   the top bar would not scroll.
+
+   The shape borrowed from a maps app: a scrolling action bar along the
+   top, the tools in a dock along the bottom where a thumb reaches them,
+   and everything dismissable so the plan can fill the screen.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width:860px){
+  :root{--dock:calc(116px + env(safe-area-inset-bottom))}
+  body.dockdown{--dock:calc(40px + env(safe-area-inset-bottom))}
+
+  /* top: every action reachable by swiping the bar sideways */
+  #top{top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;height:46px;
+       gap:7px;padding:0 10px;
+       overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+       scrollbar-width:none;overscroll-behavior-x:contain}
+  #top::-webkit-scrollbar{display:none}
+  #top .tbtn{flex:0 0 auto}
+  #top .spacer{display:none}
+  #brand{font-size:9.5px;letter-spacing:.12em;flex:0 0 auto;margin-right:2px}
+  .tbtn{padding:9px 11px;font-size:9.5px}
+
+  /* bottom dock: tools first, then the time bar above them */
+  #toolpill{top:auto;bottom:calc(8px + env(safe-area-inset-bottom));
+    left:8px;right:8px;width:auto;max-width:none;transform:none;
+    height:46px;padding:0 8px;gap:8px;justify-content:flex-start;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;overscroll-behavior-x:contain;
+    transition:transform .24s ease,opacity .24s ease}
+  #toolpill::-webkit-scrollbar{display:none}
+  #toolpill .seg{flex:0 0 auto}
+  .seg button{padding:9px 11px;font-size:9.5px}
+
+  #timebar{bottom:calc(62px + env(safe-area-inset-bottom));left:8px;right:8px;
+    transform:none;width:auto;max-width:none;height:46px;gap:8px;padding:0 12px;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;overscroll-behavior-x:contain;
+    transition:transform .24s ease,opacity .24s ease}
+  #timebar::-webkit-scrollbar{display:none}
+  #timebar>*{flex:0 0 auto}
+  #clock{font-size:15px}
+
+  /* the handle that drops the dock out of the way */
+  #dockTab{display:flex}
+  body.dockdown #toolpill,body.dockdown #timebar{
+    transform:translateY(calc(100% + 78px));opacity:0;pointer-events:none}
+
+  /* side panels become sheets that rise from the dock */
+  /* The sheet stops above the arrow band so both arrows stay tappable while
+     it is up: one tap to swap the catalogue for the costs. A tucked sheet is
+     pushed clear of the screen and stops taking taps, which it did not
+     before: transparent is not the same as gone. */
+  #palette,#ledger{top:auto;left:8px;right:8px;width:auto;
+    bottom:calc(var(--dock) + 50px);max-height:50vh;border-radius:16px}
+  #palette.tuck,#ledger.tuck{
+    transform:translateY(calc(100% + var(--dock) + 60px));
+    opacity:0;pointer-events:none}
+
+  /* the arrows that bring them back, sat on the dock */
+  #railL,#railR{top:auto!important;bottom:var(--dock)!important}
+  #railL{left:8px}  #railR{right:8px}
+  .rbtn{width:auto;min-width:46px;height:44px;padding:0 13px;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;
+    display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .rbtn .glyph{font-size:11px}
+  .rbtn .lbl{display:inline}
+
+  /* Everything above the dock gets its own band, or the hint runs underneath
+     the arrows and the handle. Rails sit on the dock, the hint clears them,
+     and the scale bar moves up under the action bar where there is room. */
+  #hint{bottom:calc(var(--dock) + 52px);left:50%;transform:translateX(-50%);
+        max-width:calc(100vw - 28px);font-size:10px}
+  #scalebar{top:calc(62px + env(safe-area-inset-top));bottom:auto;left:12px}
+  #selbar{bottom:calc(var(--dock) + 52px)!important}
+  #compass{display:none}
+  .field input[type=number],.field select{width:82px}
+
+  /* a sheet is up: the time bar would only be in its way */
+  body.sheet #timebar,body.sheet #hint,body.sheet #scalebar{opacity:0;pointer-events:none}
+
+  /* hide/show glyphs read differently on a sheet than on a column */
+  .xbtn .d{display:none} .xbtn .m{display:inline}
+}
+@media (max-width:520px){
+  #toolpill .seg:first-child button{padding:9px 8px}
+  #palette,#ledger{max-height:58vh}
+  .rbtn{padding:0 10px;font-size:10px}
+}
 </style>
 </head>
 <body>
@@ -188,11 +253,11 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <button class="tbtn" id="btnLoad">Import</button>
 </div>
 
-<aside id="palette" class="panel"><div class="hdr">Catalogue <span><b id="palCount"></b> <button class="xbtn" id="tuckL" title="Hide">&times;</button></span></div><div id="palList"></div></aside>
+<aside id="palette" class="panel"><div class="hdr">Catalogue <span><b id="palCount"></b> <button class="xbtn" id="tuckL" title="Hide"><span class="d">&times;</span><span class="m">&#9660;</span></button></span></div><div id="palList"></div></aside>
 
 <aside id="ledger" class="panel">
   <div id="setBanner">Settings: prices &amp; rates · press Prices again for the full panel</div>
-  <div class="hdr">Landed cost <span><b>CAD</b> <button class="xbtn" id="tuckR" title="Hide">&times;</button></span></div>
+  <div class="hdr">Landed cost <span><b>CAD</b> <button class="xbtn" id="tuckR" title="Hide"><span class="d">&times;</span><span class="m">&#9660;</span></button></span></div>
   <div class="row big"><span class="k">Project total</span><span class="v" id="mTotal">$0</span></div>
   <div id="costLines"></div>
 
@@ -296,9 +361,11 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="seg" id="toolseg"><button data-tool="select" class="on">Select</button><button data-tool="measure">Measure</button><button data-tool="move">Move</button><button data-tool="erase">Erase</button></div>
 </div>
 <div id="railL" style="position:fixed;top:124px;left:12px;z-index:16;display:none">
-  <button class="rbtn" id="showL" title="Show the catalogue">&#9776;</button></div>
+  <button class="rbtn" id="showL" title="Show the catalogue"><span class="glyph">&#9650;</span><span class="lbl">Catalogue</span></button></div>
 <div id="railR" style="position:fixed;top:124px;right:12px;z-index:16;display:none">
-  <button class="rbtn" id="showR" title="Show the cost panel">&#8942;</button></div>
+  <button class="rbtn" id="showR" title="Show the cost panel"><span class="glyph">&#9650;</span><span class="lbl">Costs</span></button></div>
+<!-- Drops the whole bottom dock out of the way, and brings it back. Phone only. -->
+<button id="dockTab" aria-label="Hide the tool bars" aria-expanded="true"><span>&#9660;</span></button>
 <div id="selbar" class="panel" style="display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
   z-index:18;padding:8px 10px;display:none;align-items:center;gap:8px"></div>
 <div id="toast"></div>
@@ -3456,6 +3523,21 @@ $('tuckL').onclick=()=>tuck('L');
 $('tuckR').onclick=()=>tuck('R');
 $('showL').onclick=()=>tuck('L',true);
 $('showR').onclick=()=>tuck('R',true);
+
+/* The bottom dock drops away so the plan can fill a phone screen, and the
+   handle stays put to bring it back. Any sheet that is up comes down with
+   it, otherwise it would be left floating over nothing. */
+(function dock(){
+  const tab=$('dockTab'); if(!tab)return;
+  tab.onclick=()=>{
+    const down=document.body.classList.toggle('dockdown');
+    if(down){ tuck('L',false); tuck('R',false); }
+    tab.firstElementChild.innerHTML=down?'&#9650;':'&#9660;';
+    tab.setAttribute('aria-expanded',String(!down));
+    tab.setAttribute('aria-label',down?'Show the tool bars':'Hide the tool bars');
+    resize();
+  };
+})();
 /* a placed road can be re-surfaced without redrawing it */
 function hideSelBar(){const b=$('selbar');if(b)b.style.display='none';}
 function showRoadBar(o){
