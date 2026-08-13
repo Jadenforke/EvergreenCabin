@@ -315,6 +315,11 @@ input[type=range]::-moz-range-thumb{width:10px;height:20px;background:var(--bark
   <div class="field"><label>Custom building: CAD / m² of floor</label><input id="cusRate" type="number" value="2400" step="50"></div>
   <div class="field"><label>Custom building: storey height (m)</label><input id="cusH" type="number" value="4.2" step="0.2"></div>
   <div class="field"><label>Custom building: storeys</label><input id="cusSt" type="number" value="2" step="1" min="1"></div>
+  <div class="field"><label>Custom roof: eave height (m)</label><input id="rfH" type="number" value="7.2" step="0.2"></div>
+  <div class="field"><label>Custom roof: pitch (rise / half span)</label><input id="rfP" type="number" value="0.20" step="0.02" min="0"></div>
+  <div class="field"><label>Custom roof: CAD / m²</label><input id="rfRate" type="number" value="180" step="10"></div>
+  <div class="field"><label>Custom wall: height (m)</label><input id="wlH" type="number" value="6.4" step="0.2"></div>
+  <div class="field"><label>Custom wall: CAD / m² of wall</label><input id="wlRate" type="number" value="150" step="10"></div>
   <div id="priceList"></div>
   <div class="note">Edit any figure and every total, the catalogue and the placed units reprice immediately. Quoted units are in <b>USD</b> and convert at the rate above; local builds are already CAD.</div>
 
@@ -1199,9 +1204,18 @@ const CAT=[
   {id:'adiron',n:'Adirondack chair',kind:'adiron',cad:0,local:true,
    area:'single chair · prop only, not costed'},
  ]},
+ {g:'Containers: stack them like blocks',items:[
+   {id:'cont20',n:'Container (20 ft)',kind:'container',w:2.44,d:6.06,h:2.59,cad:0,local:true,
+    join:true,stack:true,area:'20 ft ISO · 6.06 × 2.44 × 2.59 m · snaps flush and stacks'},
+   {id:'cont40',n:'Container (40 ft)',kind:'container',w:2.44,d:12.19,h:2.59,cad:0,local:true,
+    join:true,stack:true,area:'40 ft ISO · 12.19 × 2.44 × 2.59 m · snaps flush and stacks'}]},
  {g:'Draw with the pen',items:[
    {id:'custom',n:'Custom building',kind:'pen',pen:'building',local:true,
     area:'two-storey warehouse shell · measured in feet'},
+   {id:'roof',n:'Custom roof',kind:'pen',pen:'roof',local:true,
+    area:'pitched roof spanning any shape · clears whatever is under it'},
+   {id:'wall',n:'Custom wall',kind:'pen',pen:'wall',local:true,
+    area:'clad walls around any shape · priced per ft² of wall'},
    {id:'deck',n:'Custom deck',kind:'pen',pen:'deck',local:true,
     area:'ground-level timber deck · priced per ft²'},
    {id:'pave',n:'Parking pavement',kind:'pen',pen:'pave',local:true,
@@ -1222,6 +1236,12 @@ const DECK_RATE=320;                  // CAD per m2 of deck
 /* Shrub beds are drawn as landscaping, not as a line on the estimate; they
    carry no rate and never appear in the cost breakdown. */
 const CUSTOMDEF={id:'custom',n:'Custom building',kind:'custom',local:true};
+/* A roof and a wall you draw over containers to turn a stack of boxes into a
+   building. Height is measured from the highest ground under the outline, so
+   the roof clears whatever is stacked beneath it. */
+const SHELL={roofH:7.2,pitch:.20,roofRate:180,wallH:6.4,wallT:.22,wallRate:150};
+const ROOFDEF={id:'roof',n:'Custom roof',kind:'roof',local:true};
+const WALLDEF={id:'wall',n:'Custom wall',kind:'wall',local:true};
 function polyNear(x,z,poly){
   let best={d:1e9,cx:x,cz:z};
   for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];
@@ -1321,7 +1341,7 @@ function setSkirt(mesh,worldPts,yTop,org,col){
    world space, decks and buildings stand on their high point, and getting
    that wrong is what used to bury a deck after the land was rebuilt. One
    function owns it so placement, moving and a rebuild can't disagree. */
-function fitGround(o){
+function fitGround(o,resettle){
   if(o.type==='road'){
     objGroup.remove(o.mesh); o.mesh=roadMesh(o.pts,o.width,o.def.col);
     objGroup.add(o.mesh); if(styleMode==='diorama')styleObject(o.mesh); return;
@@ -1339,8 +1359,26 @@ function fitGround(o){
     const y=groundMaxUnder(o.pts);
     o.mesh.position.y=y; setSkirt(o.mesh,o.pts,y,null,0x8d7f68); return;
   }
+  if(o.type==='roof'||o.type==='wall'){
+    /* Both are rebuilt rather than moved: their geometry is in world space
+       and keyed to the ground under the outline, which the terrain tools
+       can change beneath them. */
+    objGroup.remove(o.mesh);
+    const base=groundMaxUnder(o.pts);
+    o.mesh=o.type==='roof'?buildRoofMesh(o.pts,base,o.h,o.pitch)
+                          :buildWallMesh(o.pts,base,o.h,SHELL.wallT);
+    objGroup.add(o.mesh);
+    if(styleMode==='diorama')styleObject(o.mesh);
+    return;
+  }
   if(o.def.water){ o.mesh.position.y=0; return; }
-  const y=seatY(o.def,o.x,o.z,o.rot);
+  /* Only a box that has already settled somewhere needs the ceiling, and it
+     gets half its own height of headroom: enough to still find the one under
+     it after the land moves, not enough to find the one on top of it. A box
+     being put down or dropped after a move starts at nothing and takes the
+     column as it finds it. */
+  const ceil=(resettle&&o.def.kind==='container')?o.mesh.position.y+o.def.h*0.5:null;
+  const y=seatY(o.def,o.x,o.z,o.rot,o,ceil);
   o.mesh.position.y=y;
   /* Standing on a deck it already has a flat floor under it, so the fill is
      only for units sitting straight on the ground. */
@@ -1348,6 +1386,16 @@ function fitGround(o){
   if(o.def.w&&o.def.kind!=='pad'&&!onDeck)
     setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459);
   else if(onDeck)setSkirt(o.mesh,[],y,null,0);      // clears any stale fill
+}
+/* Re-seat every standing unit. Containers go last and bottom of the column
+   first, so a box is only ever asked where it sits after whatever holds it
+   up has settled. */
+function refitObjs(){
+  const objs=placed.filter(o=>o.type==='obj');
+  objs.filter(o=>o.def.kind!=='container').forEach(o=>fitGround(o,true));
+  objs.filter(o=>o.def.kind==='container')
+      .sort((a,b)=>a.mesh.position.y-b.mesh.position.y)
+      .forEach(o=>fitGround(o,true));
 }
 /* On a slope, sampling only the centre buries the uphill corner. Sit the
    unit on the highest ground under its footprint so it never sinks in. */
@@ -1380,8 +1428,37 @@ function onDeckFully(def,x,z,rot){
   }
   return false;
 }
-const seatY=(def,x,z,rot)=>
-  (def&&def.water)?0:Math.max(padY(def,x,z,rot),deckTopUnder(def,x,z,rot));
+/* Containers stack. A box whose centre sits over another box's footprint
+   rests on that box's roof, so a second course lands on the first without
+   any explicit level to track: the height falls out of what is already
+   underneath. Only containers stack, and only on containers.
+   `ceil` is what stops a re-seat from reading the column upside down. When
+   a box is first put down there is nothing above it, so anything its centre
+   sits over is below it by definition. Re-seating an existing box is the
+   opposite case: the boxes stacked ON it are also over its centre, and
+   without a ceiling the bottom of a column climbs onto its own roof every
+   time the scene is rebuilt. */
+function contTopUnder(def,x,z,rot,ignore,ceil){
+  if(!def||def.kind!=='container')return -Infinity;
+  const lim=ceil==null?Infinity:ceil;
+  let y=-Infinity;
+  for(const p of placed){
+    if(p===ignore||p.type!=='obj'||p.def.kind!=='container')continue;
+    if(p.mesh.position.y+p.def.h>lim)continue;         // that one is above me
+    /* Supported means the new box's centre is over the one below. Testing
+       for any overlap at all would let a container hanging off by nine
+       tenths call itself stacked, and would swallow the overlap rule
+       entirely, since every clash would read as a stack. */
+    const c=Math.cos(p.rot), si=Math.sin(p.rot), dx=x-p.x, dz=z-p.z;
+    const lx=dx*c+dz*si, lz=-dx*si+dz*c;
+    if(Math.abs(lx)>p.def.w/2+1e-4||Math.abs(lz)>p.def.d/2+1e-4)continue;
+    y=Math.max(y,p.mesh.position.y+p.def.h);
+  }
+  return y;
+}
+const seatY=(def,x,z,rot,ignore,ceil)=>
+  (def&&def.water)?0:Math.max(padY(def,x,z,rot),deckTopUnder(def,x,z,rot),
+                              contTopUnder(def,x,z,rot,ignore,ceil));
 function readInputs(){
   FIN.fx=+$('fFx').value;FIN.surtax=$('fSurtax').checked;
   FIN.permit=+$('fPermit').value;FIN.site=+$('fSite').value;
@@ -1394,6 +1471,10 @@ function readInputs(){
   RULES.lotFt=+$('rLot').value;RULES.lot=RULES.lotFt*FT;
   const sm=$('sepM'); if(sm)sm.textContent='= '+RULES.lot.toFixed(2)+' m square';
   if($('cusRate')){CUSTOM.rate=UNITS==='m'?+$('cusRate').value:+$('cusRate').value/(FT*FT);CUSTOM.h=lenVal('cusH');CUSTOM.storeys=+$('cusSt').value;}
+  if($('rfH')){SHELL.roofH=lenVal('rfH');SHELL.pitch=Math.max(0,+$('rfP').value);
+    SHELL.roofRate=UNITS==='m'?+$('rfRate').value:+$('rfRate').value/(FT*FT);
+    SHELL.wallH=lenVal('wlH');
+    SHELL.wallRate=UNITS==='m'?+$('wlRate').value:+$('wlRate').value/(FT*FT);}
 }
 function unitCost(d){
   if(d.local)return d.cad||0;
@@ -1965,6 +2046,41 @@ function buildMesh(d){
       return c;
     };
     g.add(chair());
+  }else if(k==='container'){
+    /* An ISO box: corrugated sides, a painted skin, corner castings at all
+       eight corners and cargo doors at one end. The corrugations are drawn
+       as thin ribs rather than modelled into the shell, which keeps a stack
+       of twenty of them cheap to draw. */
+    const W=d.w,D=d.d,H=d.h;
+    const paint=[0xb4552f,0x2f6178,0x556b4f,0x8a8f93,0x7a4550,0xc08a2e][
+      Math.floor(Math.random()*6)];
+    const skin=new THREE.MeshStandardMaterial({color:paint,roughness:.78,metalness:.22});
+    const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,D),skin);
+    body.position.y=H/2; body.castShadow=body.receiveShadow=true; g.add(body);
+    const rib=new THREE.MeshStandardMaterial({color:paint,roughness:.86,metalness:.18});
+    rib.color.offsetHSL(0,0,-0.05);
+    for(const sx of[-1,1]){
+      for(let z=-D/2+.34;z<D/2-.2;z+=.34){
+        const r=new THREE.Mesh(new THREE.BoxGeometry(.05,H-.22,.11),rib);
+        r.position.set(sx*(W/2+.02),H/2,z); g.add(r);
+      }
+    }
+    const cast=new THREE.MeshStandardMaterial({color:0x2b2f31,roughness:.7,metalness:.4});
+    for(const sx of[-1,1])for(const sz of[-1,1])for(const sy of[0,1]){
+      const c=new THREE.Mesh(new THREE.BoxGeometry(.17,.17,.17),cast);
+      c.position.set(sx*(W/2-.085),sy?H-.085:.085,sz*(D/2-.085)); g.add(c);
+    }
+    const door=new THREE.MeshStandardMaterial({color:paint,roughness:.7,metalness:.3});
+    door.color.offsetHSL(0,0,-0.08);
+    const dz=D/2+.012;
+    for(const sx of[-1,1]){
+      const leaf=new THREE.Mesh(new THREE.BoxGeometry(W/2-.1,H-.28,.03),door);
+      leaf.position.set(sx*W/4,H/2,dz); g.add(leaf);
+      for(const off of[-.24,.24]){
+        const bar=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,H-.5,7),cast);
+        bar.position.set(sx*W/4+off,H/2,dz+.03); g.add(bar);
+      }
+    }
   }else if(k==='car'){
     const c=[0xb03a2e,0x2e4a7d,0xd8d8d8,0x2b2b2b,0x3f6b4a][Math.floor(Math.random()*5)];
     const b=new THREE.Mesh(new THREE.BoxGeometry(1.85,.72,4.4),new THREE.MeshStandardMaterial({color:c,roughness:.35,metalness:.4}));
@@ -2054,7 +2170,17 @@ function validate(def,x,z,rot,ignore){
   // nothing may overlap, and no two lots may overlap either
   const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
   const r1=Math.hypot(def.w,def.d)/2, myLot=lotHalf(def,rot);
+  const myBase=seatY(def,x,z,rot,ignore);
   for(const p of others){
+    if(def.kind==='container'&&p.def.kind==='container'){
+      /* Sharing a footprint is the whole point when one is on top of the
+         other, so only complain when they are at the same level. */
+      const pTop=p.mesh.position.y+p.def.h;
+      if(myBase>=pTop-0.06)continue;                            // stacked above it
+      if(p.mesh.position.y>=myBase+def.h-0.06)continue;         // stacked below it
+      if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
+      continue;
+    }
     if(def.join&&p.def.join){                       // may be built shoulder to shoulder
       if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
       continue;
@@ -2395,6 +2521,8 @@ function endPen(build){
     if(penKind==='deck')placeDeck(pts);
     else if(penKind==='shrub')placeShrubs(pts);
     else if(penKind==='pave')placePave(pts);
+    else if(penKind==='roof')placeRoof(pts);
+    else if(penKind==='wall')placeWall(pts);
     else placeCustom(pts);
     hint('Pen: click each corner of the next shape · Esc to stop');
   }
@@ -2509,6 +2637,131 @@ function buildCustomMesh(pts,h){
   for(let s=0;s<st;s++)
     lit(grp,cx,h*((s+0.6)/st),cz,{base:1.15,dist:Math.max(20,span*3),pool:s===0?Math.max(12,span*2.2):0,col:0xffd0a0});
   return grp;
+}
+/* A roof is a low gable spanning the outline, carried on posts at the
+   corners. It is drawn over whatever is already there, so a stack of
+   containers keeps its own height and the roof simply clears it. */
+function buildRoofMesh(pts,base,h,pitch){
+  const g=new THREE.Group();
+  const xs=pts.map(q=>q[0]), zs=pts.map(q=>q[1]);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2, cz=(Math.min(...zs)+Math.max(...zs))/2;
+  const spanX=Math.max(...xs)-Math.min(...xs), spanZ=Math.max(...zs)-Math.min(...zs);
+  const ridgeAlongX=spanX>=spanZ;                       // ridge runs the long way
+  const half=Math.max(.001,(ridgeAlongX?spanZ:spanX)/2);
+  const rise=Math.max(.4,half*pitch);
+  const mid=ridgeAlongX?cz:cx;
+  const off=q=>(ridgeAlongX?q[1]:q[0])-mid;             // distance from the ridge
+  const yAt=q=>base+h+rise-Math.min(1,Math.abs(off(q))/half)*rise;
+  const deck=new THREE.MeshStandardMaterial({color:0x4c5257,roughness:.72,metalness:.25,
+    side:THREE.DoubleSide});
+  /* Each slope is the outline clipped to its own side of the ridge. The
+     clip is what puts real vertices ON the ridge line, and that is the
+     whole trick: triangulating the full outline and then shoving half its
+     corners out of the way leaves the two planes nothing to meet along,
+     because a rectangle's four corners are all eave and none of them ridge. */
+  for(const upper of[true,false]){
+    const face=[];
+    for(let i=0;i<pts.length;i++){
+      const a=pts[i], b=pts[(i+1)%pts.length], oa=off(a), ob=off(b);
+      const ia=upper?oa>=-1e-9:oa<=1e-9, ib=upper?ob>=-1e-9:ob<=1e-9;
+      if(ia)face.push(a);
+      if(ia!==ib){const t=oa/(oa-ob); face.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+    }
+    if(face.length<3)continue;
+    const geo=new THREE.ShapeGeometry(
+      new THREE.Shape(face.map(q=>new THREE.Vector2(q[0],-q[1]))));
+    geo.rotateX(-Math.PI/2);
+    const pos=geo.attributes.position;
+    for(let i=0;i<pos.count;i++)pos.setY(i,yAt([pos.getX(i),pos.getZ(i)]));
+    pos.needsUpdate=true; geo.computeVertexNormals();
+    const m=new THREE.Mesh(geo,deck); m.castShadow=m.receiveShadow=true; g.add(m);
+  }
+  /* Gable ends: the wedge between the flat eave line and the slope above it.
+     Along the eaves this is zero high and drops out; across the ends it is
+     the triangle that stops you seeing straight in under the roof. */
+  const ends=[], eave=base+h, ring=[];
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i], b=pts[(i+1)%pts.length], oa=off(a), ob=off(b);
+    ring.push(a);
+    if(oa*ob<0){const t=oa/(oa-ob); ring.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  }
+  for(let i=0;i<ring.length;i++){
+    const a=ring[i], b=ring[(i+1)%ring.length], ya=yAt(a), yb=yAt(b);
+    if(ya<=eave+1e-6&&yb<=eave+1e-6)continue;
+    ends.push(a[0],eave,a[1], b[0],eave,b[1], b[0],yb,b[1],
+              a[0],eave,a[1], b[0],yb,b[1], a[0],ya,a[1]);
+  }
+  if(ends.length){
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(ends,3));
+    geo.computeVertexNormals();
+    const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial(
+      {color:0x8d949a,roughness:.85,metalness:.15,side:THREE.DoubleSide}));
+    m.castShadow=m.receiveShadow=true; g.add(m);
+  }
+  // eaves line and corner posts, so it reads as a structure not a floating plane
+  const loop=pts.concat([pts[0]]);
+  g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    loop.map(q=>new THREE.Vector3(q[0],base+h,q[1]))),
+    new THREE.LineBasicMaterial({color:0x2f3438})));
+  const post=new THREE.MeshStandardMaterial({color:0x3b4045,roughness:.8,metalness:.3});
+  pts.forEach(q=>{
+    const p=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,h,8),post);
+    p.position.set(q[0],base+h/2,q[1]); p.castShadow=true; g.add(p);
+  });
+  return g;
+}
+function placeRoof(pts){
+  if(pts.length<3){toast('Need at least three corners');return;}
+  const area=polyArea(pts);
+  if(area<6){toast('That roof is too small');return;}
+  pushUndo('draw custom roof');
+  const base=groundMaxUnder(pts);
+  const mesh=buildRoofMesh(pts,base,SHELL.roofH,SHELL.pitch);
+  objGroup.add(mesh);
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  const o={type:'roof',def:ROOFDEF,mesh,pts:pts.slice(),area,h:SHELL.roofH,
+    pitch:SHELL.pitch,cost:area*SHELL.roofRate,x:cx,z:cz,rot:0};
+  placed.push(o); fitGround(o);
+  if(styleMode==='diorama')styleObject(mesh);
+  refresh();
+  toast(`Roof over ${fmtArea(area)} · ${fmtLen(SHELL.roofH,1)} to the eave · ${money(o.cost)}`);
+}
+/* Walls run along the edges of the outline, so drawing a rectangle around a
+   row of containers clads them into a warehouse. */
+function buildWallMesh(pts,base,h,t){
+  const g=new THREE.Group();
+  const skin=new THREE.MeshStandardMaterial({color:0x9aa1a6,roughness:.82,metalness:.2});
+  const trim=new THREE.MeshStandardMaterial({color:0x4c5257,roughness:.7,metalness:.3});
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i], b=pts[(i+1)%pts.length];
+    const dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz);
+    if(len<.05)continue;
+    const w=new THREE.Mesh(new THREE.BoxGeometry(len,h,t),skin);
+    w.position.set((a[0]+b[0])/2, base+h/2, (a[1]+b[1])/2);
+    w.rotation.y=-Math.atan2(dz,dx);
+    w.castShadow=w.receiveShadow=true; g.add(w);
+    const cap=new THREE.Mesh(new THREE.BoxGeometry(len,.16,t+.08),trim);
+    cap.position.set((a[0]+b[0])/2, base+h+.08, (a[1]+b[1])/2);
+    cap.rotation.y=w.rotation.y; g.add(cap);
+  }
+  return g;
+}
+function placeWall(pts){
+  if(pts.length<3){toast('Need at least three corners');return;}
+  pushUndo('draw custom wall');
+  const base=groundMaxUnder(pts);
+  const mesh=buildWallMesh(pts,base,SHELL.wallH,SHELL.wallT);
+  objGroup.add(mesh);
+  let run=0; for(let i=0;i<pts.length;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length]; run+=Math.hypot(b[0]-a[0],b[1]-a[1]);}
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  const o={type:'wall',def:WALLDEF,mesh,pts:pts.slice(),run,h:SHELL.wallH,
+    area:run*SHELL.wallH,cost:run*SHELL.wallH*SHELL.wallRate,x:cx,z:cz,rot:0};
+  placed.push(o); fitGround(o);
+  if(styleMode==='diorama')styleObject(mesh);
+  refresh();
+  toast(`${fmtLen(run,1)} of wall · ${fmtLen(SHELL.wallH,1)} tall · ${money(o.cost)}`);
 }
 function placeCustom(pts){
   if(pts.length<3){toast('Need at least three corners');return;}
@@ -2714,6 +2967,8 @@ function select(o){
   else if(o.type==='deck')hint(`Custom deck${overWater(o.pts)?' over the water':''} · ${fmtArea(o.area)} · ${money(o.cost)} \u00b7 Delete removes`);
   else if(o.type==='pave')hint(`Parking pavement · ${fmtArea(o.area)} · about ${Math.max(1,Math.floor(o.area/28))} cars \u00b7 ${money(o.cost)} \u00b7 Delete removes`);
   else if(o.type==='shrub')hint(`Shrub bed · ${o.n} bushes over ${fmtArea(o.area)} \u00b7 Delete removes`);
+  else if(o.type==='roof')hint(`Custom roof \u00b7 ${fmtArea(o.area)} \u00b7 ${fmtLen(o.h,1)} to the eave \u00b7 ${money(o.cost)} \u00b7 Delete removes`);
+  else if(o.type==='wall')hint(`Custom wall \u00b7 ${fmtLen(o.run,1)} run \u00b7 ${fmtLen(o.h,1)} tall \u00b7 ${money(o.cost)} \u00b7 Delete removes`);
   else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} \u00b7 Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
@@ -2822,7 +3077,7 @@ renderer.domElement.addEventListener('pointermove',e=>{
     const d=moving.o.def;
     if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
-    moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot),nz);
+    moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot,moving.o),nz);
     setHL(moving.o,HL.moving);
     const bad=validate(d,nx,nz,moving.o.rot,moving.o).filter(i=>!i.soft);
     hint(bad.length?'\u2715 '+bad[0].m:`${d.n} \u00b7 drop to place`,!!bad.length,!bad.length);
@@ -2969,6 +3224,42 @@ function snapDock(d,x,z,rot){
   if(best){ dockSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
   return {x,z,rot};
 }
+/* Lego behaviour. A container snaps to the faces of the one nearest the
+   cursor, and to its roof, so boxes land flush rather than nearly flush.
+   Rotation is quantised to the neighbour's grid in ninety-degree steps
+   rather than copied from it, which is what lets an L or a T be built:
+   turn the ghost with R or E and it still lines up. */
+let contSnap=null;
+function snapContainer(d,x,z,rot,ignore){
+  contSnap=null;
+  if(!d||d.kind!=='container')return {x,z,rot};
+  const Q=Math.PI/2;
+  let best=null;
+  placed.forEach(o=>{
+    if(o===ignore||o.type!=='obj'||o.def.kind!=='container')return;
+    const k=Math.round((rot-o.rot)/Q);            // quarter turns off the neighbour
+    const grid=o.rot+k*Q;
+    const even=((k%2)+2)%2===0;
+    const gx=even?d.w:d.d, gz=even?d.d:d.w;       // ghost extent in the neighbour's frame
+    const ow=o.def.w, od=o.def.d;
+    const cand=[
+      [0, (od+gz)/2],[0,-(od+gz)/2],              // end to end
+      [(ow+gx)/2,0],[-(ow+gx)/2,0],               // side by side
+      [0,0],                                      // squarely on the roof
+      [0,(od-gz)/2],[0,-(od-gz)/2],               // stacked flush with either end
+      [(ow-gx)/2,0],[-(ow-gx)/2,0]
+    ];
+    const c=Math.cos(o.rot), si=Math.sin(o.rot);
+    cand.forEach(([lx,lz])=>{
+      const px=o.x+lx*c-lz*si, pz=o.z+lx*si+lz*c;
+      const dd=Math.hypot(x-px,z-pz);
+      if(dd<Math.max(3.2,(gx+gz)/5)&&(!best||dd<best.d))
+        best={d:dd,x:px,z:pz,rot:grid};
+    });
+  });
+  if(best){ contSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
+  return {x,z,rot};
+}
 function updateGhost(e){
   const p=hitGround(e);if(!p)return;
   let x=p.x,z=p.z;if(snap){x=Math.round(x);z=Math.round(z);}
@@ -2993,7 +3284,8 @@ function updateGhost(e){
     }
     if(!ghost)return;
     const y=terrainH(x,z);
-    if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
+    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; }
+    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
     else ghost.position.set(x,seatY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
@@ -3121,7 +3413,13 @@ renderer.domElement.addEventListener('click',e=>{
       return;
     }
     let px=x,pz=z,prot=ghostRot;
-    if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+      if(contSnap){
+        const lvl=contTopUnder(d,px,pz,prot);
+        toast(lvl>-Infinity&&lvl>padY(d,px,pz,prot)+0.05
+          ? 'Stacked on the container below' : 'Snapped flush to the neighbour');
+      } }
+    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
       if(dockSnap)toast(d.kind==='dock'?'Snapped to the neighbouring dock':'Joined to the neighbouring unit'); }
     const bad=validate(d,px,pz,prot).filter(i=>!i.soft);
     if(bad.length){toast('Blocked: '+bad[0].m);return;}
@@ -3217,7 +3515,7 @@ function rebuildLand(){
   /* decks first: a unit standing on one is seated off the deck surface, so
      the deck has to know its own height before the unit asks for it */
   placed.forEach(o=>{if(o.type!=='obj')fitGround(o);});
-  placed.forEach(o=>{if(o.type==='obj')fitGround(o);});
+  refitObjs();
   syncTrees();refresh();
 }
 /* every number input that holds a LENGTH, with its base label text.
@@ -3226,7 +3524,8 @@ const LEN_INPUTS=[
   ['lDepth','Lake depth'],['lBank','Bank height above water'],['lBeach','Beach width'],
   ['lRelief','Rolling relief'],['lCont','Contour interval'],
   ['wRoad','Road width'],['wClear','Tree clearance'],
-  ['rEdge','Lot line setback'],['cusH','Custom building: storey height']];
+  ['rEdge','Lot line setback'],['cusH','Custom building: storey height'],
+  ['rfH','Custom roof: eave height'],['wlH','Custom wall: height']];
 const rateVal=id=>UNITS==='m'?+$(id).value:+$(id).value/FT;      // $/ft input -> $/m
 const rateSet=(id,perM)=>{ $(id).value=+(UNITS==='m'?perM:perM*FT).toFixed(3); };
 const lenVal =id=>uLenIn(+$(id).value);                  // input -> metres
@@ -3321,6 +3620,18 @@ $('priceList').addEventListener('input',e=>{
   DEF[t.dataset.p][t.dataset.f]=+t.value;
   buildPalette(); refresh();
 });
+['rfH','rfP','rfRate','wlH','wlRate'].forEach(id=>{
+  const el=$(id); if(!el)return;
+  el.addEventListener('input',()=>{
+    readInputs();
+    placed.forEach(o=>{
+      if(o.type==='roof'){o.h=SHELL.roofH;o.pitch=SHELL.pitch;o.cost=o.area*SHELL.roofRate;fitGround(o);}
+      if(o.type==='wall'){o.h=SHELL.wallH;o.area=o.run*SHELL.wallH;
+                          o.cost=o.area*SHELL.wallRate;fitGround(o);}
+    });
+    refresh();
+  });
+});
 ['cusRate','cusH','cusSt'].forEach(id=>$(id).addEventListener('input',()=>{
   readInputs();
   /* o.free marks a building carried at zero: the lodge shell in the starting
@@ -3345,7 +3656,7 @@ function refresh(){
     if(p.type==='shrub')return;            // landscaping, never a line on the estimate
     const k=p.def.n;
     if(p.type==='road'){byModel[k]=byModel[k]||{n:0,amt:0,m:0,road:true};byModel[k].n++;byModel[k].m+=p.len;byModel[k].amt+=p.len*RATES[p.def.rate];}
-    else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=((p.type==='custom'||p.type==='deck'||p.type==='pave')?p.cost:unitCost(p.def));}
+    else{byModel[k]=byModel[k]||{n:0,amt:0,def:p.def};byModel[k].n++;byModel[k].amt+=((p.type==='custom'||p.type==='deck'||p.type==='pave'||p.type==='roof'||p.type==='wall')?p.cost:unitCost(p.def));}
   });
   /* The total is now just what is actually on the plan. The per-model
      compliance line and the blanket contingency % both used to ride on top
@@ -3597,6 +3908,8 @@ $('fileMap').onchange=e=>{
    Undo compares these strings to work out what actually moved. */
 const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
   :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0}
+  :p.type==='roof'?{t:'roof',pts:p.pts,h:p.h,pitch:p.pitch,area:p.area,cost:p.cost}
+  :p.type==='wall'?{t:'wall',pts:p.pts,h:p.h,run:p.run,area:p.area,cost:p.cost}
   :p.type==='deck'?{t:'deck',pts:p.pts}
   :p.type==='pave'?{t:'pave',pts:p.pts}
   :p.type==='shrub'?{t:'shrub',pts:p.pts}
@@ -3698,6 +4011,17 @@ function applyState(d,keepUnder,incremental){
       else if(i.t==='deck')placeDeck(i.pts);
       else if(i.t==='pave')placePave(i.pts);
       else if(i.t==='shrub')placeShrubs(i.pts);
+      else if(i.t==='roof'||i.t==='wall'){
+        const base=groundMaxUnder(i.pts);
+        const mesh=i.t==='roof'?buildRoofMesh(i.pts,base,i.h,i.pitch)
+                               :buildWallMesh(i.pts,base,i.h,SHELL.wallT);
+        objGroup.add(mesh);
+        const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length,
+              cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
+        const o={type:i.t,def:i.t==='roof'?ROOFDEF:WALLDEF,mesh,pts:i.pts,
+          h:i.h,pitch:i.pitch,area:i.area,run:i.run,cost:i.cost,x:cx,z:cz,rot:0};
+        placed.push(o); fitGround(o);
+      }
       else if(i.t==='custom'){
         const mesh=buildCustomMesh(i.pts,i.h); objGroup.add(mesh);
         const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
@@ -3714,7 +4038,7 @@ function applyState(d,keepUnder,incremental){
     });
     /* Re-seat the units once everything is down: a unit listed before the
        deck it stands on had no deck to sit on the first time round. */
-    placed.forEach(o=>{if(o.type==='obj')fitGround(o);});
+    refitObjs();
     for(const k in plantTally)delete plantTally[k];
     Object.assign(plantTally,d.plantTally||{});
     (d.extras||[]).forEach(c=>{if(c.label!=='Planting')extras.push(c);});
