@@ -1951,7 +1951,10 @@ function buildMesh(d){
     let roofGeo=new THREE.ExtrudeGeometry(roofProf,{depth:W*1.02,bevelEnabled:false});
     roofGeo.rotateY(Math.PI/2); roofGeo.translate(-W*1.02/2,EH,0);
     const roof=new THREE.Mesh(roofGeo,roofMat); roof.castShadow=roof.receiveShadow=true; g.add(roof);
-    const ridge=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.16,W*1.03),body(0x2c4457));
+    /* The ridge runs the LENGTH, along W. Built 0.3 by W it was a 60 m bar
+       laid across a 30 m building, sticking out either side as a stray blue
+       line with no roof under it. */
+    const ridge=new THREE.Mesh(new THREE.BoxGeometry(W*1.03,0.16,0.3),body(0x2c4457));
     ridge.position.y=EH+RISE-0.04; g.add(ridge);
 
     // 10 sliding windows (2.0 x 1.0 m) along the back wall
@@ -2475,6 +2478,59 @@ function clearPenDraw(){
   }
   clearTags();
 }
+/* Magnetism for the pen. Without it a deck laid against another deck is
+   never quite flush: the corners land a few centimetres out and the seam
+   shows, and there is no way to nudge them together afterwards because a
+   drawn shape has no handles. The cursor is pulled to the corners of
+   anything already drawn or placed, then to the nearest point along their
+   edges, and failing both it squares the current edge to the last point.
+   Corners beat edges and edges beat the square-up, so the best fit wins
+   rather than merely the nearest one.
+   The reach follows the zoom, the same way closing the shape on its first
+   pip does, so it grabs at a distance you can see and lets go once you are
+   close enough in to want the exact spot instead. */
+let penSnap=null;
+const penReach=()=>viewMode==='plan'?Math.max(1.5,ctrl.orthoSize*0.022)
+                                    :Math.max(1.5,ctrl.radius*0.016);
+function penRings(){
+  const rings=[];
+  placed.forEach(o=>{
+    if(o.pts&&(o.type==='deck'||o.type==='custom'||o.type==='pave'
+              ||o.type==='roof'||o.type==='wall'))rings.push(o.pts);
+    else if(o.type==='obj'&&o.def&&o.def.w)rings.push(corners(o.def,o.x,o.z,o.rot));
+  });
+  if(pen&&pen.pts.length)rings.push(pen.pts);   // and the shape being drawn
+  return rings;
+}
+function penMagnet(x,z){
+  penSnap=null;
+  const reach=penReach();
+  let best=null;
+  const take=(px,pz,rank)=>{
+    const dd=Math.hypot(x-px,z-pz);
+    if(dd>=reach)return;
+    if(!best||rank<best.rank||(rank===best.rank&&dd<best.d))best={d:dd,x:px,z:pz,rank};
+  };
+  penRings().forEach(r=>{
+    r.forEach(q=>take(q[0],q[1],0));
+    for(let i=0;i<r.length;i++){
+      const a=r[i],b=r[(i+1)%r.length];
+      const vx=b[0]-a[0],vz=b[1]-a[1],L2=vx*vx+vz*vz;
+      if(L2<1e-9)continue;
+      const t=((x-a[0])*vx+(z-a[1])*vz)/L2;
+      if(t<=0||t>=1)continue;                   // the ends are corners, already offered
+      take(a[0]+vx*t,a[1]+vz*t,1);
+    }
+  });
+  if(best){penSnap=best;return [best.x,best.z];}
+  const p=pen&&pen.pts.length?pen.pts[pen.pts.length-1]:null;
+  if(p){
+    const dx=Math.abs(x-p[0]), dz=Math.abs(z-p[1]);
+    if(dx<reach&&dx<dz){penSnap={sq:true};return [p[0],z];}
+    if(dz<reach&&dz<dx){penSnap={sq:true};return [x,p[1]];}
+  }
+  return [x,z];
+}
 function penDraw(cur){
   if(!pen)return;
   clearPenDraw();
@@ -2500,6 +2556,18 @@ function penDraw(cur){
       const mx=(a[0]+b[0])/2,mz=(a[1]+b[1])/2;
       const s=makeTag(ftTxt(L)); s.position.set(mx,yOf(mx,mz)+1.9,mz); penTags.add(s);
     }
+  }
+  /* A ring on the live point when the magnet has hold of it, so you can see
+     the grab before you commit the click rather than after. */
+  if(cur&&penSnap){
+    const rr=Math.max(.42,penReach()*.13);
+    const m=penSnap.sq
+      ? new THREE.Mesh(new THREE.BoxGeometry(rr*2.6,.05,rr*2.6),
+          new THREE.MeshBasicMaterial({color:0x6fdc8c,transparent:true,opacity:.55}))
+      : new THREE.Mesh(new THREE.TorusGeometry(rr,rr*.22,8,18),
+          new THREE.MeshBasicMaterial({color:0xffd166}));
+    if(!penSnap.sq)m.rotation.x=Math.PI/2;
+    m.position.set(cur[0],yOf(cur[0],cur[1]),cur[1]); penGroup.add(m);
   }
   const area=pts.length>=3?polyArea(pts):0;
   if(area>2){
@@ -3268,7 +3336,7 @@ function updateGhost(e){
     return;
   }
   if(trace){drawTrace([x,z]);return;}
-  if(pen){penDraw([x,z]);return;}
+  if(pen){penDraw(penMagnet(x,z));return;}
   if(landMode)return;
   if(tool==='place'&&activeId){
     const d=DEF[activeId];
@@ -3285,7 +3353,10 @@ function updateGhost(e){
     if(!ghost)return;
     const y=terrainH(x,z);
     if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; }
-    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghost.rotation.y=sn.rot; }
+    /* ghostRot, not just the ghost's own rotation: the preview validates and
+       places against ghostRot, so leaving it behind checks one angle and
+       builds another. */
+    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
     else ghost.position.set(x,seatY(d,x,z,ghostRot),z);
     const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
@@ -3399,11 +3470,16 @@ renderer.domElement.addEventListener('click',e=>{
     if(d.kind==='road'){roadPts.push([x,z]);return;}
     if(d.kind==='pen'){
       if(!pen){pen={pts:[]}; penKind=d.pen||'building';}
+      const mg=penMagnet(x,z); x=mg[0]; z=mg[1];
       if(pen.pts.length>=3){                       // click the first pip to close
         const f=pen.pts[0];
-        const grab=viewMode==='plan'?Math.max(1.5,ctrl.orthoSize*0.022):Math.max(1.5,ctrl.radius*0.016);
+        const grab=penReach();
         if(Math.hypot(x-f[0],z-f[1])<grab){endPen(true);return;}
       }
+      /* The magnet can park the cursor on the point you just placed; taking
+         it again would leave a zero-length edge behind. */
+      const lp=pen.pts[pen.pts.length-1];
+      if(lp&&Math.hypot(x-lp[0],z-lp[1])<1e-6)return;
       pen.pts.push([x,z]);penDraw();return;
     }
     if(d.kind==='treelight'){
