@@ -4408,6 +4408,27 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <div id="lb-counter"></div>
 </div>
 
+<!-- Rendered from the product record, so a listing that arrives as a quotation
+     line and nothing more still has a real page instead of falling through to
+     another cabin's. -->
+<div class="page" id="page-listing">
+  <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <a href="#/catalog">Catalog</a> &nbsp;/&nbsp; <strong id="lst-crumb"></strong></div>
+  <div class="wrap pd-hero-grid">
+    <div><div class="gal-main" id="lst-img"></div></div>
+    <div class="pd-hero-panel">
+      <div class="php-header">
+        <div class="php-badges" id="lst-badges"></div>
+        <div class="php-mfr" id="lst-mfr"></div>
+        <h1 class="php-title" id="lst-title"></h1>
+      </div>
+      <div class="php-price-block" id="lst-price"></div>
+      <div class="php-specs"><div class="php-spec-title">From the quotation</div>
+        <div class="php-spec-grid" id="lst-specs"></div></div>
+    </div>
+  </div>
+  <div class="wrap" style="padding-bottom:40px" id="lst-body"></div>
+</div>
+
 <footer>
   <div class="wrap">
     <div class="grid">
@@ -4477,7 +4498,187 @@ const WH_HERO = '/img/warehouse/hero.webp';
 const WH_GALLERY = ['/img/warehouse/hero.webp','/img/warehouse/factory.webp','/img/warehouse/fab-floor.webp','/img/warehouse/cnc-cutting.webp','/img/warehouse/yard.webp','/img/warehouse/door.webp'];
 const WH_MEDIA = WH_GALLERY.map(src=>({type:'img',src}));
 
+/* Quotation MH2600812, 12 Aug 2026. The maker heads this quotation as
+   Prettify (Guangzhou) Prefabricated Building Technology Co., Ltd and the
+   Standing Glass Dome quotation as Meihua (Guangzhou); the address, the
+   contact and the meihua-tents.com web address are the same on both, and
+   they are one manufacturer. Listed under meihua throughout. */
+const MEIHUA_NAME = 'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd';
+const MH_QUOTE = {
+  no:'MH2600812', date:'12 August 2026', contact:'James Ye',
+  alias:'Prettify (Guangzhou) Prefabricated Building Technology Co., Ltd',
+  incoterm:'EXW, USD',
+  excludes:'Installation, shipping and floor installation are all excluded from these prices.',
+  validity:'15 days from the quotation date',
+  lead:'25\u201350 days after the maker receives payment',
+  payment:'50% deposit; the balance in full before container loading',
+  packing:'Accessories and PVC material bagged in PVC; profile in bubble film'
+};
+
+
+/* The maker's written answers to the structure, thermal and certification
+   questions. It gave these for the range rather than per model, so they are
+   held once and shown on every listing quoted from it. The snow figure is the
+   one that matters here: 2.5 kN/m\u00b2 sits at the top of the 2.0\u20132.5 kN/m\u00b2
+   band this project works to, so it meets it with nothing spare. */
+const MH_PERF = {
+  wallR:'\u2265 1.9 m\u00b2\u00b7K/W',
+  roofR:'\u2265 2.4 m\u00b2\u00b7K/W',
+  glazing:'Thermal-break aluminium doors and windows with coated insulated glass, U \u2264 2.0 W/(m\u00b2\u00b7K)',
+  cold:'Rated by the maker as fully capable down to \u221230 \u00b0C',
+  snow:'2.5 kN/m\u00b2 (250 kg/m\u00b2)',
+  wind:'0.55 kN/m\u00b2 (the maker equates this to Grade 11 wind)',
+  certs:'ISO quality, environmental and occupational safety management system certification, and CE',
+  codes:'The maker states it meets the relevant standards but has <strong>not obtained local official certificates</strong>. Nothing here is an Ontario or CSA approval, and a P.Eng review and ESA field evaluation are still required.',
+  steelShare:'The galvanized steel frame is roughly one third of the unit price, which is the part exposed to the 25% steel and aluminium surtax if the unit is classed as parts.'
+};
+
 const PRODUCTS = [
+  { id:'mh-a-star', live:true, type:'container', mfr:'meihua',
+    img:'/img/mh/mh-a-star.webp',
+    name:'MH-2.9 A Star Model Housing', mfrName:MEIHUA_NAME,
+    desc:'Aluminium-alloy integrated module house, 45 m² on a 9 × 5 m footprint. Quoted as the structure only: furniture, bathroom and kitchen are a priced addition. The maker refers to its catalogue for the full detail.',
+    price:'$25,000', unit:'USD · EXW · shell, no furniture', meta:'45 m² · 9 × 5 m · aluminium-alloy module',
+    q:{model:'MH-2.9', series:'Aluminum Alloy Integrated Module Housing Series', size:'9 × 5 m', area:'45 m²', qty:'1 set', usd:25000, opts:'Furniture + bathroom + kitchen: plus USD 5,000–10,000'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-gable-duplex', live:true, type:'aframe', mfr:'meihua',
+    img:'/img/mh/mh-gable-duplex.webp',
+    name:'MH-2.7 Gabled Double-Layer House', mfrName:MEIHUA_NAME,
+    desc:'Double-layer A-shape house with a gabled roof, 5 × 7 m. Quoted as the structure only, with furniture, bathroom and kitchen priced separately.',
+    price:'$39,500', unit:'USD · EXW · shell, no furniture', meta:'5 × 7 m · double-layer A-shape · gabled',
+    q:{model:'MH-2.7', series:'Aluminum Alloy House Series · Roofed with Gables', size:'5 × 7 m', area:null, qty:'1 Set', usd:39500, opts:'Furniture + bathroom + kitchen: plus USD 5,000–10,000'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-square', live:true, type:'container', mfr:'meihua',
+    img:'/img/mh/mh-square.webp',
+    name:'MH-2.1 Square Integrated Housing', mfrName:MEIHUA_NAME,
+    desc:'Square integrated module, 5 × 7 × 3 m, and the lowest-priced structure on this quotation. The maker offers a mirror-finish exterior wall as a variant.',
+    price:'$13,500', unit:'USD · EXW · shell, no furniture', meta:'5 × 7 × 3 m · mirror-clad option · cheapest in the quote',
+    q:{model:'MH-2.1', series:'Aluminum Alloy Integrated Module Housing Series', size:'5 × 7 × 3 m', area:null, qty:'1 set', usd:13500, opts:'Furniture + showroom + kitchen: plus USD 5,000. Can be fabricated with mirror-style exterior walls.'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-a7-duplex', live:true, type:'aframe', mfr:'meihua',
+    img:'/img/mh/mh-a7-duplex.webp',
+    name:'MH-2.3 A+7 Duplex House', mfrName:MEIHUA_NAME,
+    desc:'Two-storey duplex: a 5 × 7 m ground floor carrying two 4 × 4 m volumes above. Quoted as the structure only.',
+    price:'$25,000', unit:'USD · EXW · shell, no furniture', meta:'Two storeys · 5 × 7 m ground · two 4 × 4 m above',
+    q:{model:'MH-2.3', series:'Aluminum alloy integrated modular housing series', size:'Ground 5 × 7 m · upper 4 × 4 m + 4 × 4 m', area:null, qty:'1 set', usd:25000, opts:'Furniture + showroom + kitchen: plus USD 5,000. Can be fabricated with mirror-style exterior walls.'},
+    ship:{weight:'5\u20136 tonnes', volume:'58 CBM', container:'One set loads into a single 40 ft high-cube container', steel:'about USD 8,000 of galvanized steel frame'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-one-layer', live:true, type:'container', mfr:'meihua',
+    img:'/img/mh/mh-one-layer.webp',
+    name:'One Layer Integrated House', mfrName:MEIHUA_NAME,
+    desc:'Single-storey integrated house, 3 × 7.5 m, quoted with one integrated bathroom included. The maker notes it as a strong seller in Europe.',
+    price:'$9,580', unit:'USD · EXW · incl. integrated bathroom', meta:'3 × 7.5 m · one integrated bathroom included',
+    q:{model:null, series:'Integrated house', size:'3 × 7.5 m platform · 3 × 6 × 3.2 m overall', area:'18 m² projected', qty:'1 set', usd:9580, opts:null},
+    spec:[["Foundation","Concrete platform / pile foundation, 300 × 300 mm. <strong>Buyer's scope.</strong>"],["Platform frame","Galvanized 60 × 60 × 2 mm and 60 × 40 × 2 mm square steel; platform 7.4 × 4 m"],["Floor system","18 mm glass-magnesium board with SPC stone-plastic flooring"],["Main steel structure","Main frame 80 × 80 × 2 mm square steel; secondary 80 × 40 × 2 mm; attic steel frame 80 × 80 × 2 mm"],["Structural accessories","Galvanized uplift connectors, straight connectors, wind bracing and right-angle connectors, 2.0–3.0 mm"],["Exterior wall","White metal siding, 16 mm, stated service life 15 years"],["Wall build-up","Double-sided 12 mm OSB with 50 mm XPS (Class B1 fire retardant) for heat and sound insulation"],["Wall waterproofing","Self-adhesive asphalt waterproof membrane, 1.5 mm"],["Interior partitions","40 × 60 × 2 mm hot-dip galvanized steel frame, anti-rust treated, with double-sided carbon crystal board"],["Front glass curtain wall","8 mm tempered glass in an aluminium frame, black-grey"],["Entrance door","Aluminium alloy structure with tempered glass, grey frame, smart lock, stainless / aluminium hardware"],["Windows","Left and right aluminium alloy windows, sealed, tempered glass, grey frame"],["Balcony","6 m²"],["Internal doors","Bathroom, kitchen and entrance: wood-grain composite steel doors"],["Lighting","OPPLE, 3000 K warm white, anti-fog"],["Wet areas","304 stainless steel anti-odour floor drains; 18 mm cement fibre board with ceramic tile to bathroom and kitchen"],["Integrated bathroom","Standard toilet, washbasin, shower head and exhaust fan"],["Attic staircase","Steel frame with solid wood steps"],["Electrical","Junlang switch panels, Liansu cable trunking, Panyu wires"],["Plumbing","Liansu PVC water pipes and faucets"]],
+    scope:{includes:"The configuration table above; wooden crates are used only to protect the tempered glass and aluminium frames.",excludes:"Tax, shipping and installation. Installation is supported by manual, video and remote guidance rather than on site.",payment:"50% deposit; the balance before container loading.",install:"No fitter is sent for this unit: the maker supplies an installation manual, an installation video and remote guidance."},
+    quoteRef:{no:'18 m² prefabricated house', date:'12 August 2026', lead:'25–35 days after the deposit'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-two-layer', live:true, type:'container', mfr:'meihua',
+    img:'/img/mh/mh-two-layer.webp',
+    name:'Two Layer Integrated House', mfrName:MEIHUA_NAME,
+    desc:'Two-storey integrated house, 5 × 7 m. The maker notes it as a strong seller in the USA. The quotation gives no quantity or unit against this line.',
+    price:'$38,000', unit:'USD · EXW', meta:'5 × 7 m · two storeys',
+    q:{model:null, series:'Integrated house', size:'5 × 7 m', area:null, qty:null, usd:38000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-insect', live:true, type:'capsule', mfr:'meihua',
+    img:'/img/mh/mh-insect.webp',
+    name:'MH-2.17 Insect Housing', mfrName:MEIHUA_NAME,
+    desc:'Large organic-form aluminium shell, 10 × 7.9 × 5.7 m, shown by the maker raised among trees.',
+    price:'$52,000', unit:'USD · EXW', meta:'10 × 7.9 × 5.7 m · organic aluminium shell',
+    q:{model:'MH-2.17', series:'Aluminum Alloy insect Housing', size:'10 × 7.9 × 5.7 m', area:null, qty:'1 Set', usd:52000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-hexagonal', live:true, type:'capsule', mfr:'meihua',
+    img:'/img/mh/mh-hexagonal.webp',
+    name:'MH-2.15 Hexagonal House', mfrName:MEIHUA_NAME,
+    desc:'Three hexagonal pods of 3.5 × 4 m assembled into a single house. The price covers the set of three, not one pod.',
+    price:'$55,000', unit:'USD · EXW · three pods per set', meta:'Three 3.5 × 4 m pods assorted into one house',
+    q:{model:'MH-2.15', series:'Hexagonal House', size:'3 × (3.5 × 4 m)', area:null, qty:'1 set', usd:55000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-eps', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-eps.webp',
+    name:'MH-1.14 EPS House', mfrName:MEIHUA_NAME,
+    desc:'A cluster of linked EPS domes over an 18 × 11.4 m plan, offered by the maker in several variations.',
+    price:'$42,000', unit:'USD · EXW', meta:'18 × 11.4 m · linked EPS domes',
+    q:{model:'MH-1.14', series:'EPS house, multiple variation', size:'18 × 11.4 m', area:null, qty:'1 set', usd:42000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-dome-hex', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-dome-hex.webp',
+    name:'MH-3.7 Hexagonal Glass Dome House', mfrName:MEIHUA_NAME,
+    desc:'Hexagonal-panel glass dome in two diameters, with a two-layer build offered at 8 m. Three prices, one per configuration.',
+    price:'From $12,000', unit:'USD · EXW · by size', meta:'6 m $12,000 · 8 m $18,000 · 8 m two-layer $27,800',
+    q:{model:'MH-3.7', series:'Hexagonal glass dome house', size:'6 m or 8 m diameter', area:null, qty:'1 set', usd:12000, opts:'6 m diameter USD 12,000 · 8 m single layer USD 18,000 · 8 m two layers USD 27,800'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-dome-wood', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-dome-wood.webp',
+    name:'MH-3.7 Wood Grain Glass Dome House', mfrName:MEIHUA_NAME,
+    desc:'The same dome geometry in a wood-grain finish, carrying roughly a $2,000–4,000 premium over the hexagonal glass version at each size.',
+    price:'From $14,000', unit:'USD · EXW · by size', meta:'6 m $14,000 · 8 m $21,000 · 8 m two-layer $31,800',
+    q:{model:'MH-3.7', series:'Wood Grain glass dome house', size:'6 m or 8 m diameter', area:null, qty:null, usd:14000, opts:'6 m diameter USD 14,000 · 8 m single layer USD 21,000 · 8 m two layers USD 31,800'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-triangular', live:true, type:'aframe', mfr:'meihua',
+    img:'/img/mh/mh-triangular.webp',
+    name:'MH-2.5 AA Triangular Housing', mfrName:MEIHUA_NAME,
+    desc:'Triangular A-frame module, 5 × 7 m, in the same aluminium-alloy integrated series.',
+    price:'$21,000', unit:'USD · EXW', meta:'5 × 7 m · A-frame in aluminium alloy',
+    q:{model:'MH-2.5', series:'Aluminum Alloy Integrated Module Housing Series', size:'5 × 7 × 5.6 m', area:null, qty:'1 set', usd:21000, opts:null},
+    spec:[["Foundation","300 × 300 × 500 mm pre-buried anchor cement piers, typhoon-resistant design; drawings issued to the buyer. <strong>Buyer's scope.</strong>"],["Platform steel frame","Hot-dip galvanized 60 × 60 × 2 mm square tube, 200 mm above grade, tied to the piers. <strong>Buyer's scope.</strong>"],["Structural frame","Main 80 × 80 mm galvanized steel pipe; secondary 3 mm galvanized steel pipe. Prefabricated."],["Roof & wall build-up","Self-locking polyurethane insulated aluminium-coated tile, 20 mm, with bottom sealing plate"],["Waterproofing","Self-adhesive waterproof membrane"],["Sheathing","9 mm OSB"],["Insulation","50 mm XPS, fire retardant; 6 mm calcium silicate board, fire retardant"],["Interior wall","8 mm wood-grain integrated wall panel, or sauna board"],["Entrance door","Hollow tempered coated glass 5+6A+5 with integrated screen, aluminium frame over 50 mm, waterproof and sound insulated"],["Windows & rear door","Two aluminium casement windows, 5+6A+5 tempered, 1.4 mm profile; one rear aluminium entrance door"],["Lock","Smart lock: card entry plus key"],["Glass curtain wall","5+9+5 hollow tempered glass, thermal-break aluminium, double-sided fluorocarbon-painted metal plate, structural adhesive seal to the main body"],["Bathroom","One set"],["Upper floor","Two-layer load-bearing deck: integrated board + OSB + steel frame + WPC floor"],["Flooring","WPC 100 × 25 mm with 5.5 mm SPC stone-plastic floor over waterproofing"],["Stairs","Steel frame with solid wood treads"],["Ceiling","8 mm integrated wood-grain panel"],["Electrical","Copper-core cable (Panyu, national standard); control switch in the distribution box; minimalist backlit switch panels with two sockets"],["Plumbing","Liansu pipe"],["Ventilation & lighting","Ordinary exhaust fan; basic lighting"]],
+    scope:{includes:"Main materials, loft, bathroom partitions, doors and windows, glass curtain wall, interior stairs, pre-buried water and electricity including sockets, and conventional packaging.",excludes:"Ground foundation and the platform's main steel frame, soft furnishings, home appliances, furniture (bedside screens, TVs, projectors, curtains, refrigerators, smokeless stoves), bathtub and wooden crate. Anything not shown in the configuration table is not configured and needs its own quotation.",payment:"50% of the material cost after the contract is signed; the balance before delivery.",install:"A supervising fitter is sent at ¥1,000 per person per day. The buyer provides food and accommodation, reimburses return travel, pays wages for travel time, provides tools free of charge, and finds three people with installation skills to assist."},
+    quoteRef:{no:'AA Triangle house', date:'14 August 2026'},
+    ship:{weight:'4\u20135 tonnes', volume:'48 CBM', container:'One set loads into a single 40 ft high-cube container', steel:'about USD 7,000 of galvanized steel frame'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-tri-sideroom', live:true, type:'aframe', mfr:'meihua',
+    img:'/img/mh/mh-tri-sideroom.webp',
+    name:'Triangle House with Side Room', mfrName:MEIHUA_NAME,
+    desc:'The 5 \u00d7 7 \u00d7 5.6 m triangle house with a 4 \u00d7 4 \u00d7 3.5 m side room added, quoted as one set. The side room is clad in wood-grain metal hanging panel and brings a second entrance at the upper floor. The maker illustrates this and the MH-2.3 A+7 duplex with the same render.',
+    price:'$26,500', unit:'USD \u00b7 EXW \u00b7 per set',
+    meta:'5 \u00d7 7 \u00d7 5.6 m + 4 \u00d7 4 \u00d7 3.5 m side room',
+    q:{model:null, series:'Aluminum Alloy Integrated Module House', size:'5 \u00d7 7 \u00d7 5.6 m plus a 4 \u00d7 4 \u00d7 3.5 m side room', area:null, qty:'1 set', usd:26500, opts:null},
+    spec:[["Foundation","300 × 300 × 500 mm pre-buried anchor cement piers, typhoon-resistant design; drawings issued to the buyer. <strong>Buyer's scope.</strong>"],["Platform steel frame","Hot-dip galvanized 60 × 60 × 2 mm square tube, 200 mm above grade, tied to the piers. <strong>Buyer's scope.</strong>"],["Side room exterior","Wood-grain metal hanging panel, 16 mm including tin foil and polyurethane"],["Structural frame","Main 80 × 80 mm galvanized steel pipe; secondary 3 mm galvanized steel pipe. Prefabricated."],["Roof & wall build-up","Self-locking polyurethane insulated aluminium-coated tile, 20 mm, with bottom sealing plate"],["Waterproofing","Self-adhesive waterproof membrane"],["Sheathing","9 mm OSB"],["Insulation","50 mm XPS, fire retardant; 6 mm calcium silicate board, fire retardant"],["Interior wall","8 mm wood-grain integrated wall panel, or sauna board"],["Entrance door","Hollow tempered coated glass 5+6A+5 with integrated screen, aluminium frame over 50 mm, waterproof and sound insulated"],["Windows & upper door","Three aluminium alloy windows; one aluminium alloy entrance door at the second floor"],["Lock","Smart lock: card entry plus key"],["Glass curtain wall","5+9+5 hollow tempered glass, thermal-break aluminium, double-sided fluorocarbon-painted metal plate, structural adhesive seal to the main body"],["Bathroom","One set"],["Upper floor","Two-layer load-bearing deck: integrated board + OSB + steel frame + WPC floor"],["Flooring","WPC 100 × 25 mm with 5.5 mm SPC stone-plastic floor over waterproofing"],["Stairs","Steel frame with solid wood treads"],["Ceiling","8 mm integrated wood-grain panel"],["Electrical","Copper-core cable (Panyu, national standard); control switch in the distribution box; minimalist backlit switch panels with two sockets"],["Plumbing","Liansu pipe"],["Ventilation & lighting","Ordinary exhaust fan; basic lighting"]],
+    scope:{includes:"Main materials, attic, side room, bathroom partition, doors and windows, glass curtain wall, stairs inside and outside, water and electricity pre-embedding including sockets, and conventional packaging.",excludes:"Ground foundation and the platform's main steel frame, soft decoration, home appliances, furniture, bathroom and wooden box. Anything not shown in the configuration table is not configured and needs its own quotation.",payment:"50% deposit in advance; the balance in full before delivery and container loading.",install:"Technicians are sent to guide installation at RMB 1,000 per person per day. The buyer provides free accommodation and meals, reimburses return travel, and pays wages for round-trip travel time; the buyer provides tools free of charge and arranges three people with basic installation experience to assist. Each technician carries RMB 3 million of insurance."},
+    quoteRef:{no:'Aluminum Alloy Integrated Module House', date:'10 August 2026'},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-floating-egg', live:true, type:'capsule', mfr:'meihua',
+    img:'/img/mh/mh-floating-egg.webp',
+    name:'MH-5.1 Floating Egg House', mfrName:MEIHUA_NAME,
+    desc:'A 7 m floating pod of 38 m², shown by the maker moored in clusters off a boardwalk. The most expensive single unit on this quotation.',
+    price:'$65,000', unit:'USD · EXW · water-sited', meta:'7 m diameter · 38 m² · floats',
+    q:{model:'MH-5.1', series:'Floating egg house', size:'7 m diameter', area:'38 m²', qty:'1 Set', usd:65000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-dome-point', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-dome-point.webp',
+    name:'MH-3.7 Pointed-Top Glass Dome House', mfrName:MEIHUA_NAME,
+    desc:'Glass dome with a pointed apex rather than a hemisphere, 6.5 m in diameter.',
+    price:'$17,000', unit:'USD · EXW', meta:'6.5 m diameter · pointed apex',
+    q:{model:'MH-3.7', series:'PointedTop Glass dome house', size:'6.5 m diameter', area:null, qty:'1 Set', usd:17000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-solar-sphere', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-solar-sphere.webp',
+    name:'MH-3.5 Solar Glass Sphere', mfrName:MEIHUA_NAME,
+    desc:'Two-layer faceted glass sphere, 8 m in diameter.',
+    price:'$48,000', unit:'USD · EXW · two layer', meta:'8 m diameter · two layers',
+    q:{model:'MH-3.5', series:'Solar Glass sphere, 2 layer', size:'8 m diameter', area:null, qty:'1 Set', usd:48000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-recovery', live:true, type:'dome', mfr:'meihua',
+    img:'/img/mh/mh-recovery.webp',
+    name:'MH-2.27 Energy Recovery Chamber', mfrName:MEIHUA_NAME,
+    desc:'A 4.5 m metal-clad pod the maker lists as an energy recovery chamber. The quotation gives the diameter and nothing further about what the name denotes.',
+    price:'$18,500', unit:'USD · EXW', meta:'4.5 m diameter · metal-clad pod',
+    q:{model:'MH-2.27', series:'Energy recovery chamber', size:'4.5 m diameter', area:null, qty:'1 Set', usd:18500, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-submarine', live:true, type:'capsule', mfr:'meihua',
+    img:'/img/mh/mh-submarine.webp',
+    name:'MH-2.27 Submarine Model Capsule', mfrName:MEIHUA_NAME,
+    desc:'Long faceted capsule, 5 × 12.8 m, with a deck at one end. Shares the MH-2.27 code with the energy recovery chamber.',
+    price:'$41,000', unit:'USD · EXW', meta:'5 × 12.8 m · the longest unit quoted',
+    q:{model:'MH-2.27', series:'Submarine model capsule', size:'5 × 12.8 m', area:null, qty:'1 Set', usd:41000, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
+  { id:'mh-egg', live:true, type:'capsule', mfr:'meihua',
+    img:'/img/mh/mh-egg.webp',
+    name:'MH-2.25 Egg-Shaped House', mfrName:MEIHUA_NAME,
+    desc:'Egg-shaped shell, 5 × 10 × 6 m, glazed across one end.',
+    price:'$38,500', unit:'USD · EXW', meta:'5 × 10 × 6 m · glazed end wall',
+    q:{model:'MH-2.25', series:'Egg-shaped house', size:'5 × 10 × 6 m', area:null, qty:'1 Set', usd:38500, opts:null},
+    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
   { id:'glassdome', live:true, type:'dome', mfr:'meihua',
     img: GLASS_HERO,
     name:'Standing Glass Dome', mfrName:'Meihua (Guangzhou) Prefabricated Building Technology Co., Ltd',
@@ -4688,6 +4889,91 @@ function renderCards(){
   const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.filter(p=>!p.archived).map(cardHTML).join(''); autoImperial(hel); }
 }
 
+
+/* ─── GENERIC LISTING PAGE ────────────────────────────────────────────────
+   Everything here comes from the product record and MH_QUOTE. Nothing is
+   asserted that the quotation does not say: where it is silent, the page
+   says so rather than filling the gap. */
+const lstEsc = t => String(t==null?'':t).replace(/[&<>"]/g,
+  c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderListing(pid){
+  const p=PRODUCTS.find(x=>x.id===pid); if(!p) return;
+  const q=p.q||{};
+  const g=id=>document.getElementById(id);
+  g('lst-crumb').textContent=p.name;
+  g('lst-title').textContent=p.name;
+  g('lst-mfr').textContent=p.mfrName;
+  g('lst-img').innerHTML=p.img?`<img src="${p.img}" alt="${lstEsc(p.name)}" style="width:100%;height:auto;display:block;border-radius:10px">`:'';
+  g('lst-badges').innerHTML=(p.archived?'<span class="badge arch">Archived</span>':p.tag||'')
+    +` <span class="badge">${p.quoteRef?lstEsc(p.quoteRef.no)+' quotation':'Quotation '+MH_QUOTE.no}</span>`
+    +(q.model?` <span class="badge">${q.model}</span>`:'');
+  g('lst-price').innerHTML=
+    `<div class="php-price-label">Unit price, ${MH_QUOTE.incoterm}</div>
+     <div class="php-price-row"><span class="php-price-big">${p.price}</span>
+       <span class="php-price-sub">${p.unit}</span></div>
+     ${q.opts?`<div class="php-price-rate">${q.opts}</div>`:''}
+     <div class="php-price-divider"></div>
+     <div class="php-price-label">What the price does not carry</div>
+     <div class="php-price-sub-line">${MH_QUOTE.excludes} Nothing here is landed cost: freight, the 25% steel/aluminium surtax exposure, duty and the Canadian compliance work are all still to be added.</div>`;
+  const rows=[['Model code',q.model||'not given'],['Series',q.series||'n/a'],
+    ['Size',q.size||'not given'],['Area',q.area||'not given'],
+    ['Quantity priced',q.qty||'not stated'],['Incoterm',MH_QUOTE.incoterm],
+    ['Lead time',(p.quoteRef&&p.quoteRef.lead)||MH_QUOTE.lead],['Quotation validity',MH_QUOTE.validity]];
+  g('lst-specs').innerHTML=rows.map(([k,v])=>
+    `<div class="php-spec"><div class="php-spec-k">${k}</div><div class="php-spec-v">${v}</div></div>`).join('');
+  /* A listing with its own itemised quotation shows the build-up and the
+     scope; one that exists only as a line on the summary quotation says so
+     instead of implying detail it does not have. */
+  const detail=p.spec&&p.spec.length;
+  const specTbl=detail?`<h3 class="eye" style="margin:34px 0 12px">Specification, as quoted</h3>
+     <div class="tablewrap"><table class="sum-tbl" style="min-width:640px">
+       <tr><th class="name">Item</th><th>Material &amp; build-up</th></tr>
+       ${p.spec.map(([k,v])=>`<tr><td class="name"><span class="nm">${k}</span></td><td>${v}</td></tr>`).join('')}
+     </table></div>`:'';
+  /* Performance is the maker's answer for the whole range; shipping is only
+     stated for the two units it measured, so it appears only on those. */
+  const perfBlk=`<h3 class="eye" style="margin:34px 0 12px">Structure, thermal and certification</h3>
+     <div class="tablewrap"><table class="sum-tbl" style="min-width:640px">
+       <tr><th class="name">Item</th><th>As answered by the maker</th></tr>
+       <tr><td class="name"><span class="nm">Wall insulation</span></td><td>${MH_PERF.wallR}</td></tr>
+       <tr><td class="name"><span class="nm">Roof insulation</span></td><td>${MH_PERF.roofR}</td></tr>
+       <tr><td class="name"><span class="nm">Doors &amp; windows</span></td><td>${MH_PERF.glazing}</td></tr>
+       <tr><td class="name"><span class="nm">Cold rating</span></td><td>${MH_PERF.cold}</td></tr>
+       <tr><td class="name"><span class="nm">Snow load</span></td><td class="ok-text">${MH_PERF.snow}</td></tr>
+       <tr><td class="name"><span class="nm">Wind load</span></td><td>${MH_PERF.wind}</td></tr>
+       <tr><td class="name"><span class="nm">Certification</span></td><td>${MH_PERF.certs}</td></tr>
+       <tr><td class="name"><span class="nm">Canadian codes</span></td><td>${MH_PERF.codes}</td></tr>
+       ${p.ship?`<tr><td class="name"><span class="nm">Shipping weight</span></td><td>${p.ship.weight}</td></tr>
+       <tr><td class="name"><span class="nm">Shipping volume</span></td><td>${p.ship.volume} &middot; ${p.ship.container}</td></tr>`:''}
+       <tr><td class="name"><span class="nm">Steel content</span></td><td>${MH_PERF.steelShare}${p.ship?' For this unit that is '+p.ship.steel+'.':''}</td></tr>
+     </table></div>`;
+  const sc=p.scope;
+  const scopeBlk=sc?`<div class="comp" style="margin-top:22px"><h4>What the price covers</h4>
+       <p><strong>Included:</strong> ${sc.includes}</p>
+       <p><strong>Not included:</strong> ${sc.excludes}</p></div>
+     <div class="comp" style="margin-top:16px"><h4>Payment &amp; installation</h4>
+       <p><strong>Payment:</strong> ${sc.payment}<br><strong>Installation:</strong> ${sc.install}</p></div>`:'';
+  const src=p.quoteRef
+    ? `its own itemised quotation, <em>${p.quoteRef.no}</em>, dated ${p.quoteRef.date}`
+    : `one line of quotation ${MH_QUOTE.no} dated ${MH_QUOTE.date}`;
+  g('lst-body').innerHTML=
+    `<p style="max-width:74ch;font-size:15.5px;line-height:1.65;color:var(--steel)">${p.desc}</p>
+     ${specTbl}${perfBlk}${scopeBlk}
+     <div class="comp warn" style="margin-top:22px"><span class="badge warn">${detail?'Not yet reviewed':'Quotation only'}</span>
+       <h4>${detail?'A full specification, but not yet a compliance position':'This listing is a price, not yet a decision'}</h4>
+       <p>It is built from ${src}. There is
+       <strong>no shipping quote, no certificate review and no compliance position</strong> on it yet,
+       so it is deliberately absent from the decision summary, which only carries listings that have been
+       taken that far. ${detail?'The build-up above is the maker\u2019s own, translated as given.':'Treat the price as a starting point for a conversation with the maker.'}</p></div>
+     <div class="comp" style="margin-top:16px"><h4>Terms carried by the whole quotation</h4>
+       <p><strong>Payment:</strong> ${MH_QUOTE.payment}.<br>
+          <strong>Packing:</strong> ${MH_QUOTE.packing}.<br>
+          <strong>Contact:</strong> ${MH_QUOTE.contact}.<br>
+          <strong>Maker:</strong> quoted under the name ${MH_QUOTE.alias}, the same company as
+          ${MEIHUA_NAME}: same address, same contact, same website.</p></div>`;
+  autoImperial(document.getElementById('page-listing'));
+}
+
 // ─── ROUTER ───────────────────────────────────────────────────────────────────
 // ─── AUTO IMPERIAL CONVERSION ─────────────────────────────────────────────────
 // Appends North-American (imperial) equivalents after metric measurements.
@@ -4868,15 +5154,25 @@ function closeNav(){
   if(nl) nl.classList.remove('open');
   if(btn){ btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-label','Open menu'); }
 }
+let listingId=null;
 function route(){
   closeNav();
+  listingId=null;
   const h=location.hash||'#/';
   let page='home', sub=null;
   if(h.startsWith('#/catalog')) page='catalog';
   else if(h.startsWith('#/shipping')){ const p=h.split('/'); sub=(p.length>2 && p[2])?p[2]:null; page='shipping'; }
-  else if(h.startsWith('#/product/')){ const p=h.split('/'); const pid=p[2]||'glassdome'; sub=(p.length>3 && p[3])?p[3]:null; page=(pid==='glassdome')?'glass':(pid==='chunshu')?'chunshu':(pid==='steel')?'steel':(pid==='capsule')?'capsule':(pid==='one')?'one':(pid==='branson')?'branson':(pid==='twofloor')?'twofloor':(pid==='t9')?'t9':(pid==='aframe')?'aframe':(pid==='solar')?'solar':(pid==='igloo')?'igloo':(pid==='batiscan')?'batiscan':(pid==='allrun')?'allrun':(pid==='windkit')?'windkit':(pid==='huijue')?'huijue':(pid==='warehouse')?'warehouse':'glass'; }
+  else if(h.startsWith('#/product/')){ const p=h.split('/'); const pid=p[2]||'glassdome'; sub=(p.length>3 && p[3])?p[3]:null; page=(pid==='glassdome')?'glass':(pid==='chunshu')?'chunshu':(pid==='steel')?'steel':(pid==='capsule')?'capsule':(pid==='one')?'one':(pid==='branson')?'branson':(pid==='twofloor')?'twofloor':(pid==='t9')?'t9':(pid==='aframe')?'aframe':(pid==='solar')?'solar':(pid==='igloo')?'igloo':(pid==='batiscan')?'batiscan':(pid==='allrun')?'allrun':(pid==='windkit')?'windkit':(pid==='huijue')?'huijue':(pid==='warehouse')?'warehouse'
+      /* A product with a quotation payload has no hand-built page and gets the
+         generic one. Falling through to 'glass' put every new listing on the
+         Standing Glass Dome's page. */
+      :(PRODUCTS.some(x=>x.id===pid&&x.q))?'listing':'glass';
+    listingId=(page==='listing')?pid:null; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
+  /* After the page is shown, never before: renderListing throwing used to
+     abort route() outright, leaving the previous page up and the URL changed. */
+  if(listingId){ try{ renderListing(listingId); }catch(e){ console.warn('listing render failed',e); } }
   document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===page));
   if(page==='glass'){
     document.querySelectorAll('#g-pd-tabs a').forEach(a=>a.classList.toggle('on',a.dataset.sub===('g-'+sub)));
