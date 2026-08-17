@@ -624,6 +624,17 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
     #page-shipping .flow-done .flow-num{background:var(--pine-deep)}
     #page-shipping .flow-done .fd-txt{font-family:'Inter',sans-serif;font-weight:800;font-size:16px;color:var(--pine)}
     @media(max-width:720px){#page-shipping .flow-tracks{grid-template-columns:1fr}#page-shipping .flow-step,#page-shipping .flow-done{grid-template-columns:38px 1fr;gap:12px}#page-shipping .flow-num{width:38px;height:38px;font-size:16px}#page-shipping .flow-step:not(:last-child)::before{left:18px}}
+
+    /* PDF links on a generated listing page */
+    .doc-row{display:flex;flex-wrap:wrap;gap:12px}
+    .doc-btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+      border:1.5px solid var(--pine);border-radius:9px;padding:11px 16px;
+      color:var(--pine);background:transparent;transition:.15s;max-width:420px}
+    .doc-btn:hover{background:var(--pine-light)}
+    .doc-btn svg{flex:0 0 auto}
+    .doc-btn span{display:flex;flex-direction:column;line-height:1.3}
+    .doc-btn strong{font-family:'Inter',sans-serif;font-size:13px;font-weight:700}
+    .doc-btn em{font-style:normal;font-size:11.5px;color:var(--steel);margin-top:2px}
   </style>
 
   <div class="wrap crumbs"><a href="#/">Home</a> &nbsp;/&nbsp; <strong>Decision summary</strong></div>
@@ -4533,6 +4544,24 @@ const MH_PERF = {
   steelShare:'The galvanized steel frame is roughly one third of the unit price, which is the part exposed to the 25% steel and aluminium surtax if the unit is classed as parts.'
 };
 
+
+/* The documents behind the listings. The summary quotation is the source for
+   every unit taken from it, so it is attached to all of them; three units
+   also have an itemised quotation of their own and carry both. */
+const MH_DOCS = {
+  list:{href:'/docs/meihua/meihua-quotation-MH2600812.pdf',
+        label:'Price list MH2600812',
+        note:'The full quotation, 12 Aug 2026 \u00b7 every unit and its EXW price'},
+  own:{
+   'mh-triangular':{href:'/docs/meihua/aa-triangle-house-quotation.pdf',
+     label:'AA triangle house quotation', note:'Itemised specification, 14 Aug 2026'},
+   'mh-tri-sideroom':{href:'/docs/meihua/module-house-side-room-quotation.pdf',
+     label:'Module house quotation', note:'Itemised specification, 10 Aug 2026'},
+   'mh-one-layer':{href:'/docs/meihua/18sqm-prefab-house-quotation.pdf',
+     label:'18 m\u00b2 prefab house quotation', note:'Itemised specification, 12 Aug 2026'}
+  }
+};
+
 const PRODUCTS = [
   { id:'mh-a-star', live:true, type:'container', mfr:'meihua',
     img:'/img/mh/mh-a-star.webp',
@@ -4947,6 +4976,20 @@ function renderListing(pid){
        <tr><td class="name"><span class="nm">Shipping volume</span></td><td>${p.ship.volume} &middot; ${p.ship.container}</td></tr>`:''}
        <tr><td class="name"><span class="nm">Steel content</span></td><td>${MH_PERF.steelShare}${p.ship?' For this unit that is '+p.ship.steel+'.':''}</td></tr>
      </table></div>`;
+  /* Every listing gets the document it came from, so a price on the page can
+     always be checked against the paper it was read off. */
+  const docs=[]; const own=MH_DOCS.own[p.id];
+  if(own)docs.push(own);
+  /* The side-room unit was quoted on its own and is not a line in the price
+     list, so the list is offered to it as context rather than as its source. */
+  docs.push(p.id==='mh-tri-sideroom'
+    ? {...MH_DOCS.list, note:'The maker\u2019s full range and EXW prices \u00b7 this unit is not a line in it'}
+    : MH_DOCS.list);
+  const docBtn=d=>`<a href="${d.href}" target="_blank" rel="noopener" class="doc-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span><strong>${d.label}</strong><em>${d.note}</em></span></a>`;
+  const docBlk=`<h3 class="eye" style="margin:34px 0 12px">The quotation this listing came from</h3>
+     <div class="doc-row">${docs.map(docBtn).join('')}</div>`;
   const sc=p.scope;
   const scopeBlk=sc?`<div class="comp" style="margin-top:22px"><h4>What the price covers</h4>
        <p><strong>Included:</strong> ${sc.includes}</p>
@@ -4958,7 +5001,7 @@ function renderListing(pid){
     : `one line of quotation ${MH_QUOTE.no} dated ${MH_QUOTE.date}`;
   g('lst-body').innerHTML=
     `<p style="max-width:74ch;font-size:15.5px;line-height:1.65;color:var(--steel)">${p.desc}</p>
-     ${specTbl}${perfBlk}${scopeBlk}
+     ${docBlk}${specTbl}${perfBlk}${scopeBlk}
      <div class="comp warn" style="margin-top:22px"><span class="badge warn">${detail?'Not yet reviewed':'Quotation only'}</span>
        <h4>${detail?'A full specification, but not yet a compliance position':'This listing is a price, not yet a decision'}</h4>
        <p>It is built from ${src}. There is
