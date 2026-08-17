@@ -635,8 +635,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <p style="max-width:70ch">Everything you need to make the final call in one place, cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
-      <span class="ship-tag"><b>7</b> active listings &middot; 8 archived</span>
-      <span class="ship-tag"><b>5</b> structures &middot; <b>2</b> power kits</span>
+      <span class="ship-tag"><b>15</b> active listings &middot; 20 archived</span>
+      <span class="ship-tag"><b>13</b> structures &middot; <b>2</b> power kits</span>
       <span class="ship-tag">Origin <b>China + Canada</b> &middot; dest. <b>Ontario (HST)</b></span>
       <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
     </div>
@@ -661,11 +661,11 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
   <!-- SUMMARY (decision tables) -->
   <div class="subsec" id="sub-ship-summary"><div class="wrap wrap-wide">
     <div class="eyebrow">Decision summary</div>
-    <h2 style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The whole catalog on two tables</h2>
-    <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
+    <h2 style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.015em;margin:12px 0 10px">The shortlist on two tables</h2>
+    <p class="intro" style="max-width:74ch">Cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping and the other one-time costs to budget; everything to make the final call. <strong>Click any name to open its full listing, or tap any column header to sort</strong> (tap again to reverse). Only listings still under consideration and taken as far as a shipping quote and a certificate review appear here: archived listings and listings that exist so far only as a price are deliberately left out. Figures are in USD; shipping is pulled from each listing&rsquo;s live quote, so this table always matches the &ldquo;Cost &amp; terms&rdquo; tab.</p>
 
     <h3 class="sum-h">Site map <span class="cnt">Evergreen Resort &middot; Lake Wolsey</span></h3>
-    <p class="sum-sub">The property on Hwy 540, Gore Bay. White lines mark the parcel boundaries; the resort buildings sit along the west shore, with the open field and bush to the east. Roughly <strong>7.5 ha</strong> with about <strong>259 m of water frontage</strong>. <a href="/site-planner.html">Open the site planner &rarr;</a> to lay units out on it.</p>
+    <p class="sum-sub">The property on Hwy 540, Gore Bay. White lines mark the parcel boundaries; the resort buildings sit along the west shore, with the open field and bush to the east. Roughly <strong>13.35 ha (33 acres)</strong> with about <strong>259 m of water frontage</strong>. <a href="/site-planner.html">Open the site planner &rarr;</a> to lay units out on it.</p>
     <figure class="sitemap-fig">
       <a href="/img/site/sitemap.webp" target="_blank" rel="noopener" class="sitemap-link"
          title="Open the full-size site map">
@@ -4541,7 +4541,7 @@ const PRODUCTS = [
     price:'$25,000', unit:'USD · EXW · shell, no furniture', meta:'45 m² · 9 × 5 m · aluminium-alloy module',
     q:{model:'MH-2.9', series:'Aluminum Alloy Integrated Module Housing Series', size:'9 × 5 m', area:'45 m²', qty:'1 set', usd:25000, opts:'Furniture + bathroom + kitchen: plus USD 5,000–10,000'},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-gable-duplex', live:true, type:'aframe', mfr:'meihua',
+  { id:'mh-gable-duplex', live:true, archived:true, type:'aframe', mfr:'meihua',
     img:'/img/mh/mh-gable-duplex.webp',
     name:'MH-2.7 Gabled Double-Layer House', mfrName:MEIHUA_NAME,
     desc:'Double-layer A-shape house with a gabled roof, 5 × 7 m. Quoted as the structure only, with furniture, bathroom and kitchen priced separately.',
@@ -4573,28 +4573,28 @@ const PRODUCTS = [
     scope:{includes:"The configuration table above; wooden crates are used only to protect the tempered glass and aluminium frames.",excludes:"Tax, shipping and installation. Installation is supported by manual, video and remote guidance rather than on site.",payment:"50% deposit; the balance before container loading.",install:"No fitter is sent for this unit: the maker supplies an installation manual, an installation video and remote guidance."},
     quoteRef:{no:'18 m² prefabricated house', date:'12 August 2026', lead:'25–35 days after the deposit'},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-two-layer', live:true, type:'container', mfr:'meihua',
+  { id:'mh-two-layer', live:true, archived:true, type:'container', mfr:'meihua',
     img:'/img/mh/mh-two-layer.webp',
     name:'Two Layer Integrated House', mfrName:MEIHUA_NAME,
     desc:'Two-storey integrated house, 5 × 7 m. The maker notes it as a strong seller in the USA. The quotation gives no quantity or unit against this line.',
     price:'$38,000', unit:'USD · EXW', meta:'5 × 7 m · two storeys',
     q:{model:null, series:'Integrated house', size:'5 × 7 m', area:null, qty:null, usd:38000, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-insect', live:true, type:'capsule', mfr:'meihua',
+  { id:'mh-insect', live:true, archived:true, type:'capsule', mfr:'meihua',
     img:'/img/mh/mh-insect.webp',
     name:'MH-2.17 Insect Housing', mfrName:MEIHUA_NAME,
     desc:'Large organic-form aluminium shell, 10 × 7.9 × 5.7 m, shown by the maker raised among trees.',
     price:'$52,000', unit:'USD · EXW', meta:'10 × 7.9 × 5.7 m · organic aluminium shell',
     q:{model:'MH-2.17', series:'Aluminum Alloy insect Housing', size:'10 × 7.9 × 5.7 m', area:null, qty:'1 Set', usd:52000, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-hexagonal', live:true, type:'capsule', mfr:'meihua',
+  { id:'mh-hexagonal', live:true, archived:true, type:'capsule', mfr:'meihua',
     img:'/img/mh/mh-hexagonal.webp',
     name:'MH-2.15 Hexagonal House', mfrName:MEIHUA_NAME,
     desc:'Three hexagonal pods of 3.5 × 4 m assembled into a single house. The price covers the set of three, not one pod.',
     price:'$55,000', unit:'USD · EXW · three pods per set', meta:'Three 3.5 × 4 m pods assorted into one house',
     q:{model:'MH-2.15', series:'Hexagonal House', size:'3 × (3.5 × 4 m)', area:null, qty:'1 set', usd:55000, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-eps', live:true, type:'dome', mfr:'meihua',
+  { id:'mh-eps', live:true, archived:true, type:'dome', mfr:'meihua',
     img:'/img/mh/mh-eps.webp',
     name:'MH-1.14 EPS House', mfrName:MEIHUA_NAME,
     desc:'A cluster of linked EPS domes over an 18 × 11.4 m plan, offered by the maker in several variations.',
@@ -4637,7 +4637,7 @@ const PRODUCTS = [
     scope:{includes:"Main materials, attic, side room, bathroom partition, doors and windows, glass curtain wall, stairs inside and outside, water and electricity pre-embedding including sockets, and conventional packaging.",excludes:"Ground foundation and the platform's main steel frame, soft decoration, home appliances, furniture, bathroom and wooden box. Anything not shown in the configuration table is not configured and needs its own quotation.",payment:"50% deposit in advance; the balance in full before delivery and container loading.",install:"Technicians are sent to guide installation at RMB 1,000 per person per day. The buyer provides free accommodation and meals, reimburses return travel, and pays wages for round-trip travel time; the buyer provides tools free of charge and arranges three people with basic installation experience to assist. Each technician carries RMB 3 million of insurance."},
     quoteRef:{no:'Aluminum Alloy Integrated Module House', date:'10 August 2026'},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-floating-egg', live:true, type:'capsule', mfr:'meihua',
+  { id:'mh-floating-egg', live:true, archived:true, type:'capsule', mfr:'meihua',
     img:'/img/mh/mh-floating-egg.webp',
     name:'MH-5.1 Floating Egg House', mfrName:MEIHUA_NAME,
     desc:'A 7 m floating pod of 38 m², shown by the maker moored in clusters off a boardwalk. The most expensive single unit on this quotation.',
@@ -4651,7 +4651,7 @@ const PRODUCTS = [
     price:'$17,000', unit:'USD · EXW', meta:'6.5 m diameter · pointed apex',
     q:{model:'MH-3.7', series:'PointedTop Glass dome house', size:'6.5 m diameter', area:null, qty:'1 Set', usd:17000, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-solar-sphere', live:true, type:'dome', mfr:'meihua',
+  { id:'mh-solar-sphere', live:true, archived:true, type:'dome', mfr:'meihua',
     img:'/img/mh/mh-solar-sphere.webp',
     name:'MH-3.5 Solar Glass Sphere', mfrName:MEIHUA_NAME,
     desc:'Two-layer faceted glass sphere, 8 m in diameter.',
@@ -4665,14 +4665,14 @@ const PRODUCTS = [
     price:'$18,500', unit:'USD · EXW', meta:'4.5 m diameter · metal-clad pod',
     q:{model:'MH-2.27', series:'Energy recovery chamber', size:'4.5 m diameter', area:null, qty:'1 Set', usd:18500, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-submarine', live:true, type:'capsule', mfr:'meihua',
+  { id:'mh-submarine', live:true, archived:true, type:'capsule', mfr:'meihua',
     img:'/img/mh/mh-submarine.webp',
     name:'MH-2.27 Submarine Model Capsule', mfrName:MEIHUA_NAME,
     desc:'Long faceted capsule, 5 × 12.8 m, with a deck at one end. Shares the MH-2.27 code with the energy recovery chamber.',
     price:'$41,000', unit:'USD · EXW', meta:'5 × 12.8 m · the longest unit quoted',
     q:{model:'MH-2.27', series:'Submarine model capsule', size:'5 × 12.8 m', area:null, qty:'1 Set', usd:41000, opts:null},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-egg', live:true, type:'capsule', mfr:'meihua',
+  { id:'mh-egg', live:true, archived:true, type:'capsule', mfr:'meihua',
     img:'/img/mh/mh-egg.webp',
     name:'MH-2.25 Egg-Shaped House', mfrName:MEIHUA_NAME,
     desc:'Egg-shaped shell, 5 × 10 × 6 m, glazed across one end.',
@@ -4709,7 +4709,7 @@ const PRODUCTS = [
     desc:'Futuristic two-storey capsule (Space Capsule SA3), 45 m² over two floors: ground-floor kitchen/living/bath and an upper bedroom capsule, galvanized-steel frame, thermal-break glazing, turnkey fit-out with a 20-year warranty.',
     price:'$31,579', unit:'USD package · turnkey', meta:'1 bed · 45 m² · 2 floors · $65/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'aframe', live:true, type:'aframe', mfr:'yidongxiang',
+  { id:'aframe', live:true, archived:true, type:'aframe', mfr:'yidongxiang',
     img: AF_HERO,
     name:'A-Frame Cabin', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
     desc:'90 m² glulam A-frame cabin with SIPs sheathing, 2 bedrooms, 1 bathroom, open kitchen/living, and an attic loft. Engineered to IBC / ASCE 7-22 with a 4.97 kPa snow rating, the strongest in the catalog.',
@@ -4721,7 +4721,7 @@ const PRODUCTS = [
     desc:'Formal quote for the 48 m² "Canadian Mirror House", a light-gauge-steel cabin with a full-glass curtain-wall facade, fitted kitchen & bath, 150 mm rockwool, and deck. $45,292 FOB incl. foundation & deck (removable). Wood cladding sourced locally in Canada.',
     price:'$45,292', unit:'USD · FOB · incl. foundation & deck', meta:'48 m² · full-glass wall · $88/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'capsule', live:true, type:'capsule', mfr:'zhongjun',
+  { id:'capsule', live:true, archived:true, type:'capsule', mfr:'zhongjun',
     img: CAPSULE_HERO,
     name:'Steele Capsule (T5)', mfrName:'Zhongjun Teng (Jiujiang) International Trade Co., Ltd.',
     desc:'Futuristic 28 m² two-person space capsule, galvanized-steel frame, aluminium shell, Low-E glass curtain wall, rooftop panoramic balcony, and a fully fitted smart interior. Delivered assembled.',
@@ -4769,7 +4769,7 @@ const PRODUCTS = [
     desc:'Complete, ready-to-install off-grid unit, 10.4 kW solar (16×650 W), 20.48 kWh LiFePO4, a 10 kW inverter & controller, mounting (roof or ground), cabling & connectors for $3,995/set FOB (list $4,950). The lowest $/W in the catalog with the largest included battery; the one open item is cULus/CSA certification & split-phase output.',
     price:'$3,995', unit:'set · 10.4 kW + 20.48 kWh · FOB', meta:'10.4 kW · 20.48 kWh · 10 kW inverter',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'warehouse', live:true, type:'warehouse', mfr:'weizheng',
+  { id:'warehouse', live:true, archived:true, type:'warehouse', mfr:'weizheng',
     img: WH_HERO,
     name:'Steel Warehouse (200×100×20 ft)', mfrName:'Hebei Weizhengheng Modular House Technology Co., Ltd.',
     desc:'Bolted pre-engineered steel building shell, 1,858 m² (~20,000 sq ft), Q355B H-beam frame + Q235B secondary steel, colour-steel roof/wall cladding, 2 roller doors, 2 single doors, 10 windows. Structure and cladding only, no insulation, interior, plumbing or electrical. Quoted snow load (1.82 kN/m²) sits below Gore Bay\'s requirement.',
@@ -5381,7 +5381,7 @@ const SUMMARY = {
   allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
     certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA (confirmed no)',s:'warn'}]}
 };
-const SUM_CABINS=['branson','aframe','igloo','glass','capsule','warehouse'];
+const SUM_CABINS=['branson','igloo','glass'];
 const SUM_ENERGY=['huijue','allrun'];
 // ─── PRICE / COST ESTIMATES (planning figures for the summary totals) ──────────
 // fob = quoted FOB/EXW unit price (USD, from the spec sheet); surtaxAmt = 25% of
