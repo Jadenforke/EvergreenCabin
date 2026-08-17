@@ -635,8 +635,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <p style="max-width:70ch">Everything you need to make the final call in one place, cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
-      <span class="ship-tag"><b>15</b> active listings &middot; 20 archived</span>
-      <span class="ship-tag"><b>13</b> structures &middot; <b>2</b> power kits</span>
+      <span class="ship-tag"><b>18</b> active listings &middot; 17 archived</span>
+      <span class="ship-tag"><b>16</b> structures &middot; <b>2</b> power kits</span>
       <span class="ship-tag">Origin <b>China + Canada</b> &middot; dest. <b>Ontario (HST)</b></span>
       <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
     </div>
@@ -4709,7 +4709,7 @@ const PRODUCTS = [
     desc:'Futuristic two-storey capsule (Space Capsule SA3), 45 m² over two floors: ground-floor kitchen/living/bath and an upper bedroom capsule, galvanized-steel frame, thermal-break glazing, turnkey fit-out with a 20-year warranty.',
     price:'$31,579', unit:'USD package · turnkey', meta:'1 bed · 45 m² · 2 floors · $65/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'aframe', live:true, archived:true, type:'aframe', mfr:'yidongxiang',
+  { id:'aframe', live:true, type:'aframe', mfr:'yidongxiang',
     img: AF_HERO,
     name:'A-Frame Cabin', mfrName:'Qingdao Yidongxiang Steel Structure Co., Ltd.',
     desc:'90 m² glulam A-frame cabin with SIPs sheathing, 2 bedrooms, 1 bathroom, open kitchen/living, and an attic loft. Engineered to IBC / ASCE 7-22 with a 4.97 kPa snow rating, the strongest in the catalog.',
@@ -4721,7 +4721,7 @@ const PRODUCTS = [
     desc:'Formal quote for the 48 m² "Canadian Mirror House", a light-gauge-steel cabin with a full-glass curtain-wall facade, fitted kitchen & bath, 150 mm rockwool, and deck. $45,292 FOB incl. foundation & deck (removable). Wood cladding sourced locally in Canada.',
     price:'$45,292', unit:'USD · FOB · incl. foundation & deck', meta:'48 m² · full-glass wall · $88/sq ft',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'capsule', live:true, archived:true, type:'capsule', mfr:'zhongjun',
+  { id:'capsule', live:true, type:'capsule', mfr:'zhongjun',
     img: CAPSULE_HERO,
     name:'Steele Capsule (T5)', mfrName:'Zhongjun Teng (Jiujiang) International Trade Co., Ltd.',
     desc:'Futuristic 28 m² two-person space capsule, galvanized-steel frame, aluminium shell, Low-E glass curtain wall, rooftop panoramic balcony, and a fully fitted smart interior. Delivered assembled.',
@@ -4769,7 +4769,7 @@ const PRODUCTS = [
     desc:'Complete, ready-to-install off-grid unit, 10.4 kW solar (16×650 W), 20.48 kWh LiFePO4, a 10 kW inverter & controller, mounting (roof or ground), cabling & connectors for $3,995/set FOB (list $4,950). The lowest $/W in the catalog with the largest included battery; the one open item is cULus/CSA certification & split-phase output.',
     price:'$3,995', unit:'set · 10.4 kW + 20.48 kWh · FOB', meta:'10.4 kW · 20.48 kWh · 10 kW inverter',
     tag:'<span class="badge ok">Quoted Jul 2026</span>' },
-  { id:'warehouse', live:true, archived:true, type:'warehouse', mfr:'weizheng',
+  { id:'warehouse', live:true, type:'warehouse', mfr:'weizheng',
     img: WH_HERO,
     name:'Steel Warehouse (200×100×20 ft)', mfrName:'Hebei Weizhengheng Modular House Technology Co., Ltd.',
     desc:'Bolted pre-engineered steel building shell, 1,858 m² (~20,000 sq ft), Q355B H-beam frame + Q235B secondary steel, colour-steel roof/wall cladding, 2 roller doors, 2 single doors, 10 windows. Structure and cladding only, no insulation, interior, plumbing or electrical. Quoted snow load (1.82 kN/m²) sits below Gore Bay\'s requirement.',
@@ -4884,7 +4884,7 @@ function renderCards(){
   const filtered=PRODUCTS.filter(p=>match(p)&&!p.archived);
   const archived=PRODUCTS.filter(p=>match(p)&&p.archived);
   let html=filtered.length?filtered.map(cardHTML).join(''):'<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
-  if(archived.length) html+=`<div class="arch-sec"><div class="arch-head"><h3>Archived: no longer under consideration</h3><p>Kept for reference; excluded from the decision summary.</p></div>${archived.map(cardHTML).join('')}</div>`;
+  if(archived.length) html+=`<div class="arch-sec"><div class="arch-head"><h3>Archived: no longer under consideration</h3><p>Kept for reference; excluded from the decision summary. Listings quoted over <strong>$35,000 USD</strong> are archived on price alone. The steel warehouse is held back from that rule on purpose: it is the only shell in the catalog that can build the sport barn, and there is nothing to put in its place.</p></div>${archived.map(cardHTML).join('')}</div>`;
   const el=document.getElementById('catalog-cards'); if(el){ el.innerHTML=html; autoImperial(el); }
   const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.filter(p=>!p.archived).map(cardHTML).join(''); autoImperial(hel); }
 }
@@ -5381,7 +5381,7 @@ const SUMMARY = {
   allrun:   {slug:'allrun',    name:'ARXT10KW Off-Grid Solar', mfr:'Qingdao Allrun', output:'10.4 kW + 20.48 kWh LiFePO4',
     certs:[{t:'CE (whole system)',s:'has'},{t:'Split-phase 120/240 V',s:'has'},{t:'Battery UN 38.3 + SDS',s:'has'},{t:'cULus / CSA (confirmed no)',s:'warn'}]}
 };
-const SUM_CABINS=['branson','igloo','glass'];
+const SUM_CABINS=['branson','aframe','igloo','glass','capsule','warehouse'];
 const SUM_ENERGY=['huijue','allrun'];
 // ─── PRICE / COST ESTIMATES (planning figures for the summary totals) ──────────
 // fob = quoted FOB/EXW unit price (USD, from the spec sheet); surtaxAmt = 25% of
