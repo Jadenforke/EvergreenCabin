@@ -646,8 +646,8 @@ footer .fine{border-top:1px solid #2A332E;padding-top:22px;font-size:12px;color:
       <p style="max-width:70ch">Everything you need to make the final call in one place, cost per square foot, the certificates each listing needs and whether it has them, the 25% steel/aluminium surtax exposure, shipping, and the other one-time costs to budget. Below the summary tables, the full <strong style="color:var(--ink)">shipping &amp; import requirements</strong> for China&nbsp;&rarr;&nbsp;Ontario, landed at Gore Bay / Manitoulin Island.</p>
     </div>
     <div class="ship-tags">
-      <span class="ship-tag"><b>14</b> active listings &middot; 16 archived</span>
-      <span class="ship-tag"><b>11</b> structures &middot; <b>3</b> power kits</span>
+      <span class="ship-tag"><b>13</b> active listings &middot; 16 archived</span>
+      <span class="ship-tag"><b>10</b> structures &middot; <b>3</b> power kits</span>
       <span class="ship-tag">Origin <b>China + Canada</b> &middot; dest. <b>Ontario (HST)</b></span>
       <span class="ship-tag">Incoterm typically <b>EXW / FOB</b></span>
     </div>
@@ -4330,6 +4330,26 @@ const MH_QUOTE = {
    held once and shown on every listing quoted from it. The snow figure is the
    one that matters here: 2.5 kN/m\u00b2 sits at the top of the 2.0\u20132.5 kN/m\u00b2
    band this project works to, so it meets it with nothing spare. */
+const MH_QA = [
+  {g:"Structure & thermal", qa:[["Insulation R-values for walls, roof and floor","Walls ≥ 1.9 m²·K/W; roof ≥ 2.4 m²·K/W. Thermal-break aluminium doors and windows with coated insulated glass, U ≤ 2.0 W/(m²·K)."],["Designed for Canadian winters down to −30 °C?","“Yes, fully capable.”"],["Maximum snow load the roof can bear","2.5 kN/m² (250 kg/m²)"],["Wind load the structure is engineered for","0.55 kN/m², which the maker equates to Grade 11 wind"],["Protection of timber against moisture, pests and mould","“We have corresponding anti-moisture, insect-proof and anti-mould treatment processes.” No process or product is named."],["Certifications and standards","ISO quality, environmental and occupational safety management system certification, and CE"],["Compliance with Canadian and provincial building codes","“It meets relevant standards, while we haven’t obtained local official certificates temporarily.” No Ontario or CSA approval exists; a P.Eng review and ESA field evaluation are still required."],["Are electrical components CSA certified or equivalent?","“Yes, we supply certified electrical parts.” The certificates themselves have not been produced."],["Are the doors and windows approved for use in Canada?","“Our thermal-break aluminium windows and doors are acceptable for Canadian projects.”"],["Engineering drawings and compliance certificates","“Yes, we can provide all relevant documents.”"]]},
+  {g:"Foundation & installation", qa:[["Recommended foundation","Concrete foundation where Grade 12 wind applies; ground-anchor foundation below Grade 12; concrete pier foundation below Grade 10."],["Foundation drawings supplied?","Yes"],["Workers required to assemble","4 to 6"],["Installation time","3 to 5 days for an 18 m² unit"],["On-site installation service","One supervisor is sent at a stated <strong>USD 1,000 per day</strong>. The buyer hires four local workers under 45 with electrical or installation experience, and covers the supervisor’s travel-time wages, travel expenses, accommodation, meals and 3 million of insurance. A full installation team is only dispatched for orders over USD 10 million."]]},
+  {g:"Transport & terms", qa:[["Price basis","EXW or FOB Guangzhou, in USD"],["Ocean freight estimate","Calculated once a delivery address is supplied"],["CIF quotation covering freight and insurance","Not offered. Reference ocean freight figures only; all quotations are FOB."],["Containers required","Depends on the quantity ordered"]]},
+  {g:"Interior & services", qa:[["Electrical, plumbing, heating and ventilation","All available as optional upgrades at extra cost"],["North American electrical standard (120/240 V, 60 Hz)","“Yes, we can fully match North American electrical standards.”"],["Heating and air conditioning","Optional extras at extra cost"],["Heat recovery ventilation","Can be fitted; the maker notes the configuration cost is high"],["Water heater","Optional upgrade at extra cost"],["Plumbing materials certified to Canadian standards","“We can supply Canadian certified plumbing fittings as requested.”"],["Kitchen and bathroom","Custom setups available"],["Appliances (fridge, stove, dishwasher, washer, dryer)","All optional extras, and all add cost"],["Kitchen cabinet material","Stainless steel"],["Sanitary ware (taps, toilets, showers, sinks)","Fitted to request"],["Window glass","Xinyi and LEU glass"]]},
+  {g:"Warranty & after-sales", qa:[["Warranty period","1 to 3 years"],["Main building structure","The warranty covers wear parts and accessories; the maker describes the main structure as having an “ultra-long service life” rather than warranting it."],["Doors and windows","Door and window accessories"],["Electrical and plumbing systems","Supporting accessories only"],["Damage in transit","The buyer’s cargo insurance carries it"],["After-sales support and spare parts","Available"]]},
+  {g:"Payment & lead time", qa:[["Standard terms","40–50% deposit, balance in full before shipment"],["Lower deposit","30% is available on orders over USD 200,000"],["Letter of credit","Not accepted"],["Inspection before final payment","Factory inspection before the balance is allowed"],["Production and delivery lead time","35–45 working days for standard orders; 45–65 working days for customised orders"]]},
+  {g:"Documentation", qa:[["Architectural and engineering drawings","Yes"],["Photos and video of completed projects","Yes"],["Itemised list of what is and is not included","Yes"],["North American client references","“We have partial North American client references available.”"]]}
+];
+
+/* Two figures the maker has now given twice, differently. Both are recorded
+   as they were said rather than reconciled, because picking one would be
+   inventing an answer to a question that is still open. */
+const MH_CONFLICTS = [
+  ['Supervisor day rate',
+   'The itemised quotations say <strong>RMB 1,000 per person per day</strong>. The written answers say <strong>USD 1,000 per day</strong>. That is roughly a sevenfold difference on the same line item, and it needs settling before an installation is budgeted.'],
+  ['Lead time',
+   'The quotations say <strong>25\u201350 days</strong> after payment, and the 18 m\u00b2 house says <strong>25\u201335</strong>. The written answers say <strong>35\u201345 working days</strong> standard and <strong>45\u201365</strong> customised. Working days and calendar days are not the same thing, and the two sets do not overlap cleanly.']
+];
+
 const MH_PERF = {
   wallR:'\u2265 1.9 m\u00b2\u00b7K/W',
   roofR:'\u2265 2.4 m\u00b2\u00b7K/W',
@@ -4351,10 +4371,10 @@ const MH_DOCS = {
         label:'Price list MH2600812',
         note:'The full quotation, 12 Aug 2026 \u00b7 every unit and its EXW price'},
   own:{
-   'mh-triangular':{href:'/docs/meihua/aa-triangle-house-quotation.pdf',
-     label:'AA triangle house quotation', note:'Itemised specification, 14 Aug 2026'},
    'mh-tri-sideroom':{href:'/docs/meihua/module-house-side-room-quotation.pdf',
      label:'MH-2.3 A-frame \u00b7 Aluminum Alloy Integrated Module House quotation', note:'Itemised specification, 10 Aug 2026'},
+   'mh-tri-sideroom-2':{href:'/docs/meihua/aa-triangle-house-quotation.pdf',
+     label:'AA triangle house quotation', note:'The same triangle house without the side room \u00b7 14 Aug 2026'},
    'mh-one-layer':{href:'/docs/meihua/18sqm-prefab-house-quotation.pdf',
      label:'18 m\u00b2 prefab house quotation', note:'Itemised specification, 12 Aug 2026'}
   }
@@ -4369,7 +4389,7 @@ const PRODUCTS = [
     q:{model:'MH-2.7', series:'Aluminum Alloy House Series · Roofed with Gables', size:'5 × 7 m', area:null, qty:'1 Set', usd:39500, opts:'Furniture + bathroom + kitchen: plus USD 5,000–10,000'},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
   { id:'mh-a7-duplex', live:true, type:'aframe', mfr:'meihua',
-    img:'/img/mh/mh-a7-duplex.webp',
+    img:'/img/mh/mh-a7-duplex.webp', plan:'/img/mh/mh-a7-duplex-plan.webp',
     name:'MH-2.3 A+7 Duplex House', mfrName:MEIHUA_NAME,
     desc:'Two-storey duplex: a 5 × 7 m ground floor carrying two 4 × 4 m volumes above. Quoted as the structure only.',
     price:'$25,000', unit:'USD · EXW · shell, no furniture', meta:'Two storeys · 5 × 7 m ground · two 4 × 4 m above',
@@ -4413,17 +4433,6 @@ const PRODUCTS = [
     desc:'A cluster of linked EPS domes over an 18 × 11.4 m plan, offered by the maker in several variations.',
     price:'$42,000', unit:'USD · EXW', meta:'18 × 11.4 m · linked EPS domes',
     q:{model:'MH-1.14', series:'EPS house, multiple variation', size:'18 × 11.4 m', area:null, qty:'1 set', usd:42000, opts:null},
-    tag:'<span class="badge ok">Quoted Aug 2026</span>' },
-  { id:'mh-triangular', live:true, type:'aframe', mfr:'meihua',
-    img:'/img/mh/mh-triangular.webp',
-    name:'MH-2.5 AA Triangular Housing', mfrName:MEIHUA_NAME,
-    desc:'Triangular A-frame module, 5 × 7 m, in the same aluminium-alloy integrated series.',
-    price:'$21,000', unit:'USD · EXW', meta:'5 × 7 m · A-frame in aluminium alloy',
-    q:{model:'MH-2.5', series:'Aluminum Alloy Integrated Module Housing Series', size:'5 × 7 × 5.6 m', area:null, qty:'1 set', usd:21000, opts:null},
-    spec:[["Foundation","300 × 300 × 500 mm pre-buried anchor cement piers, typhoon-resistant design; drawings issued to the buyer. <strong>Buyer's scope.</strong>"],["Platform steel frame","Hot-dip galvanized 60 × 60 × 2 mm square tube, 200 mm above grade, tied to the piers. <strong>Buyer's scope.</strong>"],["Structural frame","Main 80 × 80 mm galvanized steel pipe; secondary 3 mm galvanized steel pipe. Prefabricated."],["Roof & wall build-up","Self-locking polyurethane insulated aluminium-coated tile, 20 mm, with bottom sealing plate"],["Waterproofing","Self-adhesive waterproof membrane"],["Sheathing","9 mm OSB"],["Insulation","50 mm XPS, fire retardant; 6 mm calcium silicate board, fire retardant"],["Interior wall","8 mm wood-grain integrated wall panel, or sauna board"],["Entrance door","Hollow tempered coated glass 5+6A+5 with integrated screen, aluminium frame over 50 mm, waterproof and sound insulated"],["Windows & rear door","Two aluminium casement windows, 5+6A+5 tempered, 1.4 mm profile; one rear aluminium entrance door"],["Lock","Smart lock: card entry plus key"],["Glass curtain wall","5+9+5 hollow tempered glass, thermal-break aluminium, double-sided fluorocarbon-painted metal plate, structural adhesive seal to the main body"],["Bathroom","One set"],["Upper floor","Two-layer load-bearing deck: integrated board + OSB + steel frame + WPC floor"],["Flooring","WPC 100 × 25 mm with 5.5 mm SPC stone-plastic floor over waterproofing"],["Stairs","Steel frame with solid wood treads"],["Ceiling","8 mm integrated wood-grain panel"],["Electrical","Copper-core cable (Panyu, national standard); control switch in the distribution box; minimalist backlit switch panels with two sockets"],["Plumbing","Liansu pipe"],["Ventilation & lighting","Ordinary exhaust fan; basic lighting"]],
-    scope:{includes:"Main materials, loft, bathroom partitions, doors and windows, glass curtain wall, interior stairs, pre-buried water and electricity including sockets, and conventional packaging.",excludes:"Ground foundation and the platform's main steel frame, soft furnishings, home appliances, furniture (bedside screens, TVs, projectors, curtains, refrigerators, smokeless stoves), bathtub and wooden crate. Anything not shown in the configuration table is not configured and needs its own quotation.",payment:"50% of the material cost after the contract is signed; the balance before delivery.",install:"A supervising fitter is sent at ¥1,000 per person per day. The buyer provides food and accommodation, reimburses return travel, pays wages for travel time, provides tools free of charge, and finds three people with installation skills to assist."},
-    quoteRef:{no:'AA Triangle house', date:'14 August 2026'},
-    ship:{weight:'4\u20135 tonnes', volume:'48 CBM', container:'One set loads into a single 40 ft high-cube container', steel:'about USD 7,000 of galvanized steel frame'},
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
   { id:'mh-tri-sideroom', live:true, type:'aframe', mfr:'meihua',
     img:'/img/mh/mh-tri-sideroom.webp',
@@ -4707,12 +4716,15 @@ function renderListing(pid){
   g('lst-crumb').textContent=p.name;
   g('lst-title').textContent=p.name;
   g('lst-mfr').textContent=p.mfrName;
-  g('lst-img').innerHTML=p.img
+  const planImg=p.plan?`<figure style="margin:14px 0 0">
+      <img src="${p.plan}" alt="${lstEsc(p.name)} floor plan" style="width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line)">
+      <figcaption style="font-size:12px;color:var(--steel);margin-top:7px">Floor plan as supplied by the maker</figcaption></figure>`:'';
+  g('lst-img').innerHTML=(p.img
     ? `<img src="${p.img}" alt="${lstEsc(p.name)}" style="width:100%;height:auto;display:block;border-radius:10px">`
     : `<div style="display:flex;align-items:center;justify-content:center;min-height:260px;
          border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center">
          <div style="max-width:34ch"><div class="eyebrow" style="margin-bottom:8px">No photograph</div>
-         <p style="margin:0;font-size:14px;color:var(--steel)">The maker sent this quotation without an image. Nothing has been substituted for it.</p></div></div>`;
+         <p style="margin:0;font-size:14px;color:var(--steel)">The maker sent this quotation without an image. Nothing has been substituted for it.</p></div></div>`)+planImg;
   g('lst-badges').innerHTML=(p.archived?'<span class="badge arch">Archived</span>':p.tag||'')
     +` <span class="badge">${p.quoteRef?lstEsc(p.quoteRef.no)+' quotation':'Quotation '+MH_QUOTE.no}</span>`
     +(q.model?` <span class="badge">${q.model}</span>`:'');
@@ -4757,7 +4769,21 @@ function renderListing(pid){
        ${p.ship?`<tr><td class="name"><span class="nm">Shipping weight</span></td><td>${p.ship.weight}</td></tr>
        <tr><td class="name"><span class="nm">Shipping volume</span></td><td>${p.ship.volume} &middot; ${p.ship.container}</td></tr>`:''}
        <tr><td class="name"><span class="nm">Steel content</span></td><td>${MH_PERF.steelShare}${p.ship?' For this unit that is '+p.ship.steel+'.':''}</td></tr>
-     </table></div>`;
+     </table></div>
+     <h3 class="eye" style="margin:34px 0 12px">The maker's written answers</h3>
+     <p style="max-width:74ch;font-size:14px;color:var(--steel);margin:0 0 14px">
+       Forty-five questions put to the maker and answered in writing, given for the whole
+       range rather than per model. Quoted as answered: where an answer is thin, it is left thin.</p>
+     ${MH_QA.map(sec=>`<h4 style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+        letter-spacing:.06em;text-transform:uppercase;color:var(--steel);margin:20px 0 8px">${sec.g}</h4>
+       <div class="tablewrap"><table class="sum-tbl" style="min-width:640px">
+       ${sec.qa.map(([q,a])=>`<tr><td class="name" style="width:38%"><span class="nm">${q}</span></td><td>${a}</td></tr>`).join('')}
+       </table></div>`).join('')}
+     <div class="comp warn" style="margin-top:22px"><span class="badge warn">Answers that disagree</span>
+       <h4>Two figures the maker has given twice, differently</h4>
+       ${MH_CONFLICTS.map(([k,v])=>`<p><strong>${k}:</strong> ${v}</p>`).join('')}
+       <p style="margin-bottom:0">Both versions are recorded as they were given. Neither has been chosen
+       over the other, because that would be inventing an answer to an open question.</p></div>`;
   /* Every listing gets the document it came from, so a price on the page can
      always be checked against the paper it was read off. */
   const docs=[];
@@ -4765,6 +4791,8 @@ function renderListing(pid){
   else {
   const own=MH_DOCS.own[p.id];
   if(own)docs.push(own);
+  const own2=MH_DOCS.own[p.id+'-2'];
+  if(own2)docs.push(own2);
   /* The side-room unit was quoted on its own and is not a line in the price
      list, so the list is offered to it as context rather than as its source. */
   docs.push(p.id==='mh-tri-sideroom'

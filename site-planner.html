@@ -3763,8 +3763,28 @@ function refresh(){
   if(beds>0&&wash*12<beds)iss.push(`${beds} beds and ${wash} washhouse${wash===1?'':'s'}: plan one per 12 beds`);
   $('issCount').textContent=iss.length?iss.length+' flag'+(iss.length>1?'s':''):'clear';
   const models=[...new Set(placed.filter(p=>p.def&&!p.def.local&&p.def.usd).map(p=>p.def.id))];
-  if(models.some(id=>['capsule','branson','twofloor'].includes(id)))
-    info.push('Snow load is the open item on several of these models; Gore Bay needs 2.0–2.5 kN/m².');
+  /* What each maker has actually stated about snow, rather than one blanket
+     warning over all of them. Gore Bay is worked to 2.0–2.5 kN/m²: a model at
+     2.5 meets that with nothing spare, and a model with no figure at all is a
+     different problem from a model with a good one. */
+  const SNOW={glassdome:{kn:2.5,src:'Meihua, in writing'},aframe:{kn:4.97,src:'maker spec'}};
+  const named=ids=>ids.map(id=>DEF[id]?DEF[id].n:id).join(', ');
+  const rated=models.filter(id=>SNOW[id]), open_=models.filter(id=>!SNOW[id]);
+  if(open_.length)
+    info.push(`Snow load is still unanswered on ${named(open_)}. Gore Bay is worked to 2.0–2.5 kN/m².`);
+  const tight=rated.filter(id=>SNOW[id].kn<=2.5);
+  if(tight.length)
+    info.push(`${named(tight)}: rated ${SNOW[tight[0]].kn} kN/m² (${SNOW[tight[0]].src}), which meets the 2.0–2.5 band with nothing spare.`);
+  const clears=rated.filter(id=>SNOW[id].kn>2.5);
+  if(clears.length)
+    info.push(`${named(clears)}: rated ${SNOW[clears[0]].kn} kN/m², comfortably above the band.`);
+  /* Meihua answered a long list of questions in writing; the answers that
+     change where a thing can go, or what has to be under it, belong here. */
+  if(models.some(id=>DEF[id]&&/Meihua/.test(DEF[id].mfr||''))){
+    info.push('Meihua states walls ≥ 1.9 and roof ≥ 2.4 m²·K/W, doors and windows U ≤ 2.0, and \u221230 °C capability. Wind 0.55 kN/m², about Grade 11.');
+    info.push('Meihua foundation guidance: concrete below Grade 12 wind, ground anchors below Grade 12, concrete piers below Grade 10. It holds ISO and CE but no Canadian certificate.');
+    info.push('Meihua installation: 4–6 people, 3–5 days for an 18 m² unit, one supervisor sent at the maker\u2019s day rate. The rate is quoted as RMB 1,000 on the PDFs and USD 1,000 in the written answers, and is unresolved.');
+  }
   if(models.length)info.push(`${models.length} imported model${models.length>1?'s':''} on site: each needs its own P.Eng review and ESA field evaluation.`);
   $('issues').innerHTML=(iss.map(t=>`<div class="iss">${t}</div>`).join('')||`<div class="iss ok">Layout is within every limit set above</div>`)
     +info.map(t=>`<div class="iss info">${t}</div>`).join('');
