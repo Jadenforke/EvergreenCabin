@@ -2369,6 +2369,7 @@ function roadMesh(pts,width,col){
 let tool='select',activeId=null,ghost=null,ghostRot=0,snap=false;
 let roadPts=[],roadPrev=null,measurePts=[],measureLine=null,selected=null,selBox=null;
 let trace=null,landMode=false,boundMode=false,dragHandle=null,pen=null,moving=null,penKind='building';
+let bootPlan=false;                       // true only while the starting plan loads
 
 function setTool(t,id){
   tool=t;activeId=id||null;
@@ -3726,7 +3727,9 @@ function refresh(){
     else if(e)extras.splice(extras.indexOf(e),1);
   }
   const byModel={};
+  let preN=0;
   placed.forEach(p=>{
+    if(p.pre){preN++;return;}              // already standing: not a cost to build it
     if(p.type==='shrub')return;            // landscaping, never a line on the estimate
     const k=p.def.n;
     if(p.type==='road'){byModel[k]=byModel[k]||{n:0,amt:0,m:0,road:true};byModel[k].n++;byModel[k].m+=p.len;byModel[k].amt+=p.len*RATES[p.def.rate];}
@@ -3742,7 +3745,9 @@ function refresh(){
   Object.entries(byModel).forEach(([k,l])=>{
     html+=`<div class="row sub"><span class="k">${k}${l.n>1?` ×${l.n}`:''}${l.road?` · ${l.m.toFixed(0)} m`:''}</span><span class="v">${money(l.amt)}</span></div>`;});
   extras.forEach(c=>{if(Math.abs(c.amt)>.5)html+=`<div class="row sub"><span class="k">${c.label}</span><span class="v">${money(c.amt)}</span></div>`;});
-  $('costLines').innerHTML=html||'<div class="note">Nothing placed yet.</div>';
+  $('costLines').innerHTML=html||`<div class="note">${preN
+    ? `The ${preN} thing${preN===1?'':'s'} already on the plan ${preN===1?'is':'are'} existing build and carr${preN===1?'ies':'y'} no cost. Anything you add is priced from here.`
+    : 'Nothing placed yet.'}</div>`;
 
   const foot=footprintArea();
   $('mLand').textContent=LOT_AREA?`${fmtBigArea(LOT_AREA)} · ${fmtBigArea(LAND_AREA)} dry`:'n/a';
@@ -4000,14 +4005,18 @@ $('fileMap').onchange=e=>{
 
 /* One placed thing, reduced to the handful of numbers a plan file carries.
    Undo compares these strings to work out what actually moved. */
-const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts}
-  :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0}
-  :p.type==='roof'?{t:'roof',pts:p.pts,h:p.h,pitch:p.pitch,area:p.area,cost:p.cost}
-  :p.type==='wall'?{t:'wall',pts:p.pts,h:p.h,run:p.run,area:p.area,cost:p.cost}
-  :p.type==='deck'?{t:'deck',pts:p.pts}
-  :p.type==='pave'?{t:'pave',pts:p.pts}
-  :p.type==='shrub'?{t:'shrub',pts:p.pts}
-  :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot};
+/* pre marks something that was already standing when the planner opened.
+   The starting plan is the site as it is today, not a shopping list, so it
+   carries no cost; the ledger opens at zero and prices only what you add.
+   It travels with the plan so a save, a reload and an undo all agree. */
+const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts,pre:p.pre?1:0}
+  :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0,pre:p.pre?1:0}
+  :p.type==='roof'?{t:'roof',pts:p.pts,h:p.h,pitch:p.pitch,area:p.area,cost:p.cost,pre:p.pre?1:0}
+  :p.type==='wall'?{t:'wall',pts:p.pts,h:p.h,run:p.run,area:p.area,cost:p.cost,pre:p.pre?1:0}
+  :p.type==='deck'?{t:'deck',pts:p.pts,pre:p.pre?1:0}
+  :p.type==='pave'?{t:'pave',pts:p.pts,pre:p.pre?1:0}
+  :p.type==='shrub'?{t:'shrub',pts:p.pts,pre:p.pre?1:0}
+  :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot,pre:p.pre?1:0};
 function serialize(withUnder){
   return {v:3,style:styleMode,land:JSON.parse(JSON.stringify(LAND)),
     shore:JSON.parse(JSON.stringify(SITE.shore)),boundary:JSON.parse(JSON.stringify(SITE.boundary)),
@@ -4100,6 +4109,7 @@ function applyState(d,keepUnder,incremental){
         :{x:t[0],z:t[1],tx:t[0],tz:t[1],sp:t[2],s:t[3],rot:t[4],lit:!!t[5],dead:false}));
       syncTrees();
     }
+    const n0=placed.length;
     build.forEach(i=>{
       if(i.t==='road')placeRoad(DEF[i.id],i.pts);
       else if(i.t==='deck')placeDeck(i.pts);
@@ -4135,6 +4145,13 @@ function applyState(d,keepUnder,incremental){
         const io={type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot};
         placed.push(io); fitGround(io);}
     });
+    /* Whatever this rebuild just created takes the flag its item carried, or
+       the boot flag if the starting plan is what is being laid down. */
+    for(let k=0,n=n0;n<placed.length;n++,k++){
+      const it=build[k];
+      if(bootPlan)placed[n].pre=true;
+      else if(it&&it.pre)placed[n].pre=true;
+    }
     if(gone.length){
       const tally={}; gone.forEach(id=>tally[id]=(tally[id]||0)+1);
       const list=Object.entries(tally).map(([id,n])=>`${n} × ${id}`).join(', ');
@@ -4144,7 +4161,9 @@ function applyState(d,keepUnder,incremental){
        deck it stands on had no deck to sit on the first time round. */
     refitObjs();
     for(const k in plantTally)delete plantTally[k];
-    Object.assign(plantTally,d.plantTally||{});
+    /* Trees already in the starting plan were planted long ago; counting them
+       would put a planting charge on the ledger before you have done anything. */
+    if(!bootPlan)Object.assign(plantTally,d.plantTally||{});
     (d.extras||[]).forEach(c=>{if(c.label!=='Planting')extras.push(c);});
     treeStats=d.treeStats||{moved:0,felled:0};
     styleMode=d.style||'survey';applyStyle();buildOverlays();buildPalette();buildPricing();refresh();
@@ -4234,7 +4253,8 @@ if(IS_MOBILE){
   tuck('L'); tuck('R');                             // open with the map unobstructed
 }
 try{
-  applyState(DEFAULT_PLAN); undoStack.length=0; redoStack.length=0;
+  bootPlan=true; applyState(DEFAULT_PLAN); bootPlan=false;
+  undoStack.length=0; redoStack.length=0;
   if(IS_MOBILE){
     /* Keep the layout but thin the forest: the buildings are the point on a
        phone and 900 alpha-tested crowns are not worth the frame time. */
