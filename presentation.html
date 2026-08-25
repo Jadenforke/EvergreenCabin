@@ -403,8 +403,9 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
   gap:clamp(1.2rem,2.6vw,2.1rem) clamp(1.1rem,2.4vw,1.8rem)}
 .amc{display:block;text-decoration:none;color:inherit}
 .amc figure{margin:0;overflow:hidden;background:var(--cream)}
-.amc img,.amc .ph{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+.amc img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
   transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.amc .ph{width:100%;aspect-ratio:4/3}
 .amc:hover img{transform:scale(1.04)}
 .amc h3{font-family:'Source Serif 4',Georgia,serif;font-weight:400;
   font-size:clamp(1.05rem,1.5vw,1.25rem);margin:.9rem 0 .35rem;color:var(--ink)}
@@ -414,30 +415,37 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
 @media(prefers-reduced-motion:reduce){.amc img{transition:none}
   .amc:hover img{transform:none}}
 
-/* ── amenity list ────────────────────────────────────────────────────
-   The written-out list under the cards. Most of these have no photograph
-   yet, and a grid of "Image pending" tiles would say less than the words
-   do, so they are set as a list: one column per group, ruled off at the
-   top the way the spec tables are. */
-.amgroups{display:grid;grid-template-columns:repeat(4,1fr);
-  gap:clamp(1.6rem,3vw,2.6rem)}
-.amg{border-top:1px solid var(--ink);padding-top:1rem}
-.amg h3{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
-  color:var(--ink);margin:0 0 .5rem}
-.amg .gnote{font-size:12.5px;color:var(--muted);margin:0 0 1.1rem;max-width:30ch;
-  line-height:1.6}
-.amg ul{list-style:none;margin:0;padding:0}
-.amg li{font-family:'Source Serif 4',Georgia,serif;font-size:1.02rem;color:var(--ink);
-  line-height:1.45;padding:.5rem 0;border-bottom:1px solid var(--rule)}
-.amg li:last-child{border-bottom:0}
-.amg li .d{display:block;font-family:Inter,sans-serif;font-size:12.5px;
-  color:var(--body);line-height:1.55;margin-top:.15rem}
-.amg li.lead{color:var(--accent)}
-.amg li .tag{display:inline-block;font-family:Inter,sans-serif;font-size:9px;
-  letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted);
-  border:1px solid var(--rule);padding:2px 6px;margin-left:.5rem;vertical-align:2px}
-@media(max-width:1000px){.amgroups{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.amgroups{grid-template-columns:1fr}}
+/* ── image placeholder ───────────────────────────────────────────────
+   Every slot with no photograph yet renders one of these. It has to read
+   as a reserved frame rather than a broken image, so the three parts
+   stack: what it is, what the picture will be, and the size it wants. */
+.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.4rem;text-align:center;padding:1.2rem;background:var(--cream);
+  border:1px solid var(--rule);color:var(--muted)}
+.ph b{font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted)}
+.ph span{font-family:'Source Serif 4',Georgia,serif;font-size:1.02rem;
+  line-height:1.35;color:var(--ink);max-width:22ch}
+.ph span:last-child{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.14em;
+  color:var(--muted);opacity:.75;font-variant-numeric:tabular-nums}
+.ph span:only-of-type{font-size:1.02rem}
+
+/* ── amenity sections ────────────────────────────────────────────────
+   The cards run in groups, each under a ruled heading, so a long grid
+   still reads as four answers rather than one wall. */
+.amsec{font-family:'Source Serif 4',Georgia,serif;font-weight:400;
+  font-size:clamp(1.3rem,2vw,1.7rem);color:var(--ink);
+  border-top:1px solid var(--ink);padding-top:1rem;margin:3.4rem 0 .4rem}
+.amsec:first-of-type{margin-top:0}
+.amnote{font-size:13.5px;color:var(--muted);margin:0 0 1.6rem;max-width:52ch;line-height:1.6}
+.amc h3.lead{color:var(--accent)}
+/* Off the parcel: named, tagged, and deliberately not given a card. */
+.amoff{margin:3rem 0 0;padding-top:1.1rem;border-top:1px solid var(--rule);
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:.9rem}
+.amoff .oi{color:var(--ink)}
+.amoff .tag{display:inline-block;font-size:9px;letter-spacing:.14em;font-weight:600;
+  color:var(--muted);border:1px solid var(--rule);padding:2px 6px;margin-left:.45rem}
 
 .splitwrap{margin:0;max-width:560px}
 .split{width:100%;height:auto;border:1px solid var(--rule);background:var(--card);
@@ -834,53 +842,67 @@ const SITE = {
     water:"Ice Lake", parcelAcres:33, parcelHa:13.35, frontageM:259, lat:45.9 },
 
   /* What there is to do, grouped the way a guest would ask about it rather
-     than by which building it sits in. `off` marks the ones that are not on
-     the parcel: they are a drive away, and saying so is the difference
-     between a feature and a promise the site can't keep. Kept as data so the
-     amenities page, the landing row and the location page all read from one
-     list instead of three copies drifting apart. */
+     than by which building it sits in. Every entry is a card on the
+     amenities page; `img` is the photograph where one exists and the rest
+     render the standard "Image pending" tile, so the slot is visible and
+     the shoot has somewhere to land. `off` marks the ones that are not on
+     the parcel: they get no card, only a tagged line, because they are a
+     drive away and saying so is the difference between a feature and a
+     promise the site can't keep. One list, so the amenities page, the
+     landing row and the location page can't drift apart. */
   amenities:[
     { group:"On the water",
-      note:`${259} metres of frontage, a beach, and the boats that go with it.`,
+      note:"Frontage, a beach, and the boats that go with it.",
       items:[
-        { t:"Water jumping castle" },
-        { t:"Beach" },
-        { t:"Swimming" },
+        { t:"The beach", img:"/assets/site/waterfront.webp", href:"#/location",
+          d:"Sand, dock and swimming along the {frontage} metres of {water} frontage." },
+        { t:"Water jumping castle", d:"An inflatable aqua park moored off the beach." },
         { t:"Kayaks" },
         { t:"Paddle boards" },
         { t:"Sea-Doo" },
         { t:"Wakeboarding" },
         { t:"Fishing" },
-        { t:"Boat cruises", d:"Out to explore Manitoulin Island and the lake." }
+        { t:"Boat cruises", d:"To explore Manitoulin Island and the northern lakes." }
       ] },
     { group:"Pool, spa and wellness",
-      note:"The main complex, on the water side.",
+      note:"Inside the main complex, on the water side.",
       items:[
-        { t:"Indoor pool", d:"The only indoor pool on the island.", lead:true },
-        { t:"Cold plunge" },
-        { t:"Sauna" },
+        { t:"Indoor pool", img:"/assets/units/main-complex/04.webp", href:"#/unit/main-complex",
+          lead:true, d:"The only indoor pool on the island, with a cold plunge off the end of it." },
+        { t:"Sauna", img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
+          d:"Cedar-lined, and the other half of the plunge." },
         { t:"Massage" },
         { t:"Yoga" },
-        { t:"Water yoga" },
-        { t:"Gym" }
+        { t:"Water yoga", d:"In the pool hall." },
+        { t:"The gym", img:"/assets/units/main-complex/05.webp", href:"#/unit/main-complex",
+          d:"Cardio and weights alongside the pool." }
       ] },
     { group:"Sport and play",
       note:"Indoors in the sport barn, outdoors on the grass and the sand.",
       items:[
+        { t:"Pickleball and basketball", img:"/assets/units/sport-barn/hero.webp",
+          href:"#/unit/sport-barn", d:"Indoor courts under a 20 ft clear roof, open in any weather." },
+        { t:"Golf simulators", img:"/assets/units/sport-barn/01.webp", href:"#/unit/sport-barn",
+          d:"Simulator bays alongside the courts in the sport barn." },
         { t:"Grass volleyball" },
         { t:"Beach volleyball" },
-        { t:"Pickleball" },
-        { t:"Basketball" },
-        { t:"Golf simulators" },
         { t:"Playground", d:"For the kids." }
       ] },
     { group:"Gather and explore",
-      note:"The grounds, and what is worth the drive off them.",
+      note:"The buildings everyone shares, the ground around them, and what is worth the drive off it.",
       items:[
+        { t:"Restaurant and bar", img:"/assets/units/main-complex/02.webp", href:"#/unit/main-complex",
+          d:"The dining room and bar, opening onto the water side of the complex." },
+        { t:"The patio", img:"/assets/units/main-complex/01.webp", href:"#/unit/main-complex",
+          d:"Outdoor dining and lounge seating along the pool terrace." },
+        { t:"Guest rooms", img:"/assets/units/main-complex/06.webp", href:"#/unit/main-complex",
+          d:"{keys} rooms in the main complex, each looking into the pines." },
         { t:"Wedding gazebo" },
-        { t:"Fire pits" },
+        { t:"Fire pits", img:"/assets/site/firepit.webp", href:"#/units",
+          d:"Lit pits and seating set out between the domes, in use through the shoulder seasons." },
         { t:"Waterfall" },
-        { t:"Trails and bush" },
+        { t:"Trails and bush", img:"/assets/site/land.webp", href:"#/",
+          d:"Trails through the bush and open field to the east, on {acres} acres." },
         { t:"Golf", off:"Nearby" },
         { t:"Tennis", off:"Gore Bay" }
       ] }
@@ -1558,48 +1580,42 @@ addEventListener('resize',()=>{clearTimeout(packTimer);packTimer=setTimeout(pack
 /* The grouped list, rendered from SITE.amenities. Used on the amenities
    page in full; the location page pulls the off-site entries out of the
    same list so the two can't disagree about what is a drive away. */
+/* The figures live in the data model, not in the copy, so a card can quote
+   them without a second source of truth to keep in step. */
+function amenText(t){
+  const mc=U('main-complex');
+  return String(t)
+    .replace('{frontage}', SITE.meta.frontageM)
+    .replace('{water}',    SITE.meta.water)
+    .replace('{acres}',    SITE.meta.parcelAcres)
+    .replace('{keys}',     mc&&mc.keys?mc.keys:'The');
+}
+/* One card per amenity, photograph first where there is one and the standard
+   "Image pending" tile where there isn't: the slot reads as a slot, and the
+   shoot has somewhere to land. Off-site entries are left out; they get the
+   tagged line under the grid instead. */
+function amenityCard(it){
+  const body=`<figure>${img(it.img, amenText(it.d||it.t), it.t, '1400 × 1050')}</figure>
+      <h3${it.lead?' class="lead"':''}>${esc(it.t)}</h3>
+      ${it.d?`<p>${esc(amenText(it.d))}</p>`:''}`;
+  return it.href ? `<a class="amc" href="${it.href}">${body}</a>`
+                 : `<div class="amc">${body}</div>`;
+}
 function amenityGroups(){
-  return `<div class="amgroups rv">${SITE.amenities.map(g=>`
-    <div class="amg">
-      <h3>${esc(g.group)}</h3>
-      ${g.note?`<p class="gnote">${esc(g.note)}</p>`:''}
-      <ul>${g.items.map(it=>`
-        <li${it.lead?' class="lead"':''}>${esc(it.t)}${
-          it.off?`<span class="tag">${esc(it.off)}</span>`:''}${
-          it.d?`<span class="d">${esc(it.d)}</span>`:''}</li>`).join('')}</ul>
-    </div>`).join('')}</div>`;
+  const off=offSite();
+  return SITE.amenities.map(g=>{
+    const on=g.items.filter(i=>!i.off);
+    if(!on.length)return '';
+    return `<h2 class="amsec">${esc(g.group)}</h2>
+      ${g.note?`<p class="amnote">${esc(g.note)}</p>`:''}
+      <div class="amcards rv">${on.map(amenityCard).join('')}</div>`;
+  }).join('')
+  + (off.length?`<p class="amoff">Off the parcel${off.map(i=>
+      ` <span class="oi">${esc(i.t)}<span class="tag">${esc(i.off)}</span></span>`).join('')}</p>`:'');
 }
 /* Everything on the list that isn't on the parcel. */
 const offSite=()=>SITE.amenities.flatMap(g=>g.items.filter(i=>i.off));
 function buildAmenities(){
-  /* One card per thing a guest can actually do, each with the photograph of
-     that space. Figures are the ones already in the data model: the frontage
-     and the parcel size come from SITE.meta, the room count from the unit. */
-  const mc=U('main-complex'), sb=U('sport-barn');
-  const cards=[
-    {t:"The patio",        img:"/assets/units/main-complex/01.webp", href:"#/unit/main-complex",
-     b:"Outdoor dining and lounge seating along the pool terrace."},
-    {t:"Restaurant and bar",img:"/assets/units/main-complex/02.webp", href:"#/unit/main-complex",
-     b:"The dining room and bar, opening onto the water side of the complex."},
-    {t:"Indoor pool and cold plunge", img:"/assets/units/main-complex/04.webp", href:"#/unit/main-complex",
-     b:"The only indoor pool on the island: a glazed hall with a cold plunge off the end of it, and water yoga in it."},
-    {t:"Sauna, massage and yoga", img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
-     b:"Cedar-lined sauna and the other half of the plunge, with massage and yoga alongside."},
-    {t:"The gym",          img:"/assets/units/main-complex/05.webp", href:"#/unit/main-complex",
-     b:"Cardio and weights alongside the pool."},
-    {t:"Guest rooms",      img:"/assets/units/main-complex/06.webp", href:"#/unit/main-complex",
-     b:`${mc&&mc.keys?mc.keys:''} rooms in the main complex, each looking into the pines.`},
-    {t:"Pickleball and basketball", img:"/assets/units/sport-barn/hero.webp", href:"#/unit/sport-barn",
-     b:"Indoor courts under a 20 ft clear roof, open in any weather."},
-    {t:"Golf simulators",  img:"/assets/units/sport-barn/01.webp", href:"#/unit/sport-barn",
-     b:"Simulator bays alongside the courts in the sport barn."},
-    {t:"Fire pits",        img:"/assets/site/firepit.webp", href:"#/units",
-     b:"Lit pits and seating set out between the domes, in use through the shoulder seasons."},
-    {t:"The waterfront",   img:"/assets/site/waterfront.webp", href:"#/location",
-     b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: beach and dock, the water jumping castle, kayaks, paddle boards, the Sea-Doo, wakeboarding and fishing.`},
-    {t:"The land",         img:"/assets/site/land.webp", href:"#/",
-     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelAcres} acres, with the wedding gazebo, the waterfall, the playground and both volleyball courts.`}
-  ];
   document.getElementById('amen-body').innerHTML=`
     <section class="sect" style="padding-top:1rem"><div class="wrap">
       <div class="eye">Amenities</div>
@@ -1609,14 +1625,6 @@ function buildAmenities(){
          buildings and the ground between them: the main complex on the water, the sport barn
          behind it, and ${SITE.meta.parcelAcres} acres of shoreline and bush around both.
          The pool inside the main complex is the only indoor pool on Manitoulin Island.</p>
-      <div class="amcards rv">${cards.map(c=>`
-        <a class="amc" href="${c.href}">
-          <figure>${img(c.img,c.t,c.t,'1400 × 1050')}</figure>
-          <h3>${esc(c.t)}</h3>
-          <p>${esc(c.b)}</p>
-        </a>`).join('')}</div>
-
-      <h2 class="eye" style="margin:3.4rem 0 1.4rem">Everything on the list</h2>
       ${amenityGroups()}
 
       <h2 class="eye" style="margin:3.4rem 0 1rem">How the sport barn splits</h2>
