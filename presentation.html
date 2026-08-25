@@ -439,13 +439,12 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
 .amsec:first-of-type{margin-top:0}
 .amnote{font-size:13.5px;color:var(--muted);margin:0 0 1.6rem;max-width:52ch;line-height:1.6}
 .amc h3.lead{color:var(--accent)}
-/* Off the parcel: named, tagged, and deliberately not given a card. */
-.amoff{margin:3rem 0 0;padding-top:1.1rem;border-top:1px solid var(--rule);
-  font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
-  color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:.9rem}
-.amoff .oi{color:var(--ink)}
-.amoff .tag{display:inline-block;font-size:9px;letter-spacing:.14em;font-weight:600;
-  color:var(--muted);border:1px solid var(--rule);padding:2px 6px;margin-left:.45rem}
+/* Where an off-property thing actually is, chipped onto its card title so it
+   can never be read as part of the resort. */
+.amc h3 .tag{display:inline-block;font-family:Inter,sans-serif;font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted);
+  border:1px solid var(--rule);padding:2px 6px;margin-left:.55rem;vertical-align:3px;
+  white-space:nowrap}
 
 .splitwrap{margin:0;max-width:560px}
 .split{width:100%;height:auto;border:1px solid var(--rule);background:var(--card);
@@ -594,10 +593,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <div class="plancol rv">
           <div class="eye">Master plan</div>
           <h2 class="disp">A community carefully planned to preserve nature.</h2>
-          <p>Three phases across 33 acres: sleeping units, the arrival complex and the
-             sport barn, sequenced so the first units earn while the next are engineered.
-             Every structure is reviewed against the Ontario Building Code before it is
-             drawn on the plan.</p>
+          <p id="planlead"></p>
           <div class="phaserail" id="phaserail" role="group" aria-label="Filter the site plan by phase"></div>
           <div class="counters" id="counters"></div>
           <p class="smallprint" style="margin-top:1.4rem">Parcel lines shown indicative &middot;
@@ -889,7 +885,7 @@ const SITE = {
         { t:"Playground", d:"For the kids." }
       ] },
     { group:"Gather and explore",
-      note:"The buildings everyone shares, the ground around them, and what is worth the drive off it.",
+      note:"The buildings everyone shares, and the ground around them.",
       items:[
         { t:"Restaurant and bar", img:"/assets/units/main-complex/02.webp", href:"#/unit/main-complex",
           d:"The dining room and bar, opening onto the water side of the complex." },
@@ -900,27 +896,48 @@ const SITE = {
         { t:"Wedding gazebo" },
         { t:"Fire pits", img:"/assets/site/firepit.webp", href:"#/units",
           d:"Lit pits and seating set out between the domes, in use through the shoulder seasons." },
-        { t:"Waterfall" },
         { t:"Trails and bush", img:"/assets/site/land.webp", href:"#/",
-          d:"Trails through the bush and open field to the east, on {acres} acres." },
+          d:"Trails through the bush and open field to the east, on {acres} acres." }
+      ] },
+    /* The island itself. These are a drive from the gate, not features of the
+       parcel, so every one is tagged with where it actually is: a guest
+       planning a week wants them on the list, and an investor reading the
+       same page should never mistake one for something Evergreen owns. */
+    { group:"Off the property",
+      note:"Manitoulin is the largest freshwater island in the world, and the resort sits in the middle of it. These are the ones worth the drive.",
+      items:[
+        { t:"Bridal Veil Falls", off:"Kagawong",
+          d:"A 12 m fall you can walk in behind, with a swimming hole below it and stairs down from the road." },
+        { t:"Cup and Saucer Trail", off:"M'Chigeeng",
+          d:"The island's best-known hike: 12 km of trail along 70 m cliffs to its highest point, looking over the North Channel and Lake Manitou." },
+        { t:"Providence Bay Beach", off:"Providence Bay",
+          d:"Close to 2 km of white sand and a boardwalk on the south shore." },
+        { t:"Misery Bay Provincial Park", off:"Evansville",
+          d:"Day-use park with about 15 km of trail through forest, alvar and Lake Huron shoreline. The alvar is the only ecosystem of its kind in Canada." },
+        { t:"Ten Mile Point Lookout", off:"Sheguiandah",
+          d:"A lookout over the eastern island, the North Channel and the La Cloche hills beyond it." },
+        { t:"Gore Bay", off:"Nearest town",
+          d:"The nearest town: harbour and marina, the East Bluff lookout, the museum and a local brewery." },
+        { t:"Wiikwemkoong Unceded Territory", off:"Wiikwemkoong",
+          d:"Canada's only officially recognised unceded territory, and home to the largest and oldest pow-wow in Eastern Canada." },
         { t:"Golf", off:"Nearby" },
         { t:"Tennis", off:"Gore Bay" }
       ] }
   ],
 
   phases:[
-    { id:1, name:"The Arrival", status:"In engineering", window:null,
+    { id:1, name:"The Arrival", acres:9, status:"In engineering", window:null,
       summary:"The first sleeping units and the building everyone passes through.",
       unlocks:"You can arrive, check in, eat and sleep. Everything after this is expansion.",
       hero:null, heroAlt:"Phase 1: the arrival cluster",
       units:["branson","a-frame","main-complex"] },
-    { id:2, name:"The Season", status:"Planned", window:null,
+    { id:2, name:"The Season", acres:11, status:"Planned", window:null,
       summary:"Winter-proofing the offer: glazed domes, the road spine, and the sport barn.",
       unlocks:"Evergreen stops being a summer property.",
       hero:null, heroAlt:"Phase 2: the glazed domes and sport barn",
       units:["glass-igloo","standing-dome","sport-barn"],
       infrastructure:["Timber decks","Gravel road network"] },
-    { id:3, name:"The Village", status:"Planned", window:null,
+    { id:3, name:"The Village", acres:8, status:"Planned", window:null,
       summary:"The largest cluster on the site, furthest from arrival.",
       unlocks:"Density: the phase that takes the resort to its full key count.",
       hero:null, heroAlt:"Phase 3: the A-frame cluster",
@@ -1264,14 +1281,23 @@ function buildPlan(){
     setPhase(b.dataset.ph);
   });
 
+  /* 9 + 11 + 8 across the three phases, inside a larger title parcel: two
+     different figures, so the copy names both rather than letting one stand
+     in for the other. Written from the data so adding land to a phase can't
+     leave a stale number in the paragraph beside it. */
+  const pl=document.getElementById('planlead');
+  if(pl)pl.textContent=
+    `Three phases lay out ${PHASED_ACRES} acres of the ${SITE.meta.parcelAcres}-acre parcel: `
+    +`sleeping units, the arrival complex and the sport barn, sequenced so the first `
+    +`units earn while the next are engineered. Every structure is reviewed against the `
+    +`Ontario Building Code before it is drawn on the plan.`;
   const pm=document.getElementById('plan-map'); if(pm)pm.innerHTML=locatorMap();
   const lm2=document.getElementById('loc-map2'); if(lm2)lm2.innerHTML=locatorMap();
-  /* The off-site amenities are a fact about the location, so the location
-     page states them, drawn from the same list the amenities page renders. */
+  /* What is off the property is a fact about the location, so the location
+     page names it, drawn from the same list the amenities page renders. */
   const os=document.getElementById('offsite-line'), off=offSite();
   if(os&&off.length)os.textContent=
-    `Off the parcel and worth the drive: ${off.map(i=>
-      `${i.t.toLowerCase()}${i.off&&i.off!=='Nearby'?` in ${i.off}`:' nearby'}`).join(', ')}.`;
+    `Within a drive of the gate: ${off.map(i=>i.t).join(', ')}.`;
   setPhase('all');
 }
 /* The schedule answers the same question as the pins, so it follows the
@@ -1309,11 +1335,18 @@ function setPhase(ph){
   renderCounters(upto);
   renderPlanTable(ph);
 }
+/* Land taken by the phases up to and including `upto`. Separate from the
+   parcel: the phases lay out PHASED_ACRES of the SITE.meta.parcelAcres the
+   title covers, and the two figures are not the same number. */
+const acresUpTo=upto=>SITE.phases.filter(p=>p.id<=upto)
+                                 .reduce((a,p)=>a+(p.acres||0),0);
+const PHASED_ACRES=SITE.phases.reduce((a,p)=>a+(p.acres||0),0);
 function renderCounters(upto){
-  const k=keysUpTo(upto), a=areaUpTo(upto);
+  const k=keysUpTo(upto), a=areaUpTo(upto), ac=acresUpTo(upto);
   document.getElementById('counters').innerHTML=`
     <div class="c"><span class="v" data-num="${k==null?'':k}">${k==null?'TBD':k}</span><span class="k">Keys cumulative</span></div>
     <div class="c"><span class="v">${a==null?'TBD':fmt(a)}</span><span class="k">Built sq ft</span></div>
+    <div class="c"><span class="v">${ac||'TBD'}</span><span class="k">Acres laid out</span></div>
     <div class="c"><span class="v">${upto}</span><span class="k">Phases delivered</span></div>`;
 }
 
@@ -1413,7 +1446,7 @@ function buildPhases(only){
   document.getElementById('phases-body').innerHTML=list.map((p,i)=>`
     <section class="sect ${i%2?'on-cream':''}" style="${i===0?'padding-top:1rem':''}">
       <div class="wrap">
-        <div class="eye">Phase 0${p.id} · ${esc(p.status)}${p.window?' · '+esc(p.window):' · window TBD'}</div>
+        <div class="eye">Phase 0${p.id} · ${esc(p.status)}${p.window?' · '+esc(p.window):' · window TBD'}${p.acres?' · '+p.acres+' acres':''}</div>
         <h2 class="disp" style="margin:.7rem 0 1.2rem">${esc(p.name)}</h2>
         <p class="lead">${esc(p.summary)}</p>
         <figure style="margin:2.2rem 0">
@@ -1596,22 +1629,17 @@ function amenText(t){
    tagged line under the grid instead. */
 function amenityCard(it){
   const body=`<figure>${img(it.img, amenText(it.d||it.t), it.t, '1400 × 1050')}</figure>
-      <h3${it.lead?' class="lead"':''}>${esc(it.t)}</h3>
+      <h3${it.lead?' class="lead"':''}>${esc(it.t)}${
+        it.off?`<span class="tag">${esc(it.off)}</span>`:''}</h3>
       ${it.d?`<p>${esc(amenText(it.d))}</p>`:''}`;
   return it.href ? `<a class="amc" href="${it.href}">${body}</a>`
                  : `<div class="amc">${body}</div>`;
 }
 function amenityGroups(){
-  const off=offSite();
-  return SITE.amenities.map(g=>{
-    const on=g.items.filter(i=>!i.off);
-    if(!on.length)return '';
-    return `<h2 class="amsec">${esc(g.group)}</h2>
-      ${g.note?`<p class="amnote">${esc(g.note)}</p>`:''}
-      <div class="amcards rv">${on.map(amenityCard).join('')}</div>`;
-  }).join('')
-  + (off.length?`<p class="amoff">Off the parcel${off.map(i=>
-      ` <span class="oi">${esc(i.t)}<span class="tag">${esc(i.off)}</span></span>`).join('')}</p>`:'');
+  return SITE.amenities.map(g=>
+    `<h2 class="amsec">${esc(g.group)}</h2>
+     ${g.note?`<p class="amnote">${esc(g.note)}</p>`:''}
+     <div class="amcards rv">${g.items.map(amenityCard).join('')}</div>`).join('');
 }
 /* Everything on the list that isn't on the parcel. */
 const offSite=()=>SITE.amenities.flatMap(g=>g.items.filter(i=>i.off));
