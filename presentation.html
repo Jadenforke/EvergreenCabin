@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Evergreen Resort: Lake Wolsey, Manitoulin Island</title>
-<meta name="description" content="A four-season retreat on 33 acres of Lake Wolsey shoreline. Built in three phases.">
+<title>Evergreen Resort: Ice Lake, Manitoulin Island</title>
+<meta name="description" content="A four-season retreat on 33 acres of Ice Lake shoreline. Built in three phases.">
 <!-- Self-hosted (§2.4): no third-party request from a page shown to investors. -->
 <link rel="icon" href="/assets/brand/favicon.png" type="image/png">
 <link rel="preload" href="/assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -414,6 +414,31 @@ ul.ticks.no li::before{content:"\2014";position:absolute;left:0;color:var(--mute
 @media(prefers-reduced-motion:reduce){.amc img{transition:none}
   .amc:hover img{transform:none}}
 
+/* ── amenity list ────────────────────────────────────────────────────
+   The written-out list under the cards. Most of these have no photograph
+   yet, and a grid of "Image pending" tiles would say less than the words
+   do, so they are set as a list: one column per group, ruled off at the
+   top the way the spec tables are. */
+.amgroups{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(1.6rem,3vw,2.6rem)}
+.amg{border-top:1px solid var(--ink);padding-top:1rem}
+.amg h3{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  color:var(--ink);margin:0 0 .5rem}
+.amg .gnote{font-size:12.5px;color:var(--muted);margin:0 0 1.1rem;max-width:30ch;
+  line-height:1.6}
+.amg ul{list-style:none;margin:0;padding:0}
+.amg li{font-family:'Source Serif 4',Georgia,serif;font-size:1.02rem;color:var(--ink);
+  line-height:1.45;padding:.5rem 0;border-bottom:1px solid var(--rule)}
+.amg li:last-child{border-bottom:0}
+.amg li .d{display:block;font-family:Inter,sans-serif;font-size:12.5px;
+  color:var(--body);line-height:1.55;margin-top:.15rem}
+.amg li.lead{color:var(--accent)}
+.amg li .tag{display:inline-block;font-family:Inter,sans-serif;font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted);
+  border:1px solid var(--rule);padding:2px 6px;margin-left:.5rem;vertical-align:2px}
+@media(max-width:1000px){.amgroups{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.amgroups{grid-template-columns:1fr}}
+
 .splitwrap{margin:0;max-width:560px}
 .split{width:100%;height:auto;border:1px solid var(--rule);background:var(--card);
   color:var(--ink)}
@@ -536,7 +561,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="wrap hero-inner">
       <div class="eye">Gore Bay &middot; Manitoulin Island &middot; Ontario</div>
       <h1 class="disp">An Escape Into Northern Ontario.</h1>
-      <p class="sub">Thirty-three acres on Lake Wolsey, taking shape as a
+      <p class="sub">Thirty-three acres on Ice Lake, taking shape as a
          four-season resort across three phases.</p>
       <a class="btn solid" href="#/contact">Register now</a>
     </div>
@@ -714,8 +739,9 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         The largest freshwater island in the world.</h2>
       <div class="locsplit">
         <div class="prose">
-          <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Lake Wolsey. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
+          <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Ice Lake. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
           <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
+          <p id="offsite-line"></p>
         </div>
         <div class="mapshot rv" id="loc-map2"></div>
       </div>
@@ -805,7 +831,60 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 const SITE = {
   meta:{ name:"Evergreen Resort", owner:"Trinh Family Holdings",
     location:"Hwy 540, Gore Bay, Manitoulin Island, Ontario",
-    water:"Lake Wolsey", parcelAcres:33, parcelHa:13.35, frontageM:259, lat:45.9 },
+    water:"Ice Lake", parcelAcres:33, parcelHa:13.35, frontageM:259, lat:45.9 },
+
+  /* What there is to do, grouped the way a guest would ask about it rather
+     than by which building it sits in. `off` marks the ones that are not on
+     the parcel: they are a drive away, and saying so is the difference
+     between a feature and a promise the site can't keep. Kept as data so the
+     amenities page, the landing row and the location page all read from one
+     list instead of three copies drifting apart. */
+  amenities:[
+    { group:"On the water",
+      note:`${259} metres of frontage, a beach, and the boats that go with it.`,
+      items:[
+        { t:"Water jumping castle" },
+        { t:"Beach" },
+        { t:"Swimming" },
+        { t:"Kayaks" },
+        { t:"Paddle boards" },
+        { t:"Sea-Doo" },
+        { t:"Wakeboarding" },
+        { t:"Fishing" },
+        { t:"Boat cruises", d:"Out to explore Manitoulin Island and the lake." }
+      ] },
+    { group:"Pool, spa and wellness",
+      note:"The main complex, on the water side.",
+      items:[
+        { t:"Indoor pool", d:"The only indoor pool on the island.", lead:true },
+        { t:"Cold plunge" },
+        { t:"Sauna" },
+        { t:"Massage" },
+        { t:"Yoga" },
+        { t:"Water yoga" },
+        { t:"Gym" }
+      ] },
+    { group:"Sport and play",
+      note:"Indoors in the sport barn, outdoors on the grass and the sand.",
+      items:[
+        { t:"Grass volleyball" },
+        { t:"Beach volleyball" },
+        { t:"Pickleball" },
+        { t:"Basketball" },
+        { t:"Golf simulators" },
+        { t:"Playground", d:"For the kids." }
+      ] },
+    { group:"Gather and explore",
+      note:"The grounds, and what is worth the drive off them.",
+      items:[
+        { t:"Wedding gazebo" },
+        { t:"Fire pits" },
+        { t:"Waterfall" },
+        { t:"Trails and bush" },
+        { t:"Golf", off:"Nearby" },
+        { t:"Tennis", off:"Gore Bay" }
+      ] }
+  ],
 
   phases:[
     { id:1, name:"The Arrival", status:"In engineering", window:null,
@@ -887,10 +966,11 @@ const SITE = {
       tagline:"Eighteen rooms, the pool, the restaurant, and the room everyone ends up in.",
       areaSqft:null, areaM2:null, footprintFt:null, footprintM:null,
       storeys:null, beds:null, baths:null,
-      specBand:[{value:"18",label:"rooms"},{value:"6",label:"shared spaces"}],
+      specBand:[{value:"18",label:"rooms"},{value:"6",label:"shared spaces"},
+                {value:"1",label:"indoor pool on the island"}],
       specs:{ "Rooms":"18 guest rooms",
-        "Water":"Indoor pool and cold plunge",
-        "Wellness":"Sauna",
+        "Water":"Indoor pool and cold plunge \u2014 the only indoor pool on Manitoulin Island",
+        "Wellness":"Sauna, massage, yoga and water yoga",
         "Dining":"Restaurant",
         "Outdoor":"Patio",
         "Arrival":"Reception and gathering space",
@@ -902,7 +982,7 @@ const SITE = {
       gallery:[{src:"/assets/units/main-complex/01.webp",cap:"The patio"},
                {src:"/assets/units/main-complex/02.webp",cap:"Restaurant and bar"},
                {src:"/assets/units/main-complex/03.webp",cap:"The sauna"},
-               {src:"/assets/units/main-complex/04.webp",cap:"Indoor pool and cold plunge"},
+               {src:"/assets/units/main-complex/04.webp",cap:"Indoor pool and cold plunge — the only indoor pool on the island"},
                {src:"/assets/units/main-complex/05.webp",cap:"The gym"},
                {src:"/assets/units/main-complex/06.webp",cap:"A guest room"}] },
 
@@ -1107,7 +1187,7 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const HERO={ video:'/assets/site/hero.webm', videoMp4:'/assets/site/hero.mp4',
              poster:'/assets/site/hero-poster.webp',
              endImage:'/assets/site/hero-end.webp',
-             endAlt:'Shoreline domes along the Lake Wolsey frontage',
+             endAlt:'Shoreline domes along the Ice Lake frontage',
              alt:'A film of the Evergreen Resort grounds' };
 
 (function heroInit(){
@@ -1164,6 +1244,12 @@ function buildPlan(){
 
   const pm=document.getElementById('plan-map'); if(pm)pm.innerHTML=locatorMap();
   const lm2=document.getElementById('loc-map2'); if(lm2)lm2.innerHTML=locatorMap();
+  /* The off-site amenities are a fact about the location, so the location
+     page states them, drawn from the same list the amenities page renders. */
+  const os=document.getElementById('offsite-line'), off=offSite();
+  if(os&&off.length)os.textContent=
+    `Off the parcel and worth the drive: ${off.map(i=>
+      `${i.t.toLowerCase()}${i.off&&i.off!=='Nearby'?` in ${i.off}`:' nearby'}`).join(', ')}.`;
   setPhase('all');
 }
 /* The schedule answers the same question as the pins, so it follows the
@@ -1235,10 +1321,10 @@ function buildHome(){
     wellness:'<path d="M6 27h20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 27V15a3.4 3.4 0 0 1 6.8 0v12" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M15.8 19h8.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="22" cy="10.5" r="2.6" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6 23.4c2.2 0 2.2-1.8 4.4-1.8" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
   };
   const amen=[
-    {i:'wave',   t:'Waterfront access',     href:'#/amenities'},
+    {i:'wave',   t:'Beach &amp; watersports', href:'#/amenities'},
     {i:'court',  t:'Sport courts',          href:'#/unit/sport-barn'},
     {i:'people', t:'Gathering spaces',      href:'#/unit/main-complex'},
-    {i:'wellness',t:'Pool, sauna &amp; plunge',href:'#/unit/main-complex'},
+    {i:'wellness',t:'Pool, spa &amp; yoga',  href:'#/unit/main-complex'},
     {i:'trail',  t:'Trails &amp; bush',     href:'#/amenities'},
     {i:'seasons',t:'Four-season stays',     href:'#/units'}
   ];
@@ -1469,6 +1555,22 @@ let packTimer;
 addEventListener('resize',()=>{clearTimeout(packTimer);packTimer=setTimeout(packMasonry,120);});
 
 /* ══ AMENITIES ═════════════════════════════════════════════════════ */
+/* The grouped list, rendered from SITE.amenities. Used on the amenities
+   page in full; the location page pulls the off-site entries out of the
+   same list so the two can't disagree about what is a drive away. */
+function amenityGroups(){
+  return `<div class="amgroups rv">${SITE.amenities.map(g=>`
+    <div class="amg">
+      <h3>${esc(g.group)}</h3>
+      ${g.note?`<p class="gnote">${esc(g.note)}</p>`:''}
+      <ul>${g.items.map(it=>`
+        <li${it.lead?' class="lead"':''}>${esc(it.t)}${
+          it.off?`<span class="tag">${esc(it.off)}</span>`:''}${
+          it.d?`<span class="d">${esc(it.d)}</span>`:''}</li>`).join('')}</ul>
+    </div>`).join('')}</div>`;
+}
+/* Everything on the list that isn't on the parcel. */
+const offSite=()=>SITE.amenities.flatMap(g=>g.items.filter(i=>i.off));
 function buildAmenities(){
   /* One card per thing a guest can actually do, each with the photograph of
      that space. Figures are the ones already in the data model: the frontage
@@ -1480,9 +1582,9 @@ function buildAmenities(){
     {t:"Restaurant and bar",img:"/assets/units/main-complex/02.webp", href:"#/unit/main-complex",
      b:"The dining room and bar, opening onto the water side of the complex."},
     {t:"Indoor pool and cold plunge", img:"/assets/units/main-complex/04.webp", href:"#/unit/main-complex",
-     b:"A glazed pool hall with a cold plunge off the end of it."},
-    {t:"The sauna",        img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
-     b:"Cedar-lined, and the other half of the plunge."},
+     b:"The only indoor pool on the island: a glazed hall with a cold plunge off the end of it, and water yoga in it."},
+    {t:"Sauna, massage and yoga", img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
+     b:"Cedar-lined sauna and the other half of the plunge, with massage and yoga alongside."},
     {t:"The gym",          img:"/assets/units/main-complex/05.webp", href:"#/unit/main-complex",
      b:"Cardio and weights alongside the pool."},
     {t:"Guest rooms",      img:"/assets/units/main-complex/06.webp", href:"#/unit/main-complex",
@@ -1494,9 +1596,9 @@ function buildAmenities(){
     {t:"Fire pits",        img:"/assets/site/firepit.webp", href:"#/units",
      b:"Lit pits and seating set out between the domes, in use through the shoulder seasons."},
     {t:"The waterfront",   img:"/assets/site/waterfront.webp", href:"#/location",
-     b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: dock, swimming, and a launch for small craft.`},
+     b:`${SITE.meta.frontageM} metres of ${SITE.meta.water} frontage: beach and dock, the water jumping castle, kayaks, paddle boards, the Sea-Doo, wakeboarding and fishing.`},
     {t:"The land",         img:"/assets/site/land.webp", href:"#/",
-     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelAcres} acres.`}
+     b:`Trails through the bush and open field to the east, on ${SITE.meta.parcelAcres} acres, with the wedding gazebo, the waterfall, the playground and both volleyball courts.`}
   ];
   document.getElementById('amen-body').innerHTML=`
     <section class="sect" style="padding-top:1rem"><div class="wrap">
@@ -1505,13 +1607,17 @@ function buildAmenities(){
         What there is to do.</h1>
       <p class="lead" style="max-width:58ch;margin:0 0 2.6rem">Everything shared sits in two
          buildings and the ground between them: the main complex on the water, the sport barn
-         behind it, and ${SITE.meta.parcelAcres} acres of shoreline and bush around both.</p>
+         behind it, and ${SITE.meta.parcelAcres} acres of shoreline and bush around both.
+         The pool inside the main complex is the only indoor pool on Manitoulin Island.</p>
       <div class="amcards rv">${cards.map(c=>`
         <a class="amc" href="${c.href}">
           <figure>${img(c.img,c.t,c.t,'1400 × 1050')}</figure>
           <h3>${esc(c.t)}</h3>
           <p>${esc(c.b)}</p>
         </a>`).join('')}</div>
+
+      <h2 class="eye" style="margin:3.4rem 0 1.4rem">Everything on the list</h2>
+      ${amenityGroups()}
 
       <h2 class="eye" style="margin:3.4rem 0 1rem">How the sport barn splits</h2>
       ${sportSplitSVG(true)}
