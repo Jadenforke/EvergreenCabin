@@ -87,10 +87,29 @@ section{padding:72px 0}.sec-head{max-width:640px;margin-bottom:44px}
 /* ─── cards ───────────────────────────────────────────── */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:26px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.22s;display:flex;flex-direction:column}
-.arch-sec{grid-column:1/-1;display:contents}
-.arch-head{grid-column:1/-1;margin:34px 0 2px;padding-top:22px;border-top:1px dashed var(--line)}
-.arch-head h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--steel);margin:0 0 3px}
-.arch-head p{font-size:12.5px;color:var(--steel);margin:0}
+/* A section heading that spans the whole card grid. Solar and the archived
+   block both use it, so the two read as the same kind of divider. */
+.cat-head{grid-column:1/-1;margin:34px 0 2px;padding-top:22px;border-top:1px dashed var(--line)}
+.cat-head h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--steel);margin:0 0 3px}
+.cat-head p{font-size:12.5px;color:var(--steel);margin:0;max-width:78ch}
+/* The archived listings collapse. There are more of them than there are live
+   ones, and open by default they buried the catalogue under its own history.
+   <details> carries the state, so it needs no script and stays keyboard
+   reachable. */
+.arch-sec{grid-column:1/-1;margin:34px 0 0;padding-top:22px;border-top:1px dashed var(--line)}
+.arch-sec>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:10px}
+.arch-sec>summary::-webkit-details-marker{display:none}
+.arch-sec>summary h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--steel);margin:0}
+.arch-sec>summary .arch-n{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;
+  color:var(--steel);background:var(--tint);border-radius:999px;padding:2px 9px}
+.arch-sec>summary .arch-chev{margin-left:auto;font-size:12px;font-weight:700;color:var(--steel);
+  font-family:'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.arch-sec>summary:hover h3,.arch-sec>summary:hover .arch-chev{color:var(--pine)}
+.arch-sec[open]>summary .arch-chev::after{content:'Hide'}
+.arch-sec:not([open])>summary .arch-chev::after{content:'Show'}
+.arch-note{font-size:12.5px;color:var(--steel);margin:8px 0 0;max-width:78ch}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:26px;margin-top:20px}
+@media(max-width:560px){.arch-grid{grid-template-columns:1fr}}
 .card.is-arch{opacity:.62}
 .card.is-arch:hover{opacity:1}
 .badge.arch{background:var(--tint);color:var(--steel)}
@@ -4371,8 +4390,6 @@ const MH_DOCS = {
         label:'Price list MH2600812',
         note:'The full quotation, 12 Aug 2026 \u00b7 every unit and its EXW price'},
   own:{
-   'mh-tri-sideroom':{href:'/docs/meihua/module-house-side-room-quotation.pdf',
-     label:'MH-2.3 A-frame \u00b7 Aluminum Alloy Integrated Module House quotation', note:'Itemised specification, 10 Aug 2026'},
    'mh-tri-sideroom-2':{href:'/docs/meihua/aa-triangle-house-quotation.pdf',
      label:'AA triangle house quotation', note:'The same triangle house without the side room \u00b7 14 Aug 2026'},
    'mh-one-layer':{href:'/docs/meihua/18sqm-prefab-house-quotation.pdf',
@@ -4679,10 +4696,17 @@ function cardHTML(p){
 }
 function renderCards(){
   const match=p=>(activeMfr==='all'||p.mfr===activeMfr)&&(activeType==='all'||p.type===activeType);
-  const filtered=PRODUCTS.filter(p=>match(p)&&!p.archived);
+  /* Power kits are not structures, so they get their own heading rather than
+     sitting between the cabins as though you could sleep in one. */
+  const live=PRODUCTS.filter(p=>match(p)&&!p.archived);
+  const filtered=live.filter(p=>p.type!=='solar');
+  const solar=live.filter(p=>p.type==='solar');
   const archived=PRODUCTS.filter(p=>match(p)&&p.archived);
-  let html=filtered.length?filtered.map(cardHTML).join(''):'<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
-  if(archived.length) html+=`<div class="arch-sec"><div class="arch-head"><h3>Archived: no longer under consideration</h3><p>Kept for reference; excluded from the decision summary. Listings quoted over <strong>$35,000 USD</strong> are archived on price alone. The steel warehouse is held back from that rule on purpose: it is the only shell in the catalog that can build the sport barn, and there is nothing to put in its place.</p></div>${archived.map(cardHTML).join('')}</div>`;
+  let html=(filtered.length||solar.length)
+    ? filtered.map(cardHTML).join('')
+    : '<p style="color:var(--steel);font-size:15px;padding:20px 0">No structures match the selected filters.</p>';
+  if(solar.length) html+=`<div class="cat-head"><h3>Solar &amp; power</h3><p>Panels, batteries, inverters and turbines: what powers the site rather than what stands on it. The decisive gate on these is electrical certification for ESA, not the building code.</p></div>${solar.map(cardHTML).join('')}`;
+  if(archived.length) html+=`<details class="arch-sec"><summary><h3>Archived: no longer under consideration</h3><span class="arch-n">${archived.length}</span><span class="arch-chev"></span></summary><p class="arch-note">Kept for reference; excluded from the decision summary. Listings quoted over <strong>$35,000 USD</strong> are archived on price alone. The steel warehouse is held back from that rule on purpose: it is the only shell in the catalog that can build the sport barn, and there is nothing to put in its place.</p><div class="arch-grid">${archived.map(cardHTML).join('')}</div></details>`;
   const el=document.getElementById('catalog-cards'); if(el){ el.innerHTML=html; autoImperial(el); }
   const hel=document.getElementById('home-cards'); if(hel){ hel.innerHTML=PRODUCTS.filter(p=>!p.archived).map(cardHTML).join(''); autoImperial(hel); }
 }
