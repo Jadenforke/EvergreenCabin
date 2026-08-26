@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Evergreen Resort: Ice Lake, Manitoulin Island</title>
-<meta name="description" content="A four-season retreat on 33 acres of Ice Lake shoreline. Built in three phases.">
+<meta name="description" content="A four-season retreat on 28 acres of Ice Lake shoreline. Built in three phases.">
 <!-- Self-hosted (§2.4): no third-party request from a page shown to investors. -->
 <link rel="icon" href="/assets/brand/favicon.png" type="image/png">
 <link rel="preload" href="/assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -568,7 +568,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     <div class="wrap hero-inner">
       <div class="eye">Gore Bay &middot; Manitoulin Island &middot; Ontario</div>
       <h1 class="disp">An Escape Into Northern Ontario.</h1>
-      <p class="sub">Thirty-three acres on Ice Lake, taking shape as a
+      <p class="sub">Twenty-eight acres on Ice Lake, taking shape as a
          four-season resort across three phases.</p>
       <a class="btn solid" href="#/contact">Register now</a>
     </div>
@@ -743,7 +743,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         The largest freshwater island in the world.</h2>
       <div class="locsplit">
         <div class="prose">
-          <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Ice Lake. The parcel runs to roughly 33 acres (13.35 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
+          <p>Evergreen sits on Highway 540 outside Gore Bay, on the north shore of Ice Lake. The parcel runs to roughly 28 acres (11.33 hectares) with about 259 metres of water frontage, and the internal road is already in.</p>
           <p>Access is by the Little Current swing bridge from the north year-round, or the Chi&#8209;Cheemaun ferry from Tobermory into South Baymouth between May and October. Sudbury is the nearest airport.</p>
           <p id="offsite-line"></p>
         </div>
@@ -835,7 +835,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
 const SITE = {
   meta:{ name:"Evergreen Resort", owner:"Trinh Family Holdings",
     location:"Hwy 540, Gore Bay, Manitoulin Island, Ontario",
-    water:"Ice Lake", parcelAcres:33, parcelHa:13.35, frontageM:259, lat:45.9 },
+    water:"Ice Lake", parcelAcres:28, parcelHa:11.33, frontageM:259, lat:45.9 },
 
   /* What there is to do, grouped the way a guest would ask about it rather
      than by which building it sits in. Every entry is a card on the
@@ -854,7 +854,7 @@ const SITE = {
           d:"Sand, dock and swimming along the {frontage} metres of {water} frontage." },
         { t:"Water jumping castle", img:"/assets/site/amen-aquapark.webp",
           d:"An inflatable aqua park moored off the beach." },
-        { t:"Kayaks" },
+        { t:"Kayaks", img:"/assets/site/amen-kayak.webp" },
         { t:"Paddle boards", img:"/assets/site/amen-paddleboard.webp" },
         { t:"Sea-Doo", img:"/assets/site/amen-seadoo.webp" },
         { t:"Wakeboarding", img:"/assets/site/amen-wakeboard.webp" },
@@ -870,8 +870,8 @@ const SITE = {
         { t:"Sauna", img:"/assets/units/main-complex/03.webp", href:"#/unit/main-complex",
           d:"Cedar-lined, and the other half of the plunge." },
         { t:"Massage", img:"/assets/site/amen-massage.webp" },
-        { t:"Yoga" },
-        { t:"Water yoga", d:"In the pool hall." },
+        { t:"Yoga", img:"/assets/site/amen-yoga.webp" },
+        { t:"Water yoga", img:"/assets/site/amen-wateryoga.webp", d:"In the pool hall." },
         { t:"The gym", img:"/assets/units/main-complex/05.webp", href:"#/unit/main-complex",
           d:"Cardio and weights alongside the pool." }
       ] },
@@ -897,9 +897,7 @@ const SITE = {
           d:"{keys} rooms in the main complex, each looking into the pines." },
         { t:"Wedding gazebo", img:"/assets/site/amen-gazebo.webp" },
         { t:"Fire pits", img:"/assets/site/amen-firepit.webp", href:"#/units",
-          d:"Lit pits and seating set out between the domes, in use through the shoulder seasons." },
-        { t:"Trails and bush", img:"/assets/site/land.webp", href:"#/",
-          d:"Trails through the bush and open field to the east, on {acres} acres." }
+          d:"Lit pits and seating set out between the domes, in use through the shoulder seasons." }
       ] },
     /* The island itself. These are a drive from the gate, not features of the
        parcel, so every one is tagged with where it actually is: a guest
@@ -922,8 +920,10 @@ const SITE = {
           d:"Canada's only officially recognised unceded territory, with Indigenous-led tours and a cultural centre." },
         { t:"Manitoulin Island Powwows", off:"Across the island", img:"/assets/site/amen-powwow.webp",
           d:"Communities across the island host powwows from June through the Labour Day weekend, Wiikwemkoong's cultural festival on the August long weekend among the largest. Open gatherings, free to attend." },
-        { t:"Rainbow Ridge Golf Course", off:"Nearby", img:"/assets/site/amen-golf.webp" },
-        { t:"Gore Bay Tennis Court", off:"Gore Bay", img:"/assets/site/amen-tennis.webp" }
+        { t:"Rainbow Ridge Golf Course", off:"Manitowaning", img:"/assets/site/amen-golf.webp",
+          d:"The only eighteen holes on the island: par 72 over 6,424 yards, water on nine of them, open to the public." },
+        { t:"Gore Bay Tennis Court", off:"Gore Bay", img:"/assets/site/amen-tennis.webp",
+          d:"Two lit hard courts in town, a few minutes from the gate." }
       ] }
   ],
 
@@ -1168,6 +1168,9 @@ const DIM={
   "/assets/site/amen-cupsaucer.webp":[804,603],
   "/assets/site/amen-firepit.webp":[1400,1050],
   "/assets/site/amen-golf.webp":[600,450],
+  "/assets/site/amen-kayak.webp":[1400,1050],
+  "/assets/site/amen-wateryoga.webp":[1365,1024],
+  "/assets/site/amen-yoga.webp":[1400,1050],
   "/assets/site/amen-gorebay.webp":[333,250],
   "/assets/site/amen-misery.webp":[516,387],
   "/assets/site/amen-powwow.webp":[710,533],
@@ -1310,7 +1313,7 @@ function buildPlan(){
      leave a stale number in the paragraph beside it. */
   const pl=document.getElementById('planlead');
   if(pl)pl.textContent=
-    `Three phases lay out ${PHASED_ACRES} acres of the ${SITE.meta.parcelAcres}-acre parcel: `
+    `Three phases across ${PHASED_ACRES} acres: `
     +`sleeping units, the arrival complex and the sport barn, sequenced so the first `
     +`units earn while the next are engineered. Every structure is reviewed against the `
     +`Ontario Building Code before it is drawn on the plan.`;
@@ -1677,9 +1680,6 @@ function buildAmenities(){
          behind it, and ${SITE.meta.parcelAcres} acres of shoreline and bush around both.
          The pool inside the main complex is the only indoor pool on Manitoulin Island.</p>
       ${amenityGroups()}
-
-      <h2 class="eye" style="margin:3.4rem 0 1rem">How the sport barn splits</h2>
-      ${sportSplitSVG(true)}
 
       <h2 class="eye" style="margin:3rem 0 0">Seasonality</h2>
       <div class="tw"><table class="data" id="season-table2"></table></div>
