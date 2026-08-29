@@ -4066,6 +4066,14 @@ const PRODUCTS = [
     psf:'$35 / sq ft, on the gross area', 
     q:{model:'MH-2.3', series:'Aluminum alloy integrated modular housing series', size:'Ground 5 × 7 m · upper 4 × 4 m + 4 × 4 m', area:'67 m\u00b2 gross \u00b7 721 sq ft \u00b7 5 × 7 m ground plus two 4 × 4 m above, added up', qty:'1 set', usd:25000, opts:'Furniture + showroom + kitchen: plus USD 5,000. Can be fabricated with mirror-style exterior walls.'},
     ship:{weight:'5\u20136 tonnes', volume:'58 CBM', container:'One set loads into a single 40 ft high-cube container', steel:'about USD 8,000 of galvanized steel frame'},
+    /* Interiors from the maker's walkthrough. They show the unit with the
+       fit-out option in it, not the shell this listing is priced at, so each
+       caption says which of the two you are looking at. */
+    photos:[
+      {src:'/img/mh/a7/kitchen.webp', cap:'Kitchen as fitted \u00b7 the optional fit-out, not the quoted shell'},
+      {src:'/img/mh/a7/bath.webp',    cap:'Shower room as fitted \u00b7 optional fit-out'},
+      {src:'/img/mh/a7/wc.webp',      cap:'Second bathroom with laundry \u00b7 optional fit-out'},
+      {src:'/img/mh/a7/shower.webp',  cap:'Shower enclosure \u00b7 optional fit-out'}],
     tag:'<span class="badge ok">Quoted Aug 2026</span>' },
   { id:'mh-one-layer', live:true, type:'container', mfr:'meihua',
     img:'/img/mh/mh-one-layer.webp',
@@ -4373,12 +4381,27 @@ function renderListing(pid){
   const planImg=p.plan?`<figure style="margin:14px 0 0">
       <img src="${p.plan}" alt="${lstEsc(p.name)} floor plan" style="width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line)">
       <figcaption style="font-size:12px;color:var(--steel);margin-top:7px">Floor plan as supplied by the maker</figcaption></figure>`:'';
+  /* A listing may carry photographs beyond the hero and the plan. Optional,
+     so every listing without them renders exactly as it did before. */
+  const photoSrcs=(p.photos||[]).map(x=>x.src);
+  const photoGrid=(p.photos&&p.photos.length)?`
+    <div style="margin-top:14px">
+      <div class="eyebrow" style="margin-bottom:8px">Interior photographs</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+      ${p.photos.map((ph,i)=>`<figure style="margin:0">
+        <img src="${ph.src}" alt="${lstEsc(p.name)}: ${lstEsc(ph.cap)}" loading="lazy"
+             onclick="openLightbox(${lstEsc(JSON.stringify(photoSrcs))},${i})"
+             style="width:100%;height:auto;display:block;border-radius:8px;cursor:zoom-in">
+        <figcaption style="font-size:11.5px;color:var(--steel);margin-top:5px;line-height:1.45">${lstEsc(ph.cap)}</figcaption>
+      </figure>`).join('')}
+      </div>
+    </div>`:'';
   g('lst-img').innerHTML=(p.img
     ? `<img src="${p.img}" alt="${lstEsc(p.name)}" style="width:100%;height:auto;display:block;border-radius:10px">`
     : `<div style="display:flex;align-items:center;justify-content:center;min-height:260px;
          border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center">
          <div style="max-width:34ch"><div class="eyebrow" style="margin-bottom:8px">No photograph</div>
-         <p style="margin:0;font-size:14px;color:var(--steel)">The maker sent this quotation without an image. Nothing has been substituted for it.</p></div></div>`)+planImg;
+         <p style="margin:0;font-size:14px;color:var(--steel)">The maker sent this quotation without an image. Nothing has been substituted for it.</p></div></div>`)+planImg+photoGrid;
   g('lst-badges').innerHTML=(p.archived?'<span class="badge arch">Archived</span>':p.tag||'')
     +` <span class="badge">${p.quoteRef?lstEsc(p.quoteRef.no)+' quotation':'Quotation '+MH_QUOTE.no}</span>`
     +(q.model?` <span class="badge">${q.model}</span>`:'');

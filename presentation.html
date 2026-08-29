@@ -914,7 +914,7 @@ const SITE = {
           d:"Close to 2 km of white sand and a boardwalk on the south shore." },
         { t:"Misery Bay Provincial Park", off:"Evansville", img:"/assets/site/amen-misery.webp",
           d:"Day-use park with about 15 km of trail through forest, alvar and Lake Huron shoreline. The alvar is the only ecosystem of its kind in Canada." },
-        { t:"Mindemoya Cave", off:"Mindemoya",
+        { t:"Mindemoya Cave", off:"Mindemoya", img:"/assets/site/amen-cave.webp",
           d:"Also called Skeleton Cave, for the seven burials found in it in 1888. Around 80 ft deep and 9 to 15 ft high, cut by meltwater after the last glaciation, and reached by a ten-minute walk in. Seasonal and ticketed; it sits on private land." },
         { t:"Gore Bay", off:"Nearest town", img:"/assets/site/amen-gorebay.webp",
           d:"The nearest town: harbour and marina, the East Bluff lookout, the museum and a local brewery." },
@@ -922,7 +922,7 @@ const SITE = {
           d:"Canada's only officially recognised unceded territory, with Indigenous-led tours and a cultural centre." },
         { t:"Manitoulin Island Powwows", off:"Across the island", img:"/assets/site/amen-powwow.webp",
           d:"Communities across the island host powwows from June through the Labour Day weekend, Wiikwemkoong's cultural festival on the August long weekend among the largest. Open gatherings, free to attend." },
-        { t:"Honora Bay Riding Stable", off:"Honora Bay",
+        { t:"Honora Bay Riding Stable", off:"Honora Bay", img:"/assets/site/amen-riding.webp",
           d:"Guided trail rides from half an hour to a five or six hour day, over twenty horses, through forest, hilltop fields and along the Niagara Escarpment." },
         { t:"Rainbow Ridge Golf Course", off:"Manitowaning", img:"/assets/site/amen-golf.webp",
           d:"The only eighteen holes on the island: par 72 over 6,424 yards, water on nine of them, open to the public." },
@@ -981,6 +981,32 @@ const SITE = {
     /* Four arrive in phase 1 and nineteen more in phase 3, which one total
        cannot express on its own: byPhase carries the split, count stays the
        programme total the unit schedule reports. */
+    /* Sourced and quoted, but not yet placed in a phase. phases:[] keeps it
+       off every phase filter and out of every phase count until it is, rather
+       than parking it in Phase 1 to make the card look finished. */
+    { slug:"a7-duplex", name:"MH-2.3 A+7 Duplex", kind:"sleeping", phases:[], count:null,
+      keys:1,
+      tagline:"A 5 \u00d7 7 m ground floor carrying two 4 \u00d7 4 m volumes above.",
+      areaSqft:721, areaM2:67, footprintFt:null, footprintM:null,
+      storeys:2, beds:null, baths:null,
+      specBand:[{value:"721",label:"sq ft gross"},{value:"2",label:"storeys"},
+                {value:"5 \u00d7 7",label:"m ground floor"},{value:"1",label:"40 ft container"}],
+      specs:{ "Series":"Aluminium alloy integrated modular housing",
+        "Ground floor":"5 \u00d7 7 m",
+        "Upper floor":"Two volumes, 4 \u00d7 4 m each",
+        "Gross area":"67 m\u00b2 \u00b7 721 sq ft, the three volumes added up",
+        "Structure":"Galvanized steel frame",
+        "Shipping weight":"5\u20136 tonnes",
+        "Packed volume":"58 m\u00b3",
+        "Container":"One set loads into a single 40 ft high-cube",
+        "Beds and baths":"Not stated by the maker",
+        "Snow and wind load":"Not stated by the maker" },
+      included:["Structural shell","Aluminium alloy modular envelope","Galvanized steel frame"],
+      excluded:["Foundation & site prep","Furniture","Appliances","Taps & sinks",
+        "Kitchen (offered as an option)","Utility hookups"],
+      pending:"The maker quoted this as a structure. Bed and bath counts, snow and wind ratings and the insulation build-up are not stated, and the fitted kitchen and furniture are a separate option rather than part of it.",
+      hero:"/assets/units/a7-duplex/hero.webp", plan:"/assets/units/a7-duplex/plan.webp",
+      gallery:[] },
     { slug:"a-frame", name:"A-Frame", kind:"sleeping", phases:[1,3], count:23,
       byPhase:{1:4,3:19}, keys:1,
       tagline:"A glulam A-frame with the strongest snow rating in the programme.",
@@ -1174,6 +1200,8 @@ const DIM={
   "/assets/site/arrival-day.webp":[1500,1001],
   "/assets/site/amen-aquapark.webp":[1400,1050],
   "/assets/site/amen-beach.webp":[1400,1050],
+  "/assets/site/amen-cave.webp":[509,382],
+  "/assets/site/amen-riding.webp":[1008,756],
   "/assets/site/amen-bridalveil.webp":[840,630],
   "/assets/site/amen-cupsaucer.webp":[804,603],
   "/assets/site/amen-firepit.webp":[1400,1050],
@@ -1218,6 +1246,8 @@ const DIM={
   "/assets/site/strip-4.webp":[800,800],
   "/assets/site/waterfront.webp":[1537,1023],
   "/assets/units/a-frame/01.webp":[1400,933],
+  "/assets/units/a7-duplex/plan.webp":[1600,1131],
+  "/assets/units/a7-duplex/hero.webp":[800,800],
   "/assets/units/a-frame/04.webp":[1230,570],
   "/assets/units/a-frame/05.webp":[1234,590],
   "/assets/units/branson/04.webp":[1080,548],
@@ -1360,7 +1390,7 @@ function renderPlanTable(ph){
       <td>${u.areaLabel||(u.areaSqft?fmt(u.areaSqft)+' sq ft':'n/a')}</td>
       <td>${c==null?'TBD':fmt(c)}</td>
       <td>${!u.keys?'n/a':c==null?'TBD':fmt(c*u.keys)}</td>
-      <td>${esc(SITE.phases.find(p=>p.id===u.phases[0]).status)}</td></tr>`;}).join('');
+      <td>${esc((SITE.phases.find(p=>p.id===u.phases[0])||{status:'Not yet phased'}).status)}</td></tr>`;}).join('');
 }
 function setPhase(ph){
   planPhase=ph;
@@ -1474,7 +1504,7 @@ function unitCard(u){
   return `<a class="card rv" href="#/unit/${u.slug}">
     <div class="imgwrap">${img(u.hero,u.name,u.name+' · exterior','2000 × 1250')}</div>
     <div class="body">
-      <div class="eye">${u.phases.map(p=>'Phase 0'+p).join(' & ')}</div>
+      <div class="eye">${u.phases.length?u.phases.map(p=>'Phase 0'+p).join(' & '):'Not yet phased'}</div>
       <h3>${esc(u.name)}</h3>
       <div class="reveal"><p>${esc(u.tagline)}</p></div>
       <div class="strip">${unitStrip(u)}</div>
