@@ -4021,16 +4021,6 @@ const MH_QA = [
   {g:"Documentation", qa:[["Architectural and engineering drawings","Yes"],["Photos and video of completed projects","Yes"],["Itemised list of what is and is not included","Yes"],["North American client references","“We have partial North American client references available.”"]]}
 ];
 
-/* Two figures the maker has now given twice, differently. Both are recorded
-   as they were said rather than reconciled, because picking one would be
-   inventing an answer to a question that is still open. */
-const MH_CONFLICTS = [
-  ['Supervisor day rate',
-   'The itemised quotations say <strong>RMB 1,000 per person per day</strong>. The written answers say <strong>USD 1,000 per day</strong>. That is roughly a sevenfold difference on the same line item, and it needs settling before an installation is budgeted.'],
-  ['Lead time',
-   'The quotations say <strong>25\u201350 days</strong> after payment, and the 18 m\u00b2 house says <strong>25\u201335</strong>. The written answers say <strong>35\u201345 working days</strong> standard and <strong>45\u201365</strong> customised. Working days and calendar days are not the same thing, and the two sets do not overlap cleanly.']
-];
-
 const MH_PERF = {
   wallR:'\u2265 1.9 m\u00b2\u00b7K/W',
   roofR:'\u2265 2.4 m\u00b2\u00b7K/W',
@@ -4443,12 +4433,7 @@ function renderListing(pid){
         letter-spacing:.06em;text-transform:uppercase;color:var(--steel);margin:20px 0 8px">${sec.g}</h4>
        <div class="tablewrap"><table class="sum-tbl" style="min-width:640px">
        ${sec.qa.map(([q,a])=>`<tr><td class="name" style="width:38%"><span class="nm">${q}</span></td><td>${a}</td></tr>`).join('')}
-       </table></div>`).join('')}
-     <div class="comp warn" style="margin-top:22px"><span class="badge warn">Answers that disagree</span>
-       <h4>Two figures the maker has given twice, differently</h4>
-       ${MH_CONFLICTS.map(([k,v])=>`<p><strong>${k}:</strong> ${v}</p>`).join('')}
-       <p style="margin-bottom:0">Both versions are recorded as they were given. Neither has been chosen
-       over the other, because that would be inventing an answer to an open question.</p></div>`;
+       </table></div>`).join('')}`;
   /* Every listing gets the document it came from, so a price on the page can
      always be checked against the paper it was read off. */
   const docs=[];
