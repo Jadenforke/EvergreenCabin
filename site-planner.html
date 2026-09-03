@@ -3522,23 +3522,51 @@ function snapContainer(d,x,z,rot,ignore){
        an L rather than a cross. Offered both ways round each face, so the L
        can open in any of the four directions. */
     const eu=(gx-ow)/2, ev=(gz-od)/2;             // flush-face offsets
-    const cand=[
+    /* Beside the neighbour, and on top of it: two different intentions, so
+       they are kept apart. Measuring to a candidate's centre cannot tell
+       them apart on a long box, where every centre is metres from the corner
+       you are actually pointing at. */
+    const beside=[
       [0, (od+gz)/2],[0,-(od+gz)/2],              // end to end
       [(ow+gx)/2,0],[-(ow+gx)/2,0],               // side by side
       [eu,(od+gz)/2],[-eu,(od+gz)/2],             // off the end, faces flush: an L
       [eu,-(od+gz)/2],[-eu,-(od+gz)/2],
       [(ow+gx)/2,ev],[(ow+gx)/2,-ev],             // off the side, faces flush: an L
-      [-(ow+gx)/2,ev],[-(ow+gx)/2,-ev],
+      [-(ow+gx)/2,ev],[-(ow+gx)/2,-ev]
+    ];
+    const onTop=[
       [0,0],                                      // squarely on the roof
       [0,(od-gz)/2],[0,-(od-gz)/2],               // stacked flush with either end
       [(ow-gx)/2,0],[-(ow-gx)/2,0]
     ];
     const c=Math.cos(o.rot), si=Math.sin(o.rot);
+    /* How far the cursor is from the box a candidate would put there, not from
+       its centre: pointing anywhere along a 40 ft flank should catch it, and
+       pointing at a corner should catch the two candidates that meet there. */
+    const gw=even?d.w:d.d, gd=even?d.d:d.w;       // ghost extent in world axes at `grid`
+    const reach=(px,pz)=>{
+      const cc=Math.cos(grid), ss=Math.sin(grid);
+      const dx=x-px, dz=z-pz;
+      const lx=dx*cc+dz*ss, lz=-dx*ss+dz*cc;      // into the ghost's own frame
+      return Math.hypot(Math.max(Math.abs(lx)-gw/2,0),Math.max(Math.abs(lz)-gd/2,0));
+    };
+    /* Stacking is only on the table when the cursor is genuinely over the
+       neighbour's roof. Otherwise dragging past a container's end used to
+       lift the new one on top of it instead of setting it down alongside. */
+    const oc=Math.cos(o.rot), os_=Math.sin(o.rot);
+    const rdx=x-o.x, rdz=z-o.z;
+    const olx=rdx*oc+rdz*os_, olz=-rdx*os_+rdz*oc;
+    const overRoof=Math.abs(olx)<=ow/2+0.4&&Math.abs(olz)<=od/2+0.4;
+    const cand=overRoof?beside.concat(onTop):beside;
     cand.forEach(([lx,lz])=>{
       const px=o.x+lx*c-lz*si, pz=o.z+lx*si+lz*c;
-      const dd=Math.hypot(x-px,z-pz);
-      if(dd<Math.max(3.2,(gx+gz)/5)&&(!best||dd<best.d))
-        best={d:dd,x:px,z:pz,rot:grid};
+      const dd=reach(px,pz);
+      /* Pointing inside a container-sized rectangle puts the cursor inside
+         several candidates at once, all at distance nil. The nearer centre
+         breaks the tie, so which one you get still tracks where you point. */
+      const cd=Math.hypot(x-px,z-pz);
+      if(dd<2.6&&(!best||dd<best.d-1e-6||(Math.abs(dd-best.d)<=1e-6&&cd<best.c)))
+        best={d:dd,c:cd,x:px,z:pz,rot:grid};
     });
   });
   if(best){ contSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
