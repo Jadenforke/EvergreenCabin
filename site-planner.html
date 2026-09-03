@@ -3556,10 +3556,22 @@ function snapContainer(d,x,z,rot,ignore){
     const oc=Math.cos(o.rot), os_=Math.sin(o.rot);
     const rdx=x-o.x, rdz=z-o.z;
     const olx=rdx*oc+rdz*os_, olz=-rdx*os_+rdz*oc;
-    const overRoof=Math.abs(olx)<=ow/2+0.4&&Math.abs(olz)<=od/2+0.4;
-    const cand=overRoof?beside.concat(onTop):beside;
-    cand.forEach(([lx,lz])=>{
+    /* Well inside the roof, not merely over its edge. A corner is the one
+       place the two readings collide: it is where you point to build an L,
+       and an inflated roof made it read as a stack, so asking for a corner
+       put the box up a course. Stacking is the deliberate act, so it wants
+       the cursor properly on the roof. */
+    const overRoof=Math.abs(olx)<=Math.max(ow/2-0.35,0)&&Math.abs(olz)<=Math.max(od/2-0.35,0);
+    const cand=overRoof?beside.map(v=>[v,true]).concat(onTop.map(v=>[v,false]))
+                       :beside.map(v=>[v,true]);
+    cand.forEach(([[lx,lz],ground])=>{
       const px=o.x+lx*c-lz*si, pz=o.z+lx*si+lz*c;
+      /* Candidates are worked out against one neighbour at a time, so a spot
+         that sits beside THAT box can still be squarely on top of a different
+         one, and seating would then lift the new box a whole course nobody
+         asked for. A place beside something is on the ground by definition:
+         if this one is not, it is not the position it claims to be. */
+      if(ground&&contTopUnder(d,px,pz,grid)>-Infinity)return;
       const dd=reach(px,pz);
       /* Pointing inside a container-sized rectangle puts the cursor inside
          several candidates at once, all at distance nil. The nearer centre
