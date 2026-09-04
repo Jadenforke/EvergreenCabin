@@ -1196,6 +1196,8 @@ const CAT=[
  {g:'Draw with the pen',items:[
    {id:'custom',n:'Custom building',kind:'pen',pen:'building',local:true,
     area:'two-storey warehouse shell · measured in feet'},
+   {id:'glassroom',n:'Custom glass room',kind:'pen',pen:'glassroom',local:true,
+    area:'blue-tinted glass walls · see-through · same footprint rules as the building'},
    {id:'roof',n:'Custom roof',kind:'pen',pen:'roof',local:true,
     area:'pitched roof spanning any shape · clears whatever is under it'},
    {id:'wall',n:'Custom wall',kind:'pen',pen:'wall',local:true,
@@ -1223,6 +1225,7 @@ const FOUND_RATE=185;                 // CAD per m2 of slab on grade
 /* Shrub beds are drawn as landscaping, not as a line on the estimate; they
    carry no rate and never appear in the cost breakdown. */
 const CUSTOMDEF={id:'custom',n:'Custom building',kind:'custom',local:true};
+const GLASSDEF={id:'glassroom',n:'Custom glass room',kind:'custom',local:true};
 /* A roof and a wall you draw over containers to turn a stack of boxes into a
    building. Height is measured from the highest ground under the outline, so
    the roof clears whatever is stacked beneath it. */
@@ -2182,8 +2185,10 @@ function buildMesh(d){
        as thin ribs rather than modelled into the shell, which keeps a stack
        of twenty of them cheap to draw. */
     const W=d.w,D=d.d,H=d.h;
-    const paint=[0xb4552f,0x2f6178,0x556b4f,0x8a8f93,0x7a4550,0xc08a2e][
-      Math.floor(Math.random()*6)];
+    /* One grey for every box. The colour used to be drawn at random when the
+       mesh was built, which is not stored anywhere, so a plan came back in
+       different colours every time it was reloaded. */
+    const paint=0x8a8f93;
     const skin=new THREE.MeshStandardMaterial({color:paint,roughness:.78,metalness:.22});
     const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,D),skin);
     body.position.y=H/2; body.castShadow=body.receiveShadow=true; g.add(body);
@@ -2720,6 +2725,7 @@ function endPen(build){
     else if(penKind==='pave')placePave(pts);
     else if(penKind==='roof')placeRoof(pts);
     else if(penKind==='wall')placeWall(pts);
+    else if(penKind==='glassroom')placeCustom(pts,true);
     else placeCustom(pts);
     hint('Pen: click each corner of the next shape · Esc to stop');
   }
@@ -2811,6 +2817,38 @@ function placeRoad(d,pts){
   const o={type:'road',def:d,mesh,pts:pts.slice(),width,len:polyLen(pts)};placed.push(o);
   if(styleMode==='diorama')styleObject(mesh);
   pushTrees(o);pushShrubs(o);syncTrees();refresh();
+}
+/* The glass room is the custom building's twin: same footprint, same height
+   from the same controls, so the two behave alike everywhere else in the
+   planner. Only the skin differs, and it is drawn double-sided because you
+   can see the far wall through the near one. */
+function buildGlassMesh(pts,h){
+  const shape=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
+  const g=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});
+  g.rotateX(-Math.PI/2);
+  /* Transmission bleaches the colour out of the glass, so the tint is carried
+     by opacity instead: enough blue to read as tinted, still clear enough to
+     see the ground and whatever stands behind it. */
+  const pane=new THREE.MeshPhysicalMaterial({color:0x4e93c9,roughness:.06,metalness:.04,
+    transparent:true,opacity:.42,transmission:.18,thickness:.4,ior:1.45,
+    side:THREE.DoubleSide,depthWrite:false});
+  const roof=new THREE.MeshPhysicalMaterial({color:0x6aa8d8,roughness:.05,metalness:.04,
+    transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false});
+  const m=new THREE.Mesh(g,[roof,pane]);
+  m.castShadow=false; m.receiveShadow=false;      // clear glass casts almost nothing
+  const grp=new THREE.Group(); grp.add(m);
+  /* Frame the panes: without an edge the box reads as a smudge rather than
+     a room, since the glass itself is nearly invisible from most angles. */
+  const loop=pts.concat([pts[0]]);
+  const mull=new THREE.LineBasicMaterial({color:0x5d7f96});
+  [0,h].forEach(y=>grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    loop.map(q=>new THREE.Vector3(q[0],y,q[1]))),mull)));
+  pts.forEach(q=>grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    [new THREE.Vector3(q[0],0,q[1]),new THREE.Vector3(q[0],h,q[1])]),mull)));
+  const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
+  const span=Math.max(...pts.map(q=>Math.hypot(q[0]-cx,q[1]-cz)));
+  lit(grp,cx,h*0.6,cz,{base:0.9,dist:Math.max(20,span*3),pool:Math.max(10,span*2),col:0xbfe0f5});
+  return grp;
 }
 function buildCustomMesh(pts,h){
   const shape=new THREE.Shape(pts.map(q=>new THREE.Vector2(q[0],-q[1])));
@@ -2993,7 +3031,7 @@ function placeWall(pts){
   toast(`${fmtLen(run,1)} of wall · ${fmtLen(h,1)} tall${
     fit.from?`, matched to the ${fit.from.type==='custom'?'custom building':fit.from.def.n.toLowerCase()}`:''} · ${money(o.cost)}`);
 }
-function placeCustom(pts){
+function placeCustom(pts,glass){
   if(pts.length<3){toast('Need at least three corners');return;}
   const area=polyArea(pts);
   if(area<6){toast('That footprint is too small');return;}
@@ -3002,14 +3040,14 @@ function placeCustom(pts){
   for(const q of placed){
     if(q.type==='obj'&&q.def.w&&(pointInPoly(q.x,q.z,pts)||corners(q.def,q.x,q.z,q.rot).some(c=>pointInPoly(c[0],c[1],pts)))){
       toast(`Blocked: overlaps ${q.def.n}`);return;}
-    if(q.type==='custom'&&q.pts.some(c=>pointInPoly(c[0],c[1],pts))){toast('Blocked: overlaps another custom building');return;}
+    if(q.type==='custom'&&q.pts.some(c=>pointInPoly(c[0],c[1],pts))){toast(`Blocked: overlaps another ${q.glass?'glass room':'custom building'}`);return;}
   }
-  pushUndo('draw custom building');
+  pushUndo(glass?'draw glass room':'draw custom building');
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
   const h=CUSTOM.h*Math.max(1,CUSTOM.storeys);
-  const mesh=buildCustomMesh(pts,h);
+  const mesh=glass?buildGlassMesh(pts,h):buildCustomMesh(pts,h);
   objGroup.add(mesh);
-  const o={type:'custom',def:CUSTOMDEF,mesh,pts:pts.slice(),area,h,
+  const o={type:'custom',def:glass?GLASSDEF:CUSTOMDEF,glass:!!glass,mesh,pts:pts.slice(),area,h,
     cost:area*Math.max(1,CUSTOM.storeys)*CUSTOM.rate,
     inr:polyNear(cx,cz,pts).d, x:cx, z:cz, rot:0};
   placed.push(o);
@@ -3017,7 +3055,7 @@ function placeCustom(pts){
   pushTrees(o); pushShrubs(o);
   if(styleMode==='diorama')styleObject(mesh);
   syncTrees(); refresh();
-  toast(`${fmtArea(area)} footprint · ${Math.max(1,CUSTOM.storeys)} storey · ${fmtLen(h,1)} tall · ${money(o.cost)}`);
+  toast(`${glass?'Glass room · ':''}${fmtArea(area)} footprint · ${Math.max(1,CUSTOM.storeys)} storey · ${fmtLen(h,1)} tall · ${money(o.cost)}`);
 }
 /* A deck is a thin plank platform sitting on the high point of its outline,
    so it stays level instead of following the ground. */
@@ -3239,7 +3277,7 @@ function select(o){
   else if(o.type==='shrub')hint(`Shrub bed · ${o.n} bushes over ${fmtArea(o.area)} \u00b7 Delete removes`);
   else if(o.type==='roof')hint(`Custom roof \u00b7 ${fmtArea(o.area)} \u00b7 ${o.h>0.05?`${fmtLen(o.h,1)} to the eave`:'resting on what it was drawn over'} \u00b7 ${money(o.cost)} \u00b7 Delete removes`);
   else if(o.type==='wall')hint(`Custom wall \u00b7 ${fmtLen(o.run,1)} run \u00b7 ${fmtLen(o.h,1)} tall \u00b7 ${money(o.cost)} \u00b7 Delete removes`);
-  else if(o.type==='custom')hint(`Custom building · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} \u00b7 Delete removes`);
+  else if(o.type==='custom')hint(`${o.glass?'Custom glass room':'Custom building'} · ${fmtArea(o.area)} × ${CUSTOM.storeys} storey · ${fmtLen(o.h,1)} tall · ${o.free?'excluded from the estimate':money(o.cost)} \u00b7 Delete removes`);
   else{
     const ds=distShore(o.x,o.z), el=terrainH(o.x,o.z);
     hint(`${o.def.n}${o.def.w?` · ${dimOf(o.def)}`:''} · ${ds>0?fmtLen(ds,0)+' from water':'over water'} · ${fmtLen(el,1)} elev · ${money(unitCost(o.def))} \u00b7 R and E rotate 5° either way (Alt for 1°), Delete removes`);
@@ -4266,7 +4304,7 @@ $('fileMap').onchange=e=>{
    carries no cost; the ledger opens at zero and prices only what you add.
    It travels with the plan so a save, a reload and an undo all agree. */
 const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts,pre:p.pre?1:0}
-  :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0,pre:p.pre?1:0}
+  :p.type==='custom'?{t:'custom',pts:p.pts,h:p.h,area:p.area,cost:p.cost,free:p.free?1:0,pre:p.pre?1:0,glass:p.glass?1:0}
   :p.type==='roof'?{t:'roof',pts:p.pts,h:p.h,pitch:p.pitch,area:p.area,cost:p.cost,pre:p.pre?1:0}
   :p.type==='wall'?{t:'wall',pts:p.pts,h:p.h,run:p.run,area:p.area,cost:p.cost,pre:p.pre?1:0}
   :p.type==='deck'?{t:'deck',pts:p.pts,pre:p.pre?1:0}
@@ -4385,9 +4423,9 @@ function applyState(d,keepUnder,incremental){
         placed.push(o); fitGround(o);
       }
       else if(i.t==='custom'){
-        const mesh=buildCustomMesh(i.pts,i.h); objGroup.add(mesh);
+        const mesh=i.glass?buildGlassMesh(i.pts,i.h):buildCustomMesh(i.pts,i.h); objGroup.add(mesh);
         const cx=i.pts.reduce((a,q)=>a+q[0],0)/i.pts.length, cz=i.pts.reduce((a,q)=>a+q[1],0)/i.pts.length;
-        const co={type:'custom',def:CUSTOMDEF,mesh,pts:i.pts,area:i.area,h:i.h,
+        const co={type:'custom',def:i.glass?GLASSDEF:CUSTOMDEF,glass:!!i.glass,mesh,pts:i.pts,area:i.area,h:i.h,
           cost:i.free?0:i.cost,free:!!i.free,
           inr:polyNear(cx,cz,i.pts).d,x:cx,z:cz,rot:0};
         placed.push(co); fitGround(co);
