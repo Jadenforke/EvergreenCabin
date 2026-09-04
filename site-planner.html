@@ -3588,7 +3588,12 @@ function snapContainer(d,x,z,rot,ignore){
     /* How far the cursor is from the box a candidate would put there, not from
        its centre: pointing anywhere along a 40 ft flank should catch it, and
        pointing at a corner should catch the two candidates that meet there. */
-    const gw=even?d.w:d.d, gd=even?d.d:d.w;       // ghost extent in world axes at `grid`
+    /* In the ghost's OWN frame its half extents are always w by d. The even/odd
+       swap belongs to gx/gz, which measure the ghost inside the NEIGHBOUR's
+       frame; bringing it here turned the catch area 90 degrees away from the
+       box whenever the two were not parallel, so a turned container magnetised
+       sideways to its own length. */
+    const gw=d.w, gd=d.d;
     const reach=(px,pz)=>{
       const cc=Math.cos(grid), ss=Math.sin(grid);
       const dx=x-px, dz=z-pz;
