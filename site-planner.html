@@ -3383,7 +3383,14 @@ renderer.domElement.addEventListener('pointermove',e=>{
     let nx=p.x+moving.ox, nz=p.z+moving.oz;
     if(snap){nx=Math.round(nx);nz=Math.round(nz);}
     const d=moving.o.def;
-    if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    /* Containers carry join:true, which used to hand them to the dock magnet
+       here while placing them used the container one. Dragging a box to line
+       it up therefore had no corner snapping at all: it stayed wherever it was
+       dropped, which is how a row ends up staggered and gapped. Moving now
+       uses the same magnet as placing, ignoring the box being moved so it
+       cannot snap to itself. */
+    if(d.kind==='container'){const sn=snapContainer(d,nx,nz,moving.o.rot,moving.o);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
     moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot,moving.o),nz);
     setHL(moving.o,HL.moving);
