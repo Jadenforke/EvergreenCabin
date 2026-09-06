@@ -3937,6 +3937,50 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape'){clearHL();if(tool==='measure'&&measurePts.length){clearMeasure();hint('Measurement cleared');return;}
     if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
+  /* Arrow keys nudge whatever is selected. Directions are read off the
+     camera, not the world, so up is always away from you across the ground
+     however the view is turned: taking the camera's own X and Y axes and
+     flattening them is the one construction that holds for the tilted 3D view
+     and the straight-down plan view alike. A quarter metre a press, 5 cm with
+     Alt for lining a container up on its neighbour, a metre with Shift.
+     Auto-repeat folds into one undo entry so holding a key is one move. */
+  if(selected&&/^Arrow(Up|Down|Left|Right)$/.test(e.key)&&!e.ctrlKey&&!e.metaKey){
+    e.preventDefault();
+    if(selected.type!=='obj'){
+      /* The Move tool is limited to placed units too: a drawn shape's geometry
+         is built in world coordinates from its outline, so shifting the mesh
+         would leave the outline behind and hit-testing, cost and snapping all
+         read the outline. Say so rather than doing nothing. */
+      hint('Arrows nudge placed units \u00b7 a drawn shape cannot be moved once drawn, redraw it',false,true);
+      return;
+    }
+    const m=camera.matrixWorld.elements;
+    let fwd=new THREE.Vector3(m[4],0,m[6]);          // the camera's up, flattened
+    if(fwd.lengthSq()<1e-8){                          // looking level: use its aim
+      const d=new THREE.Vector3(); camera.getWorldDirection(d); fwd.set(d.x,0,d.z);
+    }
+    fwd.normalize();
+    const right=new THREE.Vector3(m[0],0,m[2]).normalize();
+    const step=e.altKey?0.05:e.shiftKey?1:0.25;
+    const dir=e.key==='ArrowUp'?fwd:e.key==='ArrowDown'?fwd.clone().negate()
+             :e.key==='ArrowRight'?right:right.clone().negate();
+    const o=selected, ox=o.x, oz=o.z;
+    if(!e.repeat)pushUndo('move '+o.def.n);
+    o.x+=dir.x*step; o.z+=dir.z*step;
+    const bad=validate(o.def,o.x,o.z,o.rot,o).filter(i=>!i.soft);
+    if(bad.length){
+      o.x=ox; o.z=oz;
+      if(!e.repeat){undoStack.pop();updateUndoBtn();}
+      hint('\u2715 '+bad[0].m,true);
+      return;
+    }
+    o.mesh.position.set(o.x,o.mesh.position.y,o.z);
+    fitGround(o); pushTrees(o); pushShrubs(o);
+    if(o.def.kind==='container')refitObjs();
+    select(o); syncTrees(); refresh();
+    hint(`${o.def.n} \u00b7 moved ${fmtLen(step,2)} \u00b7 arrows nudge \u00b7 Alt 5 cm \u00b7 Shift 1 m`,false,true);
+    return;
+  }
   if((e.key==='Delete'||e.key==='Backspace')&&selected){pushUndo('delete '+(selected.def?selected.def.n:'building'));removeObj(selected);toast('Removed');}
   if(e.key==='1')switchView('plan');if(e.key==='2')switchView('3d');
   if((e.key==='z'||e.key==='Z')&&(e.ctrlKey||e.metaKey)){e.shiftKey?redo():undo();return;}
