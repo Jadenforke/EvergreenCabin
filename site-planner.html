@@ -2630,6 +2630,13 @@ function clearPenDraw(){
 let penSnap=null;
 const penReach=()=>viewMode==='plan'?Math.max(1.5,ctrl.orthoSize*0.022)
                                     :Math.max(1.5,ctrl.radius*0.016);
+/* The container magnet's grab distance follows how big things look on screen,
+   the same way the pen's does. It was a fixed 2.6 m, which is fine up close and
+   nearly unhittable zoomed out: a run of 40 ft boxes is laid out from far
+   enough back to see the whole run, and there 2.6 m is a few pixels of cursor
+   travel. The floor keeps close-up behaviour exactly as it was. */
+const contReach=()=>viewMode==='plan'?Math.max(2.6,ctrl.orthoSize*0.05)
+                                     :Math.max(2.6,ctrl.radius*0.035);
 function penRings(){
   const rings=[];
   placed.forEach(o=>{
@@ -3561,6 +3568,7 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
   contSnap=null;
   if(!d||d.kind!=='container')return {x,z,rot};
   const Q=Math.PI/2;
+  const REACH=contReach();
   let best=null;
   placed.forEach(o=>{
     if(o===ignore||o.type!=='obj'||o.def.kind!=='container')return;
@@ -3670,7 +3678,7 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
         : cd<best.c-1e-6 ? true
         : cd>best.c+1e-6 ? false
         : ad<best.a;
-      if(dd<2.6&&better)
+      if(dd<REACH&&better)
         best={d:dd,k:cross,c:cd,a:ad,x:px,z:pz,rot:grid};
     });
     }
