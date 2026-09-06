@@ -3555,7 +3555,15 @@ function snapContainer(d,x,z,rot,ignore){
   let best=null;
   placed.forEach(o=>{
     if(o===ignore||o.type!=='obj'||o.def.kind!=='container')return;
-    const k=Math.round((rot-o.rot)/Q);            // quarter turns off the neighbour
+    /* All four quarter turns are considered, not just the one nearest the
+       angle the ghost happens to be holding. A row built at 100 degrees and a
+       fresh ghost at 0 used to force 10 degrees, square across the row, so a
+       box aimed alongside attached crosswise 7.3 m out instead of flush at
+       2.44. Where you point now picks the orientation; the angle you are
+       already holding only breaks a tie. */
+    const k0=Math.round((rot-o.rot)/Q);
+    for(let turn=0;turn<4;turn++){
+    const k=k0+turn;                              // quarter turns off the neighbour
     const grid=o.rot+k*Q;
     const even=((k%2)+2)%2===0;
     const gx=even?d.w:d.d, gz=even?d.d:d.w;       // ghost extent in the neighbour's frame
@@ -3621,15 +3629,36 @@ function snapContainer(d,x,z,rot,ignore){
          one, and seating would then lift the new box a whole course nobody
          asked for. A place beside something is on the ground by definition:
          if this one is not, it is not the position it claims to be. */
-      if(ground&&contTopUnder(d,px,pz,grid)>-Infinity)return;
+      /* ignore, or a box being dragged counts as something to stand on and
+         rejects its own destination: the good candidates disappear one by
+         one as it approaches and only an awkward one is left. */
+      if(ground&&contTopUnder(d,px,pz,grid,ignore)>-Infinity)return;
       const dd=reach(px,pz);
       /* Pointing inside a container-sized rectangle puts the cursor inside
          several candidates at once, all at distance nil. The nearer centre
          breaks the tie, so which one you get still tracks where you point. */
       const cd=Math.hypot(x-px,z-pz);
-      if(dd<2.6&&(!best||dd<best.d-1e-6||(Math.abs(dd-best.d)<=1e-6&&cd<best.c)))
-        best={d:dd,c:cd,x:px,z:pz,rot:grid};
+      /* Third key: how far this orientation is from the one being held, so a
+         genuine tie keeps the angle you chose rather than spinning the box. */
+      /* Order matters. Fit decides first. Then lying parallel to the
+         neighbour beats lying across it, because a box pointed at the flank
+         of a row is joining the row: crosswise has to be asked for by aiming
+         off the end, where it wins on fit before this ever applies. Centre
+         distance separates candidates of one orientation, and the angle being
+         held picks between a box and the same box turned end for end. */
+      const cross=even?0:1;
+      const ad=Math.abs(Math.atan2(Math.sin(grid-rot),Math.cos(grid-rot)));
+      const better=!best ? true
+        : dd<best.d-1e-6 ? true
+        : dd>best.d+1e-6 ? false
+        : cross!==best.k ? cross<best.k
+        : cd<best.c-1e-6 ? true
+        : cd>best.c+1e-6 ? false
+        : ad<best.a;
+      if(dd<2.6&&better)
+        best={d:dd,k:cross,c:cd,a:ad,x:px,z:pz,rot:grid};
     });
+    }
   });
   if(best){ contSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
   return {x,z,rot};
