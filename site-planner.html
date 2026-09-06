@@ -2501,12 +2501,17 @@ function roadMesh(pts,width,col){
 
 /* ---------------- interaction state ---------------- */
 let tool='select',activeId=null,ghost=null,ghostRot=0,snap=false;
+/* Whether ghostRot means anything. Fresh from the catalogue it is just the
+   default zero and carries no intention, so the magnet is free to line the
+   box up with its neighbour. Once R or E is pressed it is a decision, and
+   the magnet keeps to it. */
+let ghostRotUser=false;
 let roadPts=[],roadPrev=null,measurePts=[],measureLine=null,selected=null,selBox=null;
 let trace=null,landMode=false,boundMode=false,dragHandle=null,pen=null,moving=null,penKind='building';
 let bootPlan=false;                       // true only while the starting plan loads
 
 function setTool(t,id){
-  tool=t;activeId=id||null;
+  tool=t;activeId=id||null;ghostRotUser=false;
   if(pen)endPen(false);
   clearHL();
   clearGhost();cancelRoad();clearMeasure();cancelTrace();
@@ -3389,7 +3394,11 @@ renderer.domElement.addEventListener('pointermove',e=>{
        dropped, which is how a row ends up staggered and gapped. Moving now
        uses the same magnet as placing, ignoring the box being moved so it
        cannot snap to itself. */
-    if(d.kind==='container'){const sn=snapContainer(d,nx,nz,moving.o.rot,moving.o);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    /* Measured from the angle the box had when it was picked up, not from the
+       angle the last frame snapped it to. Feeding the snapped angle back made
+       a single perpendicular frame latch: from then on across WAS the held
+       angle, and the box could not find its way back to parallel. */
+    if(d.kind==='container'){const sn=snapContainer(d,nx,nz,moving.srot,moving.o,false);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     else if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
     moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot,moving.o),nz);
@@ -3548,7 +3557,7 @@ function snapDock(d,x,z,rot){
    rather than copied from it, which is what lets an L or a T be built:
    turn the ghost with R or E and it still lines up. */
 let contSnap=null;
-function snapContainer(d,x,z,rot,ignore){
+function snapContainer(d,x,z,rot,ignore,freeRot){
   contSnap=null;
   if(!d||d.kind!=='container')return {x,z,rot};
   const Q=Math.PI/2;
@@ -3646,12 +3655,18 @@ function snapContainer(d,x,z,rot,ignore){
          off the end, where it wins on fit before this ever applies. Centre
          distance separates candidates of one orientation, and the angle being
          held picks between a box and the same box turned end for end. */
-      const cross=even?0:1;
       const ad=Math.abs(Math.atan2(Math.sin(grid-rot),Math.cos(grid-rot)));
+      /* Orientation is yours, position is the magnet's. With no angle chosen
+         the box lies parallel to its neighbour, which is what puts a row in a
+         line back to back. Turn the ghost and the magnet keeps to the quarter
+         turn you are holding, which is how the L gets made. Either way the aim
+         only picks among positions at that orientation, so a box can no longer
+         flip square across the row because the cursor drifted off its axis. */
+      const cross=freeRot ? (even?0:1) : (ad<Math.PI/4?0:1);
       const better=!best ? true
+        : cross!==best.k ? cross<best.k
         : dd<best.d-1e-6 ? true
         : dd>best.d+1e-6 ? false
-        : cross!==best.k ? cross<best.k
         : cd<best.c-1e-6 ? true
         : cd>best.c+1e-6 ? false
         : ad<best.a;
@@ -3687,14 +3702,17 @@ function updateGhost(e){
     }
     if(!ghost)return;
     const y=terrainH(x,z);
-    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; }
-    /* ghostRot, not just the ghost's own rotation: the preview validates and
-       places against ghostRot, so leaving it behind checks one angle and
-       builds another. */
-    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; }
+    /* The angle actually previewed, which the magnet may turn to suit the
+       neighbour. It is kept apart from ghostRot: writing the snapped angle back
+       made every flip permanent, so one nudge of the mouse could turn a box 90
+       degrees and it stayed turned. The click path snaps the same way from the
+       same ghostRot, so preview and placement still agree. */
+    let useRot=ghostRot;
+    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot,null,!ghostRotUser); x=sn.x; z=sn.z; useRot=sn.rot; ghost.rotation.y=sn.rot; }
+    else if(d.kind==='dock'||(d.join&&d.magnet!==false)){ const sn=snapDock(d,x,z,ghostRot); x=sn.x; z=sn.z; ghostRot=sn.rot; ghost.rotation.y=sn.rot; useRot=sn.rot; }
     if(d.kind==='plant'){ const sp=SPECIES[d.sp]; ghost.position.set(x,y+sp.h*0.55,z); }
-    else ghost.position.set(x,seatY(d,x,z,ghostRot),z);
-    const iss=validate(d,x,z,ghostRot),bad=iss.filter(i=>!i.soft);
+    else ghost.position.set(x,seatY(d,x,z,useRot),z);
+    const iss=validate(d,x,z,useRot),bad=iss.filter(i=>!i.soft);
     tint(bad.length);
     if(bad.length)hint('✕ '+bad[0].m,true);
     else if(iss.length)hint('⚠ '+iss[0].m,false,true);
@@ -3824,7 +3842,7 @@ renderer.domElement.addEventListener('click',e=>{
       return;
     }
     let px=x,pz=z,prot=ghostRot;
-    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot); px=sn.x; pz=sn.z; prot=sn.rot;
+    if(d.kind==='container'){ const sn=snapContainer(d,x,z,ghostRot,null,!ghostRotUser); px=sn.x; pz=sn.z; prot=sn.rot;
       if(contSnap){
         const lvl=contTopUnder(d,px,pz,prot);
         toast(lvl>-Infinity&&lvl>padY(d,px,pz,prot)+0.05
@@ -3893,7 +3911,7 @@ addEventListener('keydown',e=>{
       selected.rot+=step; selected.mesh.rotation.y=selected.rot; select(selected);
       hint(`${selected.def.n} \u00b7 rotated to ${deg(selected.rot)}`,false,true);
     }else{
-      ghostRot+=step; if(ghost)ghost.rotation.y=ghostRot;
+      ghostRot+=step; ghostRotUser=true; if(ghost)ghost.rotation.y=ghostRot;
       hint(`Rotation ${deg(ghostRot)} \u00b7 R and E turn 5\u00b0 either way \u00b7 Alt for 1\u00b0`,false,true);
     }
   }
