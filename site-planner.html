@@ -1465,8 +1465,8 @@ function levelContainers(){
   if(cs.length<2)return;
   const yOf=o=>o.mesh.position.y;
   const centreOver=(p,o)=>{                      // p's centre inside o's footprint
-    const c=Math.cos(o.rot),si=Math.sin(o.rot),dx=p.x-o.x,dz=p.z-o.z;
-    return Math.abs(dx*c+dz*si)<=o.def.w/2+1e-4&&Math.abs(-dx*si+dz*c)<=o.def.d/2+1e-4;
+    const [lx,lz]=toLocalXZ(p.x-o.x,p.z-o.z,o.rot);
+    return Math.abs(lx)<=o.def.w/2+1e-4&&Math.abs(lz)<=o.def.d/2+1e-4;
   };
   const touching=(a,b)=>{
     // a course apart? then they are stacked, not coupled
@@ -1554,8 +1554,7 @@ function contTopUnder(def,x,z,rot,ignore,ceil){
        for any overlap at all would let a container hanging off by nine
        tenths call itself stacked, and would swallow the overlap rule
        entirely, since every clash would read as a stack. */
-    const c=Math.cos(p.rot), si=Math.sin(p.rot), dx=x-p.x, dz=z-p.z;
-    const lx=dx*c+dz*si, lz=-dx*si+dz*c;
+    const [lx,lz]=toLocalXZ(x-p.x,z-p.z,p.rot);
     if(Math.abs(lx)>p.def.w/2+1e-4||Math.abs(lz)>p.def.d/2+1e-4)continue;
     y=Math.max(y,p.mesh.position.y+p.def.h);
   }
@@ -2314,13 +2313,29 @@ function buildMesh(d){
 const HABITABLE={gable:1,twostorey:1,flatroof:1,glassbox:1,capsule:1,dome:1,igloo:1,stack:1,barrel:1,pavilion:1};
 
 /* ---------------- validation ---------------- */
+/* THREE rotates the X/Z plane clockwise for a positive rotation.y: local X
+   becomes (cos r,-sin r) and local Z becomes (sin r,cos r). The planner used
+   the usual counter-clockwise 2-D formula here instead. A rectangle hides
+   that at 0/90 degrees, but at 100/190 degrees its calculated footprint is a
+   mirror of the box on screen. Keep every footprint and magnet calculation in
+   the same frame as the rendered mesh. */
+function toLocalXZ(dx,dz,rot){
+  const c=Math.cos(rot),s=Math.sin(rot);
+  return [dx*c-dz*s,dx*s+dz*c];
+}
+function toWorldXZ(lx,lz,rot){
+  const c=Math.cos(rot),s=Math.sin(rot);
+  return [lx*c+lz*s,-lx*s+lz*c];
+}
 function inFootprint(o,x,z,pad){
-  const c=Math.cos(-o.rot),s=Math.sin(-o.rot),dx=x-o.x,dz=z-o.z;
-  return Math.abs(dx*c-dz*s)<=o.def.w/2+pad&&Math.abs(dx*s+dz*c)<=o.def.d/2+pad;
+  const [lx,lz]=toLocalXZ(x-o.x,z-o.z,o.rot);
+  return Math.abs(lx)<=o.def.w/2+pad&&Math.abs(lz)<=o.def.d/2+pad;
 }
 function corners(def,x,z,rot){
-  const c=Math.cos(rot),s=Math.sin(rot),hw=def.w/2,hd=def.d/2,out=[];
-  [[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].forEach(([a,b])=>out.push([x+a*c-b*s,z+a*s+b*c]));
+  const hw=def.w/2,hd=def.d/2,out=[];
+  [[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].forEach(([a,b])=>{
+    const q=toWorldXZ(a,b,rot);out.push([x+q[0],z+q[1]]);
+  });
   return out;
 }
 const isStructure=d=>d.w&&d.kind!=='pad'&&d.kind!=='road'&&d.kind!=='dock';
@@ -2331,12 +2346,13 @@ const footprintArea=()=>placed.reduce((a,p)=>a+(p.type==='custom'?p.area:(p.type
    would report two square cabins sitting flush as overlapping. Joinable units
    get an exact separating-axis test instead, so they can share a wall. */
 function obbHit(a,b){
-  const cor=o=>{const c=Math.cos(o.rot),s=Math.sin(o.rot),out=[];
-    [[-o.hw,-o.hd],[o.hw,-o.hd],[o.hw,o.hd],[-o.hw,o.hd]].forEach(q=>
-      out.push([o.cx+q[0]*c-q[1]*s, o.cz+q[0]*s+q[1]*c]));
+  const cor=o=>{const out=[];
+    [[-o.hw,-o.hd],[o.hw,-o.hd],[o.hw,o.hd],[-o.hw,o.hd]].forEach(q=>{
+      const p=toWorldXZ(q[0],q[1],o.rot);out.push([o.cx+p[0],o.cz+p[1]]);
+    });
     return out;};
   const ca=cor(a), cb=cor(b), ax=[];
-  [a,b].forEach(o=>{const c=Math.cos(o.rot),s=Math.sin(o.rot);ax.push([c,s],[-s,c]);});
+  [a,b].forEach(o=>{const c=Math.cos(o.rot),s=Math.sin(o.rot);ax.push([c,-s],[s,c]);});
   for(const v of ax){
     let a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
     ca.forEach(q=>{const d=q[0]*v[0]+q[1]*v[1];if(d<a0)a0=d;if(d>a1)a1=d;});
@@ -2455,14 +2471,13 @@ function clearOf(obj,x,z,clear){
     return {nx:near.cx+vx/L*clear, nz:near.cz+vz/L*clear};
   }
   if(!obj.def||!obj.def.w)return null;
-  const c=Math.cos(-obj.rot),s=Math.sin(-obj.rot),dx=x-obj.x,dz=z-obj.z;
-  const lx=dx*c-dz*s, lz=dx*s+dz*c;
+  const [lx,lz]=toLocalXZ(x-obj.x,z-obj.z,obj.rot);
   const hw=obj.def.w/2+clear, hd=obj.def.d/2+clear;
   if(Math.abs(lx)>hw||Math.abs(lz)>hd)return null;
   let nlx=lx,nlz=lz;                                  // out the nearest wall
   if(hw-Math.abs(lx) < hd-Math.abs(lz)) nlx=(lx<0?-hw:hw); else nlz=(lz<0?-hd:hd);
-  const cc=Math.cos(obj.rot),ss=Math.sin(obj.rot);
-  return {nx:obj.x+nlx*cc-nlz*ss, nz:obj.z+nlx*ss+nlz*cc};
+  const q=toWorldXZ(nlx,nlz,obj.rot);
+  return {nx:obj.x+q[0], nz:obj.z+q[1]};
 }
 /* Re-write a bed's instanced matrices from its stored bush list. */
 function layBushes(o){
@@ -2533,8 +2548,8 @@ function pushTrees(obj){
         }
       }
     }else{
-      const c=Math.cos(-obj.rot),s=Math.sin(-obj.rot),dx=t.x-obj.x,dz=t.z-obj.z;
-      const lx=Math.abs(dx*c-dz*s),lz=Math.abs(dx*s+dz*c);
+      const q=toLocalXZ(t.x-obj.x,t.z-obj.z,obj.rot);
+      const lx=Math.abs(q[0]),lz=Math.abs(q[1]);
       const hw=obj.def.w/2+clear,hd=obj.def.d/2+clear;
       if(lx<=hw&&lz<=hd){
         hit=true;
@@ -3641,7 +3656,7 @@ function snapDock(d,x,z,rot){
       {x:0,z:0, lx:(o.def.w/2+d.w/2), lz:0},                                       // side by side
       {x:0,z:0, lx:-(o.def.w/2+d.w/2), lz:0}];
     cand.forEach(k=>{
-      const px=o.x+k.lx*c-k.lz*si, pz=o.z+k.lx*si+k.lz*c;
+      const px=o.x+k.lx*c+k.lz*si, pz=o.z-k.lx*si+k.lz*c;
       const dd=Math.hypot(x-px,z-pz);
       const reach=wantDock?14:Math.max(5,(o.def.w+o.def.d+d.w+d.d)/6);
       if(dd<reach&&(!best||dd<best.d))best={d:dd,x:px,z:pz,rot:o.rot};
@@ -3672,7 +3687,7 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
        there and rotated back at the end, so a run built at any angle behaves
        exactly like one built square to the world. */
     const c=Math.cos(o.rot), si=Math.sin(o.rot);
-    const cu=(x-o.x)*c+(z-o.z)*si, cv=-(x-o.x)*si+(z-o.z)*c;
+    const [cu,cv]=toLocalXZ(x-o.x,z-o.z,o.rot);
     /* Stacking is a deliberate act, so it wants the cursor properly on the
        roof rather than near its edge. The edge is where you point to build an
        L, and an inflated roof read that as a stack. */
@@ -3722,7 +3737,7 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
       const list=onRoof?beside.map(v=>[v,true]).concat(onTop.map(v=>[v,false]))
                        :beside.map(v=>[v,true]);
       for(const [[lu,lv],ground] of list){
-        const px=o.x+lu*c-lv*si, pz=o.z+lu*si+lv*c;
+        const px=o.x+lu*c+lv*si, pz=o.z-lu*si+lv*c;
         /* Candidates are worked out against one neighbour at a time, so a spot
            beside THAT box can sit squarely on top of a different one. A place
            beside something is on the ground by definition; if this one is not,
@@ -3731,8 +3746,7 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
         /* Distance to the box a candidate would put there, not to its centre.
            A 40 ft box is 12 m long and its corner sits 6 m from every centre
            going, so measuring to centres made the corner unreachable. */
-        const gc=Math.cos(grid), gs=Math.sin(grid);
-        const lx=(x-px)*gc+(z-pz)*gs, lz=-(x-px)*gs+(z-pz)*gc;
+        const [lx,lz]=toLocalXZ(x-px,z-pz,grid);
         const dd=Math.hypot(Math.max(Math.abs(lx)-d.w/2,0),Math.max(Math.abs(lz)-d.d/2,0));
         if(dd>=REACH)continue;
         const cd=Math.hypot(x-px,z-pz);
