@@ -611,14 +611,18 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
     </div>
   </section>
 
-  <!-- amenities icons -->
-  <section class="sect">
+  <!-- featured amenities and activities -->
+  <section class="sect" aria-labelledby="featured-amenities-title">
     <div class="wrap">
       <div class="shead rv">
-        <div class="eye">Amenities</div>
-        <h2 class="disp">Everything you need. All in nature.</h2>
+        <div class="eye">Amenities &amp; activities</div>
+        <h2 class="disp" id="featured-amenities-title">Lake days. Fireside nights.</h2>
+        <p>A glimpse of life at Evergreen: time on the water, space to unwind and places to come together. Part of the resort&rsquo;s planned experience.</p>
       </div>
+      <div class="amcards rv" id="featured-amenities"></div>
+      <div style="margin-top:clamp(2.5rem,5vw,4rem)">
       <div class="amen5 rv" id="amen5"></div>
+      </div>
       <p class="center" style="margin-top:2.6rem"><a class="alink" href="#/amenities">View all amenities</a></p>
     </div>
   </section>
@@ -1458,6 +1462,20 @@ function buildHome(){
     <a class="am" href="${x.href}">
       <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">${ic[x.i]}</svg>
       <span>${x.t}</span></a>`).join('');
+
+  const featuredAmenities=[
+    ['The beach','Beach days on Ice Lake','Swimming, sandy shores and slow afternoons by the water.'],
+    ['Kayaks','Explore by kayak','Take in the shoreline from the water, one paddle stroke at a time.'],
+    ['Indoor pool','Pool & wellness','Make room for a swim and a little time to recharge in the main complex.'],
+    ['Pickleball and basketball','A little friendly competition','Get together for a game on the indoor courts in the sport barn.'],
+    ['Restaurant and bar','Gather around the table','Share a meal and settle into the resort’s restaurant and bar.'],
+    ['Fire pits','Evenings by the fire','End the day with warm conversation and a seat around the fire.']
+  ];
+  const resortAmenities=SITE.amenities.flatMap(group=>group.items).filter(item=>!item.off);
+  document.getElementById('featured-amenities').innerHTML=featuredAmenities.map(([name,title,description])=>{
+    const amenity=resortAmenities.find(item=>item.t===name);
+    return amenityCard({...amenity,t:title,d:description,lead:false,href:amenity.href||'#/amenities'});
+  }).join('');
 
   document.getElementById('split-cabins').innerHTML=
     img('/assets/site/split-cabins.webp','Modern cabins with rooftop terraces along the resort road','Modern cabins','1600 × 1200');
