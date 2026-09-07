@@ -3590,6 +3590,19 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
        L is made. Either way the aim only chooses among positions, so a box
        cannot swing across a row because the cursor drifted off its axis. */
     const k0=freeRot?0:Math.round((rot-o.rot)/Q);
+    /* An angle you chose is an instruction, not a suggestion. The magnet used
+       to force the neighbour's quarter turn however far off you were, swinging
+       a box by up to 45 degrees and flipping it square at exactly 45, so only
+       0 and 90 ever survived and every angle between them was destroyed. It
+       now aligns only when you are already within a few degrees of square with
+       the neighbour, and otherwise leaves the box at the angle you set. One
+       press of R or E is enough to step out of its reach. A box picked fresh
+       from the catalogue holds no angle, so it still lines up with the run it
+       is joining. */
+    if(!freeRot){
+      const g0=o.rot+k0*Q;
+      if(Math.abs(Math.atan2(Math.sin(rot-g0),Math.cos(rot-g0)))>3*Math.PI/180)continue;
+    }
     for(const k of [k0,k0+2]){
       const grid=o.rot+k*Q, par=((k%2)+2)%2===0;
       const gu=par?d.w:d.d, gv=par?d.d:d.w;     // the ghost in the neighbour's frame
