@@ -1318,7 +1318,13 @@ function shellBase(pts){
    the surface, which is why an over-water deck looked like it had never been
    built. Once any of it is wet it stands at a fixed freeboard above the water
    instead, and the skirt fills down to the bed as a crib. */
-const DECK_FREEBOARD=0.28;   // just clear of the lake, not standing off it
+const DOCK_SURFACE_GAP=0.02; // nearly flush: roughly one or two screen pixels
+const DECK_FREEBOARD=DOCK_SURFACE_GAP;
+function dockPartLevels(thickness){
+  const bottom=DOCK_SURFACE_GAP,top=bottom+thickness;
+  return {bottom,top,deckCenter:(bottom+top)/2,pileCenter:top-.04-1.6,
+    postCenter:top+.45,lightCenter:top+.91};
+}
 function overWater(pts){
   if(pts.some(q=>isWater(q[0],q[1])))return true;
   const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length, cz=pts.reduce((a,q)=>a+q[1],0)/pts.length;
@@ -1334,7 +1340,7 @@ function overWater(pts){
    skirt fills whatever gap the ground leaves under it. Sits just proud of the
    high point so it reads as laid on the ground rather than hovering. */
 const deckY=pts=>{
-  const g=groundMaxUnder(pts)+0.06;
+  const g=groundMaxUnder(pts)+DOCK_SURFACE_GAP;
   return overWater(pts)?Math.max(g,DECK_FREEBOARD):g;
 };
 /* Anything seated on its high point stands proud of the ground everywhere
@@ -2149,9 +2155,14 @@ function buildMesh(d){
       p.position.set(sx*(d.w/2-.5),d.h*.375,sz*(d.d/2-.5));p.castShadow=true;g.add(p);}
     const dk=new THREE.Mesh(new THREE.BoxGeometry(d.w,.2,d.d),body(0x6d5a45));dk.position.y=.1;dk.receiveShadow=true;g.add(dk);
   }else if(k==='dock'){
-    const dk=new THREE.Mesh(new THREE.BoxGeometry(d.w,.28,d.d),body(0x9c8465));dk.position.y=.5;dk.castShadow=true;g.add(dk);
+    /* Keep the underside only 2 cm above the lake/ground. The old half-metre
+       offset made a dock read like a raised platform. Everything attached to
+       it is keyed from the new top so pilings and lights move down with it. */
+    const dockT=.28,dy=dockPartLevels(dockT);
+    const dk=new THREE.Mesh(new THREE.BoxGeometry(d.w,dockT,d.d),body(0x9c8465));
+    dk.position.y=dy.deckCenter;dk.castShadow=true;g.add(dk);
     for(let i=0;i<Math.round(d.d/3.5);i++)for(const sx of[-1,1]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,3.2,6),body(0x4a3b2c));
-      p.position.set(sx*(d.w/2-.2),-1,-d.d/2+1.5+i*3.5);g.add(p);}
+      p.position.set(sx*(d.w/2-.2),dy.pileCenter,-d.d/2+1.5+i*3.5);g.add(p);}
     // low post lights down both sides of the dock
     const nl=Math.max(2,Math.round(d.d/6));
     for(let i=0;i<nl;i++){
@@ -2159,11 +2170,11 @@ function buildMesh(d){
       for(const sx of[-1,1]){
         const px2=sx*(d.w/2-.18);
         const po=new THREE.Mesh(new THREE.CylinderGeometry(.045,.055,.9,6),body(0x2a2724));
-        po.position.set(px2,1.06,zz);g.add(po);
+        po.position.set(px2,dy.postCenter,zz);g.add(po);
         const hd=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),
           new THREE.MeshStandardMaterial({color:0xf1e6cc,emissive:0xffcf8a,emissiveIntensity:0,roughness:.4}));
-        hd.position.set(px2,1.55,zz);nightMats.push(hd.material);g.add(hd);
-        lit(g,px2,1.55,zz,{base:.5,dist:13,pool:5.5,col:0xffd9a0});
+        hd.position.set(px2,dy.lightCenter,zz);nightMats.push(hd.material);g.add(hd);
+        lit(g,px2,dy.lightCenter,zz,{base:.5,dist:13,pool:5.5,col:0xffd9a0});
       }
     }
   }else if(k==='pool'){
