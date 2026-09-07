@@ -1187,6 +1187,15 @@ const CAT=[
   {id:'car',n:'Parked car',kind:'car',cad:0,local:true},
   {id:'adiron',n:'Adirondack chair',kind:'adiron',cad:0,local:true,
    area:'single chair · prop only, not costed'},
+  /* Patio set, placed piece by piece rather than as one frozen arrangement:
+     a table with four chairs round it is a different thing from six chairs
+     round a fire, and only you know which one this terrace is. */
+  {id:'ptable',n:'Patio table',kind:'ptable',cad:0,local:true,
+   area:'1.6 × 0.9 m · seats six · prop only, not costed'},
+  {id:'pchair',n:'Patio chair',kind:'pchair',cad:0,local:true,
+   area:'single chair · prop only, not costed'},
+  {id:'pumbrl',n:'Patio umbrella',kind:'pumbrl',cad:0,local:true,
+   area:'2.7 m canopy · prop only, not costed'},
  ]},
  {g:'Containers: stack them like blocks',items:[
    /* join:false keeps them off the dock magnet, which has nothing useful to say
@@ -2182,6 +2191,77 @@ function buildMesh(d){
       return c;
     };
     g.add(chair());
+  }else if(k==='ptable'||k==='pchair'||k==='pumbrl'){
+    /* The terrace set. Teak and dark powder-coated steel, the same two
+       materials across all three pieces so a table, its chairs and the
+       umbrella over them read as one bought-together set rather than three
+       props that happen to be near each other. */
+    const teak=n=>new THREE.MeshStandardMaterial({color:n||0xb08a5e,roughness:.88}),
+          steel=new THREE.MeshStandardMaterial({color:0x33383b,roughness:.55,metalness:.45});
+    const beam=(w,h,dp,m)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,dp),m);b.castShadow=true;return b;};
+    if(k==='ptable'){
+      const W=1.6,D=.9,H=.75;
+      for(let i=0;i<7;i++){                              // slatted top, teak
+        const t=(i/6-.5)*(D-.10);
+        const sl=beam(W-.06,.045,(D-.10)/7-.02,teak(i%2?0xb08a5e:0xa9835a));
+        sl.position.set(0,H-.02,t); sl.receiveShadow=true; g.add(sl);
+      }
+      const rim=beam(W,.055,D,teak(0x9a7550)); rim.position.y=H-.075; g.add(rim);
+      for(const sx of[-1,1])for(const sz of[-1,1]){      // four legs, set in
+        const l=beam(.06,H-.10,.06,steel);
+        l.position.set(sx*(W/2-.14),(H-.10)/2,sz*(D/2-.12)); g.add(l);
+      }
+      for(const sx of[-1,1]){                            // leg braces
+        const b=beam(.05,.05,D-.30,steel); b.position.set(sx*(W/2-.14),.14,0); g.add(b);
+      }
+      /* The parasol hole, so a table and an umbrella dropped on the same
+         spot look like they belong to one another. */
+      const hole=new THREE.Mesh(new THREE.TorusGeometry(.05,.014,5,10),steel);
+      hole.position.y=H+.01; hole.rotation.x=Math.PI/2; g.add(hole);
+    }else if(k==='pchair'){
+      const W=.52,D=.56,SEAT=.44;
+      for(let i=0;i<4;i++){                              // seat slats
+        const sl=beam(W,.032,(D-.06)/4-.018,teak());
+        sl.position.set(0,SEAT,(i/3-.5)*(D-.09)); sl.receiveShadow=true; g.add(sl);
+      }
+      for(let i=0;i<5;i++){                              // back slats, slight recline
+        const sl=beam(W-.04,.075,.030,teak(i%2?0xb08a5e:0xa9835a));
+        sl.position.set(0,SEAT+.10+i*.105,-D/2+.06-i*.035); sl.rotation.x=.30; g.add(sl);
+      }
+      for(const sx of[-1,1]){
+        const fl=beam(.045,SEAT,.045,steel); fl.position.set(sx*(W/2-.04),SEAT/2,D/2-.05); g.add(fl);
+        const rl=beam(.045,SEAT+.62,.045,steel);         // rear leg carries the back
+        rl.position.set(sx*(W/2-.04),(SEAT+.62)/2-.02,-D/2+.05); rl.rotation.x=-.13; g.add(rl);
+        const ar=beam(.045,.038,D-.10,teak(0x9a7550));   // arm
+        ar.position.set(sx*(W/2-.03),SEAT+.24,-.01); g.add(ar);
+        const ap=beam(.04,.24,.04,steel);                // arm post
+        ap.position.set(sx*(W/2-.04),SEAT+.12,D/2-.05); g.add(ap);
+      }
+    }else{
+      const R=1.35,H=2.4;                                // 2.7 m canopy, open
+      const pole=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,H,10),steel);
+      pole.position.y=H/2; pole.castShadow=true; g.add(pole);
+      /* Canvas both sides: a one-sided cone shows as a hole in the shade
+         when the camera drops below the canopy, which it does constantly in
+         a walk-through. */
+      const cloth=new THREE.MeshStandardMaterial({color:0xd9cdb4,roughness:.95,side:THREE.DoubleSide});
+      const cone=new THREE.Mesh(new THREE.ConeGeometry(R,.42,8,1,true),cloth);
+      cone.position.y=H-.30; cone.castShadow=true; g.add(cone);
+      const val=new THREE.Mesh(new THREE.CylinderGeometry(R,R*.97,.14,8,1,true),cloth);
+      val.position.y=H-.56; g.add(val);                  // the short skirt at the rim
+      for(let i=0;i<8;i++){                              // ribs, under the seams
+        /* Kept a little short of the rim: a rib the full radius pokes out
+           past the cloth once it is tilted, which reads as a broken spoke. */
+        const a=i/8*Math.PI*2, RL=R*.88;
+        const rb=new THREE.Mesh(new THREE.BoxGeometry(.022,.022,RL),steel);
+        rb.position.set(Math.sin(a)*RL/2,H-.44,Math.cos(a)*RL/2);
+        rb.rotation.set(-.16,a,0); g.add(rb);
+      }
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(.07,.14,8),steel);
+      cap.position.y=H+.06; g.add(cap);
+      const base=new THREE.Mesh(new THREE.CylinderGeometry(.26,.30,.09,14),steel);
+      base.position.y=.045; base.receiveShadow=true; g.add(base);
+    }
   }else if(k==='container'){
     /* An ISO box: corrugated sides, a painted skin, corner castings at all
        eight corners and cargo doors at one end. The corrugations are drawn
@@ -3381,7 +3461,7 @@ renderer.domElement.addEventListener('pointerdown',e=>{
       const p=hitGround(e);
       if(p){
         pushUndo('move '+o.def.n);
-        moving={o,ox:o.x-p.x,oz:o.z-p.z,sx:o.x,sz:o.z,srot:o.rot};
+        moving={o,ox:o.x-p.x,oz:o.z-p.z,sx:o.x,sz:o.z,srot:o.rot,rotUser:false};
         setHL(o,HL.moving);
         renderer.domElement.setPointerCapture(e.pointerId);
         return;
@@ -3404,11 +3484,13 @@ renderer.domElement.addEventListener('pointermove',e=>{
        dropped, which is how a row ends up staggered and gapped. Moving now
        uses the same magnet as placing, ignoring the box being moved so it
        cannot snap to itself. */
-    /* Measured from the angle the box had when it was picked up, not from the
-       angle the last frame snapped it to. Feeding the snapped angle back made
-       a single perpendicular frame latch: from then on across WAS the held
-       angle, and the box could not find its way back to parallel. */
-    if(d.kind==='container'){const sn=snapContainer(d,nx,nz,moving.srot,moving.o,false);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
+    /* A dragged box lies parallel to whatever it is joining until you turn
+       it yourself. It used to be measured against the angle it was picked up
+       at, which meant a box at 0 dragged up to a run at 100 was rounded to
+       the nearest quarter turn of that run and dropped across it. There is no
+       latch in parallel: the grid comes from the neighbour, never from the
+       angle the last frame produced. */
+    if(d.kind==='container'){const sn=snapContainer(d,nx,nz,moving.o.rot,moving.o,!moving.rotUser);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     else if(d.kind==='dock'||(d.join&&d.magnet!==false)){const sn=snapDock(d,nx,nz,moving.o.rot);nx=sn.x;nz=sn.z;moving.o.rot=sn.rot;moving.o.mesh.rotation.y=sn.rot;}
     moving.o.x=nx; moving.o.z=nz;
     moving.o.mesh.position.set(nx,seatY(d,nx,nz,moving.o.rot,moving.o),nz);
@@ -3589,19 +3671,28 @@ function snapContainer(d,x,z,rot,ignore,freeRot){
        ghost and it keeps to the quarter turn you are holding, which is how an
        L is made. Either way the aim only chooses among positions, so a box
        cannot swing across a row because the cursor drifted off its axis. */
-    const k0=freeRot?0:Math.round((rot-o.rot)/Q);
-    /* An angle you chose is an instruction, not a suggestion. The magnet used
-       to force the neighbour's quarter turn however far off you were, swinging
-       a box by up to 45 degrees and flipping it square at exactly 45, so only
-       0 and 90 ever survived and every angle between them was destroyed. It
-       now aligns only when you are already within a few degrees of square with
-       the neighbour, and otherwise leaves the box at the angle you set. One
-       press of R or E is enough to step out of its reach. A box picked fresh
-       from the catalogue holds no angle, so it still lines up with the run it
-       is joining. */
+    /* WHICH WAY ROUND. A box that has not been turned lies parallel to its
+       neighbour, which is what puts a run in a line back to back. That is the
+       only reading of an angle nobody chose: a box sitting at 0 while the run
+       it is joining lies at 100 is not asking to be perpendicular, it simply
+       has not been asked anything, and rounding its angle to the nearest
+       quarter turn of the run was what flipped it 90 degrees unbidden.
+       Turn the box yourself and the magnet keeps to the quarter turn you are
+       holding, which is how an L is made. */
+    let k0=0;
     if(!freeRot){
-      const g0=o.rot+k0*Q;
-      if(Math.abs(Math.atan2(Math.sin(rot-g0),Math.cos(rot-g0)))>3*Math.PI/180)continue;
+      /* An angle you set is an instruction, but a run at 100 degrees is one
+         too. The magnet aligns when you are already within a hand's width of
+         square with the neighbour: near enough that flush was plainly the
+         intent, far enough that a run at any angle still gathers its boxes.
+         Turn well off that and the box stays exactly where you put it. */
+      const TOL=22*Math.PI/180;
+      let off=Infinity;
+      for(let k=0;k<4;k++){
+        const a=Math.abs(Math.atan2(Math.sin(rot-(o.rot+k*Q)),Math.cos(rot-(o.rot+k*Q))));
+        if(a<off){off=a;k0=k;}
+      }
+      if(off>TOL)continue;
     }
     for(const k of [k0,k0+2]){
       const grid=o.rot+k*Q, par=((k%2)+2)%2===0;
@@ -3882,7 +3973,15 @@ addEventListener('keydown',e=>{
     const step=(e.altKey?Math.PI/180:Math.PI/36)*turn*(e.shiftKey?-1:1);
     const deg=r=>{const d=Math.round(r*180/Math.PI)%360;return (d<0?d+360:d)+'\u00b0';};
     if(selected&&selected.type==='obj'){
-      selected.rot+=step; selected.mesh.rotation.y=selected.rot; select(selected);
+      selected.rot+=step; selected.mesh.rotation.y=selected.rot;
+      /* Turning a box mid-drag is how you ask for a corner rather than a run,
+         so the magnet stops assuming parallel from here on. */
+      if(moving&&moving.o===selected)moving.rotUser=true;
+      /* A container turned on the spot sits on different ground and over
+         different neighbours than it did a moment ago. Re-seating it here is
+         what stops a box gaining or losing a storey for no visible reason. */
+      if(selected.def&&selected.def.kind==='container'&&!moving){fitGround(selected);levelContainers();}
+      select(selected);
       hint(`${selected.def.n} \u00b7 rotated to ${deg(selected.rot)}`,false,true);
     }else{
       ghostRot+=step; ghostRotUser=true; if(ghost)ghost.rotation.y=ghostRot;
