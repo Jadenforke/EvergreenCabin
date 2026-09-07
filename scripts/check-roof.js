@@ -19,17 +19,20 @@ function functionSource(name){
 }
 
 const context=vm.createContext({Math});
-vm.runInContext(functionSource('roofRidgeSegments'),context);
+vm.runInContext(`${functionSource('pointInPoly')}
+  ${functionSource('polyMid')}
+  ${functionSource('roofPeakPoint')}`,context);
 context.rect=[[-6,-3],[6,-3],[6,3],[-6,3]];
 context.tall=[[-2,-8],[2,-8],[2,8],[-2,8]];
 context.notched=[[-6,-4],[6,-4],[6,4],[2,4],[2,0],[-2,0],[-2,4],[-6,4]];
 
 const result=expr=>JSON.parse(JSON.stringify(vm.runInContext(expr,context)));
-assert.deepEqual(result('roofRidgeSegments(rect,true,0)'),
-  [[[-6,0],[6,0]]],'wide roof gets one centered ridge');
-assert.deepEqual(result('roofRidgeSegments(tall,false,0)'),
-  [[[0,-8],[0,8]]],'deep roof rotates the centered ridge');
-assert.deepEqual(result('roofRidgeSegments(notched,true,0)'),
-  [[[-6,0],[-2,0]],[[2,0],[6,0]]],'a notched outline keeps separate ridge sections');
+assert.deepEqual(result('roofPeakPoint(rect)'),[0,0],
+  'wide roof peaks at its center instead of along a sideways ridge');
+assert.deepEqual(result('roofPeakPoint(tall)'),[0,0],
+  'deep roof also peaks at its center');
+context.notchedPeak=result('roofPeakPoint(notched)');
+assert.equal(vm.runInContext('pointInPoly(notchedPeak[0],notchedPeak[1],notched)',context),true,
+  'an irregular roof keeps its peak inside its actual outline');
 
-console.log('roof ridge regression: centered rectangular and notched peaks passed');
+console.log('roof regression: centered hip-roof peaks passed');

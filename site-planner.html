@@ -1494,9 +1494,25 @@ function refitObjs(){
   const conts=objs.filter(o=>o.def.kind==='container');
   const oldContainerY=new Map(conts.map(o=>[o,o.mesh.position.y]));
   objs.filter(o=>o.def.kind!=='container').forEach(o=>fitGround(o,true));
-  conts.sort((a,b)=>oldContainerY.get(a)-oldContainerY.get(b))
-      .forEach(o=>fitGround(o,true,oldContainerY));
-  levelContainers();
+  const exact=conts.length>0&&conts.every(o=>Number.isFinite(o._snapshotY));
+  if(exact){
+    /* Undo snapshots carry their actual courses. Restore those numbers
+       verbatim instead of asking the partly rebuilt scene to infer them; an
+       L-shaped neighbour can otherwise look like support and lift the whole
+       foundation by another container height. */
+    conts.forEach(o=>o.mesh.position.y=o._snapshotY);
+    const restoredY=new Map(conts.map(o=>[o,o._snapshotY]));
+    conts.forEach(o=>{
+      const onDeck=deckTopUnder(o.def,o.x,o.z)>padY(o.def,o.x,o.z,o.rot);
+      const onContainer=conts.some(p=>containerWasOn(o,p,restoredY));
+      setContainerFoundation(o,o._snapshotY,onDeck||onContainer);
+    });
+  }else{
+    conts.sort((a,b)=>oldContainerY.get(a)-oldContainerY.get(b))
+        .forEach(o=>fitGround(o,true,oldContainerY));
+    levelContainers();
+  }
+  conts.forEach(o=>delete o._snapshotY);
   /* Roofs and walls are keyed to what stands under them, so they come last,
      once every unit has found its height. */
   placed.filter(o=>o.type==='roof'||o.type==='wall').forEach(o=>fitGround(o,true));
@@ -3071,92 +3087,34 @@ function buildCustomMesh(pts,h){
 /* A roof is a low gable spanning the outline, carried on posts at the
    corners. It is drawn over whatever is already there, so a stack of
    containers keeps its own height and the roof simply clears it. */
-function roofRidgeSegments(pts,ridgeAlongX,mid){
-  const hits=[];
-  for(let i=0;i<pts.length;i++){
-    const a=pts[i],b=pts[(i+1)%pts.length];
-    const ta=ridgeAlongX?a[1]:a[0],tb=ridgeAlongX?b[1]:b[0];
-    /* Half-open crossings count a corner once. That keeps the result even
-       when the centered ridge happens to pass exactly through a vertex. */
-    if(!((ta<=mid&&tb>mid)||(tb<=mid&&ta>mid)))continue;
-    const f=(mid-ta)/(tb-ta);
-    hits.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]);
-  }
-  hits.sort((a,b)=>(ridgeAlongX?a[0]-b[0]:a[1]-b[1]));
-  const clean=hits.filter((q,i)=>!i||Math.hypot(q[0]-hits[i-1][0],q[1]-hits[i-1][1])>1e-7);
-  const segments=[];
-  for(let i=0;i+1<clean.length;i+=2)segments.push([clean[i],clean[i+1]]);
-  return segments;
-}
+function roofPeakPoint(pts){return polyMid(pts);}
 function buildRoofMesh(pts,base,h,pitch){
   const g=new THREE.Group();
   const xs=pts.map(q=>q[0]), zs=pts.map(q=>q[1]);
-  const cx=(Math.min(...xs)+Math.max(...xs))/2, cz=(Math.min(...zs)+Math.max(...zs))/2;
   const spanX=Math.max(...xs)-Math.min(...xs), spanZ=Math.max(...zs)-Math.min(...zs);
-  const ridgeAlongX=spanX>=spanZ;                       // ridge runs the long way
-  const half=Math.max(.001,(ridgeAlongX?spanZ:spanX)/2);
+  const half=Math.max(.001,Math.min(spanX,spanZ)/2);
   const rise=Math.max(.4,half*pitch);
-  const mid=ridgeAlongX?cz:cx;
-  const off=q=>(ridgeAlongX?q[1]:q[0])-mid;             // distance from the ridge
-  const yAt=q=>base+h+rise-Math.min(1,Math.abs(off(q))/half)*rise;
+  const peak=roofPeakPoint(pts),eave=base+h,top=eave+rise;
   const deck=new THREE.MeshStandardMaterial({color:0x4c5257,roughness:.72,metalness:.25,
     side:THREE.DoubleSide});
-  /* Each slope is the outline clipped to its own side of the ridge. The
-     clip is what puts real vertices ON the ridge line, and that is the
-     whole trick: triangulating the full outline and then shoving half its
-     corners out of the way leaves the two planes nothing to meet along,
-     because a rectangle's four corners are all eave and none of them ridge. */
-  for(const upper of[true,false]){
-    const face=[];
-    for(let i=0;i<pts.length;i++){
-      const a=pts[i], b=pts[(i+1)%pts.length], oa=off(a), ob=off(b);
-      const ia=upper?oa>=-1e-9:oa<=1e-9, ib=upper?ob>=-1e-9:ob<=1e-9;
-      if(ia)face.push(a);
-      if(ia!==ib){const t=oa/(oa-ob); face.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
-    }
-    if(face.length<3)continue;
-    const geo=new THREE.ShapeGeometry(
-      new THREE.Shape(face.map(q=>new THREE.Vector2(q[0],-q[1]))));
-    geo.rotateX(-Math.PI/2);
-    const pos=geo.attributes.position;
-    for(let i=0;i<pos.count;i++)pos.setY(i,yAt([pos.getX(i),pos.getZ(i)]));
-    pos.needsUpdate=true; geo.computeVertexNormals();
-    const m=new THREE.Mesh(geo,deck); m.castShadow=m.receiveShadow=true; g.add(m);
-  }
-  /* Gable ends: the wedge between the flat eave line and the slope above it.
-     Along the eaves this is zero high and drops out; across the ends it is
-     the triangle that stops you seeing straight in under the roof. */
-  const ends=[], eave=base+h, ring=[];
+  /* Each outside edge rises to one point inside the actual outline. This is
+     a hip roof: its top is in the middle instead of a gable ridge running
+     sideways across the containers. */
+  const faces=[];
   for(let i=0;i<pts.length;i++){
-    const a=pts[i], b=pts[(i+1)%pts.length], oa=off(a), ob=off(b);
-    ring.push(a);
-    if(oa*ob<0){const t=oa/(oa-ob); ring.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+    const a=pts[i],b=pts[(i+1)%pts.length];
+    faces.push(a[0],eave,a[1],b[0],eave,b[1],peak[0],top,peak[1]);
   }
-  for(let i=0;i<ring.length;i++){
-    const a=ring[i], b=ring[(i+1)%ring.length], ya=yAt(a), yb=yAt(b);
-    if(ya<=eave+1e-6&&yb<=eave+1e-6)continue;
-    ends.push(a[0],eave,a[1], b[0],eave,b[1], b[0],yb,b[1],
-              a[0],eave,a[1], b[0],yb,b[1], a[0],ya,a[1]);
-  }
-  if(ends.length){
+  if(faces.length){
     const geo=new THREE.BufferGeometry();
-    geo.setAttribute('position',new THREE.Float32BufferAttribute(ends,3));
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(faces,3));
     geo.computeVertexNormals();
-    const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial(
-      {color:0x8d949a,roughness:.85,metalness:.15,side:THREE.DoubleSide}));
+    const m=new THREE.Mesh(geo,deck);
     m.castShadow=m.receiveShadow=true; g.add(m);
   }
-  /* A dark cap makes the centered peak unmistakable from above. The short
-     center marks at each gable end also make its triangular profile visible
-     instead of letting the two pale roof faces visually blend together. */
-  const ridgeMat=new THREE.LineBasicMaterial({color:0x252a2e});
-  roofRidgeSegments(pts,ridgeAlongX,mid).forEach(seg=>{
-    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(seg.map(q=>
-      new THREE.Vector3(q[0],base+h+rise+.025,q[1]))),ridgeMat));
-    seg.forEach(q=>g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(q[0],base+h,q[1]),
-      new THREE.Vector3(q[0],base+h+rise,q[1])]),ridgeMat)));
-  });
+  const cap=new THREE.Mesh(new THREE.SphereGeometry(.12,8,5),
+    new THREE.MeshStandardMaterial({color:0x252a2e,roughness:.7,metalness:.35}));
+  cap.position.set(peak[0],top+.03,peak[1]);g.add(cap);
   // eaves line and corner posts, so it reads as a structure not a floating plane
   const loop=pts.concat([pts[0]]);
   g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
@@ -4622,7 +4580,8 @@ const itemOf=p=>p.type==='road'?{t:'road',id:p.def.id,pts:p.pts,pre:p.pre?1:0}
   :p.type==='found'?{t:'found',pts:p.pts,pre:p.pre?1:0}
   :p.type==='pave'?{t:'pave',pts:p.pts,pre:p.pre?1:0}
   :p.type==='shrub'?{t:'shrub',pts:p.pts,pre:p.pre?1:0}
-  :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot,pre:p.pre?1:0};
+  :{t:'obj',id:p.def.id,x:p.x,z:p.z,rot:p.rot,pre:p.pre?1:0,
+    ...(p.def.kind==='container'?{y:+p.mesh.position.y.toFixed(4)}:{})};
 function serialize(withUnder){
   return {v:3,style:styleMode,land:JSON.parse(JSON.stringify(LAND)),
     shore:JSON.parse(JSON.stringify(SITE.shore)),boundary:JSON.parse(JSON.stringify(SITE.boundary)),
@@ -4672,7 +4631,10 @@ function applyState(d,keepUnder,incremental){
       const keep=new Set(); build=[];
       for(const it of (d.items||[])){
         const b=bucket.get(JSON.stringify(it));
-        if(b&&b.length)keep.add(b.pop()); else build.push(it);
+        if(b&&b.length){
+          const match=b.pop();keep.add(match);
+          if(Number.isFinite(it.y)&&match.def&&match.def.kind==='container')match._snapshotY=it.y;
+        }else build.push(it);
       }
       placed.filter(p=>!keep.has(p)).forEach(dropObj);
       select(null);
@@ -4750,6 +4712,9 @@ function applyState(d,keepUnder,incremental){
         const mesh=buildMesh(def);mesh.position.set(i.x,0,i.z);mesh.rotation.y=i.rot;
         objGroup.add(mesh);
         const io={type:'obj',def,mesh,x:i.x,z:i.z,rot:i.rot};
+        if(def.kind==='container'&&Number.isFinite(i.y)){
+          io._snapshotY=i.y;mesh.position.y=i.y;
+        }
         placed.push(io); fitGround(io);}
     });
     /* Whatever this rebuild just created takes the flag its item carried, or

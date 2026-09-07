@@ -74,6 +74,31 @@ assert.equal(vm.runInContext('containerWasOn(stacked,lower,oldY)',context),true,
 assert.equal(vm.runInContext('containerWasOn(sameCourse,lower,oldY)',context),false,
   'undo does not turn an adjacent same-course box into a new storey');
 
+const restoreContext=vm.createContext({Math});
+vm.runInContext(`
+  let foundationCalls=[],levelCalls=0,fitCalls=0;
+  const c1={type:'obj',def:{kind:'container'},x:0,z:0,rot:0,
+    mesh:{position:{y:30}},_snapshotY:4};
+  const c2={type:'obj',def:{kind:'container'},x:3,z:0,rot:0,
+    mesh:{position:{y:33}},_snapshotY:4};
+  let placed=[c1,c2];
+  const fitGround=()=>fitCalls++;
+  const deckTopUnder=()=>-Infinity,padY=()=>0;
+  const containerWasOn=()=>false;
+  const setContainerFoundation=(o,y,supported)=>foundationCalls.push([o,y,supported]);
+  const levelContainers=()=>levelCalls++;
+  ${functionSource('refitObjs')}
+  refitObjs();
+`,restoreContext);
+assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('[c1.mesh.position.y,c2.mesh.position.y]',restoreContext))),
+  [4,4],'undo restores saved container elevations exactly');
+assert.equal(vm.runInContext('levelCalls',restoreContext),0,
+  'undo does not run a second automatic leveling pass');
+assert.equal(vm.runInContext('foundationCalls.length',restoreContext),2,
+  'foundations are rebuilt at the restored elevations');
+assert.equal(vm.runInContext("('_snapshotY' in c1)||('_snapshotY' in c2)",restoreContext),false,
+  'temporary snapshot heights are cleared after restoration');
+
 function world(lx,lz,rot) {
   const c=Math.cos(rot),s=Math.sin(rot);
   return [lx*c+lz*s,-lx*s+lz*c];
