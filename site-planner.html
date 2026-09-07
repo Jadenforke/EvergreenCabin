@@ -1456,17 +1456,23 @@ function seatContY(o,y){
   if(!onDeck)setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459);
   else setSkirt(o.mesh,[],y,null,0);
 }
-/* Two boxes bolted together are one floor, so they have to stand at one
-   height. On a slope the downhill box lands lower than the box it is
-   coupled to, and a row that should read as a single level deck comes out
-   as a staircase. This lifts every box in a connected run to the highest
-   one in it and fills the gap underneath. Only boxes on the same course
-   count as connected: one stacked on another is a storey, not a neighbour.
-   Anything standing on a box that gets lifted rides up with it. */
+/* Small differences between adjacent boxes are softened, but a long run no
+   longer inherits the single highest point under the whole structure. That
+   made a mild grade turn into several metres of solid fill at the downhill
+   end. Forty-five centimetres is enough to lose a modest step without making
+   the planner pretend the site has been massively built up. */
+function containerLevelTarget(natural,highest){return Math.min(highest,natural+0.45);}
 function levelContainers(){
   const cs=placed.filter(o=>o.type==='obj'&&o.def.kind==='container');
   if(cs.length<2)return;
   const yOf=o=>o.mesh.position.y;
+  /* Re-read the real support height instead of trusting the current mesh Y,
+     which may include an earlier levelling lift. Otherwise adding one box at
+     a time could accumulate another 45 cm on every placement. */
+  const natural=new Map(cs.map(o=>[o,Math.max(
+    padY(o.def,o.x,o.z,o.rot),deckTopUnder(o.def,o.x,o.z,o.rot),
+    contTopUnder(o.def,o.x,o.z,o.rot,o,o.mesh.position.y+o.def.h*0.5)
+  )]));
   const centreOver=(p,o)=>{                      // p's centre inside o's footprint
     const [lx,lz]=toLocalXZ(p.x-o.x,p.z-o.z,o.rot);
     return Math.abs(lx)<=o.def.w/2+1e-4&&Math.abs(lz)<=o.def.d/2+1e-4;
@@ -1500,7 +1506,10 @@ function levelContainers(){
     runs.forEach(run=>{
       if(run.length<2)return;
       const top=Math.max(...run.map(yOf));
-      run.forEach(o=>{ if(top-yOf(o)>1e-3){ lift(o,top-yOf(o),new Set()); changed=true; } });
+      run.forEach(o=>{
+        const target=containerLevelTarget(natural.get(o),top);
+        if(target-yOf(o)>1e-3){lift(o,target-yOf(o),new Set());changed=true;}
+      });
     });
     if(!changed)break;
   }

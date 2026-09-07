@@ -30,6 +30,7 @@ vm.runInContext(`
   ${functionSource('toWorldXZ')}
   ${functionSource('obbHit')}
   ${functionSource('snapContainer')}
+  ${functionSource('containerLevelTarget')}
 `, context);
 
 const sizes = {
@@ -52,6 +53,11 @@ for (const deg of [100,190]) {
   close(roundTrip[0],local[0],`${deg}° skirt local x`);
   close(roundTrip[1],local[1],`${deg}° skirt local z`);
 }
+
+close(vm.runInContext('containerLevelTarget(10,14)',context),10.45,
+  'a long run gets at most 45 cm of automatic lift');
+close(vm.runInContext('containerLevelTarget(10,10.2)',context),10.2,
+  'a small floor difference is fully evened');
 
 function world(lx,lz,rot) {
   const c=Math.cos(rot),s=Math.sin(rot);
