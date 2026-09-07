@@ -1402,12 +1402,29 @@ function setContainerFoundation(o,y,onBuiltSupport){
   }
   o.mesh.add(grp);
 }
+/* Restoring undo must preserve which course each box belonged to. Looking
+   only at the already-restored meshes lets an adjacent L-shaped neighbour
+   masquerade as support, then every following box climbs another storey. */
+function containerWasOn(upper,lower,oldY){
+  if(upper===lower||!oldY.has(upper)||!oldY.has(lower))return false;
+  if(Math.abs(oldY.get(lower)+lower.def.h-oldY.get(upper))>0.1)return false;
+  const p=toLocalXZ(upper.x-lower.x,upper.z-lower.z,lower.rot);
+  return Math.abs(p[0])<=lower.def.w/2+1e-4&&Math.abs(p[1])<=lower.def.d/2+1e-4;
+}
+function restoredContainerY(o,oldY){
+  let y=Math.max(padY(o.def,o.x,o.z,o.rot),deckTopUnder(o.def,o.x,o.z,o.rot));
+  placed.forEach(p=>{
+    if(p.type==='obj'&&p.def.kind==='container'&&containerWasOn(o,p,oldY))
+      y=Math.max(y,p.mesh.position.y+p.def.h);
+  });
+  return y;
+}
 /* Seat one placed thing on the ground and refresh its fill. Every type sits
    differently: roads and pavement drape, shrub matrices are already in
    world space, decks and buildings stand on their high point, and getting
    that wrong is what used to bury a deck after the land was rebuilt. One
    function owns it so placement, moving and a rebuild can't disagree. */
-function fitGround(o,resettle){
+function fitGround(o,resettle,oldContainerY){
   if(o.type==='road'){
     objGroup.remove(o.mesh); o.mesh=roadMesh(o.pts,o.width,o.def.col);
     objGroup.add(o.mesh); if(styleMode==='diorama')styleObject(o.mesh); return;
@@ -1451,7 +1468,8 @@ function fitGround(o,resettle){
      being put down or dropped after a move starts at nothing and takes the
      column as it finds it. */
   const ceil=(resettle&&o.def.kind==='container')?o.mesh.position.y+o.def.h*0.5:null;
-  const y=seatY(o.def,o.x,o.z,o.rot,o,ceil);
+  const y=(resettle&&o.def.kind==='container'&&oldContainerY)
+    ?restoredContainerY(o,oldContainerY):seatY(o.def,o.x,o.z,o.rot,o,ceil);
   o.mesh.position.y=y;
   /* Standing on a deck it already has a flat floor under it, so the fill is
      only for units sitting straight on the ground. */
@@ -1467,10 +1485,11 @@ function fitGround(o,resettle){
    up has settled. */
 function refitObjs(){
   const objs=placed.filter(o=>o.type==='obj');
+  const conts=objs.filter(o=>o.def.kind==='container');
+  const oldContainerY=new Map(conts.map(o=>[o,o.mesh.position.y]));
   objs.filter(o=>o.def.kind!=='container').forEach(o=>fitGround(o,true));
-  objs.filter(o=>o.def.kind==='container')
-      .sort((a,b)=>a.mesh.position.y-b.mesh.position.y)
-      .forEach(o=>fitGround(o,true));
+  conts.sort((a,b)=>oldContainerY.get(a)-oldContainerY.get(b))
+      .forEach(o=>fitGround(o,true,oldContainerY));
   levelContainers();
   /* Roofs and walls are keyed to what stands under them, so they come last,
      once every unit has found its height. */
@@ -3041,6 +3060,23 @@ function buildCustomMesh(pts,h){
 /* A roof is a low gable spanning the outline, carried on posts at the
    corners. It is drawn over whatever is already there, so a stack of
    containers keeps its own height and the roof simply clears it. */
+function roofRidgeSegments(pts,ridgeAlongX,mid){
+  const hits=[];
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length];
+    const ta=ridgeAlongX?a[1]:a[0],tb=ridgeAlongX?b[1]:b[0];
+    /* Half-open crossings count a corner once. That keeps the result even
+       when the centered ridge happens to pass exactly through a vertex. */
+    if(!((ta<=mid&&tb>mid)||(tb<=mid&&ta>mid)))continue;
+    const f=(mid-ta)/(tb-ta);
+    hits.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]);
+  }
+  hits.sort((a,b)=>(ridgeAlongX?a[0]-b[0]:a[1]-b[1]));
+  const clean=hits.filter((q,i)=>!i||Math.hypot(q[0]-hits[i-1][0],q[1]-hits[i-1][1])>1e-7);
+  const segments=[];
+  for(let i=0;i+1<clean.length;i+=2)segments.push([clean[i],clean[i+1]]);
+  return segments;
+}
 function buildRoofMesh(pts,base,h,pitch){
   const g=new THREE.Group();
   const xs=pts.map(q=>q[0]), zs=pts.map(q=>q[1]);
@@ -3099,6 +3135,17 @@ function buildRoofMesh(pts,base,h,pitch){
       {color:0x8d949a,roughness:.85,metalness:.15,side:THREE.DoubleSide}));
     m.castShadow=m.receiveShadow=true; g.add(m);
   }
+  /* A dark cap makes the centered peak unmistakable from above. The short
+     center marks at each gable end also make its triangular profile visible
+     instead of letting the two pale roof faces visually blend together. */
+  const ridgeMat=new THREE.LineBasicMaterial({color:0x252a2e});
+  roofRidgeSegments(pts,ridgeAlongX,mid).forEach(seg=>{
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(seg.map(q=>
+      new THREE.Vector3(q[0],base+h+rise+.025,q[1]))),ridgeMat));
+    seg.forEach(q=>g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(q[0],base+h,q[1]),
+      new THREE.Vector3(q[0],base+h+rise,q[1])]),ridgeMat)));
+  });
   // eaves line and corner posts, so it reads as a structure not a floating plane
   const loop=pts.concat([pts[0]]);
   g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(

@@ -33,6 +33,7 @@ vm.runInContext(`
   ${functionSource('snapContainer')}
   ${functionSource('containerLevelTarget')}
   ${functionSource('containersTouch')}
+  ${functionSource('containerWasOn')}
 `, context);
 
 const sizes = {
@@ -60,6 +61,18 @@ close(vm.runInContext('containerLevelTarget(10,14)',context),14,
   'a magnetically connected run shares one flat floor');
 close(vm.runInContext('containerLevelTarget(10,10.2)',context),10.2,
   'a small floor difference is fully evened');
+
+/* Undo must remember actual courses, rather than inferring them from a
+   partly restored scene where a same-level perpendicular neighbour may sit
+   inside the long box's footprint. */
+context.lower={def:sizes.cont40,x:0,z:0,rot:0};
+context.stacked={def:sizes.cont20,x:0,z:2,rot:0};
+context.sameCourse={def:sizes.cont20,x:0,z:2,rot:Math.PI/2};
+context.oldY=new Map([[context.lower,10],[context.stacked,12.59],[context.sameCourse,10]]);
+assert.equal(vm.runInContext('containerWasOn(stacked,lower,oldY)',context),true,
+  'undo preserves a genuine upper course');
+assert.equal(vm.runInContext('containerWasOn(sameCourse,lower,oldY)',context),false,
+  'undo does not turn an adjacent same-course box into a new storey');
 
 function world(lx,lz,rot) {
   const c=Math.cos(rot),s=Math.sin(rot);
