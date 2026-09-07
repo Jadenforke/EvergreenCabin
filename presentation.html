@@ -1140,10 +1140,12 @@ const SITE = {
      to sit here was calibrated to a satellite capture of the parcel; these
      renders draw the buildings themselves, so the pins came off with it. */
   plan:{ imageW:1443, imageH:1164,
-    images:{ all:"/assets/site/plan-3.webp", 1:"/assets/site/plan-1.webp",
-             2:"/assets/site/plan-2.webp",   3:"/assets/site/plan-3.webp" },
+    images:{ all:"/assets/site/plan-3.webp", current:"/assets/site/plan-current.png",
+             1:"/assets/site/plan-phase-1.png", 2:"/assets/site/plan-phase-2.png",
+             3:"/assets/site/plan-phase-3.png" },
     alt:{ all:"Master plan render of the whole parcel, all three phases built out.",
-          1:"Master plan render showing phase one only: the arrival cluster.",
+          current:"Current site view supplied for the Evergreen Resort master plan.",
+          1:"Updated master plan render showing phase one.",
           2:"Master plan render showing phases one and two.",
           3:"Master plan render showing the parcel with all three phases built out." } },
 
@@ -1241,6 +1243,10 @@ const DIM={
   "/assets/site/plan-1.webp":[1443,1164],
   "/assets/site/plan-2.webp":[1443,1164],
   "/assets/site/plan-3.webp":[1443,1164],
+  "/assets/site/plan-current.png":[1342,1172],
+  "/assets/site/plan-phase-1.png":[1341,1173],
+  "/assets/site/plan-phase-2.png":[1342,1172],
+  "/assets/site/plan-phase-3.png":[1342,1172],
   "/assets/site/split-cabins.webp":[1500,1000],
   "/assets/site/split-domes.webp":[1500,1000],
   "/assets/site/split-sport.webp":[1400,1050],
@@ -1344,13 +1350,14 @@ const locatorMap = () =>
 /* ══ LIVING SITE PLAN ══════════════════════════════════════════════ */
 let planPhase='all';
 function buildPlan(){
-  /* Warm the other two renders so the first phase click swaps instantly
+  /* Warm the site views so the first phase click swaps instantly
      instead of flashing an empty frame. */
   Object.values(SITE.plan.images).forEach(src=>{const i=new Image(); i.src=src;});
 
   document.getElementById('phaserail').innerHTML=
-    `<button class="phasebtn on" data-ph="all">All</button>`+
-    SITE.phases.map(p=>`<button class="phasebtn" data-ph="${p.id}">Phase 0${p.id}</button>`).join('');
+    `<button class="phasebtn on" data-ph="all">Final Project</button>`+
+    `<button class="phasebtn" data-ph="current">Current</button>`+
+    SITE.phases.map(p=>`<button class="phasebtn" data-ph="${p.id}">Phase ${p.id}</button>`).join('');
   document.getElementById('phaserail').addEventListener('click',e=>{
     const b=e.target.closest('.phasebtn'); if(!b)return;
     setPhase(b.dataset.ph);
@@ -1378,6 +1385,10 @@ function buildPlan(){
 /* The schedule answers the same question as the pins, so it follows the
    same filter: pick Phase 02 and the table lists what Phase 02 builds. */
 function renderPlanTable(ph){
+  if(ph==='current'){
+    document.getElementById('plan-table').innerHTML='<tr><td>Current site view. Existing unit counts and floor areas have not been provided.</td></tr>';
+    return;
+  }
   const all = ph==='all';
   const list = all ? SITE.units : SITE.units.filter(u=>u.phases.includes(Number(ph)));
   document.getElementById('plan-table').innerHTML=
@@ -1398,16 +1409,30 @@ function renderPlanTable(ph){
 }
 function setPhase(ph){
   planPhase=ph;
-  document.querySelectorAll('#phaserail .phasebtn').forEach(b=>
-    b.classList.toggle('on',b.dataset.ph===String(ph)));
+  document.querySelectorAll('#phaserail .phasebtn').forEach(b=>{
+    const selected=b.dataset.ph===String(ph);
+    b.classList.toggle('on',selected);
+    b.setAttribute('aria-pressed',String(selected));
+  });
   const pi=document.getElementById('plan-img'), src=SITE.plan.images[ph];
+  if(pi&&pi.getAttribute('src')===src)pi.classList.remove('swapping');
   if(pi&&src&&pi.getAttribute('src')!==src){
     pi.classList.add('swapping');
-    const swap=()=>{pi.src=src; pi.alt=SITE.plan.alt[ph]||''; pi.classList.remove('swapping');};
+    const swap=()=>{
+      if(planPhase!==ph)return;
+      pi.src=src; pi.alt=SITE.plan.alt[ph]||'';
+      const dimensions=DIM[src];
+      if(dimensions){pi.width=dimensions[0];pi.height=dimensions[1];}
+      pi.classList.remove('swapping');
+    };
     matchMedia('(prefers-reduced-motion: reduce)').matches ? swap() : setTimeout(swap,180);
   }
-  const upto = ph==='all' ? 3 : Number(ph);
-  renderCounters(upto);
+  if(ph==='current'){
+    document.getElementById('counters').innerHTML='<p class="smallprint">Current site &middot; before the planned development phases</p>';
+  } else {
+    const upto = ph==='all' ? 3 : Number(ph);
+    renderCounters(upto);
+  }
   renderPlanTable(ph);
 }
 /* Land taken by the phases up to and including `upto`. Separate from the
