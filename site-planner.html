@@ -1830,6 +1830,7 @@ function lit(grp,x,y,z,o){
     const m=new THREE.Mesh(poolGeo,new THREE.MeshBasicMaterial({map:poolTex,color:col,
       transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));
     m.rotation.x=-Math.PI/2; m.position.set(x,0.09,z); m.scale.set(pr*2,pr*2,1);
+    m.userData.noPick=true;                 // glow is not the structure itself
     m.visible=false; grp.add(m); rec.pool=m;
   }
   siteLights.push(rec); return rec;
@@ -2640,6 +2641,22 @@ function pushShrubs(obj){
   empty.forEach(o=>{objGroup.remove(o.mesh);placed.splice(placed.indexOf(o),1);});
   if(moved||cleared)toast(`${moved} bushes shifted · ${cleared} cleared`);
 }
+/* Decide what a rectangular structure does to one tree. Deep inside the
+   footprint it is felled; around the outside band it moves through the
+   nearest wall to a clear point. Keeping this math in the building's local
+   frame makes rotated cabins behave exactly like square ones. */
+function rectTreeDisplacement(obj,x,z,clear,core){
+  const q=toLocalXZ(x-obj.x,z-obj.z,obj.rot);
+  const lx=Math.abs(q[0]),lz=Math.abs(q[1]);
+  const hw=obj.def.w/2+clear,hd=obj.def.d/2+clear;
+  if(lx>hw||lz>hd)return null;
+  if(Math.max(lx/hw,lz/hd)<=core)return {kill:true};
+  let nx=q[0],nz=q[1];
+  if(hw-lx<hd-lz)nx=(q[0]<0?-1:1)*(hw+.9);
+  else nz=(q[1]<0?-1:1)*(hd+.9);
+  const w=toWorldXZ(nx,nz,obj.rot);
+  return {kill:false,nx:obj.x+w[0],nz:obj.z+w[1]};
+}
 function pushTrees(obj){
   const clear=RATES.wClear,core=Math.max(0,Math.min(1,RATES.treeCore/100));
   let moved=0,felled=0;
@@ -2672,16 +2689,8 @@ function pushTrees(obj){
         }
       }
     }else{
-      const q=toLocalXZ(t.x-obj.x,t.z-obj.z,obj.rot);
-      const lx=Math.abs(q[0]),lz=Math.abs(q[1]);
-      const hw=obj.def.w/2+clear,hd=obj.def.d/2+clear;
-      if(lx<=hw&&lz<=hd){
-        hit=true;
-        if(Math.max(lx/hw,lz/hd)<=core)kill=true;
-        else{let vx=dx,vz=dz,L=Math.hypot(vx,vz);if(L<.01){vx=1;vz=0;L=1;}
-          const reach=Math.hypot(obj.def.w,obj.def.d)/2+clear+.8;
-          nx=obj.x+vx/L*reach;nz=obj.z+vz/L*reach;}
-      }
+      const d=rectTreeDisplacement(obj,t.x,t.z,clear,core);
+      if(d){hit=true;kill=d.kill;if(!kill){nx=d.nx;nz=d.nz;}}
     }
     if(!hit)return;
     if(!kill){
@@ -3529,7 +3538,7 @@ function setHL(o,col){
   hlBox=new THREE.Group();
   o.mesh.updateMatrixWorld(true);
   o.mesh.traverse(n=>{
-    if(!n.isMesh||!n.geometry)return;
+    if(!isPickMesh(n))return;
     const m=new THREE.Mesh(n.geometry,new THREE.MeshBasicMaterial({
       color:col,transparent:true,opacity:.42,depthTest:false,depthWrite:false}));
     m.matrixAutoUpdate=false; m.matrix.copy(n.matrixWorld);
@@ -3540,11 +3549,17 @@ function setHL(o,col){
 }
 function syncHL(o){
   o.mesh.updateMatrixWorld(true);
-  const src=[]; o.mesh.traverse(n=>{if(n.isMesh&&n.geometry)src.push(n);});
+  const src=[]; o.mesh.traverse(n=>{if(isPickMesh(n))src.push(n);});
   hlBox.children.forEach((m,i)=>{ if(src[i])m.matrix.copy(src[i].matrixWorld); });
 }
-function pickObj(e){ndcFrom(e);const h=ray.intersectObjects(objGroup.children,true);if(!h.length)return null;
-  let m=h[0].object;while(m.parent&&m.parent!==objGroup)m=m.parent;return placed.find(p=>p.mesh===m)||null;}
+function isPickMesh(n){return !!(n&&n.isMesh&&n.geometry&&!n.userData.noPick);}
+function pickObj(e){
+  ndcFrom(e);
+  const hit=ray.intersectObjects(objGroup.children,true).find(h=>isPickMesh(h.object));
+  if(!hit)return null;
+  let m=hit.object;while(m.parent&&m.parent!==objGroup)m=m.parent;
+  return placed.find(p=>p.mesh===m)||null;
+}
 function pickTree(e){
   ndcFrom(e);
   const h=ray.intersectObjects([coneIM,roundIM,trunkIM],false);
