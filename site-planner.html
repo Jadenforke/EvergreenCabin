@@ -2374,6 +2374,11 @@ function obbHit(a,b){
   return true;
 }
 const box=(d,x,z,r)=>({cx:x,cz:z,hw:d.w/2,hd:d.d/2,rot:r||0});
+/* Loose outdoor amenities can be arranged freely. They still obey the site,
+   shoreline, slope and coverage rules; only object collisions are waived. */
+function overlapFree(d){
+  return !!d&&['pool','adiron','pchair','firepit','barrel'].includes(d.kind);
+}
 /* What actually takes a lot. Joinable units, square cabins, saunas, sheds,
    pavilions, domes, are the small ones meant to be clustered shoulder to
    shoulder, so they are exempt; a fire pit isn't a building; pads, roads and
@@ -2413,41 +2418,43 @@ function validate(def,x,z,rot,ignore){
   let lo=1e9,hi=-1e9;
   cs.concat([[x,z]]).forEach(c=>{const h=terrainH(c[0],c[1]);if(h<lo)lo=h;if(h>hi)hi=h;});
   if(!onDeck&&hi-lo>2.2) soft(`${(hi-lo).toFixed(1)} m of fall across the pad: expect stepped piers or fill`);
-  // nothing may overlap, and no two lots may overlap either
-  const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
-  const r1=Math.hypot(def.w,def.d)/2, myLot=lotHalf(def,rot);
-  const myBase=seatY(def,x,z,rot,ignore);
-  for(const p of others){
-    if(def.kind==='container'&&p.def.kind==='container'){
-      /* Sharing a footprint is the whole point when one is on top of the
-         other, so only complain when they are at the same level. */
-      const pTop=p.mesh.position.y+p.def.h;
-      if(myBase>=pTop-0.06)continue;                            // stacked above it
-      if(p.mesh.position.y>=myBase+def.h-0.06)continue;         // stacked below it
-      if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
-      continue;
-    }
-    if(def.join&&p.def.join){                       // may be built shoulder to shoulder
-      if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
-      continue;
-    }
-    const gap=Math.hypot(p.x-x,p.z-z)-r1-Math.hypot(p.def.w,p.def.d)/2;
-    if(gap<0){hard(`Overlaps ${p.def.n}`);break;}
-    if(takesLot(def)&&takesLot(p.def)){
-      const yourLot=lotHalf(p.def,p.rot);
-      const dx=Math.abs(p.x-x), dz=Math.abs(p.z-z);
-      const needX=myLot.x+yourLot.x, needZ=myLot.z+yourLot.z;
-      if(dx<needX&&dz<needZ){
-        /* Report the cheaper of the two escapes: the axis it is closest to
-           clearing: so the number actually tells you how far to drag it. */
-        const shortfall=Math.min(needX-dx,needZ-dz);
-        hard(`Lot overlaps ${p.def.n}: ${(shortfall/FT).toFixed(1)} ft short of a clear ${RULES.lotFt} × ${RULES.lotFt} ft lot`);break;
+  // Most objects and their required lots may not overlap. Loose amenities opt out.
+  if(!overlapFree(def)){
+    const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
+    const r1=Math.hypot(def.w,def.d)/2, myLot=lotHalf(def,rot);
+    const myBase=seatY(def,x,z,rot,ignore);
+    for(const p of others){
+      if(def.kind==='container'&&p.def.kind==='container'){
+        /* Sharing a footprint is the whole point when one is on top of the
+           other, so only complain when they are at the same level. */
+        const pTop=p.mesh.position.y+p.def.h;
+        if(myBase>=pTop-0.06)continue;                            // stacked above it
+        if(p.mesh.position.y>=myBase+def.h-0.06)continue;         // stacked below it
+        if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
+        continue;
+      }
+      if(def.join&&p.def.join){                       // may be built shoulder to shoulder
+        if(obbHit(box(def,x,z,rot),box(p.def,p.x,p.z,p.rot))){hard(`Overlaps ${p.def.n}`);break;}
+        continue;
+      }
+      const gap=Math.hypot(p.x-x,p.z-z)-r1-Math.hypot(p.def.w,p.def.d)/2;
+      if(gap<0){hard(`Overlaps ${p.def.n}`);break;}
+      if(takesLot(def)&&takesLot(p.def)){
+        const yourLot=lotHalf(p.def,p.rot);
+        const dx=Math.abs(p.x-x), dz=Math.abs(p.z-z);
+        const needX=myLot.x+yourLot.x, needZ=myLot.z+yourLot.z;
+        if(dx<needX&&dz<needZ){
+          /* Report the cheaper of the two escapes: the axis it is closest to
+             clearing: so the number actually tells you how far to drag it. */
+          const shortfall=Math.min(needX-dx,needZ-dz);
+          hard(`Lot overlaps ${p.def.n}: ${(shortfall/FT).toFixed(1)} ft short of a clear ${RULES.lotFt} × ${RULES.lotFt} ft lot`);break;
+        }
       }
     }
-  }
-  for(const p of placed){
-    if(p.type!=='custom')continue;
-    if(pointInPoly(x,z,p.pts)||cs.some(c=>pointInPoly(c[0],c[1],p.pts))){hard('Overlaps a custom building');break;}
+    for(const p of placed){
+      if(p.type!=='custom')continue;
+      if(pointInPoly(x,z,p.pts)||cs.some(c=>pointInPoly(c[0],c[1],p.pts))){hard('Overlaps a custom building');break;}
+    }
   }
   if(isStructure(def)&&LAND_AREA>0){
     const cov=(footprintArea()-(ignore&&isStructure(ignore.def)?ignore.def.w*ignore.def.d:0)+def.w*def.d)/LAND_AREA*100;
