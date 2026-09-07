@@ -26,16 +26,18 @@ vm.runInContext(`
   let placed=[], contSnap=null, magOff=false;
   const contReach=()=>1.6;
   const contTopUnder=()=>-Infinity;
+  const box=(d,x,z,r)=>({cx:x,cz:z,hw:d.w/2,hd:d.d/2,rot:r||0});
   ${functionSource('toLocalXZ')}
   ${functionSource('toWorldXZ')}
   ${functionSource('obbHit')}
   ${functionSource('snapContainer')}
   ${functionSource('containerLevelTarget')}
+  ${functionSource('containersTouch')}
 `, context);
 
 const sizes = {
-  cont20:{kind:'container',w:2.44,d:6.06},
-  cont40:{kind:'container',w:2.44,d:12.19}
+  cont20:{kind:'container',w:2.44,d:6.06,h:2.59},
+  cont40:{kind:'container',w:2.44,d:12.19,h:2.59}
 };
 const rad = deg => deg*Math.PI/180;
 const close = (actual, expected, label) =>
@@ -54,8 +56,8 @@ for (const deg of [100,190]) {
   close(roundTrip[1],local[1],`${deg}° skirt local z`);
 }
 
-close(vm.runInContext('containerLevelTarget(10,14)',context),10.45,
-  'a long run gets at most 45 cm of automatic lift');
+close(vm.runInContext('containerLevelTarget(10,14)',context),14,
+  'a magnetically connected run shares one flat floor');
 close(vm.runInContext('containerLevelTarget(10,10.2)',context),10.2,
   'a small floor difference is fully evened');
 
@@ -80,6 +82,10 @@ function run(baseDef, nextDef, baseDeg, nextDeg, perpendicular) {
   context.nextBox={cx:result.x,cz:result.z,hw:nextDef.w/2,hd:nextDef.d/2,rot:result.rot};
   assert.equal(vm.runInContext('obbHit(baseBox,nextBox)',context),false,
     `${baseDeg}/${nextDeg} flush faces count as clear`);
+  context.baseCont={def:baseDef,x:17,z:-9,rot:baseRot,mesh:{position:{y:10}}};
+  context.nextCont={def:nextDef,x:result.x,z:result.z,rot:result.rot,mesh:{position:{y:10.7}}};
+  assert.equal(vm.runInContext('containersTouch(baseCont,nextCont)',context),true,
+    `${baseDeg}/${nextDeg} corner connection joins one flat floor group`);
   const inward=world(0,-0.01,baseRot);
   context.nextBox.cx+=inward[0]; context.nextBox.cz+=inward[1];
   assert.equal(vm.runInContext('obbHit(baseBox,nextBox)',context),true,

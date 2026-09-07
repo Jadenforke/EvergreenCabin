@@ -1342,7 +1342,7 @@ const deckY=pts=>{
    it: a solid band following the outline, from the base down into the
    terrain. Emitted in the mesh's own local space so it rides along when the
    unit is moved or rotated. */
-function skirtGeom(worldPts,yTop,org){
+function skirtGeom(worldPts,yTop,org,maxDepth){
   const ox=org?org.x:0, oz=org?org.z:0, rot=org?(org.rot||0):0;
   /* The skirt is a child of the rotated mesh, so its vertices must be moved
      from world space back into that mesh's actual THREE local frame. Using
@@ -1359,8 +1359,9 @@ function skirtGeom(worldPts,yTop,org){
       const wb=[a[0]+(b[0]-a[0])*(k+1)/n, a[1]+(b[1]-a[1])*(k+1)/n];
       /* 0.3 m below grade so the foot is buried, never hovering a hair
          above the terrain it is meant to meet */
-      const ga=Math.min(0,terrainH(wa[0],wa[1])-yTop-0.3);
-      const gb=Math.min(0,terrainH(wb[0],wb[1])-yTop-0.3);
+      let ga=Math.min(0,terrainH(wa[0],wa[1])-yTop-0.3);
+      let gb=Math.min(0,terrainH(wb[0],wb[1])-yTop-0.3);
+      if(maxDepth!=null){ga=Math.max(-maxDepth,ga);gb=Math.max(-maxDepth,gb);}
       deepest=Math.min(deepest,ga,gb);
       const la=local(wa[0],wa[1]), lb=local(wb[0],wb[1]);
       pos.push(la[0],ga,la[1], lb[0],gb,lb[1], la[0],0,la[1]);
@@ -1373,13 +1374,33 @@ function skirtGeom(worldPts,yTop,org){
   g.computeVertexNormals();
   return g;
 }
-function setSkirt(mesh,worldPts,yTop,org,col){
+function setSkirt(mesh,worldPts,yTop,org,col,maxDepth){
   const old=mesh.getObjectByName('__skirt');
   if(old){mesh.remove(old);old.geometry.dispose();old.material.dispose();}
-  const g=skirtGeom(worldPts,yTop,org); if(!g)return;
+  const g=skirtGeom(worldPts,yTop,org,maxDepth); if(!g)return;
   const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial(
     {color:col,roughness:.95,side:THREE.DoubleSide}));
   m.name='__skirt'; m.castShadow=m.receiveShadow=true; mesh.add(m);
+}
+/* Flat container groups may need real clearance at the downhill end. Keep a
+   short perimeter curb so the base reads cleanly, then carry deeper gaps on
+   compact piers instead of turning the entire footprint into a tall wall. */
+function setContainerFoundation(o,y,onBuiltSupport){
+  const old=o.mesh.getObjectByName('__containerPiers');
+  if(old){o.mesh.remove(old);old.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});}
+  if(onBuiltSupport){setSkirt(o.mesh,[],y,null,0);return;}
+  setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459,0.42);
+  const grp=new THREE.Group();grp.name='__containerPiers';
+  const rows=Math.max(2,Math.ceil(o.def.d/3.2));
+  for(const lx of [-o.def.w/2+0.16,o.def.w/2-0.16])for(let i=0;i<=rows;i++){
+    const lz=-o.def.d/2+o.def.d*i/rows;
+    const w=toWorldXZ(lx,lz,o.rot),gy=terrainH(o.x+w[0],o.z+w[1]);
+    const h=y-gy+0.16;if(h<=0.1)continue;
+    const p=new THREE.Mesh(new THREE.BoxGeometry(.24,h,.24),new THREE.MeshStandardMaterial(
+      {color:0x696b66,roughness:.96}));
+    p.position.set(lx,-h/2+0.08,lz);p.castShadow=p.receiveShadow=true;grp.add(p);
+  }
+  o.mesh.add(grp);
 }
 /* Seat one placed thing on the ground and refresh its fill. Every type sits
    differently: roads and pavement drape, shrub matrices are already in
@@ -1435,7 +1456,9 @@ function fitGround(o,resettle){
   /* Standing on a deck it already has a flat floor under it, so the fill is
      only for units sitting straight on the ground. */
   const onDeck=deckTopUnder(o.def,o.x,o.z)>padY(o.def,o.x,o.z,o.rot);
-  if(o.def.w&&o.def.kind!=='pad'&&!onDeck)
+  const onContainer=o.def.kind==='container'&&contTopUnder(o.def,o.x,o.z,o.rot,o,y+0.01)>-Infinity;
+  if(o.def.kind==='container')setContainerFoundation(o,y,onDeck||onContainer);
+  else if(o.def.w&&o.def.kind!=='pad'&&!onDeck)
     setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459);
   else if(onDeck)setSkirt(o.mesh,[],y,null,0);      // clears any stale fill
 }
@@ -1459,22 +1482,29 @@ function refitObjs(){
 function seatContY(o,y){
   o.mesh.position.y=y;
   const onDeck=deckTopUnder(o.def,o.x,o.z)>padY(o.def,o.x,o.z,o.rot);
-  if(!onDeck)setSkirt(o.mesh,corners(o.def,o.x,o.z,o.rot),y,{x:o.x,z:o.z,rot:o.rot},0x6b6459);
-  else setSkirt(o.mesh,[],y,null,0);
+  const onContainer=contTopUnder(o.def,o.x,o.z,o.rot,o,y+0.01)>-Infinity;
+  setContainerFoundation(o,y,onDeck||onContainer);
 }
-/* Small differences between adjacent boxes are softened, but a long run no
-   longer inherits the single highest point under the whole structure. That
-   made a mild grade turn into several metres of solid fill at the downhill
-   end. Forty-five centimetres is enough to lose a modest step without making
-   the planner pretend the site has been massively built up. */
-function containerLevelTarget(natural,highest){return Math.min(highest,natural+0.45);}
+/* Magnetically touching containers form one building floor, so every box in
+   that connected course shares the highest safe support elevation. Deep
+   downhill gaps are now shown with piers rather than a giant solid skirt. */
+function containerLevelTarget(natural,highest){return highest;}
+function containersTouch(a,b){
+  const ay=a.mesh.position.y,by=b.mesh.position.y;
+  // a course apart? then they are stacked, not horizontally coupled
+  if(ay+a.def.h<=by+1e-3||by+b.def.h<=ay+1e-3)return false;
+  /* obbHit treats touching as clear, which is exactly what flush-snapped
+     boxes are, so one side is grown enough to catch its neighbour. */
+  const inf=box(a.def,a.x,a.z,a.rot);inf.hw+=0.3;inf.hd+=0.3;
+  return obbHit(inf,box(b.def,b.x,b.z,b.rot));
+}
 function levelContainers(){
   const cs=placed.filter(o=>o.type==='obj'&&o.def.kind==='container');
   if(cs.length<2)return;
   const yOf=o=>o.mesh.position.y;
   /* Re-read the real support height instead of trusting the current mesh Y,
      which may include an earlier levelling lift. Otherwise adding one box at
-     a time could accumulate another 45 cm on every placement. */
+     a time could accumulate extra lift on every placement. */
   const natural=new Map(cs.map(o=>[o,Math.max(
     padY(o.def,o.x,o.z,o.rot),deckTopUnder(o.def,o.x,o.z,o.rot),
     contTopUnder(o.def,o.x,o.z,o.rot,o,o.mesh.position.y+o.def.h*0.5)
@@ -1482,14 +1512,6 @@ function levelContainers(){
   const centreOver=(p,o)=>{                      // p's centre inside o's footprint
     const [lx,lz]=toLocalXZ(p.x-o.x,p.z-o.z,o.rot);
     return Math.abs(lx)<=o.def.w/2+1e-4&&Math.abs(lz)<=o.def.d/2+1e-4;
-  };
-  const touching=(a,b)=>{
-    // a course apart? then they are stacked, not coupled
-    if(yOf(a)+a.def.h<=yOf(b)+1e-3||yOf(b)+b.def.h<=yOf(a)+1e-3)return false;
-    /* obbHit treats touching as clear, which is exactly what flush-snapped
-       boxes are, so one side is grown enough to catch its neighbour. */
-    const inf=box(a.def,a.x,a.z,a.rot); inf.hw+=0.3; inf.hd+=0.3;
-    return obbHit(inf,box(b.def,b.x,b.z,b.rot));
   };
   const lift=(o,dy,seen)=>{
     if(dy<=1e-4||seen.has(o))return;
@@ -1505,7 +1527,7 @@ function levelContainers(){
     const par=cs.map((_,i)=>i);
     const find=i=>{while(par[i]!==i){par[i]=par[par[i]];i=par[i];}return i;};
     for(let i=0;i<cs.length;i++)for(let j=i+1;j<cs.length;j++)
-      if(touching(cs[i],cs[j])){const a=find(i),b=find(j); if(a!==b)par[a]=b;}
+      if(containersTouch(cs[i],cs[j])){const a=find(i),b=find(j); if(a!==b)par[a]=b;}
     const runs=new Map();
     cs.forEach((o,i)=>{const r=find(i); if(!runs.has(r))runs.set(r,[]); runs.get(r).push(o);});
     let changed=false;
