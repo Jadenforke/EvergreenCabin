@@ -42,6 +42,17 @@ const close = (actual, expected, label) =>
 const sameAngle = (actual, expected, label) =>
   close(Math.atan2(Math.sin(actual-expected),Math.cos(actual-expected)),0,label);
 
+/* A foundation/skirt is stored as a child of the rotated container. Its world
+   corner must therefore round-trip back to the original local corner before
+   the parent transform is applied again. */
+for (const deg of [100,190]) {
+  const local=[1.22,6.095],rot=rad(deg),worldPoint=world(local[0],local[1],rot);
+  context.dx=worldPoint[0]; context.dz=worldPoint[1]; context.rot=rot;
+  const roundTrip=vm.runInContext('toLocalXZ(dx,dz,rot)',context);
+  close(roundTrip[0],local[0],`${deg}° skirt local x`);
+  close(roundTrip[1],local[1],`${deg}° skirt local z`);
+}
+
 function world(lx,lz,rot) {
   const c=Math.cos(rot),s=Math.sin(rot);
   return [lx*c+lz*s,-lx*s+lz*c];

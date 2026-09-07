@@ -1338,8 +1338,11 @@ const deckY=pts=>{
    unit is moved or rotated. */
 function skirtGeom(worldPts,yTop,org){
   const ox=org?org.x:0, oz=org?org.z:0, rot=org?(org.rot||0):0;
-  const c=Math.cos(-rot), s=Math.sin(-rot);
-  const local=(x,z)=>{const dx=x-ox,dz=z-oz;return [dx*c-dz*s,dx*s+dz*c];};
+  /* The skirt is a child of the rotated mesh, so its vertices must be moved
+     from world space back into that mesh's actual THREE local frame. Using
+     the opposite 2-D convention here made the fill turn twice more when the
+     parent rendered it: hidden at square angles, visibly crossed at 100/190. */
+  const local=(x,z)=>toLocalXZ(x-ox,z-oz,rot);
   const loop=worldPts.concat([worldPts[0]]);
   const pos=[]; let deepest=0;
   for(let i=0;i<loop.length-1;i++){
