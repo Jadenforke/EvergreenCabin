@@ -1202,9 +1202,9 @@ const CAT=[
       about a container and used to take one over the moment it was dragged.
       The container magnet is the only thing that places these. */
    {id:'cont20',n:'Container (20 ft)',kind:'container',w:2.44,d:6.06,h:2.59,cad:0,local:true,
-    join:false,stack:true,area:'20 ft ISO · 6.06 × 2.44 × 2.59 m · corners snap flush, runs self-level'},
+    join:false,stack:true,area:'20 ft ISO · 6.06 × 2.44 × 2.59 m · corners snap flush, runs self-level · hold Alt to place free'},
    {id:'cont40',n:'Container (40 ft)',kind:'container',w:2.44,d:12.19,h:2.59,cad:0,local:true,
-    join:false,stack:true,area:'40 ft ISO · 12.19 × 2.44 × 2.59 m · corners snap flush, runs self-level'}]},
+    join:false,stack:true,area:'40 ft ISO · 12.19 × 2.44 × 2.59 m · corners snap flush, runs self-level · hold Alt to place free'}]},
  {g:'Draw with the pen',items:[
    {id:'custom',n:'Custom building',kind:'pen',pen:'building',local:true,
     area:'two-storey warehouse shell · measured in feet'},
@@ -2713,13 +2713,20 @@ function clearPenDraw(){
 let penSnap=null;
 const penReach=()=>viewMode==='plan'?Math.max(1.5,ctrl.orthoSize*0.022)
                                     :Math.max(1.5,ctrl.radius*0.016);
-/* The container magnet's grab distance follows how big things look on screen,
-   the same way the pen's does. It was a fixed 2.6 m, which is fine up close and
-   nearly unhittable zoomed out: a run of 40 ft boxes is laid out from far
-   enough back to see the whole run, and there 2.6 m is a few pixels of cursor
-   travel. The floor keeps close-up behaviour exactly as it was. */
-const contReach=()=>viewMode==='plan'?Math.max(2.6,ctrl.orthoSize*0.05)
-                                     :Math.max(2.6,ctrl.radius*0.035);
+/* HOW CLOSE THE MAGNET REACHES, and this is the number that decides whether
+   the thing feels helpful or possessed. Scaling it with the zoom, the way the
+   pen does, was a mistake: at the opening camera that worked out to between
+   8.5 and 10 metres, which is longer than a 20 ft container. A box dropped
+   anywhere in the same corner of the site as another one was hauled flush to
+   it and turned to match, from off the far side of the screen. Nothing about
+   that reads as a magnet: it reads as the plan rearranging itself.
+   A corner magnet should reach about a box width, so it is now a real
+   distance in metres, between 0.9 and 1.6 depending on the zoom, measured
+   from the box you are holding to the box it would make: clear air, not
+   centre to centre. Come that close and it snaps; stay outside it and
+   nothing you did not ask for happens. */
+const contReach=()=>Math.min(1.6,Math.max(0.9,
+  (viewMode==='plan'?ctrl.orthoSize:ctrl.radius)*0.008));
 function penRings(){
   const rings=[];
   placed.forEach(o=>{
@@ -3649,9 +3656,13 @@ function snapDock(d,x,z,rot){
    rather than copied from it, which is what lets an L or a T be built:
    turn the ghost with R or E and it still lines up. */
 let contSnap=null;
+/* Hold Alt and the magnet lets go. Every snapping tool needs a way to say
+   'not this time' that is not 'zoom out and try again', and without one a
+   magnet that is right nine times in ten is still infuriating on the tenth. */
+let magOff=false;
 function snapContainer(d,x,z,rot,ignore,freeRot){
   contSnap=null;
-  if(!d||d.kind!=='container')return {x,z,rot};
+  if(!d||d.kind!=='container'||magOff)return {x,z,rot};
   const Q=Math.PI/2, REACH=contReach();
   let best=null;
   for(const o of placed){
@@ -3959,6 +3970,7 @@ renderer.domElement.addEventListener('dblclick',()=>{
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='Shift')snap=true;
+  if(e.altKey&&!magOff){magOff=true;hint('Magnet off while Alt is held \u00b7 place a container anywhere',false,true);}
   /* R turns one way, E the other. Keyed off e.code rather than e.key: with
      Alt held, macOS rewrites the character (Alt+R gives '\u00ae', Alt+E a dead
      acute), so the fine-rotate step never fired there. e.key is kept as a
@@ -4052,7 +4064,14 @@ addEventListener('keydown',e=>{
   if((e.key==='y'||e.key==='Y')&&(e.ctrlKey||e.metaKey)){redo();return;}
   if((e.key==='u'||e.key==='U')&&SITE.under)showUnder(!SITE.underOn);
 },{passive:true});
-addEventListener('keyup',e=>{if(e.key==='Shift')snap=false;});
+addEventListener('keyup',e=>{if(e.key==='Shift')snap=false; if(!e.altKey)magOff=false;});
+/* Alt can be released over another window, or the browser can swallow the
+   keyup entirely, and a magnet stuck off is worse than one stuck on. Every
+   pointer event carries the true state of the modifier, so it is re-read
+   there rather than trusted to arrive. */
+addEventListener('blur',()=>{magOff=false;snap=false;});
+renderer.domElement.addEventListener('pointermove',e=>{magOff=e.altKey;},true);
+renderer.domElement.addEventListener('pointerdown',e=>{magOff=e.altKey;},true);
 
 /* ---------------- rebuild land ---------------- */
 function rebuildLand(){
