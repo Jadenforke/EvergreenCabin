@@ -1189,10 +1189,13 @@ const CAT=[
    area:'single chair · prop only, not costed'},
  ]},
  {g:'Containers: stack them like blocks',items:[
+   /* join:false keeps them off the dock magnet, which has nothing useful to say
+      about a container and used to take one over the moment it was dragged.
+      The container magnet is the only thing that places these. */
    {id:'cont20',n:'Container (20 ft)',kind:'container',w:2.44,d:6.06,h:2.59,cad:0,local:true,
-    join:true,stack:true,area:'20 ft ISO · 6.06 × 2.44 × 2.59 m · snaps flush and stacks'},
+    join:false,stack:true,area:'20 ft ISO · 6.06 × 2.44 × 2.59 m · corners snap flush, runs self-level'},
    {id:'cont40',n:'Container (40 ft)',kind:'container',w:2.44,d:12.19,h:2.59,cad:0,local:true,
-    join:true,stack:true,area:'40 ft ISO · 12.19 × 2.44 × 2.59 m · snaps flush and stacks'}]},
+    join:false,stack:true,area:'40 ft ISO · 12.19 × 2.44 × 2.59 m · corners snap flush, runs self-level'}]},
  {g:'Draw with the pen',items:[
    {id:'custom',n:'Custom building',kind:'pen',pen:'building',local:true,
     area:'two-storey warehouse shell · measured in feet'},
@@ -2188,7 +2191,7 @@ function buildMesh(d){
     /* One grey for every box. The colour used to be drawn at random when the
        mesh was built, which is not stored anywhere, so a plan came back in
        different colours every time it was reloaded. */
-    const paint=0x8a8f93;
+    const paint=0xcabfa4;                     // beige, the same on every box
     const skin=new THREE.MeshStandardMaterial({color:paint,roughness:.78,metalness:.22});
     const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,D),skin);
     body.position.y=H/2; body.castShadow=body.receiveShadow=true; g.add(body);
@@ -3567,122 +3570,72 @@ let contSnap=null;
 function snapContainer(d,x,z,rot,ignore,freeRot){
   contSnap=null;
   if(!d||d.kind!=='container')return {x,z,rot};
-  const Q=Math.PI/2;
-  const REACH=contReach();
+  const Q=Math.PI/2, REACH=contReach();
   let best=null;
-  placed.forEach(o=>{
-    if(o===ignore||o.type!=='obj'||o.def.kind!=='container')return;
-    /* All four quarter turns are considered, not just the one nearest the
-       angle the ghost happens to be holding. A row built at 100 degrees and a
-       fresh ghost at 0 used to force 10 degrees, square across the row, so a
-       box aimed alongside attached crosswise 7.3 m out instead of flush at
-       2.44. Where you point now picks the orientation; the angle you are
-       already holding only breaks a tie. */
-    const k0=Math.round((rot-o.rot)/Q);
-    for(let turn=0;turn<4;turn++){
-    const k=k0+turn;                              // quarter turns off the neighbour
-    const grid=o.rot+k*Q;
-    const even=((k%2)+2)%2===0;
-    const gx=even?d.w:d.d, gz=even?d.d:d.w;       // ghost extent in the neighbour's frame
+  for(const o of placed){
+    if(o===ignore||o.type!=='obj'||o.def.kind!=='container')continue;
     const ow=o.def.w, od=o.def.d;
-    /* Corner to corner is what makes an L. End to end and side by side both
-       centre the new box on the neighbour, which gives a T; sliding it along
-       until their outer faces line up puts the two boxes corner on corner,
-       and a box turned across its neighbour then reads as the short leg of
-       an L rather than a cross. Offered both ways round each face, so the L
-       can open in any of the four directions. */
-    const eu=(gx-ow)/2, ev=(gz-od)/2;             // flush-face offsets
-    /* Beside the neighbour, and on top of it: two different intentions, so
-       they are kept apart. Measuring to a candidate's centre cannot tell
-       them apart on a long box, where every centre is metres from the corner
-       you are actually pointing at. */
-    const beside=[
-      [0, (od+gz)/2],[0,-(od+gz)/2],              // end to end
-      [(ow+gx)/2,0],[-(ow+gx)/2,0],               // side by side
-      [eu,(od+gz)/2],[-eu,(od+gz)/2],             // off the end, faces flush: an L
-      [eu,-(od+gz)/2],[-eu,-(od+gz)/2],
-      [(ow+gx)/2,ev],[(ow+gx)/2,-ev],             // off the side, faces flush: an L
-      [-(ow+gx)/2,ev],[-(ow+gx)/2,-ev]
-    ];
-    const onTop=[
-      [0,0],                                      // squarely on the roof
-      [0,(od-gz)/2],[0,-(od-gz)/2],               // stacked flush with either end
-      [(ow-gx)/2,0],[-(ow-gx)/2,0]
-    ];
+    /* The cursor in the neighbour's own frame. Everything below is worked out
+       there and rotated back at the end, so a run built at any angle behaves
+       exactly like one built square to the world. */
     const c=Math.cos(o.rot), si=Math.sin(o.rot);
-    /* How far the cursor is from the box a candidate would put there, not from
-       its centre: pointing anywhere along a 40 ft flank should catch it, and
-       pointing at a corner should catch the two candidates that meet there. */
-    /* In the ghost's OWN frame its half extents are always w by d. The even/odd
-       swap belongs to gx/gz, which measure the ghost inside the NEIGHBOUR's
-       frame; bringing it here turned the catch area 90 degrees away from the
-       box whenever the two were not parallel, so a turned container magnetised
-       sideways to its own length. */
-    const gw=d.w, gd=d.d;
-    const reach=(px,pz)=>{
-      const cc=Math.cos(grid), ss=Math.sin(grid);
-      const dx=x-px, dz=z-pz;
-      const lx=dx*cc+dz*ss, lz=-dx*ss+dz*cc;      // into the ghost's own frame
-      return Math.hypot(Math.max(Math.abs(lx)-gw/2,0),Math.max(Math.abs(lz)-gd/2,0));
-    };
-    /* Stacking is only on the table when the cursor is genuinely over the
-       neighbour's roof. Otherwise dragging past a container's end used to
-       lift the new one on top of it instead of setting it down alongside. */
-    const oc=Math.cos(o.rot), os_=Math.sin(o.rot);
-    const rdx=x-o.x, rdz=z-o.z;
-    const olx=rdx*oc+rdz*os_, olz=-rdx*os_+rdz*oc;
-    /* Well inside the roof, not merely over its edge. A corner is the one
-       place the two readings collide: it is where you point to build an L,
-       and an inflated roof made it read as a stack, so asking for a corner
-       put the box up a course. Stacking is the deliberate act, so it wants
-       the cursor properly on the roof. */
-    const overRoof=Math.abs(olx)<=Math.max(ow/2-0.35,0)&&Math.abs(olz)<=Math.max(od/2-0.35,0);
-    const cand=overRoof?beside.map(v=>[v,true]).concat(onTop.map(v=>[v,false]))
+    const cu=(x-o.x)*c+(z-o.z)*si, cv=-(x-o.x)*si+(z-o.z)*c;
+    /* Stacking is a deliberate act, so it wants the cursor properly on the
+       roof rather than near its edge. The edge is where you point to build an
+       L, and an inflated roof read that as a stack. */
+    const onRoof=Math.abs(cu)<=Math.max(ow/2-0.35,0)&&Math.abs(cv)<=Math.max(od/2-0.35,0);
+    /* One axis, two ways round. With no angle chosen the box lies parallel to
+       its neighbour, which is what puts a run in a line back to back; turn the
+       ghost and it keeps to the quarter turn you are holding, which is how an
+       L is made. Either way the aim only chooses among positions, so a box
+       cannot swing across a row because the cursor drifted off its axis. */
+    const k0=freeRot?0:Math.round((rot-o.rot)/Q);
+    for(const k of [k0,k0+2]){
+      const grid=o.rot+k*Q, par=((k%2)+2)%2===0;
+      const gu=par?d.w:d.d, gv=par?d.d:d.w;     // the ghost in the neighbour's frame
+      const eu=(gu-ow)/2, ev=(gv-od)/2;         // offsets that bring outer faces flush
+      /* Every placement that lays one face flat on another with a pair of
+         corners meeting: off either end, along either side, centred or flush
+         to either edge. For boxes of equal width or length the flush and
+         centred versions coincide, which is correct rather than duplicated. */
+      const beside=[
+        [0,(od+gv)/2],[0,-(od+gv)/2],
+        [eu,(od+gv)/2],[-eu,(od+gv)/2],[eu,-(od+gv)/2],[-eu,-(od+gv)/2],
+        [(ow+gu)/2,0],[-(ow+gu)/2,0],
+        [(ow+gu)/2,ev],[(ow+gu)/2,-ev],[-(ow+gu)/2,ev],[-(ow+gu)/2,-ev]];
+      const onTop=[[0,0],[0,(od-gv)/2],[0,-(od-gv)/2],[(ow-gu)/2,0],[-(ow-gu)/2,0]];
+      const list=onRoof?beside.map(v=>[v,true]).concat(onTop.map(v=>[v,false]))
                        :beside.map(v=>[v,true]);
-    cand.forEach(([[lx,lz],ground])=>{
-      const px=o.x+lx*c-lz*si, pz=o.z+lx*si+lz*c;
-      /* Candidates are worked out against one neighbour at a time, so a spot
-         that sits beside THAT box can still be squarely on top of a different
-         one, and seating would then lift the new box a whole course nobody
-         asked for. A place beside something is on the ground by definition:
-         if this one is not, it is not the position it claims to be. */
-      /* ignore, or a box being dragged counts as something to stand on and
-         rejects its own destination: the good candidates disappear one by
-         one as it approaches and only an awkward one is left. */
-      if(ground&&contTopUnder(d,px,pz,grid,ignore)>-Infinity)return;
-      const dd=reach(px,pz);
-      /* Pointing inside a container-sized rectangle puts the cursor inside
-         several candidates at once, all at distance nil. The nearer centre
-         breaks the tie, so which one you get still tracks where you point. */
-      const cd=Math.hypot(x-px,z-pz);
-      /* Third key: how far this orientation is from the one being held, so a
-         genuine tie keeps the angle you chose rather than spinning the box. */
-      /* Order matters. Fit decides first. Then lying parallel to the
-         neighbour beats lying across it, because a box pointed at the flank
-         of a row is joining the row: crosswise has to be asked for by aiming
-         off the end, where it wins on fit before this ever applies. Centre
-         distance separates candidates of one orientation, and the angle being
-         held picks between a box and the same box turned end for end. */
-      const ad=Math.abs(Math.atan2(Math.sin(grid-rot),Math.cos(grid-rot)));
-      /* Orientation is yours, position is the magnet's. With no angle chosen
-         the box lies parallel to its neighbour, which is what puts a row in a
-         line back to back. Turn the ghost and the magnet keeps to the quarter
-         turn you are holding, which is how the L gets made. Either way the aim
-         only picks among positions at that orientation, so a box can no longer
-         flip square across the row because the cursor drifted off its axis. */
-      const cross=freeRot ? (even?0:1) : (ad<Math.PI/4?0:1);
-      const better=!best ? true
-        : cross!==best.k ? cross<best.k
-        : dd<best.d-1e-6 ? true
-        : dd>best.d+1e-6 ? false
-        : cd<best.c-1e-6 ? true
-        : cd>best.c+1e-6 ? false
-        : ad<best.a;
-      if(dd<REACH&&better)
-        best={d:dd,k:cross,c:cd,a:ad,x:px,z:pz,rot:grid};
-    });
+      for(const [[lu,lv],ground] of list){
+        const px=o.x+lu*c-lv*si, pz=o.z+lu*si+lv*c;
+        /* Candidates are worked out against one neighbour at a time, so a spot
+           beside THAT box can sit squarely on top of a different one. A place
+           beside something is on the ground by definition; if this one is not,
+           it is not the position it claims to be. */
+        if(ground&&contTopUnder(d,px,pz,grid,ignore)>-Infinity)continue;
+        /* Distance to the box a candidate would put there, not to its centre.
+           A 40 ft box is 12 m long and its corner sits 6 m from every centre
+           going, so measuring to centres made the corner unreachable. */
+        const gc=Math.cos(grid), gs=Math.sin(grid);
+        const lx=(x-px)*gc+(z-pz)*gs, lz=-(x-px)*gs+(z-pz)*gc;
+        const dd=Math.hypot(Math.max(Math.abs(lx)-d.w/2,0),Math.max(Math.abs(lz)-d.d/2,0));
+        if(dd>=REACH)continue;
+        const cd=Math.hypot(x-px,z-pz);
+        const ad=Math.abs(Math.atan2(Math.sin(grid-rot),Math.cos(grid-rot)));
+        /* Nearest fit wins. Pointing inside a container-sized rectangle puts
+           the cursor inside several at once, all at nil, so the nearer centre
+           settles those, and the angle being held picks between a box and the
+           same box turned end for end. */
+        const better=!best ? true
+          : dd<best.d-1e-6 ? true
+          : dd>best.d+1e-6 ? false
+          : cd<best.c-1e-6 ? true
+          : cd>best.c+1e-6 ? false
+          : ad<best.a;
+        if(better)best={d:dd,c:cd,a:ad,x:px,z:pz,rot:grid};
+      }
     }
-  });
+  }
   if(best){ contSnap=best; return {x:best.x,z:best.z,rot:best.rot}; }
   return {x,z,rot};
 }
