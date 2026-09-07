@@ -1425,6 +1425,36 @@ function restoredContainerY(o,oldY){
   });
   return y;
 }
+/* Saved plans made while the old undo bug was active can carry an entire
+   connected building one container course too high. Keep genuine storeys,
+   but pull a component down when every base box is implausibly far above
+   its highest safe ground/deck support. */
+function saneSnapshotContainerYs(conts){
+  const ys=new Map(conts.map(o=>[o,o._snapshotY])),seen=new Set();
+  for(const seed of conts){
+    if(seen.has(seed))continue;
+    const comp=[],todo=[seed];seen.add(seed);
+    while(todo.length){
+      const a=todo.pop();comp.push(a);
+      conts.forEach(b=>{
+        if(seen.has(b))return;
+        if(containersTouch(a,b)||containerWasOn(a,b,ys)||containerWasOn(b,a,ys)){
+          seen.add(b);todo.push(b);
+        }
+      });
+    }
+    const bases=comp.filter(o=>!comp.some(p=>containerWasOn(o,p,ys)));
+    if(!bases.length)continue;
+    const natural=Math.max(...bases.map(o=>Math.max(
+      padY(o.def,o.x,o.z,o.rot),deckTopUnder(o.def,o.x,o.z,o.rot))));
+    const saved=Math.min(...bases.map(o=>ys.get(o)));
+    if(saved-natural>0.6){
+      const shift=saved-natural;
+      comp.forEach(o=>ys.set(o,ys.get(o)-shift));
+    }
+  }
+  return ys;
+}
 /* Seat one placed thing on the ground and refresh its fill. Every type sits
    differently: roads and pavement drape, shrub matrices are already in
    world space, decks and buildings stand on their high point, and getting
@@ -1501,11 +1531,12 @@ function refitObjs(){
        L-shaped neighbour can otherwise look like support and lift the whole
        foundation by another container height. */
     conts.forEach(o=>o.mesh.position.y=o._snapshotY);
-    const restoredY=new Map(conts.map(o=>[o,o._snapshotY]));
+    const restoredY=saneSnapshotContainerYs(conts);
+    conts.forEach(o=>o.mesh.position.y=restoredY.get(o));
     conts.forEach(o=>{
       const onDeck=deckTopUnder(o.def,o.x,o.z)>padY(o.def,o.x,o.z,o.rot);
       const onContainer=conts.some(p=>containerWasOn(o,p,restoredY));
-      setContainerFoundation(o,o._snapshotY,onDeck||onContainer);
+      setContainerFoundation(o,restoredY.get(o),onDeck||onContainer);
     });
   }else{
     conts.sort((a,b)=>oldContainerY.get(a)-oldContainerY.get(b))

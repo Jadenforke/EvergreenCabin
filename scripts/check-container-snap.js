@@ -83,10 +83,12 @@ vm.runInContext(`
     mesh:{position:{y:33}},_snapshotY:4};
   let placed=[c1,c2];
   const fitGround=()=>fitCalls++;
-  const deckTopUnder=()=>-Infinity,padY=()=>0;
+  const deckTopUnder=()=>-Infinity,padY=()=>3.7;
   const containerWasOn=()=>false;
+  const containersTouch=()=>true;
   const setContainerFoundation=(o,y,supported)=>foundationCalls.push([o,y,supported]);
   const levelContainers=()=>levelCalls++;
+  ${functionSource('saneSnapshotContainerYs')}
   ${functionSource('refitObjs')}
   refitObjs();
 `,restoreContext);
@@ -98,6 +100,35 @@ assert.equal(vm.runInContext('foundationCalls.length',restoreContext),2,
   'foundations are rebuilt at the restored elevations');
 assert.equal(vm.runInContext("('_snapshotY' in c1)||('_snapshotY' in c2)",restoreContext),false,
   'temporary snapshot heights are cleared after restoration');
+
+/* The supplied v3 plan captured the old failure exactly one course high:
+   5.8125 m at ground level and 8.4025 m above it, versus 3.16 m terrain.
+   Repair the component as a unit so the real second storey survives. */
+const corruptContext=vm.createContext({Math});
+vm.runInContext(`
+  let foundationCalls=[],levelCalls=0;
+  const lower={type:'obj',def:{kind:'container',h:2.59},x:0,z:0,rot:0,
+    mesh:{position:{y:0}},_snapshotY:5.8125};
+  const upper={type:'obj',def:{kind:'container',h:2.59},x:0,z:0,rot:0,
+    mesh:{position:{y:0}},_snapshotY:8.4025};
+  let placed=[lower,upper];
+  const fitGround=()=>{};
+  const deckTopUnder=()=>-Infinity,padY=()=>3.16;
+  const containerWasOn=(u,l,ys)=>u===upper&&l===lower&&
+    Math.abs(ys.get(l)+l.def.h-ys.get(u))<.1;
+  const containersTouch=()=>false;
+  const setContainerFoundation=(o,y,supported)=>foundationCalls.push([o,y,supported]);
+  const levelContainers=()=>levelCalls++;
+  ${functionSource('saneSnapshotContainerYs')}
+  ${functionSource('refitObjs')}
+  refitObjs();
+`,corruptContext);
+const repaired=JSON.parse(JSON.stringify(vm.runInContext(
+  '[lower.mesh.position.y,upper.mesh.position.y]',corruptContext)));
+close(repaired[0],3.16,'corrupt saved ground course returns to terrain');
+close(repaired[1],5.75,'real upper course stays one container above');
+assert.equal(vm.runInContext('foundationCalls[1][2]',corruptContext),true,
+  'repaired upper course rests on the container below');
 
 function world(lx,lz,rot) {
   const c=Math.cos(rot),s=Math.sin(rot);
