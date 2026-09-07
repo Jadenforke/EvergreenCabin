@@ -4017,9 +4017,25 @@ function arrowPanDelta(key,theta,step){
   if(key==='ArrowRight')return {x:r.x*step,z:r.z*step};
   return {x:-r.x*step,z:-r.z*step};
 }
+function arrowPanVector(keys,theta){
+  let x=0,z=0;
+  keys.forEach(key=>{const d=arrowPanDelta(key,theta,1);x+=d.x;z+=d.z;});
+  const len=Math.hypot(x,z);
+  return len?{x:x/len,z:z/len}:{x:0,z:0};
+}
+function keyboardPanSpeed(scale,fast){return Math.max(24,scale*(fast?3:1.15));}
+const panKeys=new Set();let panFast=false,panVX=0,panVZ=0;
+function updateKeyboardPan(dt){
+  const dir=arrowPanVector(panKeys,viewMode==='3d'?ctrl.theta:0);
+  const scale=viewMode==='plan'?ctrl.orthoSize:ctrl.radius;
+  const speed=keyboardPanSpeed(scale,panFast),blend=1-Math.exp(-dt*14);
+  panVX+=(dir.x*speed-panVX)*blend;panVZ+=(dir.z*speed-panVZ)*blend;
+  if(!panKeys.size&&Math.hypot(panVX,panVZ)<.04){panVX=panVZ=0;return;}
+  ctrl.target.x+=panVX*dt;ctrl.target.z+=panVZ*dt;applyCam();
+}
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
-  if(e.key==='Shift')snap=true;
+  if(e.key==='Shift'){snap=true;panFast=true;}
   if(e.altKey&&!magOff){magOff=true;hint('Magnet off while Alt is held \u00b7 place a container anywhere',false,true);}
   /* R turns one way, E the other. Keyed off e.code rather than e.key: with
      Alt held, macOS rewrites the character (Alt+R gives '\u00ae', Alt+E a dead
@@ -4064,17 +4080,14 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape'){clearHL();if(tool==='measure'&&measurePts.length){clearMeasure();hint('Measurement cleared');return;}
     if(pen)endPen(false);else if(trace)cancelTrace();else if(landMode)setLandMode(false);else if(boundMode)setBoundMode(false);else if(roadPts.length)cancelRoad();else setTool('select');}
   if(e.key==='Backspace'&&pen){ if(pen.pts.length)pen.pts.pop(); if(!pen.pts.length)endPen(false); else penDraw(); return; }
-  /* Arrow keys move the map in both views, even while an object is selected.
-     The distance follows the zoom so a tap remains useful when close in or
-     far out; Shift provides a faster sweep across the site. */
+  /* Track held arrows rather than moving once per browser key-repeat. The
+     render loop eases toward this direction, making starts, diagonals and
+     stops fluid regardless of keyboard repeat settings. */
   if(/^Arrow(Up|Down|Left|Right)$/.test(e.key)&&!e.ctrlKey&&!e.metaKey){
     e.preventDefault();
-    const scale=viewMode==='plan'?ctrl.orthoSize:ctrl.radius;
-    const step=Math.max(.5,scale*(e.shiftKey?.075:.025));
-    const d=arrowPanDelta(e.key,viewMode==='3d'?ctrl.theta:0,step);
-    ctrl.target.x+=d.x;ctrl.target.z+=d.z;
-    applyCam();
-    hint(`Map moved \u00b7 use arrow keys to explore \u00b7 hold Shift to move faster`,false,true);
+    panFast=e.shiftKey;
+    if(!panKeys.has(e.key)){panKeys.add(e.key);updateKeyboardPan(1/30);}
+    hint(`Smooth map movement \u00b7 hold the arrow keys \u00b7 Shift is turbo`,false,true);
     return;
   }
   if((e.key==='Delete'||e.key==='Backspace')&&selected){pushUndo('delete '+(selected.def?selected.def.n:'building'));removeObj(selected);toast('Removed');}
@@ -4083,12 +4096,16 @@ addEventListener('keydown',e=>{
   if((e.key==='y'||e.key==='Y')&&(e.ctrlKey||e.metaKey)){redo();return;}
   if((e.key==='u'||e.key==='U')&&SITE.under)showUnder(!SITE.underOn);
 },{passive:false});
-addEventListener('keyup',e=>{if(e.key==='Shift')snap=false; if(!e.altKey)magOff=false;});
+addEventListener('keyup',e=>{
+  if(/^Arrow(Up|Down|Left|Right)$/.test(e.key))panKeys.delete(e.key);
+  if(e.key==='Shift'){snap=false;panFast=false;}
+  if(!e.altKey)magOff=false;
+});
 /* Alt can be released over another window, or the browser can swallow the
    keyup entirely, and a magnet stuck off is worse than one stuck on. Every
    pointer event carries the true state of the modifier, so it is re-read
    there rather than trusted to arrive. */
-addEventListener('blur',()=>{magOff=false;snap=false;});
+addEventListener('blur',()=>{magOff=false;snap=false;panFast=false;panKeys.clear();panVX=panVZ=0;});
 renderer.domElement.addEventListener('pointermove',e=>{magOff=e.altKey;},true);
 renderer.domElement.addEventListener('pointerdown',e=>{magOff=e.altKey;},true);
 
@@ -4724,6 +4741,7 @@ let frame=0;
 function tick(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   if(playing&&animOn){minutes=(minutes+dt*140)%1440;$('time').value=minutes;updateSun();}
+  if(panKeys.size||Math.hypot(panVX,panVZ)>.02)updateKeyboardPan(dt);
   let moving=false;
   trees.forEach(t=>{if(t.dead)return;
     if(Math.abs(t.tx-t.x)>.01||Math.abs(t.tz-t.z)>.01){t.x+=(t.tx-t.x)*Math.min(1,dt*5);t.z+=(t.tz-t.z)*Math.min(1,dt*5);moving=true;}});
