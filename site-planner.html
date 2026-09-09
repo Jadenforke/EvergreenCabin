@@ -2526,7 +2526,12 @@ function validate(def,x,z,rot,ignore){
   if(!onDeck&&hi-lo>2.2) soft(`${(hi-lo).toFixed(1)} m of fall across the pad: expect stepped piers or fill`);
   // Most objects and their required lots may not overlap. Loose amenities opt out.
   if(!overlapFree(def)){
-    const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock');
+    /* Exempt in both directions, or the exemption is decided by the order you
+       happened to build in. A pool may go over a cabin, so a cabin must go
+       over a pool: otherwise placing the pool first quietly makes the same
+       arrangement impossible, which is the rule saying no to exactly what it
+       was widened to allow. */
+    const others=placed.filter(p=>p.type==='obj'&&p.def.w&&p!==ignore&&p.def.kind!=='pad'&&p.def.kind!=='dock'&&!overlapFree(p.def));
     const r1=Math.hypot(def.w,def.d)/2, myLot=lotHalf(def,rot);
     const myBase=seatY(def,x,z,rot,ignore);
     for(const p of others){

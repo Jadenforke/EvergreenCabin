@@ -32,4 +32,13 @@ for (const kind of ['container','cabin','shed','pavilion']) {
     `${kind} keeps collision checks`);
 }
 
-console.log('placement policy regression: selected outdoor amenities may overlap');
+/* The exemption has to run both ways, or the order you built in decides
+   whether an arrangement is allowed: place the pool first and the cabin that
+   was meant to sit over it is refused. */
+const validateSrc = functionSource('validate');
+const othersLine = validateSrc.split('\n').find(l => l.includes('const others=placed.filter'));
+assert.ok(othersLine, 'validate still builds its list of other objects');
+assert.ok(othersLine.includes('!overlapFree(p.def)'),
+  'objects already standing that may be overlapped never block anything else');
+
+console.log('placement policy regression: selected outdoor amenities may overlap, in both directions');
