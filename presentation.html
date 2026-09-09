@@ -602,7 +602,7 @@ footer{background:var(--paper);border-top:1px solid var(--rule)}
         <div class="plan-frame rv">
           <div class="plan-stage" id="plan-stage">
             <img id="plan-img" tabindex="0" role="button"
-                 aria-label="Expand the master plan render" src="/assets/site/plan-3.webp" alt="Master plan render of the whole parcel, all three phases built out." width="1443" height="1164" loading="lazy" decoding="async">
+                 aria-label="Expand the master plan render" src="/assets/site/plan-phase-3.webp" alt="Master plan render of the parcel with all three phases built out." width="1342" height="1172" loading="lazy" decoding="async">
           </div>
         </div>
       </div>
@@ -1140,10 +1140,16 @@ const SITE = {
      to sit here was calibrated to a satellite capture of the parcel; these
      renders draw the buildings themselves, so the pins came off with it. */
   plan:{ imageW:1443, imageH:1164,
-    images:{ all:"/assets/site/plan-3.webp", current:"/assets/site/plan-current.png",
-             1:"/assets/site/plan-phase-1.png", 2:"/assets/site/plan-phase-2.png",
-             3:"/assets/site/plan-phase-3.png" },
-    alt:{ all:"Master plan render of the whole parcel, all three phases built out.",
+    /* Final project and phase three are the same state, the parcel fully built
+       out, so they show the same render rather than two different pictures of
+       one thing. The oblique plan-3 render that used to sit on 'all' was shot
+       from another camera entirely, which broke the dissolve and meant the
+       view the plan opens on was the only one not drawn from the current
+       renders. */
+    images:{ all:"/assets/site/plan-phase-3.webp", current:"/assets/site/plan-current.webp",
+             1:"/assets/site/plan-phase-1.webp", 2:"/assets/site/plan-phase-2.webp",
+             3:"/assets/site/plan-phase-3.webp" },
+    alt:{ all:"Master plan render of the parcel with all three phases built out.",
           current:"Current site view supplied for the Evergreen Resort master plan.",
           1:"Updated master plan render showing phase one.",
           2:"Master plan render showing phases one and two.",
@@ -1243,10 +1249,10 @@ const DIM={
   "/assets/site/plan-1.webp":[1443,1164],
   "/assets/site/plan-2.webp":[1443,1164],
   "/assets/site/plan-3.webp":[1443,1164],
-  "/assets/site/plan-current.png":[1342,1172],
-  "/assets/site/plan-phase-1.png":[1341,1173],
-  "/assets/site/plan-phase-2.png":[1342,1172],
-  "/assets/site/plan-phase-3.png":[1342,1172],
+  "/assets/site/plan-current.webp":[1342,1172],
+  "/assets/site/plan-phase-1.webp":[1341,1173],
+  "/assets/site/plan-phase-2.webp":[1342,1172],
+  "/assets/site/plan-phase-3.webp":[1342,1172],
   "/assets/site/split-cabins.webp":[1500,1000],
   "/assets/site/split-domes.webp":[1500,1000],
   "/assets/site/split-sport.webp":[1400,1050],
